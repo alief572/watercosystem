@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart
+END
+Layout.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/Layout.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/Exception.php
+END
+Legend.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/Legend.php
+END
+Title.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/Title.php
+END
+DataSeries.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/DataSeries.php
+END
+DataSeriesValues.php
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/DataSeriesValues.php
+END
+PlotArea.php
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Chart/PlotArea.php
+END

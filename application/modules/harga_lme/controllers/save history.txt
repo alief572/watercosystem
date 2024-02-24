@@ -1,0 +1,22 @@
+		$numb1 =0;
+		foreach($_POST['data9'] as $d1){
+		$numb1++;	
+              $dataupdate =  array(
+			                    'status'=>'1',
+                            );
+              $this->db->update("child_history_lme",$dataupdate);
+		    }	
+		foreach($_POST['data9'] as $d1){
+		$numb1++;	
+              $data1 =  array(
+			                    'id_history_lme'=>$code,
+								'id_compotition'=>$d1[idcompotition],
+								'nominal'=>$d1[harga],
+				                'created_on' => date('Y-m-d H:i:s'),
+								'created_by' => $session['id_user'], 
+								'status' => '0'
+                            );
+            //Add Data
+              $this->db->insert('child_history_lme',$data1);
+			
+		    }	

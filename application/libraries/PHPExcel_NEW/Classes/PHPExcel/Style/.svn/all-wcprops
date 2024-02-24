@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style
+END
+Border.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Border.php
+END
+Alignment.php
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Alignment.php
+END
+Color.php
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Color.php
+END
+Borders.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Borders.php
+END
+NumberFormat.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/NumberFormat.php
+END
+Supervisor.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Supervisor.php
+END
+Conditional.php
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Conditional.php
+END
+Fill.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Fill.php
+END
+Font.php
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Font.php
+END
+Protection.php
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Style/Protection.php
+END

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA
+END
+LUDecomposition.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/LUDecomposition.php
+END
+CholeskyDecomposition.php
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/CholeskyDecomposition.php
+END
+SingularValueDecomposition.php
+K 25
+svn:wc:ra_dav:version-url
+V 102
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/SingularValueDecomposition.php
+END
+CHANGELOG.TXT
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/CHANGELOG.TXT
+END
+QRDecomposition.php
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/QRDecomposition.php
+END
+EigenvalueDecomposition.php
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/EigenvalueDecomposition.php
+END
+Matrix.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Shared/JAMA/Matrix.php
+END

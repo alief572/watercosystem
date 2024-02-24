@@ -1,0 +1,606 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2018-07-19 12:14:48 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 13:43:37 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 13:43:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 13:43:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 13:43:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 13:43:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 13:43:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 13:44:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:44:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:45:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:48:16 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:50:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:51:18 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:53:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/karyawan/views/karyawan_form.php 87
+ERROR - 2018-07-19 13:57:07 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 13:57:07 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 13:57:07 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 13:57:07 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 13:57:07 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 13:57:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 13:57:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 13:57:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 13:57:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 13:57:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 13:57:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 602
+ERROR - 2018-07-19 13:59:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 13:59:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 13:59:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 13:59:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 13:59:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 13:59:41 --> Severity: Error --> Call to undefined method Barang_group_model::get_nmgroup() /home/www/importa/application/modules/barang/controllers/Barang.php 639
+ERROR - 2018-07-19 14:03:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:03:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:03:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:03:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:03:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:08:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:08:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:08:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:08:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:08:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:08:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:08:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:08:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:08:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:08:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:09:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:09:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:09:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:09:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:09:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:10:04 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:10:04 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:10:04 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:10:04 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:10:04 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:10:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:10:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:10:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:10:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:10:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:11:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:11:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:11:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:11:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:11:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:11:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:11:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:11:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:11:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:11:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:12:24 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/koli/views/koli_form.php 36
+ERROR - 2018-07-19 14:12:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/koli/views/koli_form.php 36
+ERROR - 2018-07-19 14:12:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:12:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:12:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:12:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:12:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:12:45 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:14:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:14:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:14:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:14:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:14:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:14:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:14:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:14:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:14:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:14:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:14:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:14:29 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:17:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:17:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:17:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:17:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:17:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:17:30 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:17:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:17:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:17:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:17:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:17:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:17:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:19:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:19:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:19:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:19:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:19:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:19:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:25:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:25:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:25:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:25:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:25:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:25:24 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 300
+ERROR - 2018-07-19 14:27:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:27:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:27:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:27:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:27:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:28:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:41:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:41:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:41:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:41:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:41:31 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:41:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:43:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:43:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:46:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:46:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:46:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:46:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:46:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:46:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:46:12 --> Severity: Error --> Call to undefined method Barang_komponen_model::findx() /home/www/importa/application/modules/barang/controllers/Barang.php 826
+ERROR - 2018-07-19 14:46:52 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 14:47:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:47:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:47:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:47:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:47:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:47:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:48:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:48:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:48:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:48:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:48:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:50:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:50:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:50:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:50:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:50:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:50:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:51:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 14:51:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 14:51:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 14:51:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 14:51:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 14:52:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:06:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:06:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:06:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:06:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:06:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:06:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:07:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:07:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:07:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:07:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:07:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:07:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:11:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:11:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:11:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:11:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:11:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:11:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:13:42 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 15:14:02 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:14:02 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:14:02 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:14:02 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:14:02 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:14:04 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:14:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:14:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:14:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:14:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:14:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:14:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:14:25 --> 404 Page Not Found: ../modules/barang/controllers//index
+ERROR - 2018-07-19 15:14:32 --> 404 Page Not Found: ../modules/barang/controllers//index
+ERROR - 2018-07-19 15:16:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:16:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:16:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:16:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:16:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:16:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:19:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:19:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:19:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:19:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:19:03 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:19:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:19:08 --> Query error: Unknown column 'barang_koli.id_kolix' in 'on clause' - Invalid query: SELECT
+        barang_koli.nm_koli,
+        barang_komponen.nm_komponen,
+        barang_komponen.id_komponen,
+        barang_komponen.qty,
+        barang_koli.nm_barang,
+        barang_komponen.keterangan
+        FROM
+        barang_koli
+        INNER JOIN barang_komponen ON barang_komponen.id_koli = barang_koli.id_kolix
+        WHERE
+        id_barang='' and barang_komponen.deleted=0
+ERROR - 2018-07-19 15:19:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:19:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:19:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:19:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:19:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:19:58 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:20:33 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:20:33 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:20:33 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:20:33 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:20:33 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:20:35 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:21:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:21:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:21:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:21:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:21:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:21:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:23:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:23:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:23:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:23:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:23:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:23:56 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:23:56 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:23:56 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:23:56 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:23:56 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:29:29 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 15:40:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:40:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:40:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:40:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:40:55 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:40:57 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:43:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:43:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:43:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:43:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:43:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:43:16 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:43:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:43:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:43:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:43:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:43:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:43:43 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:44:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:44:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:44:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:44:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:44:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:44:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:44:18 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:44:18 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:44:18 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:44:18 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:44:18 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:44:21 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:44:37 --> Query error: Duplicate entry 'HPBC002-K00102' for key 'PRIMARY' - Invalid query: INSERT INTO `barang_komponen` (`id_komponen`, `nm_komponen`, `id_koli`, `qty`, `keterangan`, `sts_aktif`, `created_on`, `created_by`) VALUES ('HPBC002-K00102', 'Baut', 'HPBC002-K001', '1', '', 'aktif', '2018-07-19 15:44:37', '1')
+ERROR - 2018-07-19 15:46:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:46:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:46:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:46:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:46:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:46:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:48:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:48:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:48:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:48:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:48:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:48:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:51:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:51:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:51:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:51:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:51:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:51:58 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:52:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:52:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:52:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:52:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:52:46 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:53:07 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:55:04 --> Query error: Unknown column 'barang_master.id_barangX' in 'field list' - Invalid query: SELECT `barang_master`.`id_barangX`, `barang_jenis`.`nm_jenis`, `barang_group`.`nm_group`, `barang_master`.`nm_barang`, `barang_master`.`satuan` AS `setpcs`, `barang_master`.`sts_aktif`, `barang_koli`.`satuan`, `barang_koli`.`qty`
+FROM `barang_master`
+LEFT JOIN `barang_group` ON `barang_group`.`id_group` = `barang_master`.`id_group`
+LEFT JOIN `barang_jenis` ON `barang_master`.`jenis` = `barang_jenis`.`id_jenis`
+LEFT JOIN `barang_koli` ON `barang_koli`.`id_barang` = `barang_master`.`id_barang`
+WHERE `barang_master`.`deleted` =0
+GROUP BY `barang_master`.`id_barang`
+ORDER BY `nm_barang` ASC
+ERROR - 2018-07-19 15:56:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:56:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:56:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:56:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:56:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:57:44 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:58:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:58:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:58:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:58:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:58:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:58:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 15:59:27 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 15:59:27 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 15:59:27 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 15:59:27 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 15:59:27 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 16:01:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 16:01:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 16:01:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 16:01:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 16:01:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 16:01:20 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 16:01:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:01:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:01:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:01:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:01:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:01:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 602
+ERROR - 2018-07-19 16:02:28 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/koli/views/koli_form.php 36
+ERROR - 2018-07-19 16:02:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/koli/views/koli_form.php 36
+ERROR - 2018-07-19 16:03:30 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/koli/views/koli_form.php 36
+ERROR - 2018-07-19 16:03:42 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/komponen/views/komponen_form.php 36
+ERROR - 2018-07-19 16:03:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/komponen/views/komponen_form.php 36
+ERROR - 2018-07-19 16:03:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/komponen/views/komponen_form.php 36
+ERROR - 2018-07-19 16:04:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:04:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:04:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:04:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:04:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:04:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 602
+ERROR - 2018-07-19 16:07:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:07:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:07:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:07:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:07:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:07:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 602
+ERROR - 2018-07-19 16:07:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:08:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:08:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:08:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:08:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:08:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:08:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 602
+ERROR - 2018-07-19 16:08:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:08:29 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:29 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:29 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:29 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:30 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:30 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:42 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:42 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:43 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:43 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:43 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:08:43 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:16:49 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:16:49 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:16:49 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:16:49 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:16:49 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:16:49 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:18:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:18:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:18:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:18:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:18:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:18:11 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:21:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:21:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:21:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:21:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:21:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:21:41 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:38:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:38:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:38:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:38:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:38:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:38:47 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:41:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:41:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:41:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:41:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:41:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:41:17 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:41:26 --> Severity: 4096 --> Object of class CI_URI could not be converted to string /home/www/importa/application/modules/customer/controllers/Customer.php 1116
+ERROR - 2018-07-19 16:42:13 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:42:13 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:42:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:42:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:43:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:43:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:43:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:43:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:43:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:43:54 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:45:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:45:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:45:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:45:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:45:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:45:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:46:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:46:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:47:12 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:47:12 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:47:12 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:47:12 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:47:12 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:47:12 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:48:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:48:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:48:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:48:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:48:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:48:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:49:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:49:48 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:51:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:51:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:51:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:51:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:51:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:51:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:51:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:51:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:51:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:51:19 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:51:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:51:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:51:34 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 38
+ERROR - 2018-07-19 16:51:34 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 93
+ERROR - 2018-07-19 16:51:34 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 107
+ERROR - 2018-07-19 16:51:34 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 165
+ERROR - 2018-07-19 16:51:34 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 178
+ERROR - 2018-07-19 16:51:34 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 594
+ERROR - 2018-07-19 16:51:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:51:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:52:25 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:52:25 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:52:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:52:40 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:53:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 16:53:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 16:53:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 16:53:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 16:53:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 16:53:14 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 16:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 16:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 16:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 16:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 16:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 16:53:36 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 16:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:53:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:54:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 16:54:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 16:54:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 16:54:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 16:54:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 16:54:15 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 16:55:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:55:26 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:55:55 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 16:58:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 16:58:53 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 16:59:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 16:59:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 16:59:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 16:59:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 16:59:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 16:59:37 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 16:59:49 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:00:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 17:00:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 17:00:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 17:00:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 17:00:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 17:00:32 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 17:01:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 17:01:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 17:01:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 17:01:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 17:01:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 17:01:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 17:03:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 17:03:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 17:03:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 17:03:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 17:03:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 17:03:08 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 17:04:30 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 17:05:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 17:05:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 17:05:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 17:05:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 17:05:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 17:05:05 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 17:05:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 17:05:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 17:05:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 17:05:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 17:05:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 17:05:22 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 17:05:25 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:05:25 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:05:25 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:05:25 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:05:26 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:05:26 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:06:10 --> 404 Page Not Found: /index
+ERROR - 2018-07-19 17:09:56 --> Query error: Duplicate entry 'C201805005-T002' for key 'PRIMARY' - Invalid query: INSERT INTO `customer_toko` (`id_toko`, `id_customer`, `nm_toko`, `status_milik`, `luas`, `thn_berdiri`, `area`, `alamat_toko`, `telpon_toko`, `fax_toko`, `email`, `pic`, `hp_pic`, `hari_tagih`, `jam_tagih`, `syarat_dokumen`, `alamat_tagih`, `metode_bayar`, `sistem_bayar`, `kredit_limit`, `termin_bayar`, `created_on`, `created_by`) VALUES ('C201805005-T002', 'C201805005', '111', 'MILIK', '111', '111', '111', '111', '', '', '', '111', '111', 'a:1:{i:0;s:5:\"Senin\";}', '05:00 PM', 'a:1:{i:0;s:11:\"Surat Jalan\";}', '111', 'TRANSFER', 'Pembayaran Sebelum Pengiriman', '', '', '2018-07-19 17:09:56', '1')
+ERROR - 2018-07-19 17:10:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 17:10:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 17:10:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 17:10:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 17:10:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 17:10:06 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 17:34:15 --> Severity: Notice --> Undefined variable: nama_program /home/www/importa/application/modules/users/views/login_animate.php 6
+ERROR - 2018-07-19 17:34:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 24
+ERROR - 2018-07-19 17:34:59 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/deliveryorder_2/views/deliveryorder_form.php 49
+ERROR - 2018-07-19 17:37:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 29
+ERROR - 2018-07-19 17:37:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 48
+ERROR - 2018-07-19 17:37:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 110
+ERROR - 2018-07-19 17:37:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 204
+ERROR - 2018-07-19 17:37:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/barang/views/barang_form.php 301
+ERROR - 2018-07-19 18:11:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 18:11:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 18:11:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 18:11:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 18:11:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 18:11:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 18:20:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 18:20:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 18:20:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 18:20:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 18:20:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 18:20:09 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 18:20:13 --> Severity: Notice --> Undefined variable: datkota /home/www/importa/application/modules/cabang/views/cabang_form.php 82
+ERROR - 2018-07-19 18:20:13 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/cabang/views/cabang_form.php 82
+ERROR - 2018-07-19 18:22:38 --> Query error: Duplicate entry 'C201805005-T005' for key 'PRIMARY' - Invalid query: INSERT INTO `customer_toko` (`id_toko`, `id_customer`, `nm_toko`, `status_milik`, `luas`, `thn_berdiri`, `area`, `alamat_toko`, `telpon_toko`, `fax_toko`, `email`, `pic`, `hp_pic`, `hari_tagih`, `jam_tagih`, `syarat_dokumen`, `alamat_tagih`, `metode_bayar`, `sistem_bayar`, `kredit_limit`, `termin_bayar`, `created_on`, `created_by`) VALUES ('C201805005-T005', 'C201805005', 'mmm', 'MILIK', '111', '111', '11', '111', '', '', '', '111', '11', 'a:1:{i:0;s:4:\"Rabu\";}', '06:00 PM', 'a:1:{i:0;s:12:\"Berita Acara\";}', '111', 'TRANSFER', 'Pembayaran Sebelum Pengiriman', '', '', '2018-07-19 18:22:38', '1')
+ERROR - 2018-07-19 18:22:46 --> Query error: Duplicate entry 'C201805005-T005' for key 'PRIMARY' - Invalid query: INSERT INTO `customer_toko` (`id_toko`, `id_customer`, `nm_toko`, `status_milik`, `luas`, `thn_berdiri`, `area`, `alamat_toko`, `telpon_toko`, `fax_toko`, `email`, `pic`, `hp_pic`, `hari_tagih`, `jam_tagih`, `syarat_dokumen`, `alamat_tagih`, `metode_bayar`, `sistem_bayar`, `kredit_limit`, `termin_bayar`, `created_on`, `created_by`) VALUES ('C201805005-T005', 'C201805005', 'mmmx', 'MILIK', '111', '111', '11', '111', '', '', '', '111', '11', 'a:1:{i:0;s:4:\"Rabu\";}', '06:00 PM', 'a:1:{i:0;s:12:\"Berita Acara\";}', '111', 'TRANSFER', 'Pembayaran Sebelum Pengiriman', '', '', '2018-07-19 18:22:46', '1')
+ERROR - 2018-07-19 18:23:18 --> Query error: Duplicate entry 'C201805005-T005' for key 'PRIMARY' - Invalid query: INSERT INTO `customer_toko` (`id_toko`, `id_customer`, `nm_toko`, `status_milik`, `luas`, `thn_berdiri`, `area`, `alamat_toko`, `telpon_toko`, `fax_toko`, `email`, `pic`, `hp_pic`, `hari_tagih`, `jam_tagih`, `syarat_dokumen`, `alamat_tagih`, `metode_bayar`, `sistem_bayar`, `kredit_limit`, `termin_bayar`, `created_on`, `created_by`) VALUES ('C201805005-T005', 'C201805005', 'mmmx', 'MILIK', '111', '111', '11', '111', '', '', '', '111', '11', 'a:1:{i:0;s:4:\"Rabu\";}', '06:00 PM', 'a:1:{i:0;s:12:\"Berita Acara\";}', '111', 'TRANSFER', 'Pembayaran Sebelum Pengiriman', '', '', '2018-07-19 18:23:18', '1')
+ERROR - 2018-07-19 18:24:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 18:24:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 18:24:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 18:24:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 18:24:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 18:24:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 18:41:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 18:41:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 18:41:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 18:41:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 18:41:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 18:41:51 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 18:46:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 18:46:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 18:46:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 18:46:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 18:46:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 18:46:39 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
+ERROR - 2018-07-19 18:49:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 50
+ERROR - 2018-07-19 18:49:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 105
+ERROR - 2018-07-19 18:49:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 119
+ERROR - 2018-07-19 18:49:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 177
+ERROR - 2018-07-19 18:49:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 190
+ERROR - 2018-07-19 18:49:10 --> Severity: Warning --> Invalid argument supplied for foreach() /home/www/importa/application/modules/customer/views/customer_form.php 606
