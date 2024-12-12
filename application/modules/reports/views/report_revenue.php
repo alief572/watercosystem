@@ -85,6 +85,7 @@ width: 85%;
 				$invc =  implode($separator, $allinv);
 				
 			?>
+		<?php if(!empty($invc)) {?>
 		<tr>
 		    <td><?= $numb; ?></td>
 			<td><?=  date('d-F-Y', strtotime($record->tgl_so)) ?></td>
@@ -96,6 +97,7 @@ width: 85%;
          
 
 		</tr>
+		<?php }  ?>
 		<?php }  ?>
 		</tbody>
 		

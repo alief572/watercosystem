@@ -352,7 +352,7 @@
 			<tr><td align='right'></td></tr>
 			<tr><td align='right'></td></tr>
 			<tr><td align='center'><u></u></td></tr>
-			<tr><td align='center'>(Andri Samal)</td></tr>	
+			<tr><td align='center'>(Rengky)</td></tr>	
 			</table>
 			</td>
 		</tr>

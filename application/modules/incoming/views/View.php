@@ -110,15 +110,18 @@ $suplier	= $this->db->query("SELECT * FROM master_supplier WHERE id_suplier = '"
 					<th class='text-center'>Produk</th>
 					<th class='text-center'>Qty Order</th>
 					<th class='text-center'>Qty Terima</th>
+					<th class='text-center'>Harga Satuan</th>
+					<th class='text-center'>Total Harga</th>
 				</tr>
 			</thead>
 			<tbody id="data_request">
 			<?php
 		$loop=0;
-					foreach ($results['detail'] as $material){
-					$no_po	= substr($material->id_dt_po,0,8);
-					$mt     = $this->db->query("SELECT * FROM tr_purchase_order WHERE no_po = '".$no_po."'  ")->row();
-					$no_surat = $mt->no_surat;
+	foreach ($results['detail'] as $material){
+	$no_po	= substr($material->id_dt_po,0,8);
+	$mt     = $this->db->query("SELECT * FROM tr_purchase_order WHERE no_po = '".$no_po."'  ")->row();
+	$no_surat = $mt->no_surat;
+	$total    += $material->harga_satuan_usd * $material->qty_recive;
 					
 		$loop++;
 		echo "
@@ -127,11 +130,21 @@ $suplier	= $this->db->query("SELECT * FROM master_supplier WHERE id_suplier = '"
 			<td class='text-left'>".$material->nama_material."</td>
 			<td class='text-right'>".number_format($material->qty_order)."</td>
 			<td class='text-center'>".number_format($material->qty_recive)."</td>
+			<td class='text-center'>".number_format($material->harga_satuan_usd,2)."</td>
+			<td class='text-center'>".number_format($material->harga_satuan_usd * $material->qty_recive,2)."</td>
 			
 		</tr>
 		";
 		}
 			?>
+			<tr class='bg-blue'>
+					<th class='text-center'></th>
+					<th class='text-center'>Total</th>
+					<th class='text-center'></th>
+					<th class='text-center'></th>
+					<th class='text-center'></th>
+					<th class='text-center'><?=number_format($total,2)?></th>
+				</tr>
 			</tbody>
 			</table>
 		</div>

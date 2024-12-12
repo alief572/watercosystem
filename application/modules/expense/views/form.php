@@ -62,7 +62,7 @@ if(!isset($data->departement)){
 		<div class="box box-primary">
 			<div class="box-body">
 				<div class="form-group ">
-					<label class="col-sm-2 col-md-2 control-label">No Dokumen</label>
+					<label class="col-sm-2 col-md-2 control-label">Voucher Number</label>
 					<div class="col-sm-4 col-md-4">
 						<input type="text" class="form-control" id="no_doc" name="no_doc" value="<?php echo (isset($data->no_doc) ? $data->no_doc: ""); ?>" placeholder="Automatic" readonly>
 					</div>
@@ -72,11 +72,15 @@ if(!isset($data->departement)){
 					</div>
 				</div>
 				<div class="form-group ">
-					<label class="col-sm-2 col-md-2 control-label">Keterangan <b class="text-red">*</b></label>
+					<label class="col-sm-2 col-md-2 control-label">Paid To <b class="text-red">*</b></label>
 					<div class="col-sm-4">
-						<input type="text" class="form-control" id="informasi" name="informasi" value="<?php echo (isset($data->informasi) ? $data->informasi: ""); ?>" placeholder="Keterangan" required>
+						<input type="text" class="form-control" id="informasi" name="informasi" value="<?php echo (isset($data->informasi) ? $data->informasi: ""); ?>" placeholder="Paid To" required>
 					</div>
+					<label class="col-sm-2 col-md-2 control-label">Note</label>		
+							
 					<div class="col-md-4">
+					<input type="text" class="form-control" id="note" name="note" value="<?php echo (isset($data->note) ? $data->note: ""); ?>" placeholder="Note" required>
+					
 					<?php
 					if(isset($data->st_reject)){
 						if($data->st_reject!=''){
@@ -106,6 +110,11 @@ if(!isset($data->departement)){
 						?>
 						</select>
 					</div>
+					<label class="col-md-2 control-label">Bank</label>
+					<div class="col-md-4">
+						<?php
+							echo form_dropdown('bank_nama',$data_coa, (isset($data->bank_nama)?$data->bank_nama:''),array('id'=>'bank_nama','class'=>'form-control select2','style'=>'width:90%'));?>
+					</div>
 				</div>	
 				<div class="hidden">
 				<h4>Transfer ke</h4>
@@ -129,8 +138,8 @@ if(!isset($data->departement)){
 				<thead>
 					<tr>
 					<th width="5" scope="col" class="column-primary">#</th>
-					<th scope="col" width="250">Jenis dan<br /> Tanggal</th>
-					<th scope="col" width="250">Barang/Jasa <br />&Keterangan</th>
+					<th scope="col" width="250">Nama Coa<br /> Tanggal</th>
+					<th scope="col" width="250">Description</th>
 					<th scope="col" width=150 nowrap>Jumlah</th>
 					<th scope="col" width=200 nowrap>Harga Satuan</th>
 					<th scope="col" width="200">Expense</th>

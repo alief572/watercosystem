@@ -147,12 +147,12 @@ class Invoice_np extends Admin_Controller {
 
 	function print_pdf($id){
 		$sroot 		= $_SERVER['DOCUMENT_ROOT'];
-		include $sroot."/application/libraries/MPDF57/mpdf.php";
+		include $sroot."watercosystem/application/libraries/MPDF57/mpdf.php";
 		$data_session	= $this->session->userdata;
 		$mpdf		= new mPDF('utf-8','A4');
 		$mpdf->SetImportUse();
 		$gethd 		= $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_invoice='$id'")->row();
-		$getdtl		= $this->db->query("SELECT * FROM tr_invoice_np_detail WHERE no_invoice='".$gethd->no_invoice."'")->result();
+		$getdtl		= $this->db->query("SELECT * FROM tr_invoice_np_detail WHERE id_invoice='$id'")->result();
 		$nomordoc	= $gethd->no_invoice;
 		$tgl       	= $gethd->tgl_invoice;
 		$Jml_Ttl   	= $gethd->total_invoice;
@@ -161,9 +161,8 @@ class Invoice_np extends Admin_Controller {
 		$Bln 		= substr($tgl,5,2);
 		$Thn 		= substr($tgl,0,4);
 
-        $customer 	= $this->db->query("SELECT * FROM customer WHERE id_customer = '".$gethd->id_customer."'")->row();
-        $pic_customer 	= $this->db->query("SELECT * FROM customer_pic WHERE id_pic = '".$customer->id_pic."'")->row();
-
+        $customer 	= $this->db->query("SELECT * FROM master_customers WHERE id_customer = '".$gethd->id_customer."'")->row();
+       
 		$count 			= $this->db->query("SELECT COUNT(no_invoice) as total FROM tr_invoice_np_detail WHERE no_invoice ='".$gethd->no_invoice."'")->row();
 		$count1			= $count->total;
 
@@ -171,18 +170,15 @@ class Invoice_np extends Admin_Controller {
 		$detail  		= $getdtl;
 
 		$data['customer']	= $customer;
-		$data['pic_customer']= $pic_customer;
 		$data['total'] 		= $total;
 		$data['results']  	= $detail;
 		$data['user'] 		= $data_session['ORI_User']['username'];
-		if($gethd->base_cur=='IDR'){
-			$show 		= $this->load->view('Invoice_np/print_invoice_idr', $data ,TRUE);
-		}else{
-			$show 		= $this->load->view('Invoice_np/print_invoice_usd', $data ,TRUE);
-		}
+		
+		$show 		= $this->load->view('print_invoice_idr', $data ,TRUE);
+		
         $mpdf->AddPageByArray([
                 'orientation' => 'P',
-                'margin-top' => 80,
+                'margin-top' => 10,
                 'margin-bottom' => 15,
                 'margin-left' => 15,
                 'margin-right' => 15,
@@ -306,7 +302,10 @@ class Invoice_np extends Admin_Controller {
 						'no_pajak'=>$no_pajak,
 						'keterangan'=>$keterangan,
 						'modified_by'=> $UserName,
-						'modified_date'=>$dateTime
+						'modified_date'=>$dateTime,
+						'sisa_invoice_idr'=>$total_invoice_usd,
+						'sisa_invoice'=>$total_invoice_usd,
+						'printed_on'=>'1'
 					);
 			$result = $this->All_model->dataUpdate('tr_invoice_np_header',$data,array('id_invoice'=>$id_invoice));
 			
@@ -368,7 +367,10 @@ class Invoice_np extends Admin_Controller {
 						'no_pajak'=>$no_pajak,
 						'keterangan'=>$keterangan,
 						'created_by'=> $UserName,
-						'created_date'=>$dateTime
+						'created_date'=>$dateTime,
+						'sisa_invoice_idr'=>$total_invoice_usd,
+						'sisa_invoice'=>$total_invoice_usd,
+						'printed_on'=>'1'
 					);
             $id_invoice = $this->All_model->dataSave('tr_invoice_np_header',$data);
             if(is_numeric($id_invoice)) {

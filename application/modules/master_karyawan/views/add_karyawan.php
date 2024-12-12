@@ -170,6 +170,16 @@ thead input {
 								 <input type="text" class="form-control" id="norekening" required name="norekening" placeholder="No Rekening">
 							</div>
 			</div>
+			
+			<div class="form-group row">
+				<div class="col-md-2">
+							  <label for="">Tanda Tangan</label>
+							</div>
+							 <div class="col-md-6">
+								 <input type="file" class="form-control" id="tanda_tangan" required name="tanda_tangan" value="<?= $karyawan->tanda_tangan ?>" placeholder="Tanda tangan">
+							</div>
+			</div>
+			
 			<div class="form-group row">
 			<div class="col-md-3">
 			<button type="submit" class="btn btn-primary" name="save" id="save"><i class="fa fa-save"></i> Save</button>

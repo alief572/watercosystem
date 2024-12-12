@@ -1,6 +1,21 @@
+
+<?php
+	$tanggal = date('Y-m-d');
+foreach ($head as $val =>$head){
+}	
+
+foreach ($hutang as $val =>$hutang){
+}
+
+//print_r($supplier);
+//exit;
+
+?>
+
+
 <html>
  <head>
-  <title> PO PAYMENT REQUEST</title>
+  <title> PO REQUEST PAYMENT</title>
  </head>
 <body>
 <style>
@@ -15,49 +30,71 @@ table.garis {
 
 <?php
 
-foreach ($results['detail'] as $dt){
-$noexpense = $dt->id_incoming;
-}
+$noexpense = $data->no_doc;
+$bank = $data->bank_nama;
+$bk = $this->db->query("SELECT nama FROM gl_waterco.coa_master WHERE no_perkiraan='$bank'")->row();
+$nama = $bk->nama;
+$tgl = $data->tgl_doc;
+$informasi = $data->informasi;
+
+$idsupp = $head->id_suplier;
+
+$nm = $this->db->query("SELECT * FROM master_supplier WHERE id_suplier='$idsupp'")->row();
+$nm_supp = $nm->name_suplier;
+
 ?>
 </style>
 <table cellpadding=2 cellspacing=0 border=0 width=650>
 <tr>
-	<th colspan=8>BANK PAYMENT VOUCHER <br> No Incoming : &nbsp;<?= $noexpense ?></th>
+	<th colspan=8>PO REQUEST PAYMENT <br> &nbsp;</th>
+	<th></th>
+	<th></th>
 	
 </tr>
+<tr>
+	<th>NO PO </th>
+	<th>:</th>
+	<th width=300  align="left"><?= $head->no_surat ?></th>
+</tr>
+<tr>
+	<th>NO INCOMING </th>
+	<th>:</th>
+	<th width=300  align="left"><?= $hutang->id_incoming ?></th>
+</tr>
+<tr>
+	<th>SUPPLIER</th>
+	<th>:</th>
+	<th width=300  align="left"><?= $nm_supp ?></th>
+	
+</tr>
+<tr>
+	<th>TGL REQUEST</th>
+	<th>:</th>
+	<th width=300  align="left"><?= $hutang->tgl_request_bayar ?></th>
+	
+</tr>
+&nbsp;</br>
 <tr>
 	<td colspan=8>
 	<table cellpadding=2 cellspacing=0 border=1 width=650 class="garis">
 	<tr>
-		<th nowrap>No</th>
-		<th nowrap>Tgl Pengajuan</th>
-		<th nowrap>No COA</th>
-		<th nowrap>Deskripsi</th>
-		<th nowrap>Jumlah</th>
+	    <th nowrap>Mata Uang</th>
+		<th nowrap>Total PO</th>
+		<th nowrap>Nilai Hutang USD</th>
+		<th nowrap>Nilai Hutang IDR</th>
+		<th nowrap>Nilai Request Bayar</th>
 	</tr>
-	<?php $total_expense=0; $total_tol=0;$total_parkir=0;$total_kasbon=0; $idd=1; $total_km=0; $grand_total=0;$i=0;$gambar="";
-	if(!empty($data_detail)){
-		foreach($data_detail AS $record){ $i++;?>
+	
 		<tr>
-			<td><?=$i;?></td>
-			<td><?=tgl_indo($data->tgl_doc);?></td>
-			<td><?=$record->coa;?></td>
-			<td><?=$record->deskripsi;?></td>
-			<td align="right"><?=number_format($record->expense);?></td>
+		    <td align='center'><?= strtoupper(strtolower($hutang->matauang)) ?></td>
+			<td align='right'><?= number_format($head->subtotal,2) ?></td>
+			<td align='right'><?= number_format($hutang->hutang_kurs,2) ?></td>
+			<td align='right'><?= number_format($hutang->hutang_idr)?></td>
+			<td align='right'><?= number_format($hutang->rencana_bayar_idr,2)?></td>
+			
 		</tr>
 		<?php
-			if($record->doc_file!=''){
-				 if(strpos($record->doc_file,'pdf',0)>1){
-					 $gambar.='<iframe src="'.base_url('assets/expense/'.$record->doc_file).'#toolbar=0&navpanes=0" title="PDF" style="width:600px; height:500px;" frameborder="0"></iframe><br /><br />';
-				 }else{
-					$gambar.='<img src="assets/expense/'.$record->doc_file.'" width="500"><br />';
-				 }
-			}
-			$total_expense=($total_expense+($record->expense));
-			$idd++;
-		}
-	}
-	$grand_total=($total_expense);
+			
 	for($x=0;$x<(5-$i);$x++){
 	echo '
 		<tr>
@@ -71,44 +108,19 @@ $noexpense = $dt->id_incoming;
 	';
 	}
 	?>
-	<tr>
-	    <td colspan=4 align=center><strong>PPN (<?=$data->add_ppn_coa;?>)</strong></td>
-		<td align="right"><?=number_format($data->add_ppn_nilai);?></td>
-		
-	</tr>
-	<tr>
-	    
-		<td colspan=4 align=center><strong>PPH ( <?=$data->add_pph_coa;?>)</strong></td>
-		<td align="right"><?=number_format($data->add_pph_nilai);?></td>
-		
-	</tr>
-	<tr>
-	    
-		<td colspan=4 align=center><strong>Total</strong></td>
-		<td align="right"><?=number_format($data->jumlah);?></td>
-	</tr>
-	</table>
-	</td>
-</tr>
-
-
+	
 
 <tr>
 	<td colspan=2 align=center>Mengajukan</td>
-	<td></td>
+	
 	<td align=center colspan=2>Mengetahui</td>
-	<td></td>
+	
 	<td align=center>Menyetujui</td>
 </tr>
-<tr>
-	<td colspan=5>&nbsp;</td>
-</tr>
 <tr height=120>
-	<td colspan=2 align=center nowrap valign="bottom" width=100></u><br /><?=tgl_indo($data->created_on);?>&nbsp;</td>
-	<td width=25>&nbsp;</td>
-	<td colspan=2 align=center nowrap valign="bottom" width=120
-	<u>&nbsp;  &nbsp;</u><br /><?=tgl_indo($data->approved_on);?> &nbsp;</td>
-	<td>&nbsp;</td>
+	<td colspan=2 align=center nowrap valign="bottom" width=100></u><br /></td>
+	<td colspan=2 align=center nowrap valign="bottom" width=120>
+	<u>&nbsp;  &nbsp;</u><br /></td>
 	<td align=center nowrap valign="bottom"><u>&nbsp; &nbsp; &nbsp; &nbsp; </u><br /></td>
 </tr>
 </table>
@@ -117,3 +129,9 @@ $noexpense = $dt->id_incoming;
 
 </body>
 </html>
+
+
+
+				  
+				  
+		 

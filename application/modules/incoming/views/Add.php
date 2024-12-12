@@ -136,6 +136,30 @@
 			
 					</div>
 				</div>
+				<div class="col-sm-12" >
+					<div class="col-sm-6">
+						<div class="form-group row">
+							<div class="col-md-4">
+								<label for="customer"></label>
+							</div>
+							<div class="col-md-8">
+								<input type="hidden" class="form-control">
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6">
+						<div class="form-group row">
+							<div class="col-md-4">
+								<label for="customer">Grand Total</label>
+							</div>
+							<div class="col-md-8">
+								<input type="text" class="form-control input-sm grandTotal" name="grandTotal" id="grandTotal" readonly></h3>
+							</div>
+						</div>
+					</div>
+							
+					
+				</div>
 				<center>
 					<button type="submit" class="btn btn-success btn-sm" name="save" id="simpan-com"><i class="fa fa-save"></i>Simpan</button>
 				</center>
@@ -370,6 +394,17 @@
         });
     }
 	
+	function grandTotal(){
+		
+		var SUMx = 0;
+		$(".totalHarga" ).each(function() {
+			SUMx += Number($(this).val().split(",").join(""));
+		});
+		
+		$('.grandTotal').val(number_format(SUMx,2));	
+		
+		}
+	
 	$(document).on('click','.repeatSubPart', function(){
 		var nopo	= $(this).data('id');
 		var no		= $(this).data('no2');
@@ -401,14 +436,7 @@
                $("#jumlahharga_"+id).html(html);
             }
         });
-		 $.ajax({
-            type:"GET",
-            url:siteurl+'purchase_order/TotalWeight',
-            data:"dt_width="+dt_width+"&dt_qty="+dt_qty+"&id="+id,
-            success:function(html){
-               $("#totalwidth_"+id).html(html);
-            }
-        });
+		 
     }
 	function get_kurs(){
         var loi=$("#loi").val();
@@ -616,22 +644,21 @@
 	function cariPanjang(id,no){
 		
       	var beratpackinglist 	= getNum($("#dt_widthrecive"+id+"_"+no).val().split(",").join(""));
+		
+		
 		var thickness		    = getNum($("#dt_thickness_"+id+"_"+no).val());
-		var width				= getNum($("#dt_weight_"+id+"_"+no).val());
-		var density				= getNum($("#dt_density_"+id+"_"+no).val());
-		
-		
-		console.log(beratpackinglist);
-		console.log(thickness);
-		console.log(width);
-		console.log(density);
+		var jumlah				= getNum($("#dt_qtyrecive_"+id+"_"+no).val());
+		var harga				= getNum($("#dt_hargasatuan_"+id+"_"+no).val());
 
 		
-		var panjang 	= beratpackinglist / (thickness * width * density );
+		var panjang 	=(jumlah * harga);
 				
 
 		
-		$("#dt_panjang2_"+id+"_"+no).val(number_format(panjang*1000)); 
+		$("#dt_totalharga_"+id+"_"+no).val(panjang); 
+		
+		grandTotal();
+
 	
 
     }

@@ -81,6 +81,43 @@ class Master_karyawan extends Admin_Controller
 		$this->auth->restrict($this->editPermission);
 		$post = $this->input->post();
 		$this->db->trans_begin();
+		
+		$config['upload_path'] = './assets/files/tandatangan/'; //path folder
+	    $config['allowed_types'] = 'gif|jpg|png|jpeg'; //type yang dapat diakses bisa anda sesuaikan
+	    $config['encrypt_name'] = false; //Enkripsi nama yang terupload
+
+	    $this->upload->initialize($config);
+	   
+
+	        if ($this->upload->do_upload('tanda_tangan')){
+	            $gbr = $this->upload->data();
+				
+				
+	            //Compress Image
+	            $config['image_library']='gd2';
+	            $config['source_image']='./assets/files/tandatangan/'.$gbr['file_name'];
+	            $config['create_thumb']= FALSE;
+				$config['overwrite']= TRUE;
+	            $config['maintain_ratio']= FALSE;
+	            $config['quality']= '50%';
+	            $config['width']= 260;
+	            $config['height']= 350;
+	            $config['new_image']= './assets/files/tandatangan/'.$gbr['file_name'];
+	            $this->load->library('image_lib', $config);
+	            $this->image_lib->resize();
+
+	            $gambar  =$gbr['file_name'];
+				$type    =$gbr['file_type'];
+				$ukuran  =$gbr['file_size'];
+				$ext1    =explode('.', $gambar);
+				$ext     =$ext1[1];
+				$lokasi = $gbr['file_name'];	
+			}else{
+				$lokasi= $post['old_tanda_tangan'];
+			}
+			
+			
+			
 		$data = [
 			'nik'					=> $post['nik'],
 			'nama_karyawan'			=> $post['nama_karyawan'],
@@ -99,7 +136,8 @@ class Master_karyawan extends Admin_Controller
 			'sts_karyawan'			=> $post['sts_karyawan'],
 			'norekening'			=> $post['norekening'],
 			'modified_on'		=> date('Y-m-d H:i:s'),
-			'modified_by'		=> $this->auth->user_id()
+			'modified_by'		=> $this->auth->user_id(),
+			'tanda_tangan'			=> $lokasi,
 		];
 	 
 		$this->db->where('id_karyawan',$post['id_karyawan'])->update("ms_karyawan",$data);

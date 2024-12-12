@@ -515,10 +515,18 @@ class Expense extends Admin_Controller
         $id_kasbon		= $this->input->post("id_kasbon");
         $grand_total		= $this->input->post("grand_total");
 		
+		
+		// print_r( $grand_total);
+		// exit;
+		
+		
 		$add_ppn_nilai	= $this->input->post("add_ppn_nilai");
         $add_ppn_coa	= '1108-01-01';
         $add_pph_nilai	= $this->input->post("add_pph_nilai");
         $add_pph_coa	= $this->input->post("add_pph_coa");
+		
+		$bank_nama		= $this->input->post("bank_nama");
+        $note    		= $this->input->post("note");
 
 		$this->db->trans_begin();
         if($id!="") {
@@ -537,7 +545,9 @@ class Expense extends Admin_Controller
 						'add_ppn_nilai'=>$add_ppn_nilai,
 						'add_ppn_coa'=>$add_ppn_coa,
 						'add_pph_nilai'=>$add_pph_nilai,
-						'add_pph_coa'=>$add_pph_coa
+						'add_pph_coa'=>$add_pph_coa,
+						'bank_nama'=>$bank_nama,
+						'note'=>$note
 
 					);
 			$result = $this->All_model->dataUpdate(DBERP.'.tr_expense',$data,array('id'=>$id));
@@ -618,6 +628,8 @@ class Expense extends Admin_Controller
 						'jumlah'=>$grand_total,
 						'created_by'=> $this->auth->user_name(),
 						'created_on'=>date("Y-m-d h:i:s"),
+						'bank_nama'=>$bank_nama,
+						'note'=>$note,
 					);
             $id = $this->All_model->dataSave(DBERP.'.tr_expense',$data);
 			// update budget
@@ -719,8 +731,24 @@ class Expense extends Admin_Controller
         $add_ppn_coa	= '1108-01-01';
         $add_pph_nilai	= $this->input->post("add_pph_nilai");
         $add_pph_coa	= $this->input->post("add_pph_coa");
+		$note    		= $this->input->post("note");
 
 		$this->db->trans_begin();
+			
+		
+		    $data = array(
+						'jumlah'=>$grand_total,
+						'informasi'=>$informasi,
+						'modified_by'=> $this->auth->user_name(),
+						'modified_on'=>date("Y-m-d h:i:s"),
+						'add_ppn_nilai'=>$add_ppn_nilai,
+						'add_ppn_coa'=>$add_ppn_coa,
+						'add_pph_nilai'=>$add_pph_nilai,
+						'add_pph_coa'=>$add_pph_coa,
+						'note'=>$note
+					);
+			$result = $this->All_model->dataUpdate(DBERP.'.tr_expense',$data,array('id'=>$id));
+
       
 			
 			$this->All_model->dataDelete(DBERP.'.tr_expense_detail',array('no_doc'=>$no_doc));

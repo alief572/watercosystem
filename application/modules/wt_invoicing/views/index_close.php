@@ -17,7 +17,7 @@ thead input {
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="example2" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th>#</th>
@@ -28,6 +28,7 @@ thead input {
 			<th>Payment</th>
             <th>Nilai<br>Invoice</th>
 			<th>Total<br>Bayar</th>
+			<th>Sisa<br>Nilai</th>
 			<th>Tanggal<br>Invoice</th>
 			<th>Janji<br>Bayar</th>
 			<th>Umur<br>Piutang</th>
@@ -65,7 +66,8 @@ thead input {
 			<td><?= $record->nama_top ?></td>
 			<td><?= $record->payment ?></td>
             <td><?= number_format($record->nilai_invoice) ?></td>
-			<td><?= number_format($record->total_bayar) ?></td>
+			<td><?= number_format($record->total_bayar_idr) ?></td>
+			<td><?= number_format($record->nilai_invoice - $record->total_bayar_idr)?></td>
 			<td><?= date('d-F-Y', strtotime($record->tgl_invoice)) ?></td>
 			<td><?= $tgl_janji ?></td>
 			<td><?= $umur ?></td>
@@ -144,8 +146,27 @@ thead input {
 <script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js')?>"></script>
 <script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js')?>"></script>
 
+
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+
 <!-- page script -->
 <script type="text/javascript">
+
+	  $(document).ready(function() {
+            $('#example2').DataTable( {
+	        orderCellsTop: true,
+	        fixedHeader: true,
+			scrollX: true,
+            dom: 'Blfrtip',
+			buttons: [
+				{
+                extend: 'excel',
+            }],			
+	        } );
+        } );
+		
 
 	$(document).on('click', '.history', function(e){
 		var id = $(this).data('no_invoice');

@@ -81,7 +81,7 @@ if ($data_perkiraan) {
 											{ ?>
 										
 										    <tr bgcolor='#DCDCDC'>
-												<td><input type="text" id="tgl_jurnal'.$no.'" name="tgl_jurnal[]" value="<?=$row->tanggal?>" class="form-control" readonly/></td>
+												<td><input type="date" id="tgl_jurnal'.$no.'" name="tgl_jurnal[]" value="<?=$row->tanggal?>" class="form-control"/></td>
 												<td><input type="text" id="type'.$no.'" name="type[]" value="<?= $row->tipe ?>" class="form-control" readonly /></td>
 												<td>
 												<select id="no_coa'.$no.'" name="no_coa[]" class="form-control input-sm" readonly style="width: 100%;" readonly='readonly'>

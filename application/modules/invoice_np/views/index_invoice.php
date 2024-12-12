@@ -57,7 +57,7 @@ thead input {
             <td><?= number_format($record->total_invoice_idr) ?></td>			
             <td style="padding-left:20px">
 			<?php if($ENABLE_MANAGE AND $record->no_invoice !='') : ?>
-				<a class="btn btn-success btn-sm" href="<?= base_url('/invoice_np/data_form/'.$record->id_invoice.'/view/') ?>" target="_blank" title="View Invoice"><i class="fa fa-print"></i>
+				<a class="btn btn-success btn-sm" href="<?= base_url('invoice_np/print_pdf/'.$record->id_invoice) ?>" target="_blank" title="View Invoice"><i class="fa fa-print"></i>
 				</a>
 			<?php endif; ?>
 			

@@ -38,12 +38,16 @@ class Jurnal_nomor extends CI_Controller {
 		$id		= $this->uri->segment(3);
 	   	$kodejurnal = $this->uri->segment(4);
 		$ket = $this->uri->segment(5);
+		
+		// print_r($id);
+		// exit;
 
 		if($ket =='jurnalrevenue'){
         $noso = $this->db->query("select * FROM tr_revenue WHERE id='$id'")->row();
 		
 		$nomorSO = $noso->no_surat;
 		$so = $noso->no_so;
+		 $Tgl_Invoice = $noso->tgl_so;
 		
 		$invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so='$so'")->result();
 		$separator =',';
@@ -56,7 +60,7 @@ class Jurnal_nomor extends CI_Controller {
 		
 		$invc =  implode($separator, $allinv);
 
-        $Tgl_Invoice = date('Y-m-d');
+        //$Tgl_Invoice = date('Y-m-d');
 
 		$no_request = $id;
 		$tgl_voucher =$Tgl_Invoice;

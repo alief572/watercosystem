@@ -522,18 +522,21 @@ function get_customer(){
 
 		function HitungTotal(id){
 	    var qty=$('#used_qty_'+id).val();
+		var qty_stok=$('#used_stok_tersedia_'+id).val();
 		var harga=$('#used_harga_satuan_'+id).val().split(",").join("");
 		var diskon=$('#used_diskon_'+id).val();
 		var diskonCompare=$('#used_compare_diskon_'+id).val();
 		var freight=$('#used_freight_cost_'+id).val().split(",").join("");
-		
+		var status =$('#order_sts').val(); 
 		
 		
 		var valDiscon = getNum(diskon)
 		var valDisconcompare = getNum(diskonCompare)
 		
-		console.log(valDiscon);
-		console.log(valDisconcompare);
+		var valqty      = getNum(qty)
+		var valqty_stok = getNum(qty_stok)
+		
+		
 		
 
 		if (valDiscon > valDisconcompare) {
@@ -545,6 +548,17 @@ function get_customer(){
 				});
 				
 				$('#used_diskon_'+id).val(diskonCompare);
+				
+				return false;
+		}else if (valqty > valqty_stok && status !='ind') {
+				swal({
+					title: "Warning!",
+					text: "Qty Melebihi Stok!",
+					type: "warning",
+					timer: 3000
+				});
+				
+				$('#used_qty_'+id).val(valqty_stok);
 				
 				return false;
 		}else 

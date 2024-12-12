@@ -247,10 +247,10 @@ foreach (@$headerso as $hdo => $hd) {
 				}
 			})
 
-			// if (valid > 0) {
-				// swal("Warning", "Stok ada yang kosong, silahkan di cek kembali :)", "error");
-				// return false;
-			// }
+			if (valid > 0) {
+				swal("Warning", "Stok ada yang kosong, silahkan di cek kembali :)", "error");
+				return false;
+			}
 
 			swal({
 					title: "Are you sure?",

@@ -5,13 +5,15 @@
  * @copyright Copyright (c) 2021, Arwant Json
  */
 
-class Serverside_model extends BF_Model{
-    
-    public function getDataJSON(){
-		
+class Serverside_model extends BF_Model
+{
+
+	public function getDataJSON()
+	{
+
 		$requestData	= $_REQUEST;
 		$fetch			= $this->queryDataJSON(
-            $requestData['kategori'], 
+			$requestData['kategori'],
 			$requestData['search']['value'],
 			$requestData['order'][0]['column'],
 			$requestData['order'][0]['dir'],
@@ -25,53 +27,50 @@ class Serverside_model extends BF_Model{
 
 		$data	= array();
 		$urut1  = 1;
-        $urut2  = 0;
+		$urut2  = 0;
 		$sumx	= 0;
-		foreach($query->result_array() as $row)
-		{
+		foreach ($query->result_array() as $row) {
 			$total_data     = $totalData;
-            $start_dari     = $requestData['start'];
-            $asc_desc       = $requestData['order'][0]['dir'];
-            if($asc_desc == 'asc')
-            {
-                $nomor = $urut1 + $start_dari;
-            }
-            if($asc_desc == 'desc')
-            {
-                $nomor = ($total_data - $start_dari) - $urut2;
-            }
+			$start_dari     = $requestData['start'];
+			$asc_desc       = $requestData['order'][0]['dir'];
+			if ($asc_desc == 'asc') {
+				$nomor = $urut1 + $start_dari;
+			}
+			if ($asc_desc == 'desc') {
+				$nomor = ($total_data - $start_dari) - $urut2;
+			}
 
-            $SUP = "";
-            //supp;ier
-            $sup  = $this->db->get_where('child_inven_suplier', array('id_category3' => $row['id_category3']))->result();	
-			foreach($sup AS $sp){  
-                $kodesup = $sp->id_suplier;
-                $sup2  = $this->db->get_where('master_supplier', array('id_suplier' => $kodesup))->result();
-                foreach($sup2 AS $sp2){
-                    $SUP .= strtoupper($sp2->name_suplier).",";
-                }
-            }
+			$SUP = "";
+			//supp;ier
+			$sup  = $this->db->get_where('child_inven_suplier', array('id_category3' => $row['id_category3']))->result();
+			foreach ($sup as $sp) {
+				$kodesup = $sp->id_suplier;
+				$sup2  = $this->db->get_where('master_supplier', array('id_suplier' => $kodesup))->result();
+				foreach ($sup2 as $sp2) {
+					$SUP .= strtoupper($sp2->name_suplier) . ",";
+				}
+			}
 
 			$nestedData 	= array();
-			$nestedData[]	= "<div align='center'>".$nomor."</div>";
-			$nestedData[]	= "<div align='center'>".strtoupper(strtolower($row['nama_category1']))."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['id_category3']))."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['nama_category3']))."</div>";
-			$nestedData[]	= "<div align='left'>".$row['nm_bentuk']."</div>";
-			$nestedData[]	= "<div align='left'>".$SUP."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['weight'],2)."</div>";
+			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
+			$nestedData[]	= "<div align='center'>" . strtoupper(strtolower($row['nama_category1'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['id_category3'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_category3'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['nm_bentuk'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . $SUP . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['weight'], 2) . "</div>";
 			$nestedData[]	= "<div align='center'>
-                                <a class='btn btn-warning btn-sm' href='".base_url('/stock_material/detail/'.$row['id_category3'])."' title='Detail' data-no_inquiry='".$row->no_inquiry."'><i class='fa fa-info-circle'></i></a>
+                                <a class='btn btn-warning btn-sm' href='" . base_url('/stock_material/detail/' . $row['id_category3']) . "' title='Detail' data-no_inquiry='" . $row->no_inquiry . "'><i class='fa fa-info-circle'></i></a>
                                 </div>";
 			$data[] = $nestedData;
-            $urut1++;
-            $urut2++;
+			$urut1++;
+			$urut2++;
 		}
 
 		$json_data = array(
-			"draw"            	=> intval( $requestData['draw'] ),
-			"recordsTotal"    	=> intval( $totalData ),
-			"recordsFiltered" 	=> intval( $totalFiltered ),
+			"draw"            	=> intval($requestData['draw']),
+			"recordsTotal"    	=> intval($totalData),
+			"recordsFiltered" 	=> intval($totalFiltered),
 			"data"            	=> $data,
 			"recordsAset"		=> $totalAset,
 		);
@@ -79,11 +78,12 @@ class Serverside_model extends BF_Model{
 		echo json_encode($json_data);
 	}
 
-	public function queryDataJSON($kategori, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL){
+	public function queryDataJSON($kategori, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	{
 
-        $where_kategori = "";
-		if(!empty($kategori)){
-			$where_kategori = " AND d.id_category2 = '".$kategori."' ";
+		$where_kategori = "";
+		if (!empty($kategori)) {
+			$where_kategori = " AND d.id_category2 = '" . $kategori . "' ";
 		}
 
 		$sql = "SELECT
@@ -105,18 +105,18 @@ class Serverside_model extends BF_Model{
 					JOIN ms_inventory_category3 g ON g.id_category3 =a.id_category3
                 WHERE 1=1
                     AND a.deleted = '0'
-                    ".$where_kategori."
+                    " . $where_kategori . "
                     AND (
-                        b.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR c.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR a.id_category3 LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR a.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR a.hardness LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR e.nilai_dimensi LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR a.maker LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR f.nm_bentuk LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR d.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR e.nilai_dimensi LIKE '%".$this->db->escape_like_str($like_value)."%'
+                        b.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR a.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR a.hardness LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR e.nilai_dimensi LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR a.maker LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR f.nm_bentuk LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR d.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR e.nilai_dimensi LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
 		// echo $sql; exit;
@@ -132,23 +132,23 @@ class Serverside_model extends BF_Model{
                             JOIN ms_bentuk f ON f.id_bentuk =a.id_bentuk
                         WHERE 1=1
                             AND a.deleted = '0'
-                            ".$where_kategori."
+                            " . $where_kategori . "
                             AND (
-                                b.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR c.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR a.id_category3 LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR a.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR a.hardness LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR e.nilai_dimensi LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR a.maker LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR f.nm_bentuk LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR d.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR e.nilai_dimensi LIKE '%".$this->db->escape_like_str($like_value)."%'
+                                b.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR a.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR a.hardness LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR e.nilai_dimensi LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR a.maker LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR f.nm_bentuk LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR d.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR e.nilai_dimensi LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                             )
 	                    ";
 		$Total_Aset	= 0;
 		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
-		if($Hasil_SUM){
+		if ($Hasil_SUM) {
 			$Total_Aset		= $Hasil_SUM[0]['weight'];
 		}
 		$data['totalData'] 	= $this->db->query($sql)->num_rows();
@@ -164,19 +164,20 @@ class Serverside_model extends BF_Model{
 
 		);
 
-		$sql .= " ORDER BY d.nama,  ".$columns_order_by[$column_order]." ".$column_dir." ";
-		$sql .= " LIMIT ".$limit_start." ,".$limit_length." ";
+		$sql .= " ORDER BY d.nama,  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
 
 		$data['query'] = $this->db->query($sql);
 		return $data;
 	}
 
-    public function getDataJSON_GRW(){
-		
+	public function getDataJSON_GRW()
+	{
+
 		$requestData	= $_REQUEST;
 		$fetch			= $this->queryDataJSON_GRW(
-            $requestData['gudang'],
-            $requestData['search']['value'],
+			$requestData['gudang'],
+			$requestData['search']['value'],
 			$requestData['order'][0]['column'],
 			$requestData['order'][0]['dir'],
 			$requestData['start'],
@@ -189,44 +190,41 @@ class Serverside_model extends BF_Model{
 
 		$data	= array();
 		$urut1  = 1;
-        $urut2  = 0;
+		$urut2  = 0;
 		$sumx	= 0;
-		foreach($query->result_array() as $row)
-		{
+		foreach ($query->result_array() as $row) {
 			$total_data     = $totalData;
-            $start_dari     = $requestData['start'];
-            $asc_desc       = $requestData['order'][0]['dir'];
-            if($asc_desc == 'asc')
-            {
-                $nomor = $urut1 + $start_dari;
-            }
-            if($asc_desc == 'desc')
-            {
-                $nomor = ($total_data - $start_dari) - $urut2;
-            }
+			$start_dari     = $requestData['start'];
+			$asc_desc       = $requestData['order'][0]['dir'];
+			if ($asc_desc == 'asc') {
+				$nomor = $urut1 + $start_dari;
+			}
+			if ($asc_desc == 'desc') {
+				$nomor = ($total_data - $start_dari) - $urut2;
+			}
 
-            $satuan = (empty($record->length))?"Coil":"Sheet";
+			$satuan = (empty($record->length)) ? "Coil" : "Sheet";
 
 			$nestedData 	= array();
-			$nestedData[]	= "<div align='center'>".$nomor."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['id_category3']))."</div>";
-			$nestedData[]	= "<div align='left'>".$row['kode_barang']."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['nama_material']))."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['qty'],2)."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['qty_book'],2)."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['qty_free'],2)."</div>";
-			$nestedData[]	= "<div align='left'>".ucfirst(strtolower($row['keterangan']))."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['nama_gudang']))."</div>";
-			
+			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['id_category3'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['kode_barang'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_material'])) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty_book'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty_free'], 2) . "</div>";
+			$nestedData[]	= "<div align='left'>" . ucfirst(strtolower($row['keterangan'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_gudang'])) . "</div>";
+
 			$data[] = $nestedData;
-            $urut1++;
-            $urut2++;
+			$urut1++;
+			$urut2++;
 		}
 
 		$json_data = array(
-			"draw"            	=> intval( $requestData['draw'] ),
-			"recordsTotal"    	=> intval( $totalData ),
-			"recordsFiltered" 	=> intval( $totalFiltered ),
+			"draw"            	=> intval($requestData['draw']),
+			"recordsTotal"    	=> intval($totalData),
+			"recordsFiltered" 	=> intval($totalFiltered),
 			"data"            	=> $data,
 			"recordsAset"		=> $totalAset,
 		);
@@ -234,11 +232,12 @@ class Serverside_model extends BF_Model{
 		echo json_encode($json_data);
 	}
 
-	public function queryDataJSON_GRW($gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL){
+	public function queryDataJSON_GRW($gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	{
 
-        $where_kategori = "";
-		if(!empty($gudang)){
-			$where_kategori = " AND a.id_gudang = '".$gudang."' ";
+		$where_kategori = "";
+		if (!empty($gudang)) {
+			$where_kategori = " AND a.id_gudang = '" . $gudang . "' ";
 		}
 
 		$sql = "SELECT
@@ -254,12 +253,12 @@ class Serverside_model extends BF_Model{
                     JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
                     JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
                 WHERE 1=1
-                    ".$where_kategori." AND a.aktif='Y'
+                    " . $where_kategori . " AND a.aktif='Y'
                     AND (
-                        b.nama_gudang LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR c.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-						OR a.id_category3 LIKE '%".$this->db->escape_like_str($like_value)."%'
-						OR c.kode_barang LIKE '%".$this->db->escape_like_str($like_value)."%'
+                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR c.kode_barang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
 		// echo $sql; exit;
@@ -274,16 +273,16 @@ class Serverside_model extends BF_Model{
                             JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
                             JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
                         WHERE 1=1
-                            ".$where_kategori." AND a.aktif='Y'
+                            " . $where_kategori . " AND a.aktif='Y'
                             AND (
-                                b.nama_gudang LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR c.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-								OR a.id_category3 LIKE '%".$this->db->escape_like_str($like_value)."%'
+                                b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+								OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                             )
                         ";
 		$Total_Aset	= 0;
 		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
-		if($Hasil_SUM){
+		if ($Hasil_SUM) {
 			$Total_Aset		= $Hasil_SUM[0]['weight'];
 		}
 		$data['totalData'] 	= $this->db->query($sql)->num_rows();
@@ -294,19 +293,20 @@ class Serverside_model extends BF_Model{
 
 		);
 
-		$sql .= " ORDER BY d.nama,  ".$columns_order_by[$column_order]." ".$column_dir." ";
-		$sql .= " LIMIT ".$limit_start." ,".$limit_length." ";
+		$sql .= " ORDER BY d.nama,  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
 
 		$data['query'] = $this->db->query($sql);
 		return $data;
 	}
 
-    public function getDataJSON_booking(){
-		
+	public function getDataJSON_booking()
+	{
+
 		$requestData	= $_REQUEST;
 		$fetch			= $this->queryDataJSON_booking(
-            $requestData['gudang'],
-            $requestData['search']['value'],
+			$requestData['gudang'],
+			$requestData['search']['value'],
 			$requestData['order'][0]['column'],
 			$requestData['order'][0]['dir'],
 			$requestData['start'],
@@ -319,43 +319,40 @@ class Serverside_model extends BF_Model{
 
 		$data	= array();
 		$urut1  = 1;
-        $urut2  = 0;
+		$urut2  = 0;
 		$sumx	= 0;
-		foreach($query->result_array() as $row)
-		{
+		foreach ($query->result_array() as $row) {
 			$total_data     = $totalData;
-            $start_dari     = $requestData['start'];
-            $asc_desc       = $requestData['order'][0]['dir'];
-            if($asc_desc == 'asc')
-            {
-                $nomor = $urut1 + $start_dari;
-            }
-            if($asc_desc == 'desc')
-            {
-                $nomor = ($total_data - $start_dari) - $urut2;
-            }
+			$start_dari     = $requestData['start'];
+			$asc_desc       = $requestData['order'][0]['dir'];
+			if ($asc_desc == 'asc') {
+				$nomor = $urut1 + $start_dari;
+			}
+			if ($asc_desc == 'desc') {
+				$nomor = ($total_data - $start_dari) - $urut2;
+			}
 
 			$nestedData 	= array();
-			$nestedData[]	= "<div align='center'>".$nomor."</div>";
-			$nestedData[]	= "<div align='left'>".$row['lotno']."</div>";
-			$nestedData[]	= "<div align='left'>".$row['nama']."</div>";
-			$nestedData[]	= "<div align='right'>".$row['width']."</div>";
-			$nestedData[]	= "<div align='right'>".$row['length']."</div>";
-			$nestedData[]	= "<div align='right'>".$row['qty']."</div>";
-			$nestedData[]	= "<div align='right'>".$row['weight']."</div>";
-			$nestedData[]	= "<div align='right'>".$row['totalweight']."</div>";
-			$nestedData[]	= "<div align='left'>".$row['no_surat']."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper($row['name_customer'])."</div>";
-			
+			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['lotno'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['nama'] . "</div>";
+			$nestedData[]	= "<div align='right'>" . $row['width'] . "</div>";
+			$nestedData[]	= "<div align='right'>" . $row['length'] . "</div>";
+			$nestedData[]	= "<div align='right'>" . $row['qty'] . "</div>";
+			$nestedData[]	= "<div align='right'>" . $row['weight'] . "</div>";
+			$nestedData[]	= "<div align='right'>" . $row['totalweight'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['no_surat'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper($row['name_customer']) . "</div>";
+
 			$data[] = $nestedData;
-            $urut1++;
-            $urut2++;
+			$urut1++;
+			$urut2++;
 		}
 
 		$json_data = array(
-			"draw"            	=> intval( $requestData['draw'] ),
-			"recordsTotal"    	=> intval( $totalData ),
-			"recordsFiltered" 	=> intval( $totalFiltered ),
+			"draw"            	=> intval($requestData['draw']),
+			"recordsTotal"    	=> intval($totalData),
+			"recordsFiltered" 	=> intval($totalFiltered),
 			"data"            	=> $data,
 			"recordsAset"		=> $totalAset,
 		);
@@ -363,9 +360,10 @@ class Serverside_model extends BF_Model{
 		echo json_encode($json_data);
 	}
 
-	public function queryDataJSON_booking($gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL){
+	public function queryDataJSON_booking($gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	{
 
-        // $where_kategori = "";
+		// $where_kategori = "";
 		// if(!empty($gudang)){
 		// 	$where_kategori = " AND a.id_gudang = '".$gudang."' ";
 		// }
@@ -392,7 +390,7 @@ class Serverside_model extends BF_Model{
                 WHERE 1=1
                     
                     AND (
-                        b.name_customer LIKE '%".$this->db->escape_like_str($like_value)."%'
+                        b.name_customer LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
 		// echo $sql; exit;
@@ -408,12 +406,12 @@ class Serverside_model extends BF_Model{
                         WHERE 1=1
                             
                             AND (
-                                b.name_customer LIKE '%".$this->db->escape_like_str($like_value)."%'
+                                b.name_customer LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                             )
                         ";
 		$Total_Aset	= 0;
 		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
-		if($Hasil_SUM){
+		if ($Hasil_SUM) {
 			$Total_Aset		= $Hasil_SUM[0]['weight'];
 		}
 		$data['totalData'] 	= $this->db->query($sql)->num_rows();
@@ -424,21 +422,22 @@ class Serverside_model extends BF_Model{
 
 		);
 
-		$sql .= " ORDER BY  ".$columns_order_by[$column_order]." ".$column_dir." ";
-		$sql .= " LIMIT ".$limit_start." ,".$limit_length." ";
+		$sql .= " ORDER BY  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
 
 		$data['query'] = $this->db->query($sql);
 		return $data;
 	}
-	
-	
-	public function getDataJSON_GRW2(){
-		
+
+
+	public function getDataJSON_GRW2()
+	{
+
 		$requestData	= $_REQUEST;
 		$fetch			= $this->queryDataJSON_GRW2(
 			$requestData['tanggal'],
-            $requestData['gudang'],
-            $requestData['search']['value'],
+			$requestData['gudang'],
+			$requestData['search']['value'],
 			$requestData['order'][0]['column'],
 			$requestData['order'][0]['dir'],
 			$requestData['start'],
@@ -451,47 +450,44 @@ class Serverside_model extends BF_Model{
 
 		$data	= array();
 		$urut1  = 1;
-        $urut2  = 0;
+		$urut2  = 0;
 		$sumx	= 0;
-		foreach($query->result_array() as $row)
-		{
+		foreach ($query->result_array() as $row) {
 			$total_data     = $totalData;
-            $start_dari     = $requestData['start'];
-            $asc_desc       = $requestData['order'][0]['dir'];
-            if($asc_desc == 'asc')
-            {
-                $nomor = $urut1 + $start_dari;
-            }
-            if($asc_desc == 'desc')
-            {
-                $nomor = ($total_data - $start_dari) - $urut2;
-            }
+			$start_dari     = $requestData['start'];
+			$asc_desc       = $requestData['order'][0]['dir'];
+			if ($asc_desc == 'asc') {
+				$nomor = $urut1 + $start_dari;
+			}
+			if ($asc_desc == 'desc') {
+				$nomor = ($total_data - $start_dari) - $urut2;
+			}
 
-            $satuan = (empty($record->length))?"Coil":"Sheet";
+			$satuan = (empty($record->length)) ? "Coil" : "Sheet";
 			$tgl = date_create($row['tgl']);
-			$date = date_format($tgl,'d/m/Y');
+			$date = date_format($tgl, 'd/m/Y');
 			$nestedData 	= array();
-			$nestedData[]	= "<div align='center'>".$nomor."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['id_category3']))."</div>";
-			$nestedData[]	= "<div align='left'>".$row['kode_barang']."</div>";
-			$nestedData[]	= "<div align='left'>".$row['kode_mas']."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['nama_material']))."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['qty'],2)."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['qty_book'],2)."</div>";
-			$nestedData[]	= "<div align='right'>".number_format($row['qty_free'],2)."</div>";
-			$nestedData[]	= "<div align='left'>".ucfirst(strtolower($row['keterangan']))."</div>";
-			$nestedData[]	= "<div align='left'>".strtoupper(strtolower($row['nama_gudang']))."</div>";
-			$nestedData[]	= "<div align='left'>".$date."</div>";
-			
+			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['id_category3'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['kode_barang'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['kode_mas'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_material'])) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty_book'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty_free'], 2) . "</div>";
+			$nestedData[]	= "<div align='left'>" . ucfirst(strtolower($row['keterangan'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_gudang'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . $date . "</div>";
+
 			$data[] = $nestedData;
-            $urut1++;
-            $urut2++;
+			$urut1++;
+			$urut2++;
 		}
 
 		$json_data = array(
-			"draw"            	=> intval( $requestData['draw'] ),
-			"recordsTotal"    	=> intval( $totalData ),
-			"recordsFiltered" 	=> intval( $totalFiltered ),
+			"draw"            	=> intval($requestData['draw']),
+			"recordsTotal"    	=> intval($totalData),
+			"recordsFiltered" 	=> intval($totalFiltered),
 			"data"            	=> $data,
 			"recordsAset"		=> $totalAset,
 		);
@@ -499,15 +495,16 @@ class Serverside_model extends BF_Model{
 		echo json_encode($json_data);
 	}
 
-	public function queryDataJSON_GRW2($tanggal,$gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL){
+	public function queryDataJSON_GRW2($tanggal, $gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	{
 
-        $where_kategori = "";
-		if(!empty($gudang)){
-			$where_kategori = " AND a.id_gudang = '".$gudang."' ";
+		$where_kategori = "";
+		if (!empty($gudang)) {
+			$where_kategori = " AND a.id_gudang = '" . $gudang . "' ";
 		}
-		 $where_tanggal = "";
-		if(!empty($tanggal)){
-			$where_tanggal = " AND a.tgl LIKE '%".$tanggal."%' ";
+		$where_tanggal = "";
+		if (!empty($tanggal)) {
+			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal . "%' ";
 		}
 
 		$sql = "SELECT
@@ -524,11 +521,11 @@ class Serverside_model extends BF_Model{
                     JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
                     JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
                 WHERE 1=1
-                    ".$where_kategori." AND a.aktif='Y' ".$where_tanggal."
+                    " . $where_kategori . " AND a.aktif='Y' " . $where_tanggal . "
                     AND (
-                        b.nama_gudang LIKE '%".$this->db->escape_like_str($like_value)."%'
-                        OR c.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-						OR a.id_category3 LIKE '%".$this->db->escape_like_str($like_value)."%'
+                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
 		// echo $sql; exit;
@@ -543,16 +540,16 @@ class Serverside_model extends BF_Model{
                             JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
                             JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
                         WHERE 1=1
-                            ".$where_kategori." AND a.aktif='Y' ".$where_tanggal."
+                            " . $where_kategori . " AND a.aktif='Y' " . $where_tanggal . "
                             AND (
-                                b.nama_gudang LIKE '%".$this->db->escape_like_str($like_value)."%'
-                                OR c.nama LIKE '%".$this->db->escape_like_str($like_value)."%'
-								OR a.id_category3 LIKE '%".$this->db->escape_like_str($like_value)."%'
+                                b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+								OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                             )
                         ";
 		$Total_Aset	= 0;
 		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
-		if($Hasil_SUM){
+		if ($Hasil_SUM) {
 			$Total_Aset		= $Hasil_SUM[0]['weight'];
 		}
 		$data['totalData'] 	= $this->db->query($sql)->num_rows();
@@ -563,11 +560,156 @@ class Serverside_model extends BF_Model{
 
 		);
 
-		$sql .= " ORDER BY d.nama,  ".$columns_order_by[$column_order]." ".$column_dir." ";
-		$sql .= " LIMIT ".$limit_start." ,".$limit_length." ";
+		$sql .= " ORDER BY d.nama,  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
 
 		$data['query'] = $this->db->query($sql);
 		return $data;
 	}
 
+
+
+	public function getDataJSON_GRW_harga()
+	{
+
+		$requestData	= $_REQUEST;
+		$fetch			= $this->queryDataJSON_GRW_harga(
+			$requestData['tanggal'],
+			$requestData['search']['value'],
+			$requestData['order'][0]['column'],
+			$requestData['order'][0]['dir'],
+			$requestData['start'],
+			$requestData['length']
+		);
+		$totalData		= $fetch['totalData'];
+		$totalFiltered	= $fetch['totalFiltered'];
+		$query			= $fetch['query'];
+		$totalAset		= $fetch['totalAset'];
+
+		$data	= array();
+		$urut1  = 1;
+		$urut2  = 0;
+		$sumx	= 0;
+		foreach ($query->result_array() as $row) {
+			$total_data     = $totalData;
+			$start_dari     = $requestData['start'];
+			$asc_desc       = $requestData['order'][0]['dir'];
+			if ($asc_desc == 'asc') {
+				$nomor = $urut1 + $start_dari;
+			}
+			if ($asc_desc == 'desc') {
+				$nomor = ($total_data - $start_dari) - $urut2;
+			}
+
+			$satuan = (empty($record->length)) ? "Coil" : "Sheet";
+			$tgl = date_create($row['tgl']);
+			$date = date_format($tgl, 'd/m/Y');
+			$nestedData 	= array();
+			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['id_category3'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['kode_barang'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . $row['kode_mas'] . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_material'])) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty_book'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty_free'], 2) . "</div>";
+			$nestedData[]	= "<div align='left'>" . ucfirst(strtolower($row['keterangan'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_gudang'])) . "</div>";
+			$nestedData[]	= "<div align='left'>" . $date . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['nilai_costbook'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . number_format($row['qty'] * $row['nilai_costbook']) . "</div>";
+
+			$data[] = $nestedData;
+			$urut1++;
+			$urut2++;
+		}
+
+		$json_data = array(
+			"draw"            	=> intval($requestData['draw']),
+			"recordsTotal"    	=> intval($totalData),
+			"recordsFiltered" 	=> intval($totalFiltered),
+			"data"            	=> $data,
+			"recordsAset"		=> $totalAset,
+		);
+
+		echo json_encode($json_data);
+	}
+
+	public function queryDataJSON_GRW_harga($tanggal, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	{
+
+
+		$where_tanggal = "";
+		$tanggal2 = date('Y-m-d');
+		if (!empty($tanggal)) {
+			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal . "%' ";
+			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal . "%' ";
+		} else {
+			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal2 . "%' ";
+			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal2 . "%' ";
+		}
+
+		$sql = "SELECT
+                    a.*, 
+                    b.nama_gudang as nama_gudang,
+					c. nama as nama_material,
+					c. kode_barang,
+					c. kode_mas,
+					g. nilai_costbook,
+					g. tgl
+                FROM
+                    stock_material_backup a
+                    JOIN ms_gudang b ON b.id_gudang =a.id_gudang
+                    JOIN ms_inventory_category3 c ON a.id_category3 =c.id_category3
+                    JOIN ms_inventory_type d ON c.id_type=d.id_type
+                    JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
+                    JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
+					JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
+                WHERE 1=1 AND
+                    a.aktif='Y' " . $where_tanggal . "  " . $where_tanggal2 . " 
+                    AND (
+                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                    )
+                ";
+		// echo $sql; exit;
+
+		$Query_Sum	= "SELECT
+                            SUM(a.qty) AS weight
+                        FROM
+                            stock_material_backup a
+                            JOIN ms_gudang b ON b.id_gudang =a.id_gudang
+                            JOIN ms_inventory_category3 c ON a.id_category3 =c.id_category3
+                            JOIN ms_inventory_type d ON c.id_type=d.id_type
+                            JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
+                            JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
+							JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
+                        WHERE 1=1 AND
+                            a.aktif='Y' " . $where_tanggal . " " . $where_tanggal2 . "
+                            AND (
+                                b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                                OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+								OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                            )
+                        ";
+		$Total_Aset	= 0;
+		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
+		if ($Hasil_SUM) {
+			$Total_Aset		= $Hasil_SUM[0]['weight'];
+		}
+		$data['totalData'] 	= $this->db->query($sql)->num_rows();
+		$data['totalAset'] 	= $Total_Aset;
+		$data['totalFiltered'] = $this->db->query($sql)->num_rows();
+		$columns_order_by = array(
+			0 => 'id_stock'
+
+		);
+
+		$sql .= " ORDER BY d.nama,  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
+
+		$data['query'] = $this->db->query($sql);
+		return $data;
+	}
 }

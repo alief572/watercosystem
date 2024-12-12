@@ -160,13 +160,13 @@ $nm_customer  = $total->nm_customer;
 				echo "<td width='18%' style='vertical-align:top;'>";
 					echo "<table class='sign' width='100%' cellpadding='2'>";
 						echo "<tr>";
-							echo "<td width='40%'>For and on Behalf of<br />PT. ORI POLYTEC COMPOSITES</td>";
+							echo "<td width='40%'>For and on Behalf of<br />PT. WATERCO INDONESIA</td>";
 						echo "</tr>";
 						echo "<tr>";
 							echo "<td style='height:70px;'></td>";
 						echo "</tr>";
 						echo "<tr>";
-							echo "<td><b>__________________________<br />Yuliana Monita</b></td>";
+							echo "<td><b>__________________________<br />Finance</b></td>";
 						echo "</tr>";
 					echo "</table>";
 				echo "</td>";
@@ -174,15 +174,17 @@ $nm_customer  = $total->nm_customer;
 				echo "<td width='58%' style='vertical-align:top;'>";
 					echo "<table class='catatan' border='0' width='100%' cellpadding='2'>";
 						echo "<tr>";
-							echo "<td>
-										 Please remittance the payment in FULL AMOUNT to:<br>
-										 <b>PT ORI POLYTEC COMPOSITES</b><br>
-										 Mangga Dua Le Grandeur<br> 
-										 OCBC NISP<br>
-										 Komplek Dusit Mangga Dua Ruko No 1.<br>
-										 Jl. Mangga Dua Raya, Jakarta Pusat<br>
-										 <b>Swift Code : NISPIDJA </b><br>
-										 <b>A/C : (USD) 0278.0001.6993</b>
+							echo "<td>   
+							
+							             
+
+
+										Pembayaran dilakukan melalui rekening :<br>
+										CIMB Niaga cabang kelapa gading
+										No A/C. 8000-9570-4600(IDR)<br>
+										BCA cabang kelapa gading square
+										No A/C. 870-003-599-0(IDR)<br>
+										On Behalf PT. WATERCO INDONESIA
 									</td>";
 						echo "</tr>";
 					echo "</table>";

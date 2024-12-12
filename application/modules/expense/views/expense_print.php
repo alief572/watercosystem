@@ -16,15 +16,54 @@ table.garis {
 <?php
 
 $noexpense = $data->no_doc;
-
+$bank = $data->bank_nama;
+$bk = $this->db->query("SELECT nama FROM gl_waterco.coa_master WHERE no_perkiraan='$bank'")->row();
+$nama = $bk->nama;
+$tgl = $data->tgl_doc;
+$informasi = $data->informasi;
+$note = $data->note;
 
 ?>
 </style>
 <table cellpadding=2 cellspacing=0 border=0 width=650>
 <tr>
-	<th colspan=8>BANK PAYMENT VOUCHER <br> <?= $noexpense ?></th>
+	<th colspan=8>REQUEST FOR PAYMENT <br> &nbsp;</th>
+	<th></th>
+	<th></th>
 	
 </tr>
+<tr>
+	<th>VOUCHER NO</th>
+	<th>:</th>
+	<th width=300  align="left"><?= $noexpense ?></th>
+</tr>
+<tr>
+	<th>BANK</th>
+	<th>:</th>
+	<th width=300  align="left"><?= $nama ?></th>
+	
+</tr>
+<tr>
+	<th>PAID TO</th>
+	<th>:</th>
+	<th width=300 align="left"><?= $informasi ?></th>
+	
+</tr>
+<tr>
+	
+	<th>DATE</th>
+	<th>:</th>
+	<th width=300 align="left"><?= $tgl ?></th>
+	
+</tr>
+<tr>
+	
+	<th>NOTE</th>
+	<th>:</th>
+	<th width=300 align="left"><?= $note ?></th>
+	
+</tr>
+<br>
 <tr>
 	<td colspan=8>
 	<table cellpadding=2 cellspacing=0 border=1 width=650 class="garis">
@@ -95,8 +134,9 @@ $noexpense = $data->no_doc;
 
 <tr>
 	<td colspan=2 align=center>Mengajukan</td>
-	<td></td>
+	
 	<td align=center colspan=2>Mengetahui</td>
+	<td></td>
 	<td></td>
 	<td align=center>Menyetujui</td>
 </tr>
@@ -105,10 +145,10 @@ $noexpense = $data->no_doc;
 </tr>
 <tr height=120>
 	<td colspan=2 align=center nowrap valign="bottom" width=100></u><br /><?=tgl_indo($data->created_on);?>&nbsp;</td>
-	<td width=25>&nbsp;</td>
-	<td colspan=2 align=center nowrap valign="bottom" width=120
+	<td colspan=2 align=center nowrap valign="bottom" width=120>
 	<u>&nbsp;  &nbsp;</u><br /><?=tgl_indo($data->approved_on);?> &nbsp;</td>
 	<td>&nbsp;</td>
+	<td width=25>&nbsp;</td>
 	<td align=center nowrap valign="bottom"><u>&nbsp; &nbsp; &nbsp; &nbsp; </u><br /></td>
 </tr>
 </table>

@@ -323,7 +323,7 @@ class Wt_invoicing extends Admin_Controller
 					$lokasi2 = './assets/file_do/'.$gbr2['file_name'];
 					
 				}
-
+        $nilaiInvoice = str_replace(',','',$post['totalppn']) + str_replace(',','',$post['grandtotal']);
 		$data = [
 							'no_invoice'		 	=> $code,	
 							'no_surat'				=> $no_surat,						
@@ -338,7 +338,7 @@ class Wt_invoicing extends Admin_Controller
 							'nama_sales'			=> $post['nama_sales'],
 							'nilai_produk'			=> str_replace(',','',$post['totalproduk']),
                             'persentase'			=> str_replace(',','',$post['persentase']),
-							'nilai_invoice'			=> str_replace(',','',$post['nilai_tagih']),
+							'nilai_invoice'			=> $nilaiInvoice,
 							'created_on'			=> date('Y-m-d H:i:s'),
 							'created_by'			=> $this->auth->user_id(),
 							'ppn'					=> str_replace(',','',$post['ppn']),
@@ -405,7 +405,7 @@ class Wt_invoicing extends Admin_Controller
 
 			$dataupdate = [
 				'status_invoice'				=> '1',
-				'nilai_invoice'				    =>  str_replace(',','',$post['nilai_tagih']),			
+				'nilai_invoice'				    =>  $nilaiInvoice,			
 				];
 				//Edit Data
 				  $this->db->where('id_plan_tagih', $post['id_plan_tagih'])->update("wt_plan_tagih",$dataupdate);		
@@ -504,7 +504,7 @@ class Wt_invoicing extends Admin_Controller
 					$lokasi2 = './assets/file_do/'.$gbr2['file_name'];
 					
 				}
-
+		$nilaiInvoice = str_replace(',','',$post['totalppn']) + str_replace(',','',$post['grandtotal']);
 		$data = [
 							'no_invoice'		 	=> $code,	
 							'no_surat'				=> $no_surat,						
@@ -519,7 +519,7 @@ class Wt_invoicing extends Admin_Controller
 							'nama_sales'			=> $post['nama_sales'],
 							'nilai_produk'			=> str_replace(',','',$post['totalproduk']),
                             'persentase'			=> str_replace(',','',$post['persentase']),
-							'nilai_invoice'			=> str_replace(',','',$post['nilai_tagih']),
+							'nilai_invoice'			=> $nilaiInvoice,
 							'created_on'			=> date('Y-m-d H:i:s'),
 							'created_by'			=> $this->auth->user_id(),
 							'ppn'					=> str_replace(',','',$post['ppn']),

@@ -170,7 +170,8 @@ class Purchase_order_payment extends Admin_Controller
         $this->template->render('Edit');
 
     }
-
+	
+	
     public function SavePembayaran(){
 		
 		
@@ -631,11 +632,9 @@ class Purchase_order_payment extends Admin_Controller
 			'karyawan' => $karyawan,
 			'mata_uang' => $mata_uang,
 			'matauang' => $matauang,
-			'data_detail' => $hutang,
+			'hutang' => $hutang,
 		];
-        $this->template->set('results', $data);
-        $this->template->title('Request Pembayaran');
-        $this->template->render('request_print');
+        $this->load->view('request_print',$data);
 
     }
 
@@ -651,9 +650,10 @@ class Purchase_order_payment extends Admin_Controller
 		
 
 		$id_data  = $this->input->post('id_data');
+		$tgl  = $this->input->post('tanggal_request');
 		$jmlbyridr = str_replace(",","",$this->input->post('total_bayar'));
 		$kurs = str_replace(",","",$this->input->post('nominal_kurs'));
-		$Qry_Update_ic	 = "UPDATE tr_incoming SET kurs_request=$kurs, rencana_bayar_idr=$jmlbyridr, request_bayar = '1' WHERE id_data='$id_data'";
+		$Qry_Update_ic	 = "UPDATE tr_incoming SET kurs_request=$kurs, rencana_bayar_idr=$jmlbyridr, request_bayar = '1', tgl_request_bayar='$tgl' WHERE id_data='$id_data'";
 		$this->db->query($Qry_Update_ic);
 		
 		              

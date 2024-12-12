@@ -36,6 +36,7 @@ thead input {
 			<th>Keterangan</th>
 			<th>Mata Uang</th>
 			<th>Kurs</th>
+			<th>Total Hutang USD</th>
 			<?php if($ENABLE_MANAGE) : ?>
 			<th width="13%">Action</th>
 			<?php endif; ?>
@@ -57,6 +58,7 @@ thead input {
 			<td><?= $record->keterangan ?></td>
 			<td><?= strtoupper($record->matauang) ?></td>
 			<td><?= $record->kurs ?></td>
+			<td><?= number_format($record->hutang_kurs,2) ?></td>
 			
 			<td style="padding-left:20px">
 			<?php if($ENABLE_VIEW) : ?>

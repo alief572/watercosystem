@@ -84,8 +84,8 @@ class Incoming extends Admin_Controller
 		$id = $this->uri->segment(3);
 		$this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
-		$this->template->page_icon('fa fa-pencil');
 		$aktif = 'active';
+		$this->template->page_icon('fa fa-pencil');
 		$deleted = '0';
 		$head = $data = $this->db->query("SELECT a.*, b.nama_gudang as namagudang FROM tr_incoming as a INNER JOIN ms_gudang as b ON a.id_gudang = b.id_gudang WHERE a.id_data='".$id."' ")->result();
 		$po = $data = $this->db->query("SELECT * FROM tr_purchase_order WHERE status='2' ")->result();
@@ -322,8 +322,13 @@ class Incoming extends Admin_Controller
 		
 		<td						><input  type='text' 		value='".$material->kode_barang."'	class='form-control input-sm' id='dt_kodebarang_".$id."_".$no."' 	required name='dt[".$id."][detail][".$no."][kodebarang]' readonly></td>
 		<td						><input  type='text' 		value='".number_format($material->qty)."'	class='form-control input-sm text-right' id='dt_qtyorder_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][qtyorder]'     readonly></td>
-		<td				        ><input  type='text' 		value='".number_format($material->qty - $material->qty_terima)."'									class='form-control input-sm text-right' id='dt_qtyrecive_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][qtyrecive]' 	></td>
-		<td				        ><input  type='text' 		value='".number_format($material->hargasatuan,2)."'									class='form-control input-sm text-right' id='dt_hargasatuan_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][hargasatuan]' 	></td>
+		<td				        ><input  type='text' 		value='".number_format($material->qty - $material->qty_terima)."'									class='form-control input-sm text-right' id='dt_qtyrecive_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][qtyrecive]'  onkeyup='HitungHarga(".$loop.")'	></td>
+		<td				        >
+		
+		<input  type='text' 		value='0'									class='form-control input-sm text-right' id='dt_hargasatuan_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][hargasatuan]' 	onBlur='cariPanjang($id,$no)'	>
+		<input  type='text' 										class='form-control input-sm text-right totalHarga' id='dt_totalharga_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][totalharga]' placeholder='Total Harga'	>
+		
+		</td>
 		<td				hidden  ><input  type='text' 		value='".number_format($material->ppn)."'									class='form-control input-sm text-right' id='dt_ppn_".$id."_".$no."' 		required name='dt[".$id."][detail][".$no."][ppn]' 	></td>
 		<td				hidden	><input  type='text' 		value='".number_format($mt->nominal_kurs)."'		class='form-control input-sm text-right' id='dt_kurs_".$id."_".$no."' 			required name='dt[".$id."][detail][".$no."][kurs]' 		readonly></td>
 	
@@ -2437,9 +2442,11 @@ public function SaveNew(){
 		$post = $this->input->post();
 		$code = $this->Pr_model->generate_code();
 		$id_data = $post['id_data'];
-		$kurs		= str_replace(',','',$post['kurs']);
+		$kurs		= str_replace(',','',$post['matauang']);
 		$biaya_kurs = $post['biaya_freight'];
 		$biaya_idr  = $biaya_kurs*$kurs;
+	
+		
 		$this->db->trans_begin();
 		$this->db->query("UPDATE tr_incoming SET hutang_kurs=hutang_kurs+$biaya_kurs, hutang_idr=hutang_idr+$biaya_idr, freight_kurs=$biaya_kurs,freight_idr=$biaya_idr, status_hutang='1'    WHERE id_data='$id_data'");
 		

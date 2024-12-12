@@ -105,8 +105,8 @@ foreach ($results['hutang'] as $hutang){
 		    </div>
 		    </div>
         </div>
-		<div class="col-sm-12" hidden>
-			<div class="col-sm-6">
+		<div class="col-sm-12" >
+			<div class="col-sm-6" hidden>
 				<div class="form-group row">
 					<div class="col-md-4">
 						<label for="customer">Mata Uang</label>
@@ -131,10 +131,11 @@ foreach ($results['hutang'] as $hutang){
 			<div class="col-sm-6">
 			<div class="form-group row">
 				<div class="col-md-4">
-					<label for="id_customer">Tanggal Bayar</label>
+					<label for="id_customer">Tanggal Request</label>
 				</div>
 				<div class="col-md-8"> 
-				<input type="date" class="form-control" id="tanggal_bayar" value="<?= date('Y-m-d') ?>" onkeyup required name="tanggal_bayar" >
+				<input type="date" class="form-control" id="tanggal_request" value="<?= date('Y-m-d') ?>" onkeyup required name="tanggal_request"  >
+               	<input type="hidden" class="form-control" id="tanggal_bayar" value="<?= date('Y-m-d') ?>" onkeyup required name="tanggal_bayar" >
 					
 				</div>
 			</div>

@@ -34,6 +34,7 @@ if($hakakses=='expense'){
 			<th>Nama</th>
 			<th>Approval</th>
 			<th>Keterangan</th>
+			<th>Jumlah</th>
 			<th>Status</th>
 			<th width="120">Action</th>
 		</tr>
@@ -49,6 +50,7 @@ if($hakakses=='expense'){
 			<td><?= $record->nmuser ?></td>
 			<td><?= $record->nmapproval?></td>
 			<td><?= $record->informasi ?></td>
+			<td><?= number_format($record->jumlah) ?></td>
 			<td><?= $status[$record->status] ?></td>
 			<td>
 			<?php if($ENABLE_VIEW) : ?>

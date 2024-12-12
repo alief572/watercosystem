@@ -66,6 +66,10 @@ thead input {
 			<?php }
 
 			endif; ?>
+			
+			<?php if($ENABLE_VIEW) : ?>
+				<a class="btn btn-default btn-sm print" href="<?=base_url('purchase_order_payment/request_print/'.$record->no_po.'/'.$record->id_data)?>" target="expense_print" title="Print"><i class="fa fa-print"></i> </a>
+			<?php endif; ?>
 			</td>
 
 		</tr>

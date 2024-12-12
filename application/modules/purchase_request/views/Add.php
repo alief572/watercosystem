@@ -104,7 +104,15 @@
 			var image	= $('#image').val();
 			var idtype	= $('#inventory_1').val();
 			
+			var tanggal		 =$('#tanggal').val();	
 			var data, xhr;
+
+			if(tanggal==''){
+					swal("Warning", "Tanggal Tidak Boleh Kosong :)", "error");
+					return false;
+			}else{
+			
+			
 			swal({
 				  title: "Are you sure?",
 				  text: "You will not be able to process again this data!",
@@ -184,6 +192,8 @@
 					return false;
 				  }
 			});
+			
+			}
 		});
 		
 });

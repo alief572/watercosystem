@@ -1,8 +1,8 @@
 <?php
-    $ENABLE_ADD     = has_permission('Inventory_1.Add');
-    $ENABLE_MANAGE  = has_permission('Inventory_1.Manage');
-    $ENABLE_VIEW    = has_permission('Inventory_1.View');
-    $ENABLE_DELETE  = has_permission('Inventory_1.Delete');
+    $ENABLE_ADD     = has_permission('Master_karyawan.Add');
+    $ENABLE_MANAGE  = has_permission('Master_karyawan.Manage');
+    $ENABLE_VIEW    = has_permission('Master_karyawan.View');
+    $ENABLE_DELETE  = has_permission('Master_karyawan.Delete');
 ?>
 <style type="text/css">
 thead input {

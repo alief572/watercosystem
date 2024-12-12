@@ -267,8 +267,19 @@ thead input {
 							</div>
 			</div>
 			<div class="form-group row">
+				<div class="col-md-2">
+							  <label for="">Tanda Tangan</label>
+							</div>
+							 <div class="col-md-6">
+								 <input type="file" class="form-control" id="tanda_tangan" required name="tanda_tangan" placeholder="Tanda tangan">
+								 
+								 <input type="hidden" class="form-control" id="old_tanda_tangan" required name="old_tanda_tangan" value="tes" placeholder="Tanda tangan">
+							</div>
+			</div>
+			
+			<div class="form-group row">
 			<div class="col-md-3">
-			<button type="submit" class="btn btn-primary" name="save" id="save"><i class="fa fa-save"></i> Save</button>
+			<button type="submit" class="btn btn-primary" name="save" id="simpan-com"><i class="fa fa-save"></i> Save</button>
 			</div>
 			</div>
 					</div>
@@ -286,58 +297,96 @@ thead input {
 <script type="text/javascript">
 
   $(document).ready(function() {
+	  
 	$('.select2').select2();
-    $(document).on('submit', '#data_form', function(e){
-		e.preventDefault()
-		var data = $('#data_form').serialize();
-		// alert(data);
-
-		swal({
-		  title: "Anda Yakin?",
-		  text: "Data Supplier akan di simpan.",
-		  type: "warning",
-		  showCancelButton: true,
-		  confirmButtonClass: "btn-info",
-		  confirmButtonText: "Ya, Simpan!",
-		  cancelButtonText: "Batal",
-		  closeOnConfirm: false
-		},
-		function(){
-		  $.ajax({
-			  type:'POST',
-			  url:siteurl+'master_karyawan/saveEditKaryawan',
-			  dataType : "json",
-			  data:data,
-			  success:function(result){
-				  if(result.status == '1'){
-					 swal({
-						  title: "Sukses",
-						  text : "Data Inventory berhasil disimpan.",
-						  type : "success"
-						},
-						function (){
-							window.location.reload(true);
-						})
+    
+	
+	$('#simpan-com').click(function(e){
+			e.preventDefault();
+			var deskripsi	= $('#deskripsi').val();
+			var image_labels	= $('#image_labels').val();
+			var image_packing	= $('#image_packing').val();
+			var data, xhr;
+			swal({
+				  title: "Are you sure?",
+				  text: "You will not be able to process again this data!",
+				  type: "warning",
+				  showCancelButton: true,
+				  confirmButtonClass: "btn-danger",
+				  confirmButtonText: "Yes, Process it!",
+				  cancelButtonText: "No, cancel process!",
+				  closeOnConfirm: true,
+				  closeOnCancel: false
+				},
+				function(isConfirm) {
+				  if (isConfirm) {
+						var formData 	=new FormData($('#data_form')[0]);
+						var baseurl=siteurl+'master_karyawan/saveEditKaryawan';
+						$.ajax({
+							url			: baseurl,
+							type		: "POST",
+							data		: formData,
+							cache		: false,
+							dataType	: 'json',
+							processData	: false, 
+							contentType	: false,				
+							success		: function(data){								
+								if(data.status == 1){											
+									swal({
+										  title	: "Save Success!",
+										  text	: data.pesan,
+										  type	: "success",
+										  timer	: 7000,
+										  showCancelButton	: false,
+										  showConfirmButton	: false,
+										  allowOutsideClick	: false
+										});
+									window.location.reload(true);
+								}else{
+									
+									if(data.status == 2){
+										swal({
+										  title	: "Save Failed!",
+										  text	: data.pesan,
+										  type	: "warning",
+										  timer	: 7000,
+										  showCancelButton	: false,
+										  showConfirmButton	: false,
+										  allowOutsideClick	: false
+										});
+									}else{
+										swal({
+										  title	: "Save Failed!",
+										  text	: data.pesan,
+										  type	: "warning",
+										  timer	: 7000,
+										  showCancelButton	: false,
+										  showConfirmButton	: false,
+										  allowOutsideClick	: false
+										});
+									}
+									
+								}
+							},
+							error: function() {
+								
+								swal({
+								  title				: "Error Message !",
+								  text				: 'An Error Occured During Process. Please try again..',						
+								  type				: "warning",								  
+								  timer				: 7000,
+								  showCancelButton	: false,
+								  showConfirmButton	: false,
+								  allowOutsideClick	: false
+								});
+							}
+						});
 				  } else {
-					swal({
-					  title : "Error",
-					  text  : "Data error. Gagal insert data",
-					  type  : "error"
-					})
-					
+					swal("Cancelled", "Data can be process again :)", "error");
+					return false;
 				  }
-			  },
-			  error : function(){
-				swal({
-					  title : "Error",
-					  text  : "Data error. Gagal request Ajax",
-					  type  : "error"
-					})
-			  }
-		  })
+			});
 		});
-		
-	})
    
   });
 

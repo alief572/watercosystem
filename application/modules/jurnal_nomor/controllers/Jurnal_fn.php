@@ -43,7 +43,7 @@ class Jurnal_fn extends CI_Controller {
         $nomor  = $invoicing->no_surat;
 
 
-        $Tgl_Invoice = date('Y-m-d');
+        $Tgl_Invoice = $invoicing->tgl_invoice;
 		$no_request = $id;
 		$tgl_voucher =$Tgl_Invoice;
 
@@ -1005,6 +1005,11 @@ class Jurnal_fn extends CI_Controller {
 
 		$datajurnal  	 = $this->Acc_model->GetTemplateJurnal($kodejurnal);
 		foreach($datajurnal AS $record){
+			if($idsupplier=='IS2200001'){
+			$nokirhutang  ='2101-01-02';	
+			}else{
+			$nokirhutang  = $record->no_perkiraan;
+			}
 			$nokir  = $record->no_perkiraan;
 			$tabel  = $record->menu;
 			$posisi = $record->posisi;
@@ -1038,7 +1043,7 @@ class Jurnal_fn extends CI_Controller {
 				  'nomor'         => '',
 				  'tanggal'       => $tgl_voucher,
 				  'tipe'          => 'JV',
-				  'no_perkiraan'  => $nokir,
+				  'no_perkiraan'  => $nokirhutang,
 				  'keterangan'    => $Keterangan_INV,
 				  'no_reff'       => $id,
 				  'debet'         => 0,
@@ -1162,7 +1167,28 @@ class Jurnal_fn extends CI_Controller {
 
 		
 		
-		 if($perkiraan =='2101-01-01'){
+		if($perkiraan =='2101-01-01'){
+		
+		
+		$datahutang = array(
+                'tipe'       	 => $type,
+                'nomor'       	 => $Nomor_JV,
+                'tanggal'        => $tgl_inv,
+                'no_perkiraan'    => $perkiraan,
+                'keterangan'      => $keterangan,
+                'no_reff'     	  => $reff,
+				'debet'      	  => $total,
+				'kredit'          => 0,
+				'id_supplier'     => $id_vendor,
+				'nama_supplier'   => $nama_vendor,
+				'no_request'      => $no_req,
+				
+                );
+				
+        $this->db->insert('tr_kartu_hutang',$datahutang);
+		
+		}
+		elseif($perkiraan =='2101-01-02'){
 		
 		
 		$datahutang = array(

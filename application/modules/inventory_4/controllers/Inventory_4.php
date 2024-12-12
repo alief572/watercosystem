@@ -423,6 +423,8 @@ $bentuk = $caribentuk[0]->nm_bentuk;
                             );
             //Add Data
               $this->db->insert('ms_inventory_category3',$header1);
+			  
+
 			                 $bookp =  array(
 							'id_category3'	 		=> $code,
 							'nilai_costbook'		 => 0,
@@ -581,6 +583,21 @@ $bentuk = $caribentuk[0]->nm_bentuk;
 				'deleted'			=> '0',
 				);
 			$this->db->insert('ms_inventory_category3',$header1);
+			
+			 $stok =  array(
+							'id_category3'	 	=> $id_category3,
+							'qty'		        => 0,
+							'qty_book'		    => 0,
+							'qty_free'		    => 0,
+							'aktif'		        => 'Y',
+							'id_gudang'		    => 1,
+							'created_on'		=> date('Y-m-d H:i:s'),
+							'created_by'		=> $this->auth->user_id()
+							
+                            );
+            //Add Data
+              $this->db->insert('stock_material',$stok);
+			
 		}
 		if($this->db->trans_status() === FALSE){
 			$this->db->trans_rollback();
