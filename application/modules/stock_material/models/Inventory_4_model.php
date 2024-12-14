@@ -284,4 +284,103 @@ class Inventory_4_model extends BF_Model
 		$query = $this->db->get();
 		return $query->result();
 	}
+
+	public function get_data_kartu_stock()
+	{
+		$draw = $this->input->post('draw');
+		$start = $this->input->post('start');
+		$length = $this->input->post('length');
+		$search = $this->input->post('search');
+
+		$produk = $this->input->post('produk');
+
+		$this->db->select('a.*, b.nama');
+		$this->db->from('kartu_stok a');
+		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
+
+		if ($produk != null) {
+			$where = "a.id_category3='" . $produk . "'";
+			$this->db->where($where);
+		}
+		if(!empty($search)) {
+			$this->db->group_start();
+			$this->db->like('a.tgl_transaksi', $search['value'], 'both');
+			$this->db->or_like('a.no_surat', $search['value'], 'both');
+			$this->db->or_like('a.transaksi', $search['value'], 'both');
+			$this->db->or_like('a.id_category3', $search['value'], 'both');	
+			$this->db->or_like('b.nama', $search['value'], 'both');
+			$this->db->group_end();
+		}
+		$this->db->order_by('a.created_on', 'desc');
+		$this->db->limit($length, $start);
+		$query = $this->db->get();
+
+		$this->db->select('a.*, b.nama');
+		$this->db->from('kartu_stok a');
+		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
+		if ($produk != null) {
+			$where = "a.id_category3='" . $produk . "'";
+			$this->db->where($where);	
+		}
+		if(!empty($search)) {
+			$this->db->group_start();
+			$this->db->like('a.tgl_transaksi', $search['value'], 'both');
+			$this->db->or_like('a.no_surat', $search['value'], 'both');
+			$this->db->or_like('a.transaksi', $search['value'], 'both');
+			$this->db->or_like('a.id_category3', $search['value'], 'both');	
+			$this->db->or_like('b.nama', $search['value'], 'both');
+			$this->db->group_end();
+		}
+		$this->db->order_by('a.created_on', 'desc');
+		$query_all = $this->db->get();
+
+		$hasil = [];
+
+		$no = 0 + $start;
+		foreach ($query->result() as $item) {
+			$no++;
+
+			$transaksi_in_out = $item->qty_transaksi;
+			if (ucfirst($item->transaksi) == 'Incoming' || ucfirst($item->transaksi) == 'Adjustment plus') {
+				$transaksi_in_out = $item->qty_transaksi;
+			} else if (ucfirst($item->transaksi) == 'Delivery order' || ucfirst($item->transaksi) == 'Adjustment minus') {
+				$transaksi_in_out = ($item->qty_transaksi * -1);
+			} else {
+				$transaksi_in_out = 0;
+			}
+
+			$transaksi_booking = $item->qty_transaksi;
+			if (ucfirst($item->transaksi) == 'Sales order') {
+				$transaksi_booking = $item->qty_transaksi;
+			} else if (ucfirst($item->transaksi) == 'Delivery order') {
+				$transaksi_booking = ($item->qty_transaksi * -1);
+			} else {
+				$transaksi_booking = 0;
+			}
+
+			$hasil[] = [
+				'no' => $no,
+				'tgl_transaksi' => $item->created_on,
+				'no_transaksi' => $item->no_surat,
+				'jenis_transaksi' => ucfirst($item->transaksi),
+				'id_produk' => $item->id_category3,
+				'produk' => $item->nama,
+				'awal_stock' => $item->qty,
+				'awal_booking' => $item->qty_book,
+				'awal_free_stock' => $item->qty_free,
+				'transaksi_in_out' => $transaksi_in_out,
+				'transaksi_booking' => $transaksi_booking,
+				'akhir_stock' => $item->qty_akhir,
+				'akhir_booking' => $item->qty_book_akhir,
+				'akhir_free_stock' => $item->qty_free_akhir
+			];
+		}
+
+		echo json_encode([
+			'draw' => intval($draw),
+			'recordsTotal' => $query_all->num_rows(),
+			'recordsFiltered' => $query_all->num_rows(),
+			'data' => $hasil
+		]);
+	}
 }

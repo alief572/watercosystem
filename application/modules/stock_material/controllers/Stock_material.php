@@ -994,12 +994,7 @@ class Stock_material extends Admin_Controller
 		$customer = $this->Inventory_4_model->get_data('ms_inventory_category3');
 		$this->template->set('customer', $customer);
 
-		if ($this->uri->segment(3) == "") {
-			$data = $this->Inventory_4_model->cariKartuStok();
-		} else {
-			$data = $this->Inventory_4_model->cariKartuStok($this->uri->segment(3));
-		}
-		$this->template->set('results', $data);
+		
 
 		$this->template->title('Kartu Stok');
 		$this->template->render('index_kartu_stok');
@@ -1159,5 +1154,9 @@ class Stock_material extends Admin_Controller
 		}
 
 		echo json_encode($status);
+	}
+
+	public function get_data_kartu_stock() {
+		$this->Inventory_4_model->get_data_kartu_stock();
 	}
 }

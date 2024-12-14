@@ -485,7 +485,8 @@ class Reports_model extends BF_Model
         $this->db->from('tr_sales_order_detail a');
         $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
         $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
-        $this->db->where('b.perseninvoice_revenue >=', 100);
+        $this->db->join('tr_revenue d', 'd.no_so = a.no_so', 'left');
+        $this->db->where('d.status_jurnal', 'CLS');
         if ($tanggal !== '' && $tanggal !== null) {
             $this->db->where('b.tgl_so', $tanggal);
         }
@@ -502,6 +503,7 @@ class Reports_model extends BF_Model
             $this->db->or_like('a.total_harga', $search['value'], 'both');
             $this->db->group_end();
         }
+        $this->db->group_by('a.id_so_detail');
         $this->db->order_by('b.tgl_so', 'desc');
         $this->db->limit($length, $start);
         $query = $this->db->get();
@@ -510,7 +512,8 @@ class Reports_model extends BF_Model
         $this->db->from('tr_sales_order_detail a');
         $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
         $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
-        $this->db->where('b.perseninvoice_revenue >=', 100);
+        $this->db->join('tr_revenue d', 'd.no_so = a.no_so', 'left');
+        $this->db->where('d.status_jurnal', 'CLS');
         if ($tanggal !== '' && $tanggal !== null) {
             $this->db->where('b.tgl_so', $tanggal);
         }
@@ -527,6 +530,7 @@ class Reports_model extends BF_Model
             $this->db->or_like('a.total_harga', $search['value'], 'both');
             $this->db->group_end();
         }
+        $this->db->group_by('a.id_so_detail');
         $this->db->order_by('b.tgl_so', 'desc');
 
         $query_all = $this->db->get();

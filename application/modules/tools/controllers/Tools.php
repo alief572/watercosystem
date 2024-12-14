@@ -1,77 +1,82 @@
  <?php
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-class Tools extends Admin_Controller {
-    //Permission
-    protected $viewPermission = "Tools.View";
-    protected $addPermission = "Tools.Add";
-    protected $managePermission = "Tools.Manage";
-    protected $deletePermission = "Tools.Delete";
-    public function __construct() {
-        parent::__construct();
-        $this->load->library(array('Mpdf', 'upload', 'Image_lib'));
-        $this->load->model('Tools/Tools_model');
-        $this->template->title('Manage Data Plan Bayar');
-        $this->template->page_icon('fa fa-building-o');
-        date_default_timezone_set('Asia/Bangkok');
-    }
- 
- 
-	public function batal_planning() {
-        $this->auth->restrict($this->viewPermission);
-        $this->template->page_icon('fa fa-list');
-        $data = '0';
-        $this->template->set('results', $data);
-        $this->template->title('Hapus Data Planning');
-        $this->template->render('index_dtspkmarketing.php'); 
-    }
-	
-	public function tampilkan_planning()	{
-		$this->auth->restrict($this->viewPermission);
-        $session = $this->session->userdata('app_session');
-		$post = $this->input->post();		
-		$this->template->page_icon('fa fa-users');
-        $data = $this->Tools_model->cariPlanning($this->input->post("nomor"));
-		
-		// print_r($data);
-		// exit;
-		
-		
-        $this->template->set('results', $data);
-        $this->template->title('Hapus Data Planning');
-		$this->template->render('index_dtspkmarketing');
+	if (!defined('BASEPATH')) {
+		exit('No direct script access allowed');
 	}
-	
-	
-	public function hapusplanning(){
-		$this->auth->restrict($this->deletePermission);
-		$id = $this->input->post('id');
-		
-		$today			= date('Y-m-d H:i:s');
-		$user			= $this->auth->user_id();
-		
-		$this->db->trans_begin();
-		
-		$so   = $this->db->query("SELECT * FROM tr_planning_delivery_detail WHERE no_planning='$id'")->result();
-		
-		foreach($so AS $val ){
-		$id_so = $val->id_so_detail;
-		
-		$dataso = [
-					
+	class Tools extends Admin_Controller
+	{
+		//Permission
+		protected $viewPermission = "Tools.View";
+		protected $addPermission = "Tools.Add";
+		protected $managePermission = "Tools.Manage";
+		protected $deletePermission = "Tools.Delete";
+		public function __construct()
+		{
+			parent::__construct();
+			$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+			$this->load->model('Tools/Tools_model');
+			$this->template->title('Manage Data Plan Bayar');
+			$this->template->page_icon('fa fa-building-o');
+			date_default_timezone_set('Asia/Bangkok');
+		}
+
+
+		public function batal_planning()
+		{
+			$this->auth->restrict($this->viewPermission);
+			$this->template->page_icon('fa fa-list');
+			$data = '0';
+			$this->template->set('results', $data);
+			$this->template->title('Hapus Data Planning');
+			$this->template->render('index_dtspkmarketing.php');
+		}
+
+		public function tampilkan_planning()
+		{
+			$this->auth->restrict($this->viewPermission);
+			$session = $this->session->userdata('app_session');
+			$post = $this->input->post();
+			$this->template->page_icon('fa fa-users');
+			$data = $this->Tools_model->cariPlanning($this->input->post("nomor"));
+
+			// print_r($data);
+			// exit;
+
+
+			$this->template->set('results', $data);
+			$this->template->title('Hapus Data Planning');
+			$this->template->render('index_dtspkmarketing');
+		}
+
+
+		public function hapusplanning()
+		{
+			$this->auth->restrict($this->deletePermission);
+			$id = $this->input->post('id');
+
+			$today			= date('Y-m-d H:i:s');
+			$user			= $this->auth->user_id();
+
+			$this->db->trans_begin();
+
+			$so   = $this->db->query("SELECT * FROM tr_planning_delivery_detail WHERE no_planning='$id'")->result();
+
+			foreach ($so as $val) {
+				$id_so = $val->id_so_detail;
+
+				$dataso = [
+
 					'qty_delivery'		    => 0,
 					'status_planning'		=> '0',
 					'modified_by'			=> $this->auth->user_id(),
 					'modified_on'			=> date('Y-m-d H:i:s'),
-					
-				]; 
-		
-		$this->db->where('id_so_detail',$id_so)->update("tr_sales_order_detail",$dataso);
-			
-		}
-		
-		$header =$this->db->query("INSERT INTO tr_planning_delivery_deleted (
+
+				];
+
+				$this->db->where('id_so_detail', $id_so)->update("tr_sales_order_detail", $dataso);
+			}
+
+			$header = $this->db->query(
+				"INSERT INTO tr_planning_delivery_deleted (
 							id,
 							no_planning,
 							no_surat_planning,
@@ -197,10 +202,11 @@ class Tools extends Admin_Controller {
 							reff,
 							NOW()
 							FROM tr_planning_delivery WHERE no_planning='$id')"
-						 );
-						 
-						 
-			$detail= $this->db->query("INSERT INTO tr_planning_delivery_detail_deleted (			 
+			);
+
+
+			$detail = $this->db->query(
+				"INSERT INTO tr_planning_delivery_detail_deleted (			 
 					id_planning_delivery,
 					id_so_detail,
 					id_penawaran_detail,
@@ -278,90 +284,89 @@ class Tools extends Admin_Controller {
 					qty_spk,
 					NOW()
 					FROM tr_planning_delivery_detail WHERE no_planning='$id')"
-				     );
-					 
-					 
-				$hapusheader = $this->db->query("DELETE FROM tr_planning_delivery WHERE no_planning='$id'");
-				$hapusdetail = $this->db->query("DELETE FROM tr_planning_delivery_detail WHERE no_planning='$id'");
-				$hapusplantagih = $this->db->query("DELETE FROM wt_plan_tagih WHERE no_planning='$id'");
-					 
-		
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'status'	=> 0
 			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Save Item. Thanks ...',
-			  'status'	=> 1
-			);			
+
+
+			$hapusheader = $this->db->query("DELETE FROM tr_planning_delivery WHERE no_planning='$id'");
+			$hapusdetail = $this->db->query("DELETE FROM tr_planning_delivery_detail WHERE no_planning='$id'");
+			$hapusplantagih = $this->db->query("DELETE FROM wt_plan_tagih WHERE no_planning='$id'");
+
+
+			if ($this->db->trans_status() === FALSE) {
+				$this->db->trans_rollback();
+				$status	= array(
+					'pesan'		=> 'Gagal Save Item. Thanks ...',
+					'status'	=> 0
+				);
+			} else {
+				$this->db->trans_commit();
+				$status	= array(
+					'pesan'		=> 'Success Save Item. Thanks ...',
+					'status'	=> 1
+				);
+			}
+
+			echo json_encode($status);
 		}
-		
-  		echo json_encode($status);
-	}
-	
-	public function batal_so() {
-        $this->auth->restrict($this->viewPermission);
-        $this->template->page_icon('fa fa-list');
-        $data = '0';
-        $this->template->set('results', $data);
-        $this->template->title('Hapus Data SO');
-        $this->template->render('index_so.php'); 
-    }
-	
-	public function tampilkan_so()	{
-		$this->auth->restrict($this->viewPermission);
-        $session = $this->session->userdata('app_session');
-		$post = $this->input->post();		
-		$this->template->page_icon('fa fa-users');
-        $data = $this->Tools_model->cariSalesOrderId($this->input->post("nomor"));
-	    $this->template->set('results', $data);
-        $this->template->title('Hapus Data SO');
-		$this->template->render('index_so');
-	}
-	
-	
-	public function hapus_so(){
-		
-		$this->auth->restrict($this->deletePermission);
-		$id = $this->input->post('id');
-		$today			= date('Y-m-d H:i:s');
-		$user			= $this->auth->user_id();
-		
-		$this->db->trans_begin();
-		
-		
-				
-					 
-					 
-				$penawaran    = $this->db->query("SELECT no_penawaran FROM tr_sales_order WHERE no_so='$id'")->row();
-				$no_pn        = $penawaran->no_penawaran;
-				$datapn = [
-							'status'		    => '4',
-							'modified_by'			=> $this->auth->user_id(),
-							'modified_on'			=> date('Y-m-d H:i:s'),
-										
-						  ]; 							
-				$this->db->where('no_penawaran',$no_pn)->update("tr_penawaran",$datapn); 
-				
-				
-				$so   = $this->db->query("SELECT * FROM tr_sales_order_detail WHERE no_so='$id'")->result();
-	
-				foreach($so AS $val ){
-						$material = $val->id_category3;
-						$qtyso    = $val->qty_so;
-						$code     = $val->no_so;
-						$nomor    = $this->db->query("SELECT no_surat FROM tr_sales_order WHERE no_so='$id'")->row();
-						$surat    = $nomor->no_surat;
-						$this->kartu_stok($material,$qtyso,$code,$surat);
-							
-				 }
-					 
-		
-			$header =$this->db->query("INSERT INTO tr_sales_order_batal (
+
+		public function batal_so()
+		{
+			$this->auth->restrict($this->viewPermission);
+			$this->template->page_icon('fa fa-list');
+			$data = '0';
+			$this->template->set('results', $data);
+			$this->template->title('Hapus Data SO');
+			$this->template->render('index_so.php');
+		}
+
+		public function tampilkan_so()
+		{
+			$this->auth->restrict($this->viewPermission);
+			$session = $this->session->userdata('app_session');
+			$post = $this->input->post();
+			$this->template->page_icon('fa fa-users');
+			$data = $this->Tools_model->cariSalesOrderId($this->input->post("nomor"));
+			$this->template->set('results', $data);
+			$this->template->title('Hapus Data SO');
+			$this->template->render('index_so');
+		}
+
+
+		public function hapus_so()
+		{
+
+			$this->auth->restrict($this->deletePermission);
+			$id = $this->input->post('id');
+			$today			= date('Y-m-d H:i:s');
+			$user			= $this->auth->user_id();
+
+			$this->db->trans_begin();
+
+			$penawaran    = $this->db->query("SELECT no_penawaran FROM tr_sales_order WHERE no_so='$id'")->row();
+			$no_pn        = $penawaran->no_penawaran;
+			$datapn = [
+				'status'		    => '4',
+				'modified_by'			=> $this->auth->user_id(),
+				'modified_on'			=> date('Y-m-d H:i:s'),
+
+			];
+			$this->db->where('no_penawaran', $no_pn)->update("tr_penawaran", $datapn);
+
+
+			$so   = $this->db->query("SELECT * FROM tr_sales_order_detail WHERE no_so='$id'")->result();
+
+			foreach ($so as $val) {
+				$material = $val->id_category3;
+				$qtyso    = $val->qty_so;
+				$code     = $val->no_so;
+				$nomor    = $this->db->query("SELECT no_surat FROM tr_sales_order WHERE no_so='$id'")->row();
+				$surat    = $nomor->no_surat;
+				$this->kartu_stok($material, $qtyso, $code, $surat);
+			}
+
+
+			$header = $this->db->query(
+				"INSERT INTO tr_sales_order_batal (
 							id,
 							no_so,
 							no_penawaran,
@@ -474,10 +479,11 @@ class Tools extends Admin_Controller {
 							reff,
 							NOW()
 							FROM tr_sales_order WHERE no_so='$id')"
-						 );
-						 
-						 
-			$detail= $this->db->query("INSERT INTO tr_sales_order_detail_batal (			 
+			);
+
+
+			$detail = $this->db->query(
+				"INSERT INTO tr_sales_order_detail_batal (			 
 								id_so_detail,
 								id_penawaran_detail,
 								no_so,
@@ -553,77 +559,62 @@ class Tools extends Admin_Controller {
 							costbook_so,
 							NOW()
 							FROM tr_sales_order_detail WHERE no_so='$id')"
-				     );
-					 
-					 
-					 
-					 
-					 
-					
-				$hapusheader = $this->db->query("DELETE FROM tr_sales_order WHERE no_so='$id'");
-				$hapusdetail = $this->db->query("DELETE FROM tr_sales_order_detail WHERE no_so='$id'");
-				
-				
-				
-				
-			
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'status'	=> 0
 			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Save Item. Thanks ...',
-			  'status'	=> 1
-			);			
+
+			$hapusheader = $this->db->query("DELETE FROM tr_sales_order WHERE no_so='$id'");
+			$hapusdetail = $this->db->query("DELETE FROM tr_sales_order_detail WHERE no_so='$id'");
+
+			if ($this->db->trans_status() === FALSE) {
+				$this->db->trans_rollback();
+				$status	= array(
+					'pesan'		=> 'Gagal Save Item. Thanks ...',
+					'status'	=> 0
+				);
+			} else {
+				$this->db->trans_commit();
+				$status	= array(
+					'pesan'		=> 'Success Save Item. Thanks ...',
+					'status'	=> 1
+				);
+			}
+
+			echo json_encode($status);
 		}
-		
-  		echo json_encode($status);
-	}
-	
-	
-	public function kartu_stok($material,$qtyso,$notr,$no_surat)
-	{
-		
-		$mat = $this->db->query("SELECT * FROM stock_material WHERE id_category3='$material' ")->row();
 
-		
 
-		$book  = (int) $mat->qty_book - (int) $qtyso;
-		$free  = (int) $mat->qty_free + (int)$qtyso;
+		public function kartu_stok($material, $qtyso, $notr, $no_surat)
+		{
 
-		// print_r($free);
-		// exit;
-		$kartu = [
-			'id_category3'		    => $material,
-			'qty'		            => $mat->qty,
-			'qty_book'			    => $mat->qty_book,
-			'qty_free'		        => $mat->qty_free,
-			'transaksi'			    => 'batal sales order',
-			'tgl_transaksi'			=> date('Y-m-d'),
-			'no_transaksi'			=> $notr,
-			'id_gudang'             => $mat->id_gudang,
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'qty_transaksi'         => $qtyso,
-			'qty_akhir'		        => $mat->qty,
-			'qty_book_akhir'	    => $book,
-			'qty_free_akhir'		=> $free,	
-			'status_transaksi'		=> 'in',			
-			'no_surat'		        => $no_surat,
+			$mat = $this->db->query("SELECT * FROM stock_material WHERE id_category3='$material' ")->row();
+
+
+
+			$book  = (int) $mat->qty_book - (int) $qtyso;
+			$free  = (int) $mat->qty_free + (int)$qtyso;
+
+			// print_r($free);
+			// exit;
+			$kartu = [
+				'id_category3'		    => $material,
+				'qty'		            => $mat->qty,
+				'qty_book'			    => $mat->qty_book,
+				'qty_free'		        => $mat->qty_free,
+				'transaksi'			    => 'batal sales order',
+				'tgl_transaksi'			=> date('Y-m-d'),
+				'no_transaksi'			=> $notr,
+				'id_gudang'             => $mat->id_gudang,
+				'created_on'			=> date('Y-m-d H:i:s'),
+				'created_by'			=> $this->auth->user_id(),
+				'qty_transaksi'         => $qtyso,
+				'qty_akhir'		        => $mat->qty,
+				'qty_book_akhir'	    => $book,
+				'qty_free_akhir'		=> $free,
+				'status_transaksi'		=> 'in',
+				'no_surat'		        => $no_surat,
 			];
 
-		$this->db->insert('kartu_stok',$kartu);	   
+			$this->db->insert('kartu_stok', $kartu);
 
-		$this->db->query("UPDATE stock_material SET qty_free=qty_free+$qtyso , qty_book=qty_book-$qtyso  WHERE id_category3='$material'");
+			$this->db->query("UPDATE stock_material SET qty_free=qty_free+$qtyso , qty_book=qty_book-$qtyso  WHERE id_category3='$material'");
+		}
 	}
-
-	
-	
-	  
-	
-	
-}
