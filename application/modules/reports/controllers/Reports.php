@@ -112,8 +112,7 @@ class Reports extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Reports_model->cariSalesOrderDetail();
-		$this->template->set('results', $data);
+		
 		$this->template->title('Report Detail Sales Order');
 		$this->template->render('report_detail_salesorder');
 	}

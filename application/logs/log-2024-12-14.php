@@ -29,3 +29,5 @@ OR  `a`.`nama` LIKE '%%' ESCAPE '!'
  )
 ORDER BY `a`.`created_on` DESC
  LIMIT 10
+ERROR - 2024-12-14 14:38:06 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-14 14:38:07 --> 404 Page Not Found: /index

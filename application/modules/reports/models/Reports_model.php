@@ -407,8 +407,10 @@ class Reports_model extends BF_Model
     public function CariRevenuedetail()
     {
 
-        $this->db->select('a.*');
+        $this->db->select('a.*, SUM(b.qty * b.harga_satuan) as pricelist, SUM((b.qty * b.harga_satuan) * b.diskon / 100) as disc, b.diskon as disc_persen');
         $this->db->from('tr_revenue a');
+        $this->db->join('tr_sales_order_detail b', 'b.no_so = a.no_so', 'left');
+        $this->db->group_by('a.id');
         $query = $this->db->get();
         return $query->result();
     }
@@ -485,8 +487,6 @@ class Reports_model extends BF_Model
         $this->db->from('tr_sales_order_detail a');
         $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
         $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
-        $this->db->join('tr_revenue d', 'd.no_so = a.no_so', 'left');
-        $this->db->where('d.status_jurnal', 'CLS');
         if ($tanggal !== '' && $tanggal !== null) {
             $this->db->where('b.tgl_so', $tanggal);
         }
@@ -512,8 +512,6 @@ class Reports_model extends BF_Model
         $this->db->from('tr_sales_order_detail a');
         $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
         $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
-        $this->db->join('tr_revenue d', 'd.no_so = a.no_so', 'left');
-        $this->db->where('d.status_jurnal', 'CLS');
         if ($tanggal !== '' && $tanggal !== null) {
             $this->db->where('b.tgl_so', $tanggal);
         }
