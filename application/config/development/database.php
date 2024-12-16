@@ -76,9 +76,9 @@ $query_builder = true;
 
 $db['default'] = array(
     'dsn' => '',
-    'hostname' => '203.160.58.170',
-    'username' => 'syam',
-    'password' => 'syam@ssc',
+    'hostname' => 'localhost',
+    'username' => 'root',
+    'password' => '',
     'database' => 'waterco_demo',
     'dbdriver' => 'mysqli',
     'dbprefix' => '',
