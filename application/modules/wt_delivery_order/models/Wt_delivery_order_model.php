@@ -551,22 +551,22 @@ class Wt_delivery_order_model extends BF_Model
       $option = $view_do . ' ' . $print_do;
 
       $nilai_costbook = 0;
-      
+
       $this->db->select('a.id_category3, a.qty_do, a.tgl_delivery');
       $this->db->from('tr_delivery_order_detail a');
       $this->db->where('a.no_do', $item->no_do);
       $get_detail = $this->db->get()->result();
-      
-      foreach($get_detail as $item_detail) {
+
+      foreach ($get_detail as $item_detail) {
         $this->db->select('a.nilai_costbook');
         $this->db->from('ms_costbook_backup a');
         $this->db->where('a.id_category3', $item_detail->id_category3);
-        $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item_detail->tgl_delivery);
-        $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item_detail->tgl_delivery);
+        $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item->tgl_do);
+        $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tgl_do);
         $this->db->limit(1);
         $get_costbook = $this->db->get()->row();
 
-        if(!empty($get_costbook)) {
+        if (!empty($get_costbook)) {
           $nilai_costbook += ($get_costbook->nilai_costbook * $item_detail->qty_do);
         }
       }
@@ -580,6 +580,101 @@ class Wt_delivery_order_model extends BF_Model
         'no_invoice' => $item->no_invoice,
         'nilai_costbook' => number_format($nilai_costbook, 2),
         'option' => $option
+      ];
+
+      $no++;
+    }
+
+    echo json_encode([
+      'draw' => intval($draw),
+      'recordsTotal' => $query_all->num_rows(),
+      'recordsFiltered' => $query_all->num_rows(),
+      'data' => $hasil
+    ]);
+  }
+
+  public function get_data_history_delivery_order_detail()
+  {
+    $draw = $this->input->post('draw');
+    $start = $this->input->post('start');
+    $length = $this->input->post('length');
+    $search = $this->input->post('search');
+
+    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer');
+    $this->db->from('tr_delivery_order_detail a');
+    $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
+    $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
+    if (!empty($search)) {
+      $this->db->group_start();
+      $this->db->like('b.no_surat', $search['value'], 'both');
+      $this->db->or_like('DATE_FORMAT(b.tgl_do, "%d-%M-%Y")', $search['value'], 'both');
+      $this->db->or_like('c.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_produk', $search['value'], 'both');
+      $this->db->or_like('a.qty_do', $search['value'], 'both');
+      $this->db->or_like('a.serial_number', $search['value'], 'both');
+      $this->db->or_like('a.kartu_garansi', $search['value'], 'both');
+      $this->db->or_like('a.keterangan_statuskirim', $search['value'], 'both');
+      $this->db->group_end();
+    }
+    $this->db->order_by('a.created_on', 'desc');
+    $this->db->limit($length, $start);
+
+    $query = $this->db->get();
+
+    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer');
+    $this->db->from('tr_delivery_order_detail a');
+    $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
+    $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
+    if (!empty($search)) {
+      $this->db->group_start();
+      $this->db->like('b.no_surat', $search['value'], 'both');
+      $this->db->or_like('DATE_FORMAT(b.tgl_do, "%d-%M-%Y")', $search['value'], 'both');
+      $this->db->or_like('c.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_produk', $search['value'], 'both');
+      $this->db->or_like('a.qty_do', $search['value'], 'both');
+      $this->db->or_like('a.serial_number', $search['value'], 'both');
+      $this->db->or_like('a.kartu_garansi', $search['value'], 'both');
+      $this->db->or_like('a.keterangan_statuskirim', $search['value'], 'both');
+      $this->db->group_end();
+    }
+    $this->db->order_by('a.created_on', 'desc');
+
+    $query_all = $this->db->get();
+
+    $hasil = [];
+
+    $no = 1 + $start;
+    foreach ($query->result() as $item) {
+
+      $costbook = 0;
+      $grand_total = 0;
+
+      $this->db->select('a.nilai_costbook');
+      $this->db->from('ms_costbook_backup a');
+      $this->db->where('a.id_category3', $item->id_category3);
+      $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item->tgl_do);
+      $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tgl_do);
+      $this->db->limit(1);
+      $get_costbook = $this->db->get()->row();
+
+      if (!empty($get_costbook)) {
+        $costbook = ($get_costbook->nilai_costbook);
+      }
+
+      $grand_total = ($costbook * $item->qty_do);
+
+      $hasil[] = [
+        'no' => $no,
+        'no_do' => $item->no_do,
+        'tgl_do' => date('d-M-Y', strtotime($item->tgl_do)),
+        'nama_customer' => $item->name_customer,
+        'nama_produk' => $item->nama_produk,
+        'qty_kirim' => $item->qty_do,
+        'serial_number' => $item->serial_number,
+        'no_garansi' => $item->kartu_garansi,
+        'keterangan' => $item->keterangan_statuskirim,
+        'costbook' => number_format($costbook, 2),
+        'grand_total' => number_format($grand_total, 2)
       ];
 
       $no++;

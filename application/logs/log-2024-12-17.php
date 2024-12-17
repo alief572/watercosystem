@@ -21,3 +21,9 @@ AND DATE_FORMAT(a."%Y-%m-%d") >= '2024-12-11'
 AND DATE_FORMAT(a."%Y-%m-%d") <= '2024-12-11'
  LIMIT 1
 ERROR - 2024-12-17 08:25:33 --> 404 Page Not Found: /index
+ERROR - 2024-12-17 08:54:58 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-17 08:54:59 --> 404 Page Not Found: /index
+ERROR - 2024-12-17 09:12:23 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-17 09:12:23 --> 404 Page Not Found: /index
+ERROR - 2024-12-17 09:12:43 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-17 09:12:44 --> 404 Page Not Found: /index
