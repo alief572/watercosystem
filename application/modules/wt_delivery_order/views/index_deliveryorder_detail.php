@@ -22,6 +22,7 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 					<th>#</th>
 					<th>No DO</th>
 					<th>Tgl DO</th>
+					<th>No. Invoice</th>
 					<th>Nama Customer</th>
 					<th>Nama Produk</th>
 					<th>Qty Kirim</th>
@@ -202,6 +203,9 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 				},
 				{
 					data: 'tgl_do'
+				},
+				{
+					data: 'no_invoice',
 				},
 				{
 					data: 'nama_customer'

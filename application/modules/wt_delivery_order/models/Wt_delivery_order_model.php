@@ -552,6 +552,8 @@ class Wt_delivery_order_model extends BF_Model
 
       $nilai_costbook = 0;
 
+      $no_invoice = [];
+
       $this->db->select('a.id_category3, a.qty_do, a.tgl_delivery');
       $this->db->from('tr_delivery_order_detail a');
       $this->db->where('a.no_do', $item->no_do);
@@ -646,6 +648,19 @@ class Wt_delivery_order_model extends BF_Model
     $no = 1 + $start;
     foreach ($query->result() as $item) {
 
+      $no_invoice = [];
+
+      $this->db->select('a.no_surat');
+      $this->db->from('tr_invoice a');
+      $this->db->where('a.no_so', $item->no_so);
+      $get_no_invoice = $this->db->get()->result();
+
+      foreach($get_no_invoice as $item_invoice) {
+        $no_invoice[] = $item_invoice->no_surat;
+      }
+
+      $no_invoice = implode(', ', $no_invoice);
+
       $costbook = 0;
       $grand_total = 0;
 
@@ -660,13 +675,13 @@ class Wt_delivery_order_model extends BF_Model
       if (!empty($get_costbook)) {
         $costbook = ($get_costbook->nilai_costbook);
       }
-
       $grand_total = ($costbook * $item->qty_do);
 
       $hasil[] = [
         'no' => $no,
         'no_do' => $item->no_do,
         'tgl_do' => date('d-M-Y', strtotime($item->tgl_do)),
+        'no_invoice' => $no_invoice,
         'nama_customer' => $item->name_customer,
         'nama_produk' => $item->nama_produk,
         'qty_kirim' => $item->qty_do,

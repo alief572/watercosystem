@@ -27,3 +27,7 @@ ERROR - 2024-12-17 09:12:23 --> Severity: Notice --> Use of undefined constant p
 ERROR - 2024-12-17 09:12:23 --> 404 Page Not Found: /index
 ERROR - 2024-12-17 09:12:43 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
 ERROR - 2024-12-17 09:12:44 --> 404 Page Not Found: /index
+ERROR - 2024-12-17 10:21:53 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-17 10:21:54 --> 404 Page Not Found: /index
+ERROR - 2024-12-17 15:27:01 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-17 15:27:02 --> 404 Page Not Found: /index
