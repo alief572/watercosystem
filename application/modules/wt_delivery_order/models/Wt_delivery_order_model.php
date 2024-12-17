@@ -602,10 +602,11 @@ class Wt_delivery_order_model extends BF_Model
     $length = $this->input->post('length');
     $search = $this->input->post('search');
 
-    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer');
+    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer, d.no_surat as no_invoice');
     $this->db->from('tr_delivery_order_detail a');
     $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
     $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
+    $this->db->join('tr_invoice d', 'd.no_so = a.no_so', 'left');
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('b.no_surat', $search['value'], 'both');
@@ -616,6 +617,7 @@ class Wt_delivery_order_model extends BF_Model
       $this->db->or_like('a.serial_number', $search['value'], 'both');
       $this->db->or_like('a.kartu_garansi', $search['value'], 'both');
       $this->db->or_like('a.keterangan_statuskirim', $search['value'], 'both');
+      $this->db->or_like('d.no_surat', $search['value'], 'both');
       $this->db->group_end();
     }
     $this->db->order_by('a.created_on', 'desc');
@@ -623,10 +625,11 @@ class Wt_delivery_order_model extends BF_Model
 
     $query = $this->db->get();
 
-    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer');
+    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer, d.no_surat as no_invoice');
     $this->db->from('tr_delivery_order_detail a');
     $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
     $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
+    $this->db->join('tr_invoice d', 'd.no_so = a.no_so', 'left');
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('b.no_surat', $search['value'], 'both');
@@ -637,6 +640,7 @@ class Wt_delivery_order_model extends BF_Model
       $this->db->or_like('a.serial_number', $search['value'], 'both');
       $this->db->or_like('a.kartu_garansi', $search['value'], 'both');
       $this->db->or_like('a.keterangan_statuskirim', $search['value'], 'both');
+      $this->db->or_like('d.no_surat', $search['value'], 'both');
       $this->db->group_end();
     }
     $this->db->order_by('a.created_on', 'desc');
@@ -647,19 +651,6 @@ class Wt_delivery_order_model extends BF_Model
 
     $no = 1 + $start;
     foreach ($query->result() as $item) {
-
-      $no_invoice = [];
-
-      $this->db->select('a.no_surat');
-      $this->db->from('tr_invoice a');
-      $this->db->where('a.no_so', $item->no_so);
-      $get_no_invoice = $this->db->get()->result();
-
-      foreach($get_no_invoice as $item_invoice) {
-        $no_invoice[] = $item_invoice->no_surat;
-      }
-
-      $no_invoice = implode(', ', $no_invoice);
 
       $costbook = 0;
       $grand_total = 0;
@@ -681,7 +672,7 @@ class Wt_delivery_order_model extends BF_Model
         'no' => $no,
         'no_do' => $item->no_do,
         'tgl_do' => date('d-M-Y', strtotime($item->tgl_do)),
-        'no_invoice' => $no_invoice,
+        'no_invoice' => $item->no_invoice,
         'nama_customer' => $item->name_customer,
         'nama_produk' => $item->nama_produk,
         'qty_kirim' => $item->qty_do,
