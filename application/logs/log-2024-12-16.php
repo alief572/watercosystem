@@ -46,3 +46,5 @@ AND DATE_FORMAT(a.tgl, "%Y-%m-%d") > `IS` `NULL`
 AND DATE_FORMAT(a.tgl, "%Y-%m-%d") < `IS` `NULL`
 ORDER BY `a`.`tgl` DESC
  LIMIT 1
+ERROR - 2024-12-16 15:18:50 --> Severity: Notice --> Use of undefined constant php - assumed 'php' /opt/lampp/htdocs/watercosystem/application/modules/users/views/login_animate.php 6
+ERROR - 2024-12-16 15:18:50 --> 404 Page Not Found: /index
