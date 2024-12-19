@@ -31,7 +31,6 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 					<th width='18%'>No Invoice</th>
 					<th width='7%'>Persentase</th>
 					<th width='7%'>Price List</th>
-					<th width='7%'>Disc (%)</th>
 					<th width='7%'>Disc (Rp.)</th>
 					<th width='7%'>Revenue</th>
 					<th width='7%'>HPP</th>
@@ -73,7 +72,6 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 							<td><?= $invc ?></td>
 							<td><?= number_format($record->perseninvoice_pengakuan) ?>%</td>
 							<td align="right"><?= number_format($record->pricelist) ?></td>
-							<td align="right"><?= number_format($record->disc_persen, 2) ?>%</td>
 							<td align="right"><?= number_format($record->disc) ?></td>
 							<td align="right"><?= number_format($record->pengakuan_invoice) ?></td>
 							<td align="right"><?= number_format($record->pengakuan_hpp) ?></td>
