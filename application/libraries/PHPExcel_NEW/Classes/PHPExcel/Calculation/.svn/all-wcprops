@@ -1,0 +1,101 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation
+END
+Engineering.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Engineering.php
+END
+DateTime.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/DateTime.php
+END
+ExceptionHandler.php
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/ExceptionHandler.php
+END
+Exception.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Exception.php
+END
+Database.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Database.php
+END
+FormulaToken.php
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/FormulaToken.php
+END
+LookupRef.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/LookupRef.php
+END
+Functions.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Functions.php
+END
+functionlist.txt
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/functionlist.txt
+END
+Logical.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Logical.php
+END
+TextData.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/TextData.php
+END
+MathTrig.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/MathTrig.php
+END
+FormulaParser.php
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/FormulaParser.php
+END
+Financial.php
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Financial.php
+END
+Statistical.php
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Statistical.php
+END
+Function.php
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/inalum_svn/!svn/ver/1/app/Vendor/PHPExcel/Classes/PHPExcel/Calculation/Function.php
+END
