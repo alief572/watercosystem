@@ -32,7 +32,7 @@ table.garis {
 
 $noexpense = $data->no_doc;
 $bank = $data->bank_nama;
-$bk = $this->db->query("SELECT nama FROM gl_waterco.coa_master WHERE no_perkiraan='$bank'")->row();
+$bk = $this->db->query("SELECT nama FROM gl_waterco_dev.coa_master WHERE no_perkiraan='$bank'")->row();
 $nama = $bk->nama;
 $tgl = $data->tgl_doc;
 $informasi = $data->informasi;

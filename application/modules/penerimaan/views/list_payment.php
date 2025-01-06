@@ -45,7 +45,7 @@
 				$tanggal = $record->tgl_pembayaran;
 				$coa = $record->kd_bank;
 				
-				$nmbank =$this->db->query("SELECT nama FROM gl_waterco.coa_master WHERE no_perkiraan='$coa'")->row()
+				$nmbank =$this->db->query("SELECT nama FROM gl_waterco_dev.coa_master WHERE no_perkiraan='$coa'")->row()
 			?>
 		<tr>
 		    <td><?= $numb; ?></td>
