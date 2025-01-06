@@ -642,13 +642,12 @@ class Serverside_model extends BF_Model
 		$where_tanggal = "";
 		$tanggal2 = date('Y-m-d');
 		if (!empty($tanggal)) {
-			$where_tanggal = " AND a.tgl BETWEEN '".$tanggal."' AND '".$tanggal2."' ";
+			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal . "%' ";
 			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal . "%' ";
-		} 
-		// else {
-		// 	$where_tanggal = " AND a.tgl LIKE '%" . $tanggal2 . "%' ";
-		// 	$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal2 . "%' ";
-		// }
+		} else {
+			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal2 . "%' ";
+			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal2 . "%' ";
+		}
 
 		$sql = "SELECT
                     a.*, 
@@ -667,13 +666,14 @@ class Serverside_model extends BF_Model
                     JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
 					JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
                 WHERE 1=1 AND
-                    a.aktif='Y' " . $where_tanggal . "
+                    a.aktif='Y' " . $where_tanggal . "  " . $where_tanggal2 . " 
                     AND (
                         b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                         OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
 						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
+		// print_r($sql); exit;
 
 		$Query_Sum	= "SELECT
                             SUM(a.qty) AS weight
@@ -686,7 +686,7 @@ class Serverside_model extends BF_Model
                             JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
 							JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
                         WHERE 1=1 AND
-                            a.aktif='Y' " . $where_tanggal . "
+                            a.aktif='Y' " . $where_tanggal . " " . $where_tanggal2 . "
                             AND (
                                 b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                                 OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
