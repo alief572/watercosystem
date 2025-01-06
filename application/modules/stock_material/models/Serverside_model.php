@@ -673,7 +673,6 @@ class Serverside_model extends BF_Model
 						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
-		// print_r($sql); exit;
 
 		$Query_Sum	= "SELECT
                             SUM(a.qty) AS weight
