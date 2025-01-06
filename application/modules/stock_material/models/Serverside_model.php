@@ -666,7 +666,7 @@ class Serverside_model extends BF_Model
                     JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
 					JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
                 WHERE 1=1 AND
-                    a.aktif='Y' " . $where_tanggal . " 
+                    a.aktif='Y' " . $where_tanggal . "  " . $where_tanggal2 . " 
                     AND (
                         b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                         OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
@@ -686,7 +686,7 @@ class Serverside_model extends BF_Model
                             JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
 							JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
                         WHERE 1=1 AND
-                            a.aktif='Y' " . $where_tanggal . "
+                            a.aktif='Y' " . $where_tanggal . " " . $where_tanggal2 . "
                             AND (
                                 b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                                 OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
