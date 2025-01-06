@@ -156,7 +156,7 @@ $inv          =  $this->db->query("SELECT * FROM tr_invoice WHERE no_invoice = '
 $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE name_customer = '$data_header->nm_customer'")->row();
 $coa = $data_header->kd_bank;
 				
-$nmbank =$this->db->query("SELECT nama FROM gl_waterco.coa_master WHERE no_perkiraan='$coa'")->row();
+$nmbank =$this->db->query("SELECT nama FROM gl_waterco_dev.coa_master WHERE no_perkiraan='$coa'")->row();
 ?>
 <table border="0px" cellspacing="0" width='100%' valign="top">
     <tr>
