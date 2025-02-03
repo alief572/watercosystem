@@ -144,7 +144,9 @@
 <script>
 	$(document).ready(function(){
 		$('#spinnerx').hide();
-		DataTables();
+		// DataTables();
+
+		$('#example1').DataTable();
 	});
 	$(document).on('click', '.buktip', function(e){
 		e.preventDefault();

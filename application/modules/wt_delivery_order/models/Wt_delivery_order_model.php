@@ -670,7 +670,7 @@ class Wt_delivery_order_model extends BF_Model
 
       $hasil[] = [
         'no' => $no,
-        'no_do' => $item->no_do,
+        'no_do' => $item->no_surat,
         'tgl_do' => date('d-M-Y', strtotime($item->tgl_do)),
         'no_invoice' => $item->no_invoice,
         'nama_customer' => $item->name_customer,
