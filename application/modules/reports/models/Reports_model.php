@@ -482,13 +482,21 @@ class Reports_model extends BF_Model
         $search = $this->input->post('search');
 
         $tanggal = $this->input->post('tanggal');
+        $tanggal_to = $this->input->post('tanggal_to');
 
         $this->db->select('a.*, b.tgl_so, b.no_surat, c.name_customer as customer');
         $this->db->from('tr_sales_order_detail a');
         $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
         $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
         if ($tanggal !== '' && $tanggal !== null) {
-            $this->db->where('b.tgl_so', $tanggal);
+            $this->db->where('b.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('b.tgl_so <=', $tanggal_to);
+        }
+        if(($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('b.tgl_so >=', $tanggal);
+            $this->db->where('b.tgl_so <=', $tanggal_to);
         }
         if (!empty($search)) {
             $this->db->group_start();
@@ -513,7 +521,14 @@ class Reports_model extends BF_Model
         $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
         $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
         if ($tanggal !== '' && $tanggal !== null) {
-            $this->db->where('b.tgl_so', $tanggal);
+            $this->db->where('b.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('b.tgl_so <=', $tanggal_to);
+        }
+        if(($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('b.tgl_so >=', $tanggal);
+            $this->db->where('b.tgl_so <=', $tanggal_to);
         }
         if (!empty($search)) {
             $this->db->group_start();
