@@ -18,11 +18,25 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 		<form method="post" action="<?= base_url() ?>reports/tampilkan_detail_salesorder" autocomplete="off">
 			<div class="row">
 				<div class="col-sm-10">
+
 					<div class="col-sm-2">
 						<div class="form-group">
 							<br>
-							<label>Tanggal</label>
+							<label>From</label>
 							<input type="date" name="tanggal" id="tanggal" class="form-control input-sm">
+						</div>
+					</div>
+					<div class="col-sm-1 text-center">
+						<div class="form-group">
+							<br><br>
+							<span>S/D</span>
+						</div>
+					</div>
+					<div class="col-sm-2">
+						<div class="form-group">
+							<br>
+							<label>To</label>
+							<input type="date" name="tanggal_to" id="tanggal_to" class="form-control input-sm">
 						</div>
 					</div>
 					<div class="col-sm-5">
@@ -146,19 +160,21 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 	$(document).ready(function() {
 		DataTables();
 	});
-	
+
 	$(document).on('click', '.tampilkan', function() {
 		DataTables();
 	})
 
 	$(document).on('click', '.bersihkan', function() {
 		$('#tanggal').val('');
+		$('#tanggal_to').val('');
 
 		DataTables();
 	});
 
 	function DataTables() {
 		var tanggal = $('#tanggal').val();
+		var tanggal_to = $('#tanggal_to').val();
 
 		$('#example2').DataTable({
 			ajax: {
@@ -167,6 +183,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 				dataType: "JSON",
 				data: function(d) {
 					d.tanggal = tanggal;
+					d.tanggal_to = tanggal_to;
 				}
 			},
 			columns: [{
