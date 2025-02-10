@@ -494,7 +494,7 @@ class Reports_model extends BF_Model
         if ($tanggal_to !== '' && $tanggal_to !== null) {
             $this->db->where('b.tgl_so <=', $tanggal_to);
         }
-        if(($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
             $this->db->where('b.tgl_so >=', $tanggal);
             $this->db->where('b.tgl_so <=', $tanggal_to);
         }
@@ -526,7 +526,7 @@ class Reports_model extends BF_Model
         if ($tanggal_to !== '' && $tanggal_to !== null) {
             $this->db->where('b.tgl_so <=', $tanggal_to);
         }
-        if(($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
             $this->db->where('b.tgl_so >=', $tanggal);
             $this->db->where('b.tgl_so <=', $tanggal_to);
         }
@@ -549,6 +549,10 @@ class Reports_model extends BF_Model
         $query_all = $this->db->get();
 
         $hasil = [];
+
+        $ttl_harga_total = 0;
+        $ttl_diskon = 0;
+        $ttl_harga_nett = 0;
 
         $no = $start + 1;
         foreach ($query->result() as $item) {
@@ -575,10 +579,17 @@ class Reports_model extends BF_Model
                 'harga_nett' => number_format($item->total_harga, 2)
             ];
 
+            $ttl_harga_total += ($item->qty_so * $item->harga_satuan);
+            $ttl_diskon += $item->nilai_diskon;
+            $ttl_harga_nett += $item->total_harga;
+
             $no++;
         }
 
         echo json_encode([
+            'ttl_harga_total' => $ttl_harga_total,
+            'ttl_diskon' => $ttl_diskon,
+            'ttl_harga_nett' => $ttl_harga_nett,
             'draw' => intval($draw),
             'recordsTotal' => $query_all->num_rows(),
             'recordsFiltered' => $query_all->num_rows(),
