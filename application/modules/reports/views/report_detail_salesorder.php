@@ -44,6 +44,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 							<br>
 							<label> &nbsp;</label><br>
 							<input type="button" name="" value="Tampilkan" class="btn btn-sm btn-success pull-center tampilkan"> &nbsp;
+							<input type="button" name="" value="Export Excel" class="btn btn-sm btn-primary pull-center export_excel"> &nbsp;
 							<input type="button" name="" value="Bersihkan" class="btn btn-sm btn-danger pull-center bersihkan"> &nbsp;
 						</div>
 					</div>
@@ -74,13 +75,19 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 					<th>Harga<br>Total</th>
 					<th>Diskon</th>
 					<th>Harga<br>Nett</th>
-
 				</tr>
 			</thead>
-
 			<tbody>
 
 			</tbody>
+			<tfoot>
+				<tr>
+					<th colspan="8" align="right"> Grand Total</th>
+					<th align="right" class="ttl_harga_total"></th>
+					<th align="right" class="ttl_diskon"></th>
+					<th align="right" class="ttl_harga_nett"></th>
+				</tr>
+			</tfoot>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -172,6 +179,37 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 		DataTables();
 	});
 
+	$(document).on('click', '.export_excel', function() {
+		var tanggal = $('#tanggal').val();
+		var tanggal_to = $('#tanggal_to').val();
+
+		window.open(siteurl + active_controller + 'export_excel?tanggal=' + tanggal + '&tanggal_to=' + tanggal_to);
+	});
+
+	function number_format(number, decimals, dec_point, thousands_sep) {
+		// Strip all characters but numerical ones.
+		number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+		var n = !isFinite(+number) ? 0 : +number,
+			prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+			sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+			dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+			s = '',
+			toFixedFix = function(n, prec) {
+				var k = Math.pow(10, prec);
+				return '' + Math.round(n * k) / k;
+			};
+		// Fix for IE parseFloat(0.55).toFixed(0) = 0;
+		s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+		if (s[0].length > 3) {
+			s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+		}
+		if ((s[1] || '').length < prec) {
+			s[1] = s[1] || '';
+			s[1] += new Array(prec - s[1].length + 1).join('0');
+		}
+		return s.join(dec);
+	}
+
 	function DataTables() {
 		var tanggal = $('#tanggal').val();
 		var tanggal_to = $('#tanggal_to').val();
@@ -184,6 +222,13 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 				data: function(d) {
 					d.tanggal = tanggal;
 					d.tanggal_to = tanggal_to;
+				},
+				dataSrc: function(result) {
+					$(".ttl_harga_total").text(number_format(result.ttl_harga_total, 2));
+					$(".ttl_diskon").text(number_format(result.ttl_diskon, 2));
+					$(".ttl_harga_nett").text(number_format(result.ttl_harga_nett, 2));
+
+					return result.data;
 				}
 			},
 			columns: [{
@@ -224,7 +269,8 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 			serverSide: true,
 			stateSave: true,
 			destroy: true,
-			paging: true
+			paging: true,
+			lengthMenu: [10, 50, 100, 200, 500, 1000]
 		});
 	}
 
