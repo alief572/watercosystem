@@ -596,4 +596,237 @@ class Reports_model extends BF_Model
             'data' => $hasil
         ]);
     }
+
+    public function get_data_report_revenue()
+    {
+        $draw = $this->input->post('draw');
+        $start = $this->input->post('start');
+        $length = $this->input->post('length');
+        $search = $this->input->post('search');
+
+        $tanggal = $this->input->post('tanggal');
+        $tanggal_to = $this->input->post('tanggal_to');
+
+        $this->db->select('a.no_so, a.tgl_so, a.no_surat, a.pengakuan_invoice, a.pengakuan_hpp, b.grand_total');
+        $this->db->from('tr_revenue a');
+        $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
+        $this->db->where('a.status_jurnal', 'CLS');
+        if ($tanggal !== '' && $tanggal !== null) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+
+        if (!empty($search['value'])) {
+            $where_invoice = '(SELECT aa.no_surat FROM tr_invoice aa WHERE aa.no_so = a.no_so)';
+
+            $this->db->group_start();
+            $this->db->like('a.tgl_so', $search['value'], 'both');
+            $this->db->or_like('a.no_surat', $search['value'], 'both');
+            $this->db->or_like('b.grand_total', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_invoice', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_hpp', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->group_by('a.id');
+        $this->db->order_by('a.tgl_so', 'desc');
+        $this->db->limit($length, $start);
+        $get_data = $this->db->get();
+
+        $this->db->select('a.no_so, a.tgl_so, a.no_surat, a.pengakuan_invoice, a.pengakuan_hpp, b.grand_total');
+        $this->db->from('tr_revenue a');
+        $this->db->join('tr_sales_order b', 'b.no_so = a.no_so');
+        $this->db->where('a.status_jurnal', 'CLS');
+        if ($tanggal !== '' && $tanggal !== null) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+
+        if (!empty($search['value'])) {
+            $where_invoice = '(SELECT aa.no_surat FROM tr_invoice aa WHERE aa.no_so = a.no_so)';
+
+            $this->db->group_start();
+            $this->db->like('a.tgl_so', $search['value'], 'both');
+            $this->db->or_like('a.no_surat', $search['value'], 'both');
+            $this->db->or_like('b.grand_total', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_invoice', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_hpp', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->group_by('a.id');
+        $this->db->order_by('a.tgl_so', 'desc');
+        $get_data_all = $this->db->get();
+
+        $hasil = array();
+
+        // $totalgrandtotalformat = 0;
+        // $totalinvoiceformat = 0;
+        // $totalhppformat = 0;
+
+        $ttl_total_so = 0;
+        $ttl_revenue = 0;
+        $ttl_hpp = 0;
+
+        $no = ($start + 0);
+        foreach ($get_data->result() as $item) {
+            $no++;
+
+            $so = $item->no_so;
+            $invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so = '" . $so . "'")->result();
+            $separator = ',';
+            $allinv = array();
+            foreach ($invoice as $inv) {
+                $allinv[] = $inv->no_surat;
+            }
+
+            $invc =  implode($separator, $allinv);
+
+            $hasil[] = [
+                'no' => $no,
+                'tgl' =>  date('d-F-Y', strtotime($item->tgl_so)),
+                'no_so' => $item->no_surat,
+                'no_invoice' => $invc,
+                'total_so' => number_format($item->grand_total, 2),
+                'revenue' => number_format($item->pengakuan_invoice, 2),
+                'hpp' => number_format($item->pengakuan_hpp, 2)
+            ];
+
+            $ttl_total_so += $item->grand_total;
+            $ttl_revenue += $item->pengakuan_invoice;
+            $ttl_hpp += $item->pengakuan_hpp;
+        }
+
+        echo json_encode([
+            'totalgrandtotalformat' => $ttl_total_so,
+            'totalinvoiceformat' => $ttl_revenue,
+            'totalhppformat' => $ttl_hpp,
+            'draw' => intval($draw),
+            'recordsTotal' => $get_data_all->num_rows(),
+            'recordsFiltered' => $get_data_all->num_rows(),
+            'data' => $hasil
+        ]);
+    }
+
+    public function get_data_report_revenue_detail()
+    {
+        $draw = $this->input->post('draw');
+        $start = $this->input->post('start');
+        $length = $this->input->post('length');
+        $search = $this->input->post('search');
+
+        $tanggal = $this->input->post('tanggal');
+        $tanggal_to = $this->input->post('tanggal_to');
+
+        $this->db->select('a.*, b.no_so, SUM(b.qty * b.harga_satuan) as pricelist, SUM((b.qty * b.harga_satuan) * b.diskon / 100) as disc, b.diskon as disc_persen');
+        $this->db->from('tr_revenue a');
+        $this->db->join('tr_sales_order_detail b', 'b.no_so = a.no_so', 'left');
+        if ($tanggal !== '' && $tanggal !== null) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('a.tgl_so', $search['value'], 'both');
+            $this->db->or_like('a.no_surat', $search['value'], 'both');
+            $this->db->or_like('a.perseninvoice_pengakuan', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_invoice', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_hpp', $search['value'], 'both');
+            $this->db->or_like('a.status_jurnal', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->group_by('a.id');
+        $this->db->order_by('a.tgl_so', 'desc');
+        $this->db->limit($length, $start);
+        $get_data = $this->db->get();
+
+        $this->db->select('a.*, b.no_so, SUM(b.qty * b.harga_satuan) as pricelist, SUM((b.qty * b.harga_satuan) * b.diskon / 100) as disc, b.diskon as disc_persen');
+        $this->db->from('tr_revenue a');
+        $this->db->join('tr_sales_order_detail b', 'b.no_so = a.no_so', 'left');
+        if ($tanggal !== '' && $tanggal !== null) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('a.tgl_so', $search['value'], 'both');
+            $this->db->or_like('a.no_surat', $search['value'], 'both');
+            $this->db->or_like('a.perseninvoice_pengakuan', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_invoice', $search['value'], 'both');
+            $this->db->or_like('a.pengakuan_hpp', $search['value'], 'both');
+            $this->db->or_like('a.status_jurnal', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->group_by('a.id');
+        $this->db->order_by('a.tgl_so', 'desc');
+        $get_data_all = $this->db->get();
+
+        $hasil = array();
+
+        $ttl_revenue = 0;
+        $ttl_hpp = 0;
+
+        $no = 0;
+        foreach ($get_data->result() as $item) {
+            $no++;
+
+            $so = $item->no_so;
+            $invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so='$so'")->result();
+            $separator = ',';
+            $allinv = array();
+            foreach ($invoice as $inv) {
+                $allinv[] = $inv->no_surat;
+                $invoicing = $inv->no_surat;
+            }
+
+            $invc =  implode($separator, $allinv);
+
+            $hasil[] = [
+                'no' => $no,
+                'tgl' => date('d-F-Y', strtotime($item->tgl_so)),
+                'no_so' => $item->no_surat,
+                'no_invoice' => $invc,
+                'persentase' => number_format($item->perseninvoice_pengakuan).'%',
+                'price_list' => number_format($item->pricelist),
+                'disc' => number_format($item->disc),
+                'revenue' => number_format($item->pengakuan_invoice),
+                'hpp' => number_format($item->pengakuan_hpp),
+                'jurnal' => $item->status_jurnal,
+            ];
+
+            $ttl_revenue += $item->pengakuan_invoice;
+            $ttl_hpp += $item->pengakuan_hpp;
+        }
+
+        echo json_encode([
+            'totalinvoiceformat' => $ttl_revenue,
+            'totalhppformat' => $ttl_hpp,
+            'draw' => intval($draw),
+            'recordsTotal' => $get_data_all->num_rows(),
+            'recordsFiltered' => $get_data_all->num_rows(),
+            'data' => $hasil
+        ]);
+    }
 }
