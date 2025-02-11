@@ -46,8 +46,6 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 				</div>
 			</div>
 		</div>
-
-
 	</form>
 
 	<div class="box-body">

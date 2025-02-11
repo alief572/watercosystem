@@ -229,6 +229,30 @@ class Reports extends Admin_Controller
 		$this->load->view('export_excel_report_revenue', array('list_revenue' => $get_data));
 	}
 
+	public function export_excel_report_revenue_detail() {
+		$tanggal = $this->input->get('tanggal');
+		$tanggal_to = $this->input->get('tanggal_to');
+
+		$this->db->select('a.*, b.no_so, SUM(b.qty * b.harga_satuan) as pricelist, SUM((b.qty * b.harga_satuan) * b.diskon / 100) as disc, b.diskon as disc_persen');
+        $this->db->from('tr_revenue a');
+        $this->db->join('tr_sales_order_detail b', 'b.no_so = a.no_so', 'left');
+        if ($tanggal !== '' && $tanggal !== null) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+        }
+        if ($tanggal_to !== '' && $tanggal_to !== null) {
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        if (($tanggal !== '' && $tanggal !== null) && ($tanggal_to !== '' && $tanggal_to !== null)) {
+            $this->db->where('a.tgl_so >=', $tanggal);
+            $this->db->where('a.tgl_so <=', $tanggal_to);
+        }
+        $this->db->group_by('a.id');
+		$this->db->order_by('a.tgl_so', 'desc');
+        $get_data_all = $this->db->get()->result();
+
+		$this->load->view('export_excel_report_revenue_detail', array('list_revenue_detail' => $get_data_all));
+	}
+
 	public function tampilkan_revenue()
 	{
 		$this->auth->restrict($this->viewPermission);
@@ -245,8 +269,6 @@ class Reports extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Reports_model->CariRevenuedetail();
-		$this->template->set('results', $data);
 		$this->template->title('Report Revenue');
 		$this->template->render('report_revenue_detail');
 	}
@@ -307,6 +329,10 @@ class Reports extends Admin_Controller
 
 	public function get_data_report_revenue() {
 		$this->Reports_model->get_data_report_revenue();
+	}
+
+	public function get_data_report_revenue_detail() {
+		$this->Reports_model->get_data_report_revenue_detail();
 	}
 
 	public function export_excel($tanggal = null, $tanggal_to = null) {
