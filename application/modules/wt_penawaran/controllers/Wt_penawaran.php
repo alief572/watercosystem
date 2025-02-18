@@ -37,8 +37,6 @@ class Wt_penawaran extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_penawaran_model->CariPenawaran();
-		$this->template->set('results', $data);
 		$this->template->title('Penawaran');
 		$this->template->render('index');
 	}
@@ -549,8 +547,6 @@ class Wt_penawaran extends Admin_Controller
 		$session = $this->session->userdata('app_session');
 		$status = 7;
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_penawaran_model->CariPenawaranLoss();
-		$this->template->set('results', $data);
 		$this->template->title('Loss Penawaran');
 		$this->template->render('index_loss');
 	}
@@ -1180,5 +1176,16 @@ class Wt_penawaran extends Admin_Controller
 		$this->template->set('results', $data);
 		$this->template->title('View Penawaran');
 		$this->template->render('lihatpenawaran');
+	}
+
+	public function get_penawaran() {
+		$this->Wt_penawaran_model->get_penawaran();
+	}
+	public function get_loss_penawaran() {
+		$this->Wt_penawaran_model->get_loss_penawaran();
+	}
+
+	public function get_history_penawaran() {
+		$this->Wt_penawaran_model->get_history_penawaran();
 	}
 }

@@ -59,6 +59,12 @@ class Wt_penawaran_model extends BF_Model
   /**
    * Function construct used to load some library, do some actions, etc.
    */
+
+  protected $viewPermission   = 'Penawaran.View';
+  protected $addPermission    = 'Penawaran.Add';
+  protected $managePermission = 'Penawaran.Manage';
+  protected $deletePermission = 'Penawaran.Delete';
+
   public function __construct()
   {
     parent::__construct();
@@ -240,5 +246,410 @@ class Wt_penawaran_model extends BF_Model
     $this->db->where($where2);
     $query = $this->db->get();
     return $query->result();
+  }
+
+  public function get_penawaran()
+  {
+    $draw = $this->input->post('draw');
+    $length = $this->input->post('length');
+    $start = $this->input->post('start');
+    $search = $this->input->post('search');
+
+    $this->db->select('a.*, b.name_customer as name_customer');
+    $this->db->from('tr_penawaran a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+    $this->db->where('a.status <>', 6);
+    $this->db->where('a.status <>', 7);
+    if (!empty($search['value'])) {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('a.no_revisi', $search['value'], 'both');
+      $this->db->or_like('b.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('a.grand_total', $search['value'], 'both');
+      $this->db->or_like('a.tgl_penawaran', $search['value'], 'both');
+      $this->db->or_like('a.keterangan_approve', $search['value'], 'both');
+      $this->db->or_like('a.revisi', $search['value'], 'both');
+      $this->db->group_end();
+    }
+    $this->db->order_by('a.no_penawaran', 'desc');
+    $this->db->limit($length, $start);
+    $get_data = $this->db->get();
+
+    $this->db->select('a.*, b.name_customer as name_customer');
+    $this->db->from('tr_penawaran a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+    $this->db->where('a.status <>', 6);
+    $this->db->where('a.status <>', 7);
+    if (!empty($search['value'])) {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('a.no_revisi', $search['value'], 'both');
+      $this->db->or_like('b.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('a.grand_total', $search['value'], 'both');
+      $this->db->or_like('a.tgl_penawaran', $search['value'], 'both');
+      $this->db->or_like('a.keterangan_approve', $search['value'], 'both');
+      $this->db->or_like('a.revisi', $search['value'], 'both');
+      $this->db->group_end();
+    }
+    $this->db->order_by('a.no_penawaran', 'desc');
+    $get_data_all = $this->db->get();
+
+    $hasil = array();
+
+    $no = (0 + $start);
+    foreach ($get_data->result() as $item) {
+
+      if ($item->status == 0) {
+        $Status = "<span class='badge bg-grey'>Draft</span>";
+      } elseif ($item->status == 1) {
+
+        $Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
+      } elseif ($item->status == 2) {
+        $Status = "<span class='badge bg-green'>Approved</span>";
+      } elseif ($item->status == 3) {
+        $Status = "<span class='badge bg-blue'>Dicetak</span>";
+      } elseif ($item->status == 4) {
+        $Status = "<span class='badge bg-green'>Terkirim</span>";
+      } elseif ($item->status == 5) {
+        $Status = "<span class='badge bg-red'>Not Approved</span>";
+      } elseif ($item->status == 6) {
+        $Status = "<span class='badge bg-green'>SO</span>";
+      } elseif ($item->status == 7) {
+        $Status = "<span class='badge bg-red'>Loss</span>";
+      }
+
+      $option = '';
+
+      if ($item->status != '4') {
+        if (has_permission($this->managePermission) && $item->status == '2') {
+          $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/editpenawaranapprove/' . $item->no_penawaran) . '" title="Edit" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-edit"></i></a>';
+        }
+      }
+
+      if ($item->status != '1') {
+        if ($item->status != '4') {
+          if (has_permission($this->managePermission) && $item->status != '2') {
+            $option .= ' <a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/editpenawaran/' . $item->no_penawaran) . '" title="Edit" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-edit"></i></a>';
+          }
+        }
+      }
+
+      if (has_permission($this->viewPermission) && $item->status != '4') {
+        $option .= ' <a class="btn btn-info btn-sm" href="' . base_url('/wt_penawaran/printpenawaran/' . $item->no_penawaran) . '" target="_blank" title="Print" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+      }
+
+      if (has_permission($this->managePermission) && $item->status != '4' && $item->printed_by != null) {
+        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/statusterkirim/' . $item->no_penawaran) . '" title="Ubah Status" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-check"></i></a>';
+      }
+
+      if (has_permission($this->managePermission) && $item->status != '4') {
+        $option .= ' <a class="btn btn-warning btn-sm" href="' . base_url('/wt_penawaran/ajukanapprove/' . $item->no_penawaran) . '" title="Ajukan approval" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-mail-forward"></i></a>';
+      }
+
+      if (has_permission($this->managePermission) && $item->status == '4' && $item->printed_by != null) {
+        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_sales_order/createSO/' . $item->no_penawaran) . '" title="Create SO" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-plus">Create SO</i></a>';
+      }
+
+      if (has_permission($this->managePermission) && $item->status == '4') {
+        $option .= ' <a class="btn btn-danger btn-sm" href="' . base_url('/wt_penawaran/statusloss/' . $item->no_penawaran) . '" title="Loss" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-check"></i>';
+      }
+
+      if ($item->status != '6' || $item->status != '7') {
+        $no++;
+        $hasil[] = [
+          'no' => $no,
+          'no_penawaran' => $item->no_surat,
+          'no_revisi' => $item->no_revisi,
+          'nama_customer' => strtoupper($item->name_customer),
+          'marketing' => $item->nama_sales,
+          'nilai_penawaran' => number_format($item->grand_total),
+          'tanggal_penawaran' => date('d-F-Y', strtotime($item->tgl_penawaran)),
+          'keterangan_approved' => $item->keterangan_approve,
+          'revisi' => $item->revisi,
+          'status' => $Status,
+          'option' => $option
+        ];
+      }
+    }
+
+    echo json_encode([
+      'draw' => intval($draw),
+      'recordsTotal' => $get_data_all->num_rows(),
+      'recordsFiltered' => $get_data_all->num_rows(),
+      'data' => $hasil
+    ]);
+  }
+
+  public function get_loss_penawaran()
+  {
+    $draw = $this->input->post('draw');
+    $length = $this->input->post('length');
+    $start = $this->input->post('start');
+    $search = $this->input->post('search');
+
+    $this->db->select('a.*, b.name_customer as name_customer');
+    $this->db->from('tr_penawaran a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+    $this->db->where('a.status', 7);
+    if (!empty($search['value'])) {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('a.no_revisi', $search['value'], 'both');
+      $this->db->or_like('b.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('a.grand_total', $search['value'], 'both');
+      $this->db->or_like('a.tgl_penawaran', $search['value'], 'both');
+      $this->db->or_like('a.keterangan_approve', $search['value'], 'both');
+      $this->db->or_like('a.revisi', $search['value'], 'both');
+      $this->db->group_end();
+    }
+    $this->db->order_by('a.no_penawaran', 'desc');
+    $this->db->limit($length, $start);
+    $get_data = $this->db->get();
+
+    $this->db->select('a.*, b.name_customer as name_customer');
+    $this->db->from('tr_penawaran a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+    $this->db->where('a.status', 7);
+    if (!empty($search['value'])) {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('a.no_revisi', $search['value'], 'both');
+      $this->db->or_like('b.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('a.grand_total', $search['value'], 'both');
+      $this->db->or_like('a.tgl_penawaran', $search['value'], 'both');
+      $this->db->or_like('a.keterangan_approve', $search['value'], 'both');
+      $this->db->or_like('a.revisi', $search['value'], 'both');
+      $this->db->group_end();
+    }
+    $this->db->order_by('a.no_penawaran', 'desc');
+    $get_data_all = $this->db->get();
+
+    $hasil = array();
+
+    $no = (0 + $start);
+    foreach ($get_data->result() as $item) {
+      $no++;
+      if ($item->status == 0) {
+        $Status = "<span class='badge bg-grey'>Draft</span>";
+      } elseif ($item->status == 1) {
+
+        $Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
+      } elseif ($item->status == 2) {
+        $Status = "<span class='badge bg-green'>Approved</span>";
+      } elseif ($item->status == 3) {
+        $Status = "<span class='badge bg-blue'>Dicetak</span>";
+      } elseif ($item->status == 4) {
+        $Status = "<span class='badge bg-green'>Terkirim</span>";
+      } elseif ($item->status == 5) {
+        $Status = "<span class='badge bg-red'>Not Approved</span>";
+      } elseif ($item->status == 6) {
+        $Status = "<span class='badge bg-green'>SO</span>";
+      } elseif ($item->status == 7) {
+        $Status = "<span class='badge bg-red'>Loss</span>";
+      }
+
+      $option = '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/lihatpenawaran/' . $item->no_penawaran) . '" title="View" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-search"></i></a>';
+
+      $hasil[] = [
+        'no' => $no,
+        'no_penawaran' => $item->no_surat,
+        'no_revisi' => $item->no_revisi,
+        'nama_customer' => strtoupper($item->name_customer),
+        'marketing' => $item->nama_sales,
+        'nilai_penawaran' => number_format($item->grand_total),
+        'tanggal_penawaran' => date('d-F-Y', strtotime($item->tgl_penawaran)),
+        'keterangan_approved' => $item->keterangan_approve,
+        'revisi' => $item->revisi,
+        'status' => $Status,
+        'option' => $option
+      ];
+    }
+
+    echo json_encode([
+      'draw' => intval($draw),
+      'recordsTotal' => $get_data_all->num_rows(),
+      'recordsFiltered' => $get_data_all->num_rows(),
+      'data' => $hasil
+    ]);
+  }
+
+  public function get_history_penawaran()
+  {
+    $draw = $this->input->post('draw');
+    $length = $this->input->post('length');
+    $start = $this->input->post('start');
+    $search = $this->input->post('search');
+
+    $where_search = '';
+    if (!empty($search['value'])) {
+      $where_search = '
+        AND (
+            z.no_surat LIKE "%' . $search['value'] . '%"
+            OR z.nama_sales LIKE "%' . $search['value'] . '%"
+            OR z.nilai_penawaran LIKE "%' . $search['value'] . '%"
+            OR z.tgl_penawaran LIKE "%' . $search['value'] . '%"
+            OR z.revisi LIKE "%' . $search['value'] . '%"
+            OR z.no_penawaran LIKE "%' . $search['value'] . '%"
+            OR z.name_customer LIKE "%' . $search['value'] . '%"
+        )
+      ';
+    }
+
+    $query = '
+      SELECT
+        z.no_surat, 
+        z.nama_sales, 
+        z.nilai_penawaran, 
+        z.tgl_penawaran, 
+        z.revisi,
+        z.no_penawaran,
+        z.status, 
+        z.name_customer
+      FROM
+        (
+          SELECT
+            a.no_surat as no_surat, 
+            a.nama_sales as nama_sales, 
+            a.nilai_penawaran as nilai_penawaran, 
+            a.tgl_penawaran as tgl_penawaran, 
+            a.revisi as revisi,
+            a.no_penawaran as no_penawaran,
+            a.status as status, 
+            b.name_customer as name_customer
+          FROM
+            tr_penawaran_history a
+            JOIN master_customers b ON b.id_customer = a.id_customer
+          
+          UNION ALL
+
+          SELECT
+            a.no_surat as no_surat, 
+            a.nama_sales as nama_sales, 
+            a.nilai_penawaran as nilai_penawaran, 
+            a.tgl_penawaran as tgl_penawaran, 
+            a.revisi as revisi,
+            a.no_penawaran as no_penawaran,
+            a.status as status, 
+            b.name_customer as name_customer
+          FROM
+            tr_penawaran a
+            JOIN master_customers b ON b.id_customer = a.id_customer
+          WHERE
+            a.status_so = 1
+        ) z
+        WHERE
+          1 = 1
+          ' . $where_search . '
+        ORDER BY z.no_surat DESC
+        LIMIT ' . $length . ' OFFSET ' . $start . '
+    ';
+    $get_data = $this->db->query($query);
+
+    $query_all = '
+      SELECT
+        z.no_surat, 
+        z.nama_sales, 
+        z.nilai_penawaran, 
+        z.tgl_penawaran, 
+        z.revisi,
+        z.no_penawaran,
+        z.status, 
+        z.name_customer
+      FROM
+        (
+          SELECT
+            a.no_surat as no_surat, 
+            a.nama_sales as nama_sales, 
+            a.nilai_penawaran as nilai_penawaran, 
+            a.tgl_penawaran as tgl_penawaran, 
+            a.revisi as revisi,
+            a.no_penawaran as no_penawaran,
+            a.status as status, 
+            b.name_customer as name_customer
+          FROM
+            tr_penawaran_history a
+            JOIN master_customers b ON b.id_customer = a.id_customer
+          
+          UNION ALL
+
+          SELECT
+            a.no_surat as no_surat, 
+            a.nama_sales as nama_sales, 
+            a.nilai_penawaran as nilai_penawaran, 
+            a.tgl_penawaran as tgl_penawaran, 
+            a.revisi as revisi,
+            a.no_penawaran as no_penawaran,
+            a.status as status, 
+            b.name_customer as name_customer
+          FROM
+            tr_penawaran a
+            JOIN master_customers b ON b.id_customer = a.id_customer
+          WHERE
+            a.status_so = 1
+        ) z
+        WHERE
+          1 = 1
+          ' . $where_search . '
+        ORDER BY z.no_surat DESC
+    ';
+    $get_data_all = $this->db->query($query_all);
+    $no = (0 + $start);
+    foreach ($get_data->result() as $item) {
+      
+      if ($item->status == 0) {
+        $Status = "<span class='badge bg-grey'>Draft</span>";
+      } elseif ($item->status == 1) {
+
+        $Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
+      } elseif ($item->status == 2) {
+        $Status = "<span class='badge bg-green'>Approved</span>";
+      } elseif ($item->status == 3) {
+        $Status = "<span class='badge bg-blue'>Dicetak</span>";
+      } elseif ($item->status == 4) {
+        $Status = "<span class='badge bg-green'>Terkirim</span>";
+      } elseif ($item->status == 5) {
+        $Status = "<span class='badge bg-red'>Not Approved</span>";
+      } elseif ($item->status == 6) {
+        $Status = "<span class='badge bg-green'>SO</span>";
+      } elseif ($item->status == 7) {
+        $Status = "<span class='badge bg-red'>Loss</span>";
+      }
+
+      $option = '';
+      if (has_permission($this->viewPermission) && $item->status != '6') {
+        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/viewhistory/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-eye"></i></a>';
+      }
+
+      if (has_permission($this->viewPermission)) {
+        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/viewhistoryso/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-eye"></i></a>';
+      }
+
+      if ($item->status != '6' || $item->status != '7') {
+        $no++;
+
+        $hasil[] = [
+          'no' => $no,
+          'no_penawaran' => $item->no_surat,
+          'nama_customer' => strtoupper($item->name_customer),
+          'marketing' => $item->nama_sales,
+          'nilai_penawaran' => number_format($item->nilai_penawaran),
+          'tanggal_penawaran' => date('d-F-Y', strtotime($item->tgl_penawaran)),
+          'revisi' => $item->revisi,
+          'status' => $Status,
+          'option' => $option
+        ];
+      }
+    }
+
+    echo json_encode([
+      'draw' => intval($draw),
+      'recordsTotal' => $get_data_all->num_rows(),
+      'recordsFiltered' => $get_data_all->num_rows(),
+      'data' => $hasil
+    ]);
   }
 }

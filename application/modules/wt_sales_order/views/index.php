@@ -23,7 +23,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="example5" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -37,81 +37,12 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 					<th width="5%">View Penawaran Deal</th>
 					<th width="5%">Created By</th>
 					<th width="5%">Status</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th>Action</th>
-					<?php endif; ?>
+					<th>Action</th>
 				</tr>
 			</thead>
 
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-
-
-						if ($record->status == 0) {
-							$Status = "<span class='badge bg-grey'>Draft</span>";
-						} elseif ($record->status == 1) {
-
-							$Status = "<span class='badge bg-green'>Deal</span>";
-						} elseif ($record->status == 2) {
-							$Status = "<span class='badge bg-green'>Approved</span>";
-						} elseif ($record->status == 3) {
-							$Status = "<span class='badge bg-blue'>Dicetak</span>";
-						} elseif ($record->status == 4) {
-							$Status = "<span class='badge bg-green'>Terkirim</span>";
-						} elseif ($record->status == 5) {
-							$Status = "<span class='badge bg-red'>Not Approved</span>";
-						} elseif ($record->status == 6) {
-							$Status = "<span class='badge bg-green'>SO</span>";
-						} elseif ($record->status == 7) {
-							$Status = "<span class='badge bg-red'>Loss</span>";
-						}
-
-
-						if ($record->grand_total != 0) {
-							$persen = Round(($record->grand_total / $record->total_penawaran) * 100);
-						} else {
-
-							$persen = 0;
-						}
-				?>
-
-						<?php if ($record->status <> '6' or $record->status <> '7') { ?>
-							<tr>
-								<td><?= $numb; ?></td>
-								<td><?= $record->no_surat ?></td>
-								<td><?= strtoupper($record->name_customer) ?></td>
-								<td><?= $record->nama_sales ?></td>
-								<td><?= number_format($record->total_penawaran) ?></td>
-								<td><?= number_format($record->grand_total) ?></td>
-								<td><?= $persen ?>%</td>
-								<td><?php if ($record->upload_po <> null && file_exists($record->upload_po)) : ?>
-										<a class="btn btn-primary btn-sm" href="<?= $record->upload_po ?>" title="View PO"><i class="fa fa-eye"></i>
-										</a>
-									<?php endif; ?>
-								</td>
-								<td><?php if ($record->upload_so <> null && file_exists($record->upload_so)) : ?>
-										<a class="btn btn-success btn-sm" href="<?= $record->upload_so ?>" title="View SO"><i class="fa fa-eye"></i>
-										</a>
-									<?php endif; ?>
-								</td>
-								<td><?= $record->nm_lengkap ?></td>
-								<td><?= $Status ?></td>
-								<td style="padding-left:20px">
-
-									<?php if ($ENABLE_MANAGE) : ?>
-										<a class="btn btn-primary btn-sm" target='_blank' href="<?= base_url('/wt_sales_order/printSO/' . $record->no_so) ?>" title="Print SO"><i class="fa fa-print">&nbsp;Print SO</i>
-										</a>
-									<?php endif; ?>
-
-							</tr>
-				<?php 	 }
-					}
-				}  ?>
+				
 			</tbody>
 		</table>
 	</div>
@@ -259,9 +190,61 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	});
 
 	$(function() {
-
+		DataTables();
 		$("#form-area").hide();
 	});
+
+	function DataTables() {
+		var DataTables = $('#example5').dataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				type: 'post',
+				url: siteurl + active_controller + 'get_so',
+				data: function(d) {
+
+				}
+			},
+			columns: [
+				{
+					data: 'no'
+				},
+				{
+					data: 'no_so'
+				},
+				{
+					data: 'nm_customer'
+				},
+				{
+					data: 'marketing'
+				},
+				{
+					data: 'nilai_penawaran'
+				},
+				{
+					data: 'nilai_so'
+				},
+				{
+					data: 'persentase'
+				},
+				{
+					data: 'view_po'
+				},
+				{
+					data: 'view_penawaran_deal'
+				},
+				{
+					data: 'created_by'
+				},
+				{
+					data: 'status'
+				},
+				{
+					data: 'option'
+				}
+			]
+		});
+	}
 
 
 	//Delete
