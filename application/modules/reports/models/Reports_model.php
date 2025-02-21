@@ -914,7 +914,11 @@ class Reports_model extends BF_Model
                 $transaksi_total = ($item->cost_book * $item->qty_transaksi);
 
                 $saldo_total += ($item->qty_akhir * $item->cost_book);
-                $saldo_total_per = ($saldo_total / $item->qty_akhir);
+                if($saldo_total < 1 || $item->qty_akhir < 1){
+                    $saldo_total_per = 0;
+                } else {
+                    $saldo_total_per = ($saldo_total / $item->qty_akhir);
+                }
             }
 
 
