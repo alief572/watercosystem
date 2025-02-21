@@ -18,6 +18,11 @@ class Wt_sales_order extends Admin_Controller
 	protected $managePermission = 'Penawaran.Manage';
 	protected $deletePermission = 'Penawaran.Delete';
 
+	protected $viewPermission2 	= 'SO_Invoice_Indent.View';
+	protected $addPermission2  	= 'SO_Invoice_Indent.Add';
+	protected $managePermission2 = 'SO_Invoice_Indent.Manage';
+	protected $deletePermission2 = 'SO_Invoice_Indent.Delete';
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -44,7 +49,7 @@ class Wt_sales_order extends Admin_Controller
 
 	public function so_invoice_indent()
 	{
-		$this->auth->restrict($this->viewPermission);
+		$this->auth->restrict($this->viewPermission2);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
 		$this->template->title('Sales Order Indent');
