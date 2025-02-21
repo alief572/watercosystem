@@ -842,6 +842,7 @@ class Reports_model extends BF_Model
         $this->db->from('kartu_stok a');
         $this->db->where('a.id_category3', $product);
         $this->db->where_in('a.transaksi', array('incoming', 'delivery order'));
+        $this->db->where('a.tgl_transaksi >', '2024-01-31');
         if(!empty($search['value'])) {
             $this->db->group_start();
             $this->db->like('a.transaksi', $search['value'], 'both');
@@ -856,6 +857,7 @@ class Reports_model extends BF_Model
         $this->db->from('kartu_stok a');
         $this->db->where('a.id_category3', $product);
         $this->db->where_in('a.transaksi', array('incoming', 'delivery order'));
+        $this->db->where('a.tgl_transaksi >', '2024-01-31');
         if(!empty($search['value'])) {
             $this->db->group_start();
             $this->db->like('a.transaksi', $search['value'], 'both');
