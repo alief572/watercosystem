@@ -829,4 +829,115 @@ class Reports_model extends BF_Model
             'data' => $hasil
         ]);
     }
+
+    public function get_data_report_mutasi_stock() {
+        $draw = $this->input->post('draw');
+        $start = $this->input->post('start');
+        $length = $this->input->post('length');
+        $search = $this->input->post('search');
+
+        $product = $this->input->post('product');
+
+        $this->db->select('a.*');
+        $this->db->from('kartu_stok a');
+        $this->db->where('a.id_category3', $product);
+        $this->db->where_in('a.transaksi', array('incoming', 'delivery order'));
+        if(!empty($search['value'])) {
+            $this->db->group_start();
+            $this->db->like('a.transaksi', $search['value'], 'both');
+            $this->db->or_like('a.no_surat', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->order_by('a.tgl_transaksi', 'asc');
+        $this->db->limit($length, $start);
+        $get_data = $this->db->get();
+
+        $this->db->select('a.*');
+        $this->db->from('kartu_stok a');
+        $this->db->where('a.id_category3', $product);
+        $this->db->where_in('a.transaksi', array('incoming', 'delivery order'));
+        if(!empty($search['value'])) {
+            $this->db->group_start();
+            $this->db->like('a.transaksi', $search['value'], 'both');
+            $this->db->or_like('a.no_surat', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->order_by('a.tgl_transaksi', 'asc');
+        $get_data_all = $this->db->get();
+
+        $hasil = [];
+
+        $no = (0 + $start);
+
+        $qty_saldo = 0;
+        $price_unit_saldo = 0;
+        $saldo_total = 0;
+        $saldo_total_per = 0;
+        foreach($get_data->result() as $item) {
+            $no++;
+
+            // $this->db->select('a.nilai_costbook');
+            // $this->db->from('ms_costbook_backup a');
+            // $this->db->where('a.id_category3', $item->);
+
+            $transaksi_price_unit = 0;
+            $transaksi_total = 0;
+            $transaksi_in_out = $item->qty_transaksi;
+            if($item->transaksi == 'delivery order') {
+
+                $this->db->select('a.nilai_costbook');
+                $this->db->from('ms_costbook_backup a');
+                $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tgl_transaksi);
+                $this->db->order_by('a.tgl', 'desc');
+                $this->db->limit(1);
+                $get_costbook = $this->db->get()->row();
+
+                $harga_do = (!empty($get_costbook) && $get_costbook->nilai_costbook > 0) ? ($get_costbook->nilai_costbook / $item->qty_transaksi) : $item->cost_book;
+
+                // if($saldo_total < 1 || $item->qty_akhir < 1) {
+                //     $transaksi_price_unit = 0;
+                // } else {
+                    $transaksi_price_unit = ($saldo_total_per);
+                // }
+                // $transaksi_price_unit = $harga_do;
+
+                $transaksi_in_out = ($item->qty_transaksi * -1);
+                $transaksi_total = ($transaksi_price_unit * ($item->qty_transaksi * -1));
+
+                $saldo_total += $transaksi_total;
+                if($item->qty_akhir < 1) {
+                    $saldo_total = 0;
+                } 
+            }
+            if($item->transaksi == 'incoming') {
+                $transaksi_price_unit = ($item->cost_book);
+                $transaksi_total = ($item->cost_book * $item->qty_transaksi);
+
+                $saldo_total += ($item->qty_akhir * $item->cost_book);
+                $saldo_total_per = ($saldo_total / $item->qty_akhir);
+            }
+
+
+
+            $hasil[] = [
+                'no' => $no,
+                'tgl_transaksi' => $item->tgl_transaksi,
+                'keterangan' => strtoupper($item->transaksi),
+                'no_transaksi' => $item->no_surat,
+                'transaksi_in_out' => number_format($transaksi_in_out),
+                'transaksi_price_unit' => number_format($transaksi_price_unit, 2),
+                'transaksi_total' => number_format($transaksi_total, 2),
+                'saldo_qty' => number_format($item->qty_akhir),
+                'saldo_price_unit' => number_format($saldo_total_per, 2),
+                'saldo_total' => number_format($saldo_total, 2)
+            ];
+        }
+
+        echo json_encode([
+            'draw' => intval($draw),
+            'recordsTotal' => $get_data_all->num_rows(),
+            'recordsFiltered' => $get_data_all->num_rows(),
+            'data' => $hasil,
+        ]);
+    }
 }

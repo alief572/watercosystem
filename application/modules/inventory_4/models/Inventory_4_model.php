@@ -147,9 +147,9 @@ class Inventory_4_model extends BF_Model
 		$search = "a.deleted='0'";
 		$this->db->select('a.*, b.nama as nama_type, c.nama as nama_category1, d.nama as nama_category2');
 		$this->db->from('ms_inventory_category3 a');
-		$this->db->join('ms_inventory_type b','b.id_type=a.id_type');
-		$this->db->join('ms_inventory_category1 c','c.id_category1 =a.id_category1');
-		$this->db->join('ms_inventory_category2 d','d.id_category2 =a.id_category2');
+		$this->db->join('ms_inventory_type b','b.id_type=a.id_type', 'left');
+		$this->db->join('ms_inventory_category1 c','c.id_category1 =a.id_category1', 'left');
+		$this->db->join('ms_inventory_category2 d','d.id_category2 =a.id_category2', 'left');
 		$this->db->order_by('a.id_category3','ASC');
 		$this->db->where($search);
 		$query = $this->db->get();		

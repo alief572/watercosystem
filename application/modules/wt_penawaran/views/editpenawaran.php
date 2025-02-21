@@ -187,14 +187,14 @@ foreach ($results['header'] as $hd) {
                                             </td>
                                             <td id='nama_produk_$loop' hidden><input type='text' value='$dt_spk->nama_produk' class='form-control input-sm' readonly id='used_nama_produk_$loop' required name='dt[$loop][nama_produk]'></td>
                                             <td id='qty_$loop'><input type='text' value='$dt_spk->qty' class='form-control input-sm' id='used_qty_$loop' required name='dt[$loop][qty]' onkeyup='HitungTotal($loop)'></td>
-                                            <td id='harga_satuan_$loop'><input type='text' value='$dt_spk->harga_satuan' class='form-control input-sm' id='used_harga_satuan_$loop' required name='dt[$loop][harga_satuan]' readonly></td>
+                                            <td id='harga_satuan_$loop'><input type='text' value='".number_format($dt_spk->harga_satuan)."' class='form-control input-sm' id='used_harga_satuan_$loop' required name='dt[$loop][harga_satuan]' readonly></td>
                                             <td id='stok_tersedia_$loop'><input type='text' value='$dt_spk->stok_tersedia' class='form-control input-sm' id='used_stok_tersedia_$loop' required name='dt[$loop][stok_tersedia]' onblur='HitungLoss($loop)' readonly></td>
                                             <td id='potensial_loss_$loop'><input type='text' value='$dt_spk->potensial_loss' class='form-control input-sm' id='used_potensial_loss_$loop' required name='dt[$loop][potensial_loss]' readonly></td>
 											<td id='compare_diskon_$loop' hidden><input type='text' value='$dt_spk->diskon_compare' class='form-control'  id='used_compare_diskon_$loop' required name='dt[$loop][compare_diskon_]'></td>
                                             <td id='diskon_$loop'><input type='text' value='$dt_spk->diskon' class='form-control'  id='used_diskon_$loop' required name='dt[$loop][diskon]' onblur='HitungTotal($loop)'></td>
                                             <td id='nilai_diskon_$loop' hidden><input type='text' value='$dt_spk->nilai_diskon' class='form-control'  id='used_nilai_diskon_$loop' required name='dt[$loop][nilai_diskon]'></td>
                                             <td id='freight_cost_$loop'><input type='text' value='$dt_spk->freight_cost' class='form-control input-sm' id='used_freight_cost_$loop' required name='dt[$loop][freight_cost]' onblur='Freight($loop)'></td>
-                                            <td id='total_harga_$loop'><input type='text' value='$dt_spk->total_harga' class='form-control input-sm total' id='used_total_harga_$loop' required name='dt[$loop][total_harga]' readonly></td>
+                                            <td id='total_harga_$loop'><input type='text' value='".number_format($dt_spk->total_harga, 2)."' class='form-control input-sm total' id='used_total_harga_$loop' required name='dt[$loop][total_harga]' readonly></td>
                                             <td align='center'>
                                                 <button type='button' class='btn btn-sm btn-danger' title='Hapus Data' data-role='qtip' onClick='return HapusItem($loop);'><i class='fa fa-close'></i></button>
                                             </td>
@@ -214,7 +214,7 @@ foreach ($results['header'] as $hd) {
 												<th width='7%'></th>
 												<th width='7%'><b>Total</b></th>
 												<th width='7%'></th>
-												<th width='7%'><input type='text' class='form-control totalproduk' id='totalproduk' name='totalproduk' readonly value="<?= $hd->nilai_penawaran ?>"></th>
+												<th width='7%'><input type='text' class='form-control totalproduk' id='totalproduk' name='totalproduk' readonly value="<?= number_format($hd->nilai_penawaran, 2) ?>"></th>
 
 											</tr>
 											<tr>
@@ -225,8 +225,8 @@ foreach ($results['header'] as $hd) {
 												<th width='7%'></th>
 												<th width='7%'></th>
 												<th width='7%'><b>PPN</b></th>
-												<th width='7%'><input type='text' class='form-control ppn' id='ppn' name='ppn' onblur='hitungPpn()' value="<?= $hd->ppn ?>"></th>
-												<th width='7%'><input type='text' class='form-control totalppn' id='totalppn' name='totalppn' value="<?= $hd->nilai_ppn ?>" readonly></th>
+												<th width='7%'><input type='text' class='form-control ppn' id='ppn' name='ppn' onblur='hitungPpn()' value="<?= number_format($hd->ppn) ?>"></th>
+												<th width='7%'><input type='text' class='form-control totalppn' id='totalppn' name='totalppn' value="<?= number_format($hd->nilai_ppn, 2) ?>" readonly></th>
 
 											</tr>
 											<tr>
@@ -238,7 +238,7 @@ foreach ($results['header'] as $hd) {
 												<th width='7%'></th>
 												<th width='7%'><b>Grand Total</b></th>
 												<th width='7%'></th>
-												<th width='7%'><input type='text' class='form-control grandtotal' id='grandtotal' name='grandtotal' value="<?= $hd->grand_total ?>" readonly></th>
+												<th width='7%'><input type='text' class='form-control grandtotal' id='grandtotal' name='grandtotal' value="<?= number_format($hd->grand_total, 2) ?>" readonly></th>
 
 											</tr>
 

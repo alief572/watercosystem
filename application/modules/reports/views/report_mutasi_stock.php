@@ -1,8 +1,8 @@
 <?php
-$ENABLE_ADD     = has_permission('Penawaran.Add');
-$ENABLE_MANAGE  = has_permission('Penawaran.Manage');
-$ENABLE_VIEW    = has_permission('Penawaran.View');
-$ENABLE_DELETE  = has_permission('Penawaran.Delete');
+$ENABLE_ADD     = has_permission('Management.Add');
+$ENABLE_MANAGE  = has_permission('Management.Manage');
+$ENABLE_VIEW    = has_permission('Management.View');
+$ENABLE_DELETE  = has_permission('Management.Delete');
 
 ?>
 <style type="text/css">
@@ -12,37 +12,72 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 </style>
 <div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
 <link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <div class="box">
 	<div class="box-header">
+		<form method="post" action="<?= base_url() ?>reports/tampilkan_detail_salesorder" autocomplete="off">
+			<div class="row">
+				<div class="col-sm-10">
 
+					<div class="col-sm-2">
+						<div class="form-group">
+							<br>
+							<label>Product Name</label>
+							<select name="product_name" id="product_name" class="form-control form-control-sm product_name">
+								<option value="">- Select Product Name -</option>
+								<?php
+								foreach ($list_product as $item) {
+									echo '<option value="' . $item->id_category3 . '">' . $item->id_category3 . ' - ' . strtoupper($item->nama) . '</option>';
+								}
+								?>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-5">
+						<div class="form-group">
+							<br>
+							<label> &nbsp;</label><br>
+							<input type="button" name="" value="Tampilkan" class="btn btn-sm btn-success pull-center tampilkan"> &nbsp;
+							<!-- <input type="button" name="" value="Export Excel" class="btn btn-sm btn-primary pull-center export_excel"> &nbsp;
+							<input type="button" name="" value="Bersihkan" class="btn btn-sm btn-danger pull-center bersihkan"> &nbsp; -->
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+		</form>
 
 		<span class="pull-right">
 		</span>
 	</div>
+
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example5" class="table table-bordered table-striped">
+		<table id="example2" class="table table-bordered table-striped">
 			<thead>
 				<tr>
-					<th>#</th>
-					<th width="10%">No.SO</th>
-					<th>Nama Customer</th>
-					<th>Marketing</th>
-					<th>Nilai<br>Penawaran</th>
-					<th>Nilai<br>SO</th>
-					<th width="5%">Persentase</th>
-					<th width="5%">View PO</th>
-					<th width="5%">View Penawaran Deal</th>
-					<th width="5%">Created By</th>
-					<th width="5%">Status</th>
-					<th>Action</th>
+					<th class="text-center" rowspan="2" style="vertical-align: middle;">No.</th>
+					<th class="text-center" colspan="3">Detail Transaksi</th>
+					<th class="text-center" colspan="3">Transaksi</th>
+					<th class="text-center" colspan="3">Saldo</th>
+				</tr>
+				<tr>
+					<th class="text-center">Tgl Transaksi</th>
+					<th class="text-center">Keterangan</th>
+					<th class="text-center">No. Transaksi</th>
+					<th class="text-center">In/Out</th>
+					<th class="text-center">Price/Unit</th>
+					<th class="text-center">Total</th>
+					<th class="text-center">Qty</th>
+					<th class="text-center">Price/Unit</th>
+					<th class="text-center">Total</th>
 				</tr>
 			</thead>
-
 			<tbody>
-				
+
 			</tbody>
 		</table>
 	</div>
@@ -113,8 +148,120 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 <script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js') ?>"></script>
 
+
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <!-- page script -->
 <script type="text/javascript">
+	$(document).ready(function() {
+		// DataTables();
+
+		$('#product_name').select2({
+			width: '100%'
+		});
+	});
+
+	$(document).on('click', '.tampilkan', function() {
+		DataTables();
+	})
+
+	$(document).on('click', '.bersihkan', function() {
+		$('#tanggal').val('');
+		$('#tanggal_to').val('');
+
+		DataTables();
+	});
+
+	$(document).on('click', '.export_excel', function() {
+		var tanggal = $('#tanggal').val();
+		var tanggal_to = $('#tanggal_to').val();
+
+		window.open(siteurl + active_controller + 'export_excel?tanggal=' + tanggal + '&tanggal_to=' + tanggal_to);
+	});
+
+	function number_format(number, decimals, dec_point, thousands_sep) {
+		// Strip all characters but numerical ones.
+		number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
+		var n = !isFinite(+number) ? 0 : +number,
+			prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+			sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+			dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+			s = '',
+			toFixedFix = function(n, prec) {
+				var k = Math.pow(10, prec);
+				return '' + Math.round(n * k) / k;
+			};
+		// Fix for IE parseFloat(0.55).toFixed(0) = 0;
+		s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+		if (s[0].length > 3) {
+			s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+		}
+		if ((s[1] || '').length < prec) {
+			s[1] = s[1] || '';
+			s[1] += new Array(prec - s[1].length + 1).join('0');
+		}
+		return s.join(dec);
+	}
+
+	function DataTables() {
+		var product_name = $('#product_name').val();
+
+		$('#example2').DataTable({
+			ajax: {
+				url: siteurl + active_controller + 'get_data_report_mutasi_stock',
+				type: "POST",
+				dataType: "JSON",
+				data: function(d) {
+					d.product = product_name
+				}
+			},
+			columns: [{
+					data: 'no',
+				},
+				{
+					data: 'tgl_transaksi'
+				},
+				{
+					data: 'keterangan'
+				},
+				{
+					data: 'no_transaksi'
+				},
+				{
+					data: 'transaksi_in_out'
+				},
+				{
+					data: 'transaksi_price_unit'
+				},
+				{
+					data: 'transaksi_total'
+				},
+				{
+					data: 'saldo_qty'
+				},
+				{
+					data: 'saldo_price_unit'
+				},
+				{
+					data: 'saldo_total'
+				}
+			],
+			responsive: true,
+			processing: true,
+			serverSide: true,
+			stateSave: true,
+			destroy: true,
+			paging: true,
+			searching: false,
+			lengthMenu: [10, 50, 100, 200, 500, 1000]
+		});
+	}
+
+
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
@@ -190,61 +337,9 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	});
 
 	$(function() {
-		DataTables();
+
 		$("#form-area").hide();
 	});
-
-	function DataTables() {
-		var DataTables = $('#example5').dataTable({
-			processing: true,
-			serverSide: true,
-			ajax: {
-				type: 'post',
-				url: siteurl + active_controller + 'get_so',
-				data: function(d) {
-
-				}
-			},
-			columns: [
-				{
-					data: 'no'
-				},
-				{
-					data: 'no_so'
-				},
-				{
-					data: 'nm_customer'
-				},
-				{
-					data: 'marketing'
-				},
-				{
-					data: 'nilai_penawaran'
-				},
-				{
-					data: 'nilai_so'
-				},
-				{
-					data: 'persentase'
-				},
-				{
-					data: 'view_po'
-				},
-				{
-					data: 'view_penawaran_deal'
-				},
-				{
-					data: 'created_by'
-				},
-				{
-					data: 'status'
-				},
-				{
-					data: 'option'
-				}
-			]
-		});
-	}
 
 
 	//Delete
