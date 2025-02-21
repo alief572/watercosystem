@@ -994,8 +994,6 @@ class Stock_material extends Admin_Controller
 		$customer = $this->Inventory_4_model->get_data('ms_inventory_category3');
 		$this->template->set('customer', $customer);
 
-		
-
 		$this->template->title('Kartu Stok');
 		$this->template->render('index_kartu_stok');
 	}

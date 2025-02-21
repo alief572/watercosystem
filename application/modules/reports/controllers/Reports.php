@@ -128,6 +128,19 @@ class Reports extends Admin_Controller
 		$this->template->render('report_detail_salesorder');
 	}
 
+	public function report_mutasi_stock()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$session = $this->session->userdata('app_session');
+
+		$get_product = $this->db->select('a.id_category3, a.nama')->from('ms_inventory_category3 a')->join('kartu_stok b', 'b.id_category3 = a.id_category3')->where('a.deleted', 0)->group_by('a.id_category3')->get()->result();
+
+		$this->template->page_icon('fa fa-users');
+		$this->template->title('Report Mutasi Stock');
+		$this->template->set('list_product', $get_product);
+		$this->template->render('report_mutasi_stock');
+	}
+
 	public function invoice()
 	{
 		$this->auth->restrict($this->viewPermission);
@@ -333,6 +346,10 @@ class Reports extends Admin_Controller
 
 	public function get_data_report_revenue_detail() {
 		$this->Reports_model->get_data_report_revenue_detail();
+	}
+
+	public function get_data_report_mutasi_stock() {
+		$this->Reports_model->get_data_report_mutasi_stock();
 	}
 
 	public function export_excel($tanggal = null, $tanggal_to = null) {
