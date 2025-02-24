@@ -248,12 +248,12 @@ class Wt_delivery_order_model extends BF_Model
   {
     $this->db->select('a.*, b.name_customer as name_customer, c.grand_total as total_penawaran,d.nama_top');
     $this->db->from('tr_sales_order a');
-    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
-    $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
-    $this->db->join('ms_top d', 'd.id_top=a.top');
-    $this->db->where('IF(a.order_status = "ind", a.indent_check, 1) =', 1);
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer', 'left');
+    $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran', 'left');
+    $this->db->join('ms_top d', 'd.id_top=a.top', 'left');
+    $this->db->where('a.status <>', 0);
+    // $this->db->where('IF(a.order_status = "ind", a.indent_check, 1) =', 1);
     // $where2 = "a.status !='0'";
-    // $this->db->where($where);
     //$this->db->where($where2);
     $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
