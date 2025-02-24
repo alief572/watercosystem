@@ -252,7 +252,7 @@ class Wt_delivery_order_model extends BF_Model
     $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran', 'left');
     $this->db->join('ms_top d', 'd.id_top=a.top', 'left');
     $this->db->where('a.status <>', 0);
-    $this->db->where('IF(a.order_status = "ind", a.indent_check, 1) =', 1);
+    // $this->db->where('IF(a.order_status = "ind", a.indent_check, 1) =', 1);
     // $where2 = "a.status !='0'";
     //$this->db->where($where2);
     $this->db->order_by('a.no_penawaran', 'desc');

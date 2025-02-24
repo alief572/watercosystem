@@ -80,8 +80,8 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 
 						<?php if ($record->status <> '6' or $record->status <> '7') { ?>
 
-							<?php 
-							// if ($plan->total_so !== $plan->total_delivery) {
+							<?php
+							if ($plan->total_so !== $plan->total_delivery) {
 
 								if ($plan->total_delivery == 0  && ($plan->total_so > $plan->total_delivery)) {
 									$create = 0;
@@ -94,9 +94,15 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 									$Statusdo = "<span class='badge bg-green'>Terkirim</span>";
 								}
 
+								$valid = 1;
+								if ($record->order_status == 'ind' && $record->indent_check !== '1') {
+									$valid = 0;
+								}
+
+								if ($valid == 1) {
 							?>
 
-								
+
 
 									<tr>
 										<td><?= $numb; ?></td>
@@ -118,8 +124,8 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 										</td>
 									</tr>
 				<?php
-								// }
-							// }
+								}
+							}
 						}
 					}
 				}
