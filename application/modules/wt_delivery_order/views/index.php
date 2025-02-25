@@ -95,9 +95,9 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 								}
 
 								$valid = 1;
-								if ($record->order_status == 'ind' && $record->indent_check !== '1') {
-									$valid = 0;
-								}
+								// if ($record->order_status == 'ind' && $record->indent_check !== '1') {
+								// 	$valid = 0;
+								// }
 
 								if ($valid == 1) {
 							?>

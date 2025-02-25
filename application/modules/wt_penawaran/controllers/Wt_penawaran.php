@@ -556,8 +556,6 @@ class Wt_penawaran extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_penawaran_model->CariPenawaranHistory();
-		$this->template->set('results', $data);
 		$this->template->title('History Penawaran');
 		$this->template->render('history');
 	}
