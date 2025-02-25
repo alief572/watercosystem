@@ -265,7 +265,7 @@ class Inventory_4 extends Admin_Controller
 		$this->db->trans_begin();
 		$this->db->where('id', $id)->update("ms_inventory_category3", $data);
 
-		$stock = $this->db->query("SELECT id_category3 FROM stock_material WHERE id=$id")->row();
+		$stock = $this->db->query("SELECT id_category3 FROM stock_material WHERE id_stock = $id")->row();
 		$kategori = $stock->id_category3;
 
 
@@ -278,7 +278,7 @@ class Inventory_4 extends Admin_Controller
 		$this->db->where('id_category3', $kategori)->update("stock_material", $datastock);
 
 
-		$costbook = $this->db_query("SELECT * FROM ms_costbook WHERE id_category3=$kategori")->row();
+		$costbook = $this->db->query("SELECT * FROM ms_costbook WHERE id_category3='" . $kategori . "'")->row();
 
 		$header1 =  array(
 			'id_costbook'	 		=> $costbook->id_costbook,
@@ -287,7 +287,7 @@ class Inventory_4 extends Admin_Controller
 			'created_by'		    => $costbook->created_by,
 			'created_on'		    => $costbook->created_on,
 			'modified_by'		    => $this->auth->user_id(),
-			'modified_on'		    => $date('Y-m-d H:i:s')
+			'modified_on'		    => date('Y-m-d H:i:s')
 		);
 		//Add Data
 		$this->db->insert('ms_costbook_history', $header1);
