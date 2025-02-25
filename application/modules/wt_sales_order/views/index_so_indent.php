@@ -1,8 +1,8 @@
 <?php
-$ENABLE_ADD     = has_permission('Penawaran.Add');
-$ENABLE_MANAGE  = has_permission('Penawaran.Manage');
-$ENABLE_VIEW    = has_permission('Penawaran.View');
-$ENABLE_DELETE  = has_permission('Penawaran.Delete');
+$ENABLE_ADD     = has_permission('SO_Invoice_Indent.Add');
+$ENABLE_MANAGE  = has_permission('SO_Invoice_Indent.Manage');
+$ENABLE_VIEW    = has_permission('SO_Invoice_Indent.View');
+$ENABLE_DELETE  = has_permission('SO_Invoice_Indent.Delete');
 
 ?>
 <style type="text/css">
