@@ -52,7 +52,7 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 									</a>
 									<?php
 									if (isset($list_do_indent[$record->no_do])) {
-										if ($list_do_indent[$record->no_do] == 1) {
+										if ($list_do_indent[$record->no_do] == '1') {
 									?>
 
 											<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_delivery_order/confirmDO/' . $record->no_do) ?>" title="Confirm DO"><i class="fa fa-list"></i>
