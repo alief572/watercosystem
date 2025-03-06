@@ -472,9 +472,9 @@ class Wt_sales_order_model extends BF_Model
       if ($item->status <> 6 || $item->status <> 7) {
         $no++;
 
-        $view_po = ($item->upload_po <> null && file_exists($item->upload_po)) ? '<a class="btn btn-primary btn-sm" href="' . $item->upload_po . '" title="View PO"><i class="fa fa-eye"></i></a>' : '';
+        $view_po = ($item->upload_po <> null && file_exists($item->upload_po)) ? '<a class="btn btn-primary btn-sm" href="' . base_url($item->upload_po) . '" title="View PO"><i class="fa fa-eye"></i></a>' : '';
 
-        $view_so = ($item->upload_so <> null && file_exists($item->upload_so)) ? '<a class="btn btn-primary btn-sm" href="' . $item->upload_so . '" title="View PO"><i class="fa fa-eye"></i></a>' : '';
+        $view_so = ($item->upload_so <> null && file_exists($item->upload_so)) ? '<a class="btn btn-primary btn-sm" href="' . base_url($item->upload_so) . '" title="View PO"><i class="fa fa-eye"></i></a>' : '';
 
         $option = '';
         if (has_permission($this->managePermission)) {
