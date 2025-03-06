@@ -146,8 +146,7 @@ class Reports extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Reports_model->CariInvoice();
-		$this->template->set('results', $data);
+
 		$this->template->title('Report Invoicing');
 		$this->template->render('report_invoice');
 	}
@@ -350,6 +349,10 @@ class Reports extends Admin_Controller
 
 	public function get_data_report_mutasi_stock() {
 		$this->Reports_model->get_data_report_mutasi_stock();
+	}
+
+	public function get_report_invoice() {
+		$this->Reports_model->get_report_invoice();
 	}
 
 	public function export_excel($tanggal = null, $tanggal_to = null) {
