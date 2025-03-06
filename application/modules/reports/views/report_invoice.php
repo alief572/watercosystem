@@ -153,7 +153,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 <!-- page script -->
 <script type="text/javascript">
 	$(document).ready(function() {
-		DataTables();
+		// DataTables();
 	});
 
 
