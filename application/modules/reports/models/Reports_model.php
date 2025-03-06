@@ -808,7 +808,7 @@ class Reports_model extends BF_Model
                 'tgl' => date('d-F-Y', strtotime($item->tgl_so)),
                 'no_so' => $item->no_surat,
                 'no_invoice' => $invc,
-                'persentase' => number_format($item->perseninvoice_pengakuan).'%',
+                'persentase' => number_format($item->perseninvoice_pengakuan) . '%',
                 'price_list' => number_format($item->pricelist),
                 'disc' => number_format($item->disc),
                 'revenue' => number_format($item->pengakuan_invoice),
@@ -830,7 +830,8 @@ class Reports_model extends BF_Model
         ]);
     }
 
-    public function get_data_report_mutasi_stock() {
+    public function get_data_report_mutasi_stock()
+    {
         $draw = $this->input->post('draw');
         $start = $this->input->post('start');
         $length = $this->input->post('length');
@@ -843,7 +844,7 @@ class Reports_model extends BF_Model
         $this->db->where('a.id_category3', $product);
         $this->db->where_in('a.transaksi', array('incoming', 'delivery order'));
         $this->db->where('a.tgl_transaksi >', '2024-01-31');
-        if(!empty($search['value'])) {
+        if (!empty($search['value'])) {
             $this->db->group_start();
             $this->db->like('a.transaksi', $search['value'], 'both');
             $this->db->or_like('a.no_surat', $search['value'], 'both');
@@ -858,7 +859,7 @@ class Reports_model extends BF_Model
         $this->db->where('a.id_category3', $product);
         $this->db->where_in('a.transaksi', array('incoming', 'delivery order'));
         $this->db->where('a.tgl_transaksi >', '2024-01-31');
-        if(!empty($search['value'])) {
+        if (!empty($search['value'])) {
             $this->db->group_start();
             $this->db->like('a.transaksi', $search['value'], 'both');
             $this->db->or_like('a.no_surat', $search['value'], 'both');
@@ -875,7 +876,7 @@ class Reports_model extends BF_Model
         $price_unit_saldo = 0;
         $saldo_total = 0;
         $saldo_total_per = 0;
-        foreach($get_data->result() as $item) {
+        foreach ($get_data->result() as $item) {
             $no++;
 
             // $this->db->select('a.nilai_costbook');
@@ -885,7 +886,7 @@ class Reports_model extends BF_Model
             $transaksi_price_unit = 0;
             $transaksi_total = 0;
             $transaksi_in_out = $item->qty_transaksi;
-            if($item->transaksi == 'delivery order') {
+            if ($item->transaksi == 'delivery order') {
 
                 $this->db->select('a.nilai_costbook');
                 $this->db->from('ms_costbook_backup a');
@@ -899,7 +900,7 @@ class Reports_model extends BF_Model
                 // if($saldo_total < 1 || $item->qty_akhir < 1) {
                 //     $transaksi_price_unit = 0;
                 // } else {
-                    $transaksi_price_unit = ($saldo_total_per);
+                $transaksi_price_unit = ($saldo_total_per);
                 // }
                 // $transaksi_price_unit = $harga_do;
 
@@ -907,16 +908,16 @@ class Reports_model extends BF_Model
                 $transaksi_total = ($transaksi_price_unit * ($item->qty_transaksi * -1));
 
                 $saldo_total += $transaksi_total;
-                if($item->qty_akhir < 1) {
+                if ($item->qty_akhir < 1) {
                     $saldo_total = 0;
-                } 
+                }
             }
-            if($item->transaksi == 'incoming') {
+            if ($item->transaksi == 'incoming') {
                 $transaksi_price_unit = ($item->cost_book);
                 $transaksi_total = ($item->cost_book * $item->qty_transaksi);
 
                 $saldo_total += ($item->qty_akhir * $item->cost_book);
-                if($saldo_total < 1 || $item->qty_akhir < 1){
+                if ($saldo_total < 1 || $item->qty_akhir < 1) {
                     $saldo_total_per = 0;
                 } else {
                     $saldo_total_per = ($saldo_total / $item->qty_akhir);
@@ -944,6 +945,115 @@ class Reports_model extends BF_Model
             'recordsTotal' => $get_data_all->num_rows(),
             'recordsFiltered' => $get_data_all->num_rows(),
             'data' => $hasil,
+        ]);
+    }
+
+    public function get_report_invoice()
+    {
+        $draw = $this->input->post('draw');
+        $length = $this->input->post('length');
+        $start = $this->input->post('start');
+        $search = $this->input->post('search');
+
+        $tanggal = $this->input->post('tanggal');
+        $tanggal_to = $this->input->post('tanggal_to');
+
+        $this->db->select('a.*, b.name_customer as name_customer, c.nama_top');
+        $this->db->from('tr_invoice a');
+        $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+        $this->db->join('ms_top c', 'c.id_top = a.top');
+        if ($tanggal !== '' && $tanggal_to == '') {
+            $this->db->where('a.tgl_invoice >', $tanggal);
+        }
+        if ($tanggal == '' && $tanggal_to !== '') {
+            $this->db->where('a.tgl_invoice <', $tanggal_to);
+        }
+        if ($tanggal !== '' && $tanggal_to !== '') {
+            $this->db->where('a.tgl_invoice >', $tanggal);
+            $this->db->where('a.tgl_invoice <', $tanggal_to);
+        }
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('a.no_surat', $search['value'], 'both');
+            $this->db->like('b.name_customer', $search['value'], 'both');
+            $this->db->like('a.nama_sales', $search['value'], 'both');
+            $this->db->like('c.nama_top', $search['value'], 'both');
+            $this->db->like('a.payment', $search['value'], 'both');
+            $this->db->like('a.grand_total', $search['value'], 'both');
+            $this->db->like('a.nilai_invoice', $search['value'], 'both');
+            $this->db->like('a.tgl_invoice', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->order_by('a.id', 'desc');
+        $this->db->limit($length, $start);
+
+        $get_data = $this->db->get();
+
+        $this->db->select('a.*, b.name_customer as name_customer, c.nama_top');
+        $this->db->from('tr_invoice a');
+        $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+        $this->db->join('ms_top c', 'c.id_top = a.top');
+        if ($tanggal !== '' && $tanggal_to == '') {
+            $this->db->where('a.tgl_invoice >', $tanggal);
+        }
+        if ($tanggal == '' && $tanggal_to !== '') {
+            $this->db->where('a.tgl_invoice <', $tanggal_to);
+        }
+        if ($tanggal !== '' && $tanggal_to !== '') {
+            $this->db->where('a.tgl_invoice >', $tanggal);
+            $this->db->where('a.tgl_invoice <', $tanggal_to);
+        }
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('a.no_surat', $search['value'], 'both');
+            $this->db->like('b.name_customer', $search['value'], 'both');
+            $this->db->like('a.nama_sales', $search['value'], 'both');
+            $this->db->like('c.nama_top', $search['value'], 'both');
+            $this->db->like('a.payment', $search['value'], 'both');
+            $this->db->like('a.grand_total', $search['value'], 'both');
+            $this->db->like('a.nilai_invoice', $search['value'], 'both');
+            $this->db->like('a.tgl_invoice', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->order_by('a.tgl_invoice', 'desc');
+
+        $get_data_all = $this->db->get();
+
+        $totaldppformat = 0;
+        $totalformat = 0;
+        $no = (0 + $start);
+
+        $hasil = [];
+
+        foreach ($get_data->result() as $item) {
+            $no++;
+
+            $hasil[] = [
+                'no' => $no,
+                'no_invoice' => $item->no_surat,
+                'nama_customer' => $item->name_customer,
+                'marketing' => $item->nama_sales,
+                'top' => $item->nama_top,
+                'payment' => $item->payment,
+                'nilai_dpp' => number_format($item->grand_total, 2),
+                'nilai_invoice' => number_format($item->nilai_invoice, 2),
+                'tanggal_invoice' => date('d F Y', strtotime($item->tgl_invoice))
+            ];
+
+            $total = $item->nilai_invoice;
+            $totaldpp = $item->grand_total;
+
+            $totaldppformat += $totaldpp;
+            $totalformat += $total;
+        }
+
+        echo json_encode([
+            'draw' => intval($draw),
+            'recordsTotal' => $get_data_all->num_rows(),
+            'recordsFiltered' => $get_data_all->num_rows(),
+            'totaldppformat' => $totaldppformat,
+            'totalformat' => $totalformat,
+            'data' => $hasil
         ]);
     }
 }
