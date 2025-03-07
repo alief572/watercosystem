@@ -238,7 +238,8 @@
                                         $customers = $this->Wt_penawaran_model->get_data('master_customers','deleted',$deleted);
 		                                $material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a ")->result();
 										
-										$total 		 = ($dt_spk->qty_delivery * $dt_spk->harga_satuan)+$dt_spk->freight_cost;
+										// $total 		 = ($dt_spk->qty_delivery * $dt_spk->harga_satuan)+$dt_spk->freight_cost;
+										$total 		 = ($dt_spk->total_harga + $dt_spk->nilai_diskon);
 										$diskon		 += round($dt_spk->nilai_diskon);
 										$totalharga  += $total;
 										$persen      = $plan->persentase;
@@ -367,7 +368,7 @@
 											<th width='7%'></th>
 											<th width='7%'></th>
 											<th width='7%'><b>PPN</b></th>											
-											<th width='7%'><input type='text' class='form-control ppn' id='ppn'  name='ppn' onblur='hitungPpn()' value="<?= $hd->ppn?>" readonly></th>                                            
+											<th width='7%'><input type='text' class='form-control ppn' id='ppn'  name='ppn' onchange='hitungPpn()' value="<?= $hd->ppn?>" readonly></th>                                            
                                             <th width='7%'><input type='text' class='form-control totalppn' id='totalppn'  name='totalppn' value="<?= $hd->nilai_ppn?>" readonly ></th>										
                                             	
 										</tr>
