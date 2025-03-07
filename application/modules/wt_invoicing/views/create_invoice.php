@@ -232,8 +232,11 @@
 										</tr>
 									</thead>
 									<tbody id="list_spk">
-                                    <?php $loop=0;
-									foreach ($results['detail'] as $dt_spk){$loop++; 
+                                    <?php 
+									$loop = 0;
+									foreach ($results['detail'] as $dt_spk){
+										
+										$loop++; 
 
                                         $customers = $this->Wt_penawaran_model->get_data('master_customers','deleted',$deleted);
 		                                $material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a ")->result();
