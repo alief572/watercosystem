@@ -241,8 +241,8 @@
                                         $customers = $this->Wt_penawaran_model->get_data('master_customers','deleted',$deleted);
 		                                $material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a ")->result();
 										
-										// $total 		 = ($dt_spk->qty_delivery * $dt_spk->harga_satuan)+$dt_spk->freight_cost;
-										$total 		 = ($dt_spk->total_harga + $dt_spk->nilai_diskon);
+										$total 		 = ($dt_spk->qty_delivery * $dt_spk->harga_satuan)+$dt_spk->freight_cost;
+										// $total 		 = ($dt_spk->total_harga + $dt_spk->nilai_diskon);
 										$diskon		 += round($dt_spk->nilai_diskon);
 										$totalharga  += $total;
 										$persen      = $plan->persentase;
