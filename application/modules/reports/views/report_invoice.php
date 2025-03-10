@@ -22,22 +22,23 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 					<div class="form-group">
 						<br>
 						<label>From</label>
-						<input type="date" name="tanggal" id="tanggal" class="form-control input-sm">
+						<input type="date" name="tanggal" id="tanggal" class="form-control input-sm" value="<?= date('Y-m-01') ?>">
 					</div>
 				</div>
 				<div class="col-sm-2">
 					<div class="form-group">
 						<br>
 						<label>To</label>
-						<input type="date" name="tanggal_to" id="tanggal_to" class="form-control input-sm">
+						<input type="date" name="tanggal_to" id="tanggal_to" class="form-control input-sm" value="<?= date('Y-m-d') ?>">
 					</div>
 				</div>
 				<div class="col-sm-5">
 					<div class="form-group">
 						<br>
 						<label> &nbsp;</label><br>
-						<button type="button" class="btn btn-sm btn-success search"><i class="fa fa-search"></i> Search</button>
+						<button type="button" class="btn btn-sm btn-primary search"><i class="fa fa-search"></i> Search</button>
 						<button type="button" class="btn btn-sm btn-danger clearing"><i class="fa fa-refresh"></i> Clear</button>
+						<button type="button" class="btn btn-sm btn-success export_excel"><i class="fa fa-arrow-up"></i> Excel</button>
 					</div>
 				</div>
 			</div>
@@ -64,7 +65,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 			</thead>
 
 			<tbody>
-				
+
 			</tbody>
 			<tfoot>
 				<tr>
@@ -153,7 +154,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 <!-- page script -->
 <script type="text/javascript">
 	$(document).ready(function() {
-		// DataTables();
+		DataTables();
 	});
 
 
@@ -241,6 +242,13 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 		DataTables();
 	})
 
+	$(document).on('click', '.export_excel', function() {
+		var tanggal = $('#tanggal').val();
+		var tanggal_to = $('#tanggal_to').val();
+
+		window.open(siteurl + active_controller + 'export_excel_report_invoicing?tanggal=' + tanggal + '&tanggal_to=' + tanggal_to, '_blank');
+	})
+
 	$(function() {
 		// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
 		// $('#example1 thead tr:eq(1) th').each( function (i) {
@@ -273,7 +281,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 
 
 	//Delete
-	
+
 	function number_format(number, decimals, dec_point, thousands_sep) {
 		// Strip all characters but numerical ones.
 		number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
@@ -322,8 +330,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 					return result.data;
 				}
 			},
-			columns: [
-				{
+			columns: [{
 					data: 'no'
 				},
 				{

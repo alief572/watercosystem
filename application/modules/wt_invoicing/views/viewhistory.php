@@ -144,7 +144,7 @@
 					    <div class="col-sm-12">
 						    <?php if(empty($results['view'])){ ?>
 						    <div class="form-group row">
-								<button type='button' class='btn btn-sm btn-success' title='Ambil' id='tbh_ata' data-role='qtip' onClick='GetProduk();'><i class='fa fa-plus'></i>Add</button>
+								<!-- <button type='button' class='btn btn-sm btn-success' title='Ambil' id='tbh_ata' data-role='qtip' onClick='GetProduk();'><i class='fa fa-plus'></i>Add</button> -->
 							</div>
 						    <?php } ?>
 							<div class="form-group row" >

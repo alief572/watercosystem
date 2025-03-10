@@ -379,4 +379,42 @@ class Reports extends Admin_Controller
 
 		$this->load->view('export_excel_detail_salesorder', array('data' => $get_data));
 	}
+
+	public function export_excel_report_invoicing($tanggal = '', $tanggal_to = '') {
+		$this->db->select('a.*, b.name_customer as name_customer, c.nama_top');
+        $this->db->from('tr_invoice a');
+        $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+        $this->db->join('ms_top c', 'c.id_top = a.top');
+        if ($tanggal !== '' && $tanggal_to == '') {
+            $this->db->where('a.tgl_invoice >', $tanggal);
+        }
+        if ($tanggal == '' && $tanggal_to !== '') {
+            $this->db->where('a.tgl_invoice <', $tanggal_to);
+        }
+        if ($tanggal !== '' && $tanggal_to !== '') {
+            $this->db->where('a.tgl_invoice >', $tanggal);
+            $this->db->where('a.tgl_invoice <', $tanggal_to);
+        }
+        if (!empty($search)) {
+            $this->db->group_start();
+            $this->db->like('a.no_surat', $search['value'], 'both');
+            $this->db->like('b.name_customer', $search['value'], 'both');
+            $this->db->like('a.nama_sales', $search['value'], 'both');
+            $this->db->like('c.nama_top', $search['value'], 'both');
+            $this->db->like('a.payment', $search['value'], 'both');
+            $this->db->like('a.grand_total', $search['value'], 'both');
+            $this->db->like('a.nilai_invoice', $search['value'], 'both');
+            $this->db->like('a.tgl_invoice', $search['value'], 'both');
+            $this->db->group_end();
+        }
+        $this->db->order_by('a.id', 'desc');
+
+        $get_data = $this->db->get()->result();
+
+		$data = array(
+			'data_invoicing' => $get_data
+		);
+
+		$this->load->view('export_excel_report_invoicing', $data);
+	}
 }
