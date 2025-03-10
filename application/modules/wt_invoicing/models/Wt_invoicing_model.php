@@ -285,7 +285,7 @@ class Wt_invoicing_model extends BF_Model
       $this->db->or_like('b.name_customer', $search['value']);
       $this->db->or_like('a.tgl_invoice', $search['value']);
       $this->db->or_like('a.nilai_invoice', $search['value']);
-      $this->db->or_like('a.nama_top', $search['value']);
+      $this->db->or_like('c.nama_top', $search['value']);
       $this->db->or_like('a.nama_sales', $search['value']);
     }
     $this->db->order_by('a.no_invoice', 'DESC');
@@ -302,7 +302,7 @@ class Wt_invoicing_model extends BF_Model
       $this->db->or_like('b.name_customer', $search['value']);
       $this->db->or_like('a.tgl_invoice', $search['value']);
       $this->db->or_like('a.nilai_invoice', $search['value']);
-      $this->db->or_like('a.nama_top', $search['value']);
+      $this->db->or_like('c.nama_top', $search['value']);
       $this->db->or_like('a.nama_sales', $search['value']);
     }
     $this->db->order_by('a.no_invoice', 'DESC');
