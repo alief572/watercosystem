@@ -15,9 +15,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 
 <div class="box">
 	<div class="box-header">
-		<?php if ($ENABLE_VIEW) : ?>
-			<a class="btn btn-success btn-sm" href="<?= base_url('/wt_penawaran/AddPenawaran/') ?>" title="Add New"><i class="fa fa-plus">&nbsp;</i>Add</i></a>
-		<?php endif; ?>
+		
 
 		<span class="pull-right">
 		</span>

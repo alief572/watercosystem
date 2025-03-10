@@ -82,9 +82,9 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 								<td><?= $record->nama_sales ?></td>
 								<td><?= date('d-F-Y', strtotime($record->tgl_so)) ?></td>
 								<td><?= date('d-F-Y', strtotime($record->tgl_create_inv)) ?></td>
-								<td align='right'><?= number_format($record->grand_total) ?></td>
+								<td align='right'><?= number_format($record->grand_total, 2) ?></td>
 								<td><?= $record->persentase ?></td>
-								<td align='right'><?= number_format($record->nilai_tagih) ?></td>
+								<td align='right'><?= number_format($record->nilai_tagih, 2) ?></td>
 								<td><?= $record->nama_top ?></td>
 								<td><?= $record->payment ?></td>
 								<td><?= $record->ket_tagih ?></td>
