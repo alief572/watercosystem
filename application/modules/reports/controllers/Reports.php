@@ -380,7 +380,10 @@ class Reports extends Admin_Controller
 		$this->load->view('export_excel_detail_salesorder', array('data' => $get_data));
 	}
 
-	public function export_excel_report_invoicing($tanggal = '', $tanggal_to = '') {
+	public function export_excel_report_invoicing() {
+		$tanggal = $this->input->get('tanggal');
+		$tanggal_to = $this->input->get('tanggal_to');
+
 		$this->db->select('a.*, b.name_customer as name_customer, c.nama_top');
         $this->db->from('tr_invoice a');
         $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
