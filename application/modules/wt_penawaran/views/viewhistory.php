@@ -210,7 +210,7 @@
 											<th width='7%'></th>
 											<th width='7%'><b>Total</b></th>											
 											<th width='7%'></th>                                            
-                                            <th width='7%'><input type='text' class='form-control totalproduk' id='totalproduk'  name='totalproduk' readonly value="<?= number_format($hd->nilai_penawaran)?>" ></th>										
+                                            <th width='9%'><input type='text' class='form-control totalproduk' id='totalproduk'  name='totalproduk' readonly value="<?= number_format($hd->nilai_penawaran, 2)?>" ></th>										
                                             	
 										</tr>
 										<tr>
@@ -222,7 +222,7 @@
 											<th width='7%'></th>
 											<th width='7%'><b>PPN</b></th>											
 											<th width='7%'><input type='text' class='form-control ppn' id='ppn'  name='ppn' onblur='hitungPpn()' value="<?= $hd->ppn?>" ></th>                                            
-                                            <th width='7%'><input type='text' class='form-control totalppn' id='totalppn'  name='totalppn' value="<?= number_format($hd->nilai_ppn)?>" readonly ></th>										
+                                            <th width='9%'><input type='text' class='form-control totalppn' id='totalppn'  name='totalppn' value="<?= number_format($hd->nilai_ppn, 2)?>" readonly ></th>										
                                             	
 										</tr>
 										<tr>
@@ -234,7 +234,7 @@
 											<th width='7%'></th>
 											<th width='7%'><b>Grand Total</b></th>											
 											<th width='7%'></th>                                            
-                                            <th width='7%'><input type='text' class='form-control grandtotal' id='grandtotal'  name='grandtotal' value="<?= number_format($hd->grand_total)?>" readonly ></th>										
+                                            <th width='9%'><input type='text' class='form-control grandtotal' id='grandtotal'  name='grandtotal' value="<?= number_format($hd->grand_total, 2)?>" readonly ></th>										
                                             	
 										</tr>
 									   										
