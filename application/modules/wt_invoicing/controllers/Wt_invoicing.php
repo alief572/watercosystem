@@ -39,8 +39,8 @@ class Wt_invoicing extends Admin_Controller
         $this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-        $data = $this->Wt_invoicing_model->CariInvoice();
-        $this->template->set('results', $data);
+        // $data = $this->Wt_invoicing_model->CariInvoice();
+        // $this->template->set('results', $data);
         $this->template->title('Invoice');
         $this->template->render('index_invoice');
     }
@@ -2223,6 +2223,10 @@ class Wt_invoicing extends Admin_Controller
         $this->template->title('Invoice Jatuh Tempo');
         $this->template->render('index_jatuhtempo');
     }
+
+	public function get_data_invoice() {
+		$this->Wt_invoicing_model->get_data_invoice();
+	}
 	
 	
 			

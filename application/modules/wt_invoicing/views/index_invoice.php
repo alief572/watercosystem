@@ -17,7 +17,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="data_table" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -29,71 +29,12 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 					<th>Payment</th>
 					<th>Nilai<br>Invoice</th>
 					<th>Tanggal<br>Invoice</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th>Action</th>
-					<?php endif; ?>
+					<th>Action</th>
 				</tr>
 			</thead>
 
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
 
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-						if ($record->status == 0) {
-							$Status = "<span class='badge bg-grey'>Draft</span>";
-						} elseif ($record->status == 1) {
-
-							$Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
-						} elseif ($record->status == 2) {
-							$Status = "<span class='badge bg-green'>Approved</span>";
-						} elseif ($record->status == 3) {
-							$Status = "<span class='badge bg-blue'>Print</span>";
-						} elseif ($record->status == 4) {
-							$Status = "<span class='badge bg-green'>Send</span>";
-						} elseif ($record->status == 5) {
-							$Status = "<span class='badge bg-red'>Not Approved</span>";
-						} elseif ($record->status == 6) {
-							$Status = "<span class='badge bg-green'>SO</span>";
-						} elseif ($record->status == 7) {
-							$Status = "<span class='badge bg-red'>Loss</span>";
-						}
-
-						$noso =  $record->no_so;
-						$so = $this->db->query("SELECT no_surat FROM tr_sales_order WHERE no_so ='$noso' ")->row();
-				?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->no_surat ?></td>
-							<td><?= $so->no_surat ?></td>
-							<td><?= strtoupper($record->name_customer) ?></td>
-							<td><?= $record->nama_sales ?></td>
-							<td><?= $record->nama_top ?></td>
-							<td><?= $record->payment ?></td>
-							<td><?= number_format($record->nilai_invoice) ?></td>
-							<td><?= date('d-F-Y', strtotime($record->tgl_invoice)) ?></td>
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_MANAGE and $record->no_proforma_invoice != '') : ?>
-									</a>
-									<a class="btn btn-primary btn-sm" href="<?= base_url('/wt_invoicing/PrintProformaInvoice/' . $record->id_invoice) ?>" target="_blank" title="Cetak Proforma Invoice" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-print"></i>
-									</a>
-								<?php endif; ?>
-								<?php if ($ENABLE_MANAGE and $record->no_invoice == '') : ?>
-									<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_invoicing/createDealInvoice/' . $record->id_invoice) ?>" target="_blank" title="Create Invoice" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-plus"></i>
-									</a>
-								<?php endif; ?>
-								<?php if ($ENABLE_MANAGE and $record->no_invoice != '') : ?>
-									<a class="btn btn-success btn-sm" href="<?= base_url('/wt_invoicing/print_invoice/' . $record->no_invoice) ?>" target="_blank" title="Cetak Invoice" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-print"></i>
-									</a>
-								<?php endif; ?>
-
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
 			</tbody>
 		</table>
 	</div>
@@ -241,34 +182,52 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 	});
 
 	$(function() {
-		// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
-		// $('#example1 thead tr:eq(1) th').each( function (i) {
-		// var title = $(this).text();
-		//alert(title);
-		// if (title == "#" || title =="Action" ) {
-		// $(this).html( '' );
-		// }else{
-		// $(this).html( '<input type="text" />' );
-		// }
-
-		// $( 'input', this ).on( 'keyup change', function () {
-		// if ( table.column(i).search() !== this.value ) {
-		// table
-		// .column(i)
-		// .search( this.value )
-		// .draw();
-		// }else{
-		// table
-		// .column(i)
-		// .search( this.value )
-		// .draw();
-		// }
-		// } );
-		// } );
-
-
 		$("#form-area").hide();
+		DataTables();
 	});
+
+	function DataTables() {
+		var datatable = $('#data_table').DataTable({
+			serverSide: true,
+			processing: true,
+			ajax: {
+				type: 'post',
+				url: siteurl + active_controller + 'get_data_invoice',
+				dataType: 'json'
+			},
+			columns: [{
+					data: 'no'
+				},
+				{
+					data: 'no_invoice'
+				},
+				{
+					data: 'no_so'
+				},
+				{
+					data: 'nama_customer'
+				},
+				{
+					data: 'marketing'
+				},
+				{
+					data: 'top'
+				},
+				{
+					data: 'payment'
+				},
+				{
+					data: 'nilai_invoice'
+				},
+				{
+					data: 'tgl_invoice'
+				},
+				{
+					data: 'option'
+				}
+			]
+		});
+	}
 
 
 	//Delete
