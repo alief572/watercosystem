@@ -294,7 +294,7 @@ class Inventory_4_model extends BF_Model
 
 		$produk = $this->input->post('produk');
 
-		$this->db->select('a.*, b.nama');
+		$this->db->select('a.id_kartu_stok, a.id_category3, a.qty, a.qty_book, a.qty_free, a.transaksi, a.tgl_transaksi, a.no_transaksi, a.id_gudang, a.qty_transaksi, a.qty_akhir, a.qty_book_akhir, a.qty_free_akhir, a.status_transaksi, a.harga_stok, a.harga_do, a.cost_book, a.no_surat, b.nama');
 		$this->db->from('kartu_stok a');
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 
@@ -315,7 +315,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->limit($length, $start);
 		$query = $this->db->get();
 
-		$this->db->select('a.*, b.nama');
+		$this->db->select('a.id_kartu_stok, a.id_category3, a.qty, a.qty_book, a.qty_free, a.transaksi, a.tgl_transaksi, a.no_transaksi, a.id_gudang, a.qty_transaksi, a.qty_akhir, a.qty_book_akhir, a.qty_free_akhir, a.status_transaksi, a.harga_stok, a.harga_do, a.cost_book, a.no_surat, b.nama');
 		$this->db->from('kartu_stok a');
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		if ($produk != null) {
@@ -360,7 +360,7 @@ class Inventory_4_model extends BF_Model
 
 			$hasil[] = [
 				'no' => $no,
-				'tgl_transaksi' => $item->created_on,
+				'tgl_transaksi' => date('d F Y', strtotime($item->tgl_transaksi)),
 				'no_transaksi' => $item->no_surat,
 				'jenis_transaksi' => ucfirst($item->transaksi),
 				'id_produk' => $item->id_category3,
