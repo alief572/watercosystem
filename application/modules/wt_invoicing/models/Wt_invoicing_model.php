@@ -281,7 +281,7 @@ class Wt_invoicing_model extends BF_Model
     $this->db->join('ms_top c', 'c.id_top=a.top');
     $this->db->where('1', '1');
     if (!empty($search['value'])) {
-      $this->db->like('a.no_invoice', $search['value']);
+      $this->db->like('a.no_surat', $search['value']);
       $this->db->or_like('b.name_customer', $search['value']);
       $this->db->or_like('a.tgl_invoice', $search['value']);
       $this->db->or_like('a.nilai_invoice', $search['value']);
@@ -298,7 +298,7 @@ class Wt_invoicing_model extends BF_Model
     $this->db->join('ms_top c', 'c.id_top=a.top');
     $this->db->where('1', '1');
     if (!empty($search['value'])) {
-      $this->db->like('a.no_invoice', $search['value']);
+      $this->db->like('a.no_surat', $search['value']);
       $this->db->or_like('b.name_customer', $search['value']);
       $this->db->or_like('a.tgl_invoice', $search['value']);
       $this->db->or_like('a.nilai_invoice', $search['value']);
