@@ -963,14 +963,14 @@ class Reports_model extends BF_Model
         $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
         $this->db->join('ms_top c', 'c.id_top = a.top');
         if ($tanggal !== '' && $tanggal_to == '') {
-            $this->db->where('a.tgl_invoice >', $tanggal);
+            $this->db->where('a.tgl_invoice >=', $tanggal);
         }
         if ($tanggal == '' && $tanggal_to !== '') {
-            $this->db->where('a.tgl_invoice <', $tanggal_to);
+            $this->db->where('a.tgl_invoice <=', $tanggal_to);
         }
         if ($tanggal !== '' && $tanggal_to !== '') {
-            $this->db->where('a.tgl_invoice >', $tanggal);
-            $this->db->where('a.tgl_invoice <', $tanggal_to);
+            $this->db->where('a.tgl_invoice >=', $tanggal);
+            $this->db->where('a.tgl_invoice <=', $tanggal_to);
         }
         if (!empty($search)) {
             $this->db->group_start();
