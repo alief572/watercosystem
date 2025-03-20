@@ -63,49 +63,44 @@ class Costbook_model extends BF_Model
     {
         parent::__construct();
     }
-	
-	
-    function generate_id($kode='') {
-      $query = $this->db->query("SELECT MAX(id_type) as max_id FROM ms_inventory_type");
-      $row = $query->row_array();
-      $thn = date('y');
-      $max_id = $row['max_id'];
-      $max_id1 =(int) substr($max_id,3,5);
-      $counter = $max_id1 +1;
-      $idcust = "I".$thn.str_pad($counter, 5, "0", STR_PAD_LEFT);
-      return $idcust;
-	}
 
- 	public function get_data($table,$where_field='',$where_value=''){
-		if($where_field !='' && $where_value!=''){
-			$query = $this->db->get_where($table, array($where_field=>$where_value));
-		}else{
-			$query = $this->db->get($table);
-		}
-		
-		return $query->result();
-	}
-	
+
+    function generate_id($kode = '')
+    {
+        $query = $this->db->query("SELECT MAX(id_type) as max_id FROM ms_inventory_type");
+        $row = $query->row_array();
+        $thn = date('y');
+        $max_id = $row['max_id'];
+        $max_id1 = (int) substr($max_id, 3, 5);
+        $counter = $max_id1 + 1;
+        $idcust = "I" . $thn . str_pad($counter, 5, "0", STR_PAD_LEFT);
+        return $idcust;
+    }
+
+    public function get_data($table, $where_field = '', $where_value = '')
+    {
+        if ($where_field != '' && $where_value != '') {
+            $query = $this->db->get_where($table, array($where_field => $where_value));
+        } else {
+            $query = $this->db->get($table);
+        }
+
+        return $query->result();
+    }
+
     function getById($id)
     {
-       return $this->db->get_where('ms_kurs',array('id' => $id))->row_array();
-    }   
-	
-	public function get_costbook(){
-		
-		$this->db->select('a.*, b.nama as nama_produk, b.kode_barang');
-		$this->db->from('ms_costbook a');
-		$this->db->join('ms_inventory_category3 b','b.id_category3 =a.id_category3');
-		$query = $this->db->get();		
-		return $query->result();
-	}
-	
-	
-	
-		
-		
-		
-		
-	
-	
+        return $this->db->get_where('ms_kurs', array('id' => $id))->row_array();
+    }
+
+    public function get_costbook()
+    {
+
+        $this->db->select('a.*, b.nama as nama_produk, b.kode_barang');
+        $this->db->from('ms_costbook a');
+        $this->db->join('ms_inventory_category3 b', 'b.id_category3 =a.id_category3');
+        $this->db->where('b.deleted <>', '1');
+        $query = $this->db->get();
+        return $query->result();
+    }
 }
