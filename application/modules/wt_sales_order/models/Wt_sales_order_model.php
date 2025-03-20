@@ -284,6 +284,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->join('users d', 'd.id_user = a.created_by');
     $this->db->where('a.status <>', 0);
     $this->db->where('a.order_status <>', 'ind');
+    $this->db->where('a.deleted_by', null);
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('a.no_surat', $search['value'], 'both');
@@ -306,6 +307,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->join('users d', 'd.id_user=a.created_by');
     $this->db->where('a.status <>', 0);
     $this->db->where('a.order_status <>', 'ind');
+    $this->db->where('a.deleted_by', null);
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('a.no_surat', $search['value'], 'both');

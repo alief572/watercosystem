@@ -539,7 +539,8 @@ class Wt_penawaran_model extends BF_Model
             tr_penawaran a
             JOIN master_customers b ON b.id_customer = a.id_customer
           WHERE
-            a.status_so = 1
+            a.status_so = 1 AND
+            a.deleted_by IS NULL
         ) z
         WHERE
           1 = 1

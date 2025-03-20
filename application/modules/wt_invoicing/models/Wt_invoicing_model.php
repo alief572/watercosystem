@@ -279,7 +279,7 @@ class Wt_invoicing_model extends BF_Model
     $this->db->from('tr_invoice a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('ms_top c', 'c.id_top=a.top');
-    $this->db->where('1', '1');
+    $this->db->where('a.deleted_by', null);
     if (!empty($search['value'])) {
       $this->db->like('a.no_surat', $search['value']);
       $this->db->or_like('b.name_customer', $search['value']);
@@ -296,7 +296,7 @@ class Wt_invoicing_model extends BF_Model
     $this->db->from('tr_invoice a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('ms_top c', 'c.id_top=a.top');
-    $this->db->where('1', '1');
+    $this->db->where('a.deleted_by', null);
     if (!empty($search['value'])) {
       $this->db->like('a.no_surat', $search['value']);
       $this->db->or_like('b.name_customer', $search['value']);
