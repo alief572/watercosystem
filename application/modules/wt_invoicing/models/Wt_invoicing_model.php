@@ -225,6 +225,7 @@ class Wt_invoicing_model extends BF_Model
     $where2 = "a.status_close ='0'";
     $this->db->where($where);
     $this->db->where($where2);
+    $this->db->where('a.deleted_by', null);
     $this->db->order_by('a.no_invoice', DESC);
     $query = $this->db->get();
     return $query->result();
