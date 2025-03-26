@@ -11,7 +11,7 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 	}
 </style>
 <div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
-<link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
 
 <div class="box">
 	<div class="box-header">
@@ -20,7 +20,7 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="example5" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -29,107 +29,12 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 					<th>Marketing</th>
 					<th>TOP</th>
 					<th>Status<br>Pengiriman</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th>Action</th>
-					<?php endif; ?>
+					<th>Action</th>
 				</tr>
 			</thead>
 
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-
-
-						if ($record->status_do == 0) {
-							$Status = "<span class='badge bg-grey'>Draft</span>";
-						} elseif ($record->status == 1) {
-
-							$Status = "<span class='badge bg-green'>Deal</span>";
-						}
-						// elseif($record->status == 2 )
-						// {
-						// $Status = "<span class='badge bg-green'>Approved</span>";
-						// }
-						// elseif($record->status == 3 )
-						// {
-						// $Status = "<span class='badge bg-blue'>Dicetak</span>";
-						// }
-						// elseif($record->status == 4 )
-						// {
-						// $Status = "<span class='badge bg-green'>Terkirim</span>";
-						// }
-						// elseif($record->status == 5 )
-						// {
-						// $Status = "<span class='badge bg-red'>Not Approved</span>";
-						// }
-						// elseif($record->status == 6 )
-						// {
-						// $Status = "<span class='badge bg-green'>SO</span>";
-						// }
-						// elseif($record->status == 7 )
-						// {
-						// $Status = "<span class='badge bg-red'>Loss</span>";
-						// }
-
-						$plan = $this->db->query("SELECT sum(qty_so) as total_so, sum(qty_delivery) as total_delivery FROM tr_sales_order_detail WHERE no_so='$record->no_so'")->row();
-				?>
-
-						<?php if ($record->status <> '6' or $record->status <> '7') { ?>
-
-							<?php
-							if ($plan->total_so !== $plan->total_delivery) {
-
-								if ($plan->total_delivery == 0  && ($plan->total_so > $plan->total_delivery)) {
-									$create = 0;
-									$Statusdo = "<span class='badge bg-grey'>Belum Dikirim</span>";
-								} elseif ($plan->total_delivery != 0 && ($plan->total_so > $plan->total_delivery)) {
-									$create = 1;
-									$Statusdo = "<span class='badge bg-blue'>Parsial</span>";
-								} elseif ($plan->total_delivery != 0 && ($plan->total_so == $plan->total_delivery)) {
-									$create = 2;
-									$Statusdo = "<span class='badge bg-green'>Terkirim</span>";
-								}
-
-								$valid = 1;
-								// if ($record->order_status == 'ind' && $record->indent_check !== '1') {
-								// 	$valid = 0;
-								// }
-
-								if ($valid == 1) {
-							?>
-
-
-
-									<tr>
-										<td><?= $numb; ?></td>
-										<td><?= $record->no_surat ?></td>
-										<td><?= strtoupper($record->name_customer) ?></td>
-										<td><?= $record->nama_sales ?></td>
-										<td><?= $record->nama_top ?></td>
-										<td><?= $Statusdo ?></td>
-										<td nowrap>
-
-											<a class="btn btn-default btn-sm" href="<?= base_url('/wt_delivery_order/viewPlanning/' . $record->no_so) ?>" title="View SO"><i class="fa fa-eye"></i></a>
-											<?php if ($ENABLE_MANAGE) : ?>
-												<?php if ($plan->total_so != $plan->total_delivery) : ?>
-													<a class="btn btn-success btn-sm" href="<?= base_url('/wt_delivery_order/createPlanning/' . $record->no_so) ?>" title="Create Planning" data-no_inquiry="<?= $record->no_inquiry ?>"> <i class="fa fa-check">Create Planning</i>
-													</a>
-												<?php endif; ?>
-											<?php endif; ?>
-
-										</td>
-									</tr>
-				<?php
-								}
-							}
-						}
-					}
-				}
-				?>
+				
 			</tbody>
 		</table>
 	</div>
@@ -197,8 +102,7 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 <!-- /.modal -->
 
 <!-- DataTables -->
-<script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
-<script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js') ?>"></script>
+<script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
 
 <!-- page script -->
 <script type="text/javascript">
@@ -277,9 +181,47 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 	});
 
 	$(function() {
-
 		$("#form-area").hide();
+
+		DataTables();
 	});
+
+	function DataTables() {
+		var DataTables = $('#example5').dataTable({
+			serverSide: true,
+			processing: true,
+			paging: true,
+			destroy: true,
+			stateSave: true,
+			ajax: {
+				type: 'post',
+				url: siteurl + active_controller + 'get_data_planning_delivery',
+				dataType: 'json'
+			},
+			columns: [{
+					data: 'no'
+				},
+				{
+					data: 'no_so'
+				},
+				{
+					data: 'nama_customer'
+				},
+				{
+					data: 'marketing'
+				},
+				{
+					data: 'top'
+				},
+				{
+					data: 'status_pengiriman'
+				},
+				{
+					data: 'action'
+				}
+			]
+		});
+	}
 
 
 	//Delete
