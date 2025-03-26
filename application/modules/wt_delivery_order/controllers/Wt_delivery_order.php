@@ -37,8 +37,8 @@ class Wt_delivery_order extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_delivery_order_model->cariSalesOrder();
-		$this->template->set('results', $data);
+		// $data = $this->Wt_delivery_order_model->cariSalesOrder();
+		// $this->template->set('results', $data);
 		$this->template->title('Planning Delivery Order');
 		$this->template->render('index');
 	}
@@ -1114,5 +1114,9 @@ class Wt_delivery_order extends Admin_Controller
 
 	public function get_data_history_delivery_order_detail() {
 		$this->Wt_delivery_order_model->get_data_history_delivery_order_detail();
+	}
+
+	public function get_data_planning_delivery() {
+		$this->Wt_delivery_order_model->get_data_planning_delivery();
 	}
 }

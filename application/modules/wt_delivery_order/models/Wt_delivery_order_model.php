@@ -695,4 +695,98 @@ class Wt_delivery_order_model extends BF_Model
       'data' => $hasil
     ]);
   }
+
+  public function get_data_planning_delivery()
+  {
+    $draw = $this->input->post('draw');
+    $start = $this->input->post('start');
+    $length = $this->input->post('length');
+    $search = $this->input->post('search');
+
+    $this->db->select('a.*, b.name_customer as name_customer, c.grand_total as total_penawaran,d.nama_top');
+    $this->db->from('tr_sales_order a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer', 'left');
+    $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran', 'left');
+    $this->db->join('ms_top d', 'd.id_top=a.top', 'left');
+    $this->db->where_not_in('a.status', ['6', '7']);
+    $this->db->where('(SELECT SUM(aa.qty_so) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so) <> (SELECT SUM(aa.qty_delivery) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so)');
+
+    if (!empty($search['value'])) {
+      $this->db->like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('b.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('d.nama_top', $search['value'], 'both');
+    }
+    $this->db->order_by('a.no_surat', 'desc');
+    $this->db->limit($length, $start);
+
+    $get_data = $this->db->get();
+
+    $this->db->select('a.*, b.name_customer as name_customer, c.grand_total as total_penawaran,d.nama_top');
+    $this->db->from('tr_sales_order a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer', 'left');
+    $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran', 'left');
+    $this->db->join('ms_top d', 'd.id_top=a.top', 'left');
+    $this->db->where_not_in('a.status', ['6', '7']);
+    $this->db->where('(SELECT SUM(aa.qty_so) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so) <> (SELECT SUM(aa.qty_delivery) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so)');
+    if (!empty($search['value'])) {
+      $this->db->like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('b.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('d.nama_top', $search['value'], 'both');
+    }
+    $this->db->order_by('a.no_surat', 'desc');
+
+    $get_data_all = $this->db->get();
+
+    $hasil = [];
+
+    $no = (0 + $start);
+    foreach ($get_data->result() as $item) :
+      $no++;
+
+      $plan = $this->db->query("SELECT sum(qty_so) as total_so, sum(qty_delivery) as total_delivery FROM tr_sales_order_detail WHERE no_so = '" . $item->no_so . "'")->row();
+      // if ($item->status <> '6' or $item->status <> '7') {
+        // if ($plan->total_so !== $plan->total_delivery) {
+          if ($plan->total_delivery == 0  && ($plan->total_so > $plan->total_delivery)) {
+            $create = 0;
+            $Statusdo = "<span class='badge bg-grey'>Belum Dikirim</span>";
+          } elseif ($plan->total_delivery != 0 && ($plan->total_so > $plan->total_delivery)) {
+            $create = 1;
+            $Statusdo = "<span class='badge bg-blue'>Parsial</span>";
+          } elseif ($plan->total_delivery != 0 && ($plan->total_so == $plan->total_delivery)) {
+            $create = 2;
+            $Statusdo = "<span class='badge bg-green'>Terkirim</span>";
+          }
+  
+          $ENABLE_ADD     = has_permission('Planning_Delivery.Add');
+          $ENABLE_MANAGE  = has_permission('Planning_Delivery.Manage');
+          $ENABLE_VIEW    = has_permission('Planning_Delivery.View');
+          $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
+  
+          $action = '<a class="btn btn-default btn-sm" href="' . base_url('/wt_delivery_order/viewPlanning/' . $item->no_so) . '" title="View SO"><i class="fa fa-eye"></i></a>';
+          if ($ENABLE_MANAGE) {
+            $action .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_delivery_order/createPlanning/' . $item->no_so) . '" title="Create Planning" data-no_inquiry="<?= $record->no_inquiry ?>"> <i class="fa fa-check">Create Planning</i></a>';
+          }
+  
+          $hasil[] = [
+            'no' => $no,
+            'no_so' => $item->no_surat,
+            'nama_customer' => $item->name_customer,
+            'marketing' => $item->nama_sales,
+            'top' => $item->nama_top,
+            'status_pengiriman' => $Statusdo,
+            'action' => $action
+          ];
+        // }
+      // }
+    endforeach;
+
+    echo json_encode([
+      'draw' => intval($draw),
+      'recordsTotal' => $get_data_all->num_rows(),
+      'recordsFiltered' => $get_data_all->num_rows(),
+      'data' => $hasil
+    ]);
+  }
 }
