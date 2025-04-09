@@ -200,6 +200,7 @@ class Reports_model extends BF_Model
         $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
         $where2 = "a.tgl_so  LIKE '%$blnthn%'";
         $this->db->where($where2);
+        $this->db->where('a.deleted_by IS NULL');
         $query = $this->db->get();
         return $query->result();
     }
