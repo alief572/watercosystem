@@ -747,40 +747,143 @@ class Wt_delivery_order_model extends BF_Model
 
       $plan = $this->db->query("SELECT sum(qty_so) as total_so, sum(qty_delivery) as total_delivery FROM tr_sales_order_detail WHERE no_so = '" . $item->no_so . "'")->row();
       // if ($item->status <> '6' or $item->status <> '7') {
-        // if ($plan->total_so !== $plan->total_delivery) {
-          if ($plan->total_delivery == 0  && ($plan->total_so > $plan->total_delivery)) {
-            $create = 0;
-            $Statusdo = "<span class='badge bg-grey'>Belum Dikirim</span>";
-          } elseif ($plan->total_delivery != 0 && ($plan->total_so > $plan->total_delivery)) {
-            $create = 1;
-            $Statusdo = "<span class='badge bg-blue'>Parsial</span>";
-          } elseif ($plan->total_delivery != 0 && ($plan->total_so == $plan->total_delivery)) {
-            $create = 2;
-            $Statusdo = "<span class='badge bg-green'>Terkirim</span>";
-          }
-  
-          $ENABLE_ADD     = has_permission('Planning_Delivery.Add');
-          $ENABLE_MANAGE  = has_permission('Planning_Delivery.Manage');
-          $ENABLE_VIEW    = has_permission('Planning_Delivery.View');
-          $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
-  
-          $action = '<a class="btn btn-default btn-sm" href="' . base_url('/wt_delivery_order/viewPlanning/' . $item->no_so) . '" title="View SO"><i class="fa fa-eye"></i></a>';
-          if ($ENABLE_MANAGE) {
-            $action .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_delivery_order/createPlanning/' . $item->no_so) . '" title="Create Planning" data-no_inquiry="<?= $record->no_inquiry ?>"> <i class="fa fa-check">Create Planning</i></a>';
-          }
-  
-          $hasil[] = [
-            'no' => $no,
-            'no_so' => $item->no_surat,
-            'nama_customer' => $item->name_customer,
-            'marketing' => $item->nama_sales,
-            'top' => $item->nama_top,
-            'status_pengiriman' => $Statusdo,
-            'action' => $action
-          ];
-        // }
-      // }
+      // if ($plan->total_so !== $plan->total_delivery) {
+      if ($plan->total_delivery == 0  && ($plan->total_so > $plan->total_delivery)) {
+        $create = 0;
+        $Statusdo = "<span class='badge bg-grey'>Belum Dikirim</span>";
+      } elseif ($plan->total_delivery != 0 && ($plan->total_so > $plan->total_delivery)) {
+        $create = 1;
+        $Statusdo = "<span class='badge bg-blue'>Parsial</span>";
+      } elseif ($plan->total_delivery != 0 && ($plan->total_so == $plan->total_delivery)) {
+        $create = 2;
+        $Statusdo = "<span class='badge bg-green'>Terkirim</span>";
+      }
+
+      $ENABLE_ADD     = has_permission('Planning_Delivery.Add');
+      $ENABLE_MANAGE  = has_permission('Planning_Delivery.Manage');
+      $ENABLE_VIEW    = has_permission('Planning_Delivery.View');
+      $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
+
+      $action = '<a class="btn btn-default btn-sm" href="' . base_url('/wt_delivery_order/viewPlanning/' . $item->no_so) . '" title="View SO"><i class="fa fa-eye"></i></a>';
+      if ($ENABLE_MANAGE) {
+        $action .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_delivery_order/createPlanning/' . $item->no_so) . '" title="Create Planning" data-no_inquiry="<?= $record->no_inquiry ?>"> <i class="fa fa-check">Create Planning</i></a>';
+      }
+
+      $hasil[] = [
+        'no' => $no,
+        'no_so' => $item->no_surat,
+        'nama_customer' => $item->name_customer,
+        'marketing' => $item->nama_sales,
+        'top' => $item->nama_top,
+        'status_pengiriman' => $Statusdo,
+        'action' => $action
+      ];
+    // }
+    // }
     endforeach;
+
+    echo json_encode([
+      'draw' => intval($draw),
+      'recordsTotal' => $get_data_all->num_rows(),
+      'recordsFiltered' => $get_data_all->num_rows(),
+      'data' => $hasil
+    ]);
+  }
+
+  public function get_data_so_delivery()
+  {
+    $draw = $this->input->post('draw');
+    $start = $this->input->post('start');
+    $length = $this->input->post('length');
+    $search = $this->input->post('search');
+
+    $this->db->select('a.*, c.name_customer as name_customer,d.nama_top');
+    $this->db->from('tr_planning_delivery a');
+    $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
+    $this->db->join('ms_top d', 'd.id_top = a.top');
+    $this->db->where('a.status_planning', '1');
+    $this->db->where_not_in('a.status', ['6', '7']);
+    if (!empty($search['value'])) {
+      $this->db->like('a.no_surat_planning', $search['value'], 'both');
+      $this->db->or_like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('c.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('d.nama_top', $search['value'], 'both');
+    }
+    $this->db->order_by('a.no_planning', 'desc');
+    $this->db->limit($length, $start);
+
+    $get_data = $this->db->get();
+
+    $this->db->select('a.*, c.name_customer as name_customer,d.nama_top');
+    $this->db->from('tr_planning_delivery a');
+    $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
+    $this->db->join('ms_top d', 'd.id_top = a.top');
+    $this->db->where('a.status_planning', '1');
+    $this->db->where_not_in('a.status', ['6', '7']);
+    if (!empty($search['value'])) {
+      $this->db->like('a.no_surat_planning', $search['value'], 'both');
+      $this->db->or_like('a.no_surat', $search['value'], 'both');
+      $this->db->or_like('c.name_customer', $search['value'], 'both');
+      $this->db->or_like('a.nama_sales', $search['value'], 'both');
+      $this->db->or_like('d.nama_top', $search['value'], 'both');
+    }
+    $this->db->order_by('a.no_planning', 'desc');
+
+    $get_data_all = $this->db->get();
+
+    $hasil = [];
+    $no = (0 + $start);
+
+    foreach ($get_data->result() as $item) {
+      $no++;
+
+      $plan = $this->db->query("SELECT sum(qty_so) as total_so, sum(qty_delivery) as total_delivery, sum(qty_spk) as total_spk FROM tr_planning_delivery_detail WHERE no_planning='" . $item->no_planning . "'")->row();
+
+      if ($item->top == 1) {
+        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_cash WHERE no_planning='" . $item->no_planning . "'")->row();
+      } elseif ($item->top == 2) {
+        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_kredit WHERE no_planning='" . $item->no_planning . "'")->row();
+      } elseif ($item->top == 3) {
+        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_indent1 WHERE no_planning='" . $item->no_planning . "'")->row();
+      } elseif ($item->top == 4) {
+        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_indent2 WHERE no_planning='" . $item->no_planning . "'")->row();
+      }
+
+      if ($plan->total_spk == 0  && ($plan->total_so > $plan->total_spk)) {
+        $Statusdo = "<span class='badge bg-grey'>Belum Create SPK</span>";
+      } elseif ($plan->total_spk != 0 && ($plan->total_so > $plan->total_spk)) {
+
+        $Statusdo = "<span class='badge bg-blue'>Parsial</span>";
+      } elseif ($plan->total_spk != 0 && ($plan->total_so == $plan->total_spk)) {
+
+        $Statusdo = "<span class='badge bg-green'>Complete</span>";
+      }
+
+      if ($item->approval_finance != 1) {
+
+        $approve = "<span class='badge bg-orange'>Menunggu Approval</span>";
+      } else {
+        $approve = "<span class='badge bg-green'>Approved</span>";
+      }
+
+      $action = '';
+      if (($plan->total_spk == 0  && ($plan->total_so > $plan->total_spk) && $item->approval_finance == 1) or ($plan->total_spk != 0 && ($plan->total_so > $plan->total_spk) && $item->approval_finance == 1)) :
+        $action = '<a class="btn btn-success btn-sm" href="'. base_url('/wt_delivery_order/proses/?param=' . $item->no_planning) .'" title="Create SPK" data-no_inquiry="'. $item->no_inquiry .'"> <i class="fa fa-check">Create SPK</i>';
+      endif;
+
+      $hasil[] = [
+        'no' => $no,
+        'no_planning' => $item->no_surat_planning,
+        'no_so' => $item->no_surat,
+        'nama_customer' => $item->name_customer,
+        'marketing' => $item->nm_sales,
+        'top' => $item->nama_top,
+        'approval_finance' => $Statusdo,
+        'status_spk' => $approve,
+        'action' => $action,
+      ];
+    }
 
     echo json_encode([
       'draw' => intval($draw),
