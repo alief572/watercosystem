@@ -280,14 +280,16 @@ class Wt_invoicing_model extends BF_Model
     $this->db->from('tr_invoice a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('ms_top c', 'c.id_top=a.top');
-    $this->db->where('a.deleted_by', null);
+    $this->db->where('a.deleted_by IS NULL');
     if (!empty($search['value'])) {
+      $this->db->group_start();
       $this->db->like('a.no_surat', $search['value']);
       $this->db->or_like('b.name_customer', $search['value']);
       $this->db->or_like('a.tgl_invoice', $search['value']);
       $this->db->or_like('a.nilai_invoice', $search['value']);
       $this->db->or_like('c.nama_top', $search['value']);
       $this->db->or_like('a.nama_sales', $search['value']);
+      $this->db->group_end();
     }
     $this->db->order_by('a.no_invoice', 'DESC');
     $this->db->limit($length, $start);
@@ -297,14 +299,16 @@ class Wt_invoicing_model extends BF_Model
     $this->db->from('tr_invoice a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('ms_top c', 'c.id_top=a.top');
-    $this->db->where('a.deleted_by', null);
+    $this->db->where('a.deleted_by IS NULL');
     if (!empty($search['value'])) {
+      $this->db->group_start();
       $this->db->like('a.no_surat', $search['value']);
       $this->db->or_like('b.name_customer', $search['value']);
       $this->db->or_like('a.tgl_invoice', $search['value']);
       $this->db->or_like('a.nilai_invoice', $search['value']);
       $this->db->or_like('c.nama_top', $search['value']);
       $this->db->or_like('a.nama_sales', $search['value']);
+      $this->db->group_end();
     }
     $this->db->order_by('a.no_invoice', 'DESC');
     $query_all = $this->db->get();
