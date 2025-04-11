@@ -937,7 +937,7 @@ class Penerimaan extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-pencil');
-		$invoice = $this->db->query("SELECT * FROM tr_invoice WHERE id_customer ='$customer' AND sisa_invoice_idr >'0'")->result();
+		$invoice = $this->db->query("SELECT * FROM tr_invoice WHERE id_customer ='$customer' AND sisa_invoice_idr >'0' AND deleted_by IS NULL")->result();
 		$data = [
 			'detail' => $customer
 		];
