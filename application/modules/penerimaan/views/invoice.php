@@ -19,7 +19,7 @@
 				  $cust = $results['detail'];
 				  
                   $invoice = $this->db->query("SELECT a.*, b.name_customer as nm_customer FROM tr_invoice a
-				                      INNER JOIN master_customers b ON a.id_customer=b.id_customer WHERE a.id_customer ='$cust' AND (a.sisa_invoice_idr >'0')")->result();
+				                      INNER JOIN master_customers b ON a.id_customer=b.id_customer WHERE a.id_customer ='$cust' AND (a.sisa_invoice_idr >'0') AND a.deleted_by IS NULL")->result();
 				  if($invoice){
 					foreach($invoice as $ks=>$vs){
                   ?>
