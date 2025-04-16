@@ -2,6 +2,11 @@
 class Penerimaan_model extends BF_Model
 {
 
+	protected $viewPermission   = "Penerimaan.View";
+	protected $addPermission    = "Penerimaan.Add";
+	protected $managePermission = "Penerimaan.Manage";
+	protected $deletePermission = "Penerimaan.Delete";
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -535,5 +540,104 @@ class Penerimaan_model extends BF_Model
 			$fin = 'NP-' . date('y') . $kode_bln . $next_kode;
 		}
 		return $fin;
+	}
+
+	public function get_penerimaan()
+	{
+		$draw = $this->input->post('draw');
+		$length = $this->input->post('length');
+		$start = $this->input->post('start');
+		$search = $this->input->post('search');
+
+		$subquery = $this->db
+			->select('kd_pembayaran, GROUP_CONCAT(no_surat SEPARATOR ",") as invoiced, SUM(total_bayar_idr) as totalinvoiced')
+			->from('view_tr_invoice_payment')
+			->group_by('kd_pembayaran')
+			->get_compiled_select(); // compiles the subquery as a string
+
+		// Now do the main query and join the subquery
+		$this->db->select('a.*, c.invoiced, c.totalinvoiced');
+		$this->db->from('tr_invoice_payment a');
+		$this->db->join("($subquery) c", 'a.kd_pembayaran = c.kd_pembayaran', 'left');
+		if(!empty($search['value'])) {
+			$this->db->group_start();
+			$this->db->like('a.kd_pembayaran', $search['value'], 'both');
+			$this->db->or_like('a.nm_customer', $search['value'], 'both');
+			$this->db->or_like('a.keterangan', $search['value'], 'both');
+			$this->db->group_end();
+		}
+		$this->db->order_by('a.tgl_pembayaran', 'desc');
+		$this->db->limit($length, $start);
+
+		$query = $this->db->get();
+
+		$subquery = $this->db
+			->select('kd_pembayaran, GROUP_CONCAT(no_surat SEPARATOR ",") as invoiced, SUM(total_bayar_idr) as totalinvoiced')
+			->from('view_tr_invoice_payment')
+			->group_by('kd_pembayaran')
+			->get_compiled_select(); // compiles the subquery as a string
+
+		// Now do the main query and join the subquery
+		$this->db->select('a.*, c.invoiced, c.totalinvoiced');
+		$this->db->from('tr_invoice_payment a');
+		$this->db->join("($subquery) c", 'a.kd_pembayaran = c.kd_pembayaran', 'left');
+		if(!empty($search['value'])) {
+			$this->db->group_start();
+			$this->db->like('a.kd_pembayaran', $search['value'], 'both');
+			$this->db->or_like('a.nm_customer', $search['value'], 'both');
+			$this->db->or_like('a.keterangan', $search['value'], 'both');
+			$this->db->group_end();
+		}
+		$this->db->order_by('a.tgl_pembayaran', 'desc');
+
+		$query_all = $this->db->get();
+
+		$hasil = [];
+		$no = (0 + $start);
+
+		foreach ($query->result() as $item) :
+			$no++;
+
+			$coa = $item->kd_bank;
+
+			$this->db->select('a.nama');
+			$this->db->from('gl_waterco.coa_master a');
+			$this->db->where('a.no_perkiraan', $coa);
+			$get_bank = $this->db->get()->row();
+
+			$nm_bank = (!empty($get_bank)) ? $get_bank->nama : '';
+
+			$view_btn = '';
+			$print_btn = '';
+			if (has_permission($this->managePermission)) {
+				$view_btn = '<button class="btn btn-sm btn-warning detail" title="View" data-id_bq="' . $item->kd_pembayaran . '"><i class="fa fa-eye"></i></button>';
+
+				$print_btn = '<button class="btn btn-sm btn-success print" title="Print" data-inv="' . $item->kd_pembayaran . '"><i class="fa fa-print"></i></button>';
+			}
+
+			$action = $view_btn . ' ' . $print_btn;
+
+			$hasil[] = [
+				'no' => $no,
+				'tgl_penerimaan' => date('d-F-Y', strtotime($item->tgl_pembayaran)),
+				'kode_penerimaan' => $item->kd_pembayaran,
+				'nama_customer' => $item->nm_customer,
+				'keterangan' => $item->keterangan,
+				'bank' => $nm_bank,
+				'no_invoice' => $item->invoiced,
+				'total_invoice' => number_format($item->totalinvoiced),
+				'pph' => number_format($item->biaya_pph_idr),
+				'biaya_admin' => number_format($item->biaya_admin_idr),
+				'total_penerimaan' => number_format($item->jumlah_pembayaran_idr),
+				'action' => $action
+			];
+		endforeach;
+
+		echo json_encode([
+			'draw' => intval($draw),
+			'recordsTotal' => $query_all->num_rows(),
+			'recordsFiltered' => $query_all->num_rows(),
+			'data' => $hasil
+		]);
 	}
 }

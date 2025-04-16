@@ -251,11 +251,9 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 				<div class="row">
 					<div class="col-lg-12">
 
-						<button class="btn btn-danger">
-							<a href="<?= base_url() ?>penerimaan">
+							<a href="<?= base_url('penerimaan') ?>" class="btn btn-danger">
 								<i class="fa fa-refresh"></i><b> Kembali</b>
 							</a>
-						</button>
 
 						<button id="simpanpenerimaan" class="btn btn-primary" type="button" onclick="savemutasi()">
 							<i class="fa fa-save"></i><b> Simpan Data Penerimaan</b>
