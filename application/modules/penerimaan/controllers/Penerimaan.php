@@ -197,6 +197,7 @@ class Penerimaan extends Admin_Controller
 			'nm_customer' => $nmcs,
 			'lebih_bayar' => str_replace(",", "", $this->input->post('pakai_lebih_bayar')),
 			'tambah_lebih_bayar' => str_replace(",", "", $this->input->post('tambah_lebih_bayar')),
+			'id_unlocated' => $id_unlocated
 		);
 
 
@@ -1294,5 +1295,9 @@ class Penerimaan extends Admin_Controller
 		$html2pdf->WriteHTML($html);
 		ob_end_clean();
 		$html2pdf->Output('Penerimaan.pdf', 'I');
+	}
+
+	public function get_penerimaan() {
+		$this->penerimaan_model->get_penerimaan();
 	}
 }
