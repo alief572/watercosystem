@@ -344,7 +344,7 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 						<tbody>
 							<?php
 							$cust = $inv->id_customer;
-							$invoice = $this->db->query("SELECT * FROM tr_unlocated_bank WHERE saldo !=0 ")->result();
+							$invoice = $this->db->query("SELECT * FROM tr_unlocated_bank WHERE saldo > 0 ")->result();
 							if ($invoice) {
 								foreach ($invoice as $ks => $vs) {
 							?>
