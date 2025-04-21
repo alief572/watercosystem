@@ -712,10 +712,12 @@ class Wt_delivery_order_model extends BF_Model
     $this->db->where('(SELECT SUM(aa.qty_so) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so) <> (SELECT SUM(aa.qty_delivery) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so)');
 
     if (!empty($search['value'])) {
+      $this->db->group_start();
       $this->db->like('a.no_surat', $search['value'], 'both');
       $this->db->or_like('b.name_customer', $search['value'], 'both');
       $this->db->or_like('a.nama_sales', $search['value'], 'both');
       $this->db->or_like('d.nama_top', $search['value'], 'both');
+      $this->db->group_end();
     }
     $this->db->order_by('a.no_surat', 'desc');
     $this->db->limit($length, $start);
@@ -730,10 +732,12 @@ class Wt_delivery_order_model extends BF_Model
     $this->db->where_not_in('a.status', ['6', '7']);
     $this->db->where('(SELECT SUM(aa.qty_so) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so) <> (SELECT SUM(aa.qty_delivery) FROM tr_sales_order_detail aa WHERE aa.no_so = a.no_so)');
     if (!empty($search['value'])) {
+      $this->db->group_start();
       $this->db->like('a.no_surat', $search['value'], 'both');
       $this->db->or_like('b.name_customer', $search['value'], 'both');
       $this->db->or_like('a.nama_sales', $search['value'], 'both');
       $this->db->or_like('d.nama_top', $search['value'], 'both');
+      $this->db->group_end();
     }
     $this->db->order_by('a.no_surat', 'desc');
 
