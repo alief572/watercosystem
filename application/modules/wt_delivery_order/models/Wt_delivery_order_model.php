@@ -719,7 +719,7 @@ class Wt_delivery_order_model extends BF_Model
       $this->db->or_like('d.nama_top', $search['value'], 'both');
       $this->db->group_end();
     }
-    $this->db->order_by('a.no_surat', 'desc');
+    $this->db->order_by('a.created_on', 'desc');
     $this->db->limit($length, $start);
 
     $get_data = $this->db->get();
@@ -739,7 +739,7 @@ class Wt_delivery_order_model extends BF_Model
       $this->db->or_like('d.nama_top', $search['value'], 'both');
       $this->db->group_end();
     }
-    $this->db->order_by('a.no_surat', 'desc');
+    $this->db->order_by('a.created_on', 'desc');
 
     $get_data_all = $this->db->get();
 
