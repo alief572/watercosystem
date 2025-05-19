@@ -427,11 +427,6 @@ $tanggal = date('Y-m-d');
 				$('.select').select2({
 					width: '100%'
 				});
-
-
-
-
-
 			}
 		});
 
