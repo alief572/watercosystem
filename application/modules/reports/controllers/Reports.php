@@ -388,6 +388,7 @@ class Reports extends Admin_Controller
         $this->db->from('tr_invoice a');
         $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
         $this->db->join('ms_top c', 'c.id_top = a.top');
+		$this->db->where('a.deleted_date IS NULL');
         if ($tanggal !== '' && $tanggal_to == '') {
             $this->db->where('a.tgl_invoice >=', $tanggal);
         }
