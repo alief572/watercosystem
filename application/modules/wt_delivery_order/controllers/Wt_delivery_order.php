@@ -465,14 +465,14 @@ class Wt_delivery_order extends Admin_Controller
 		$data = $this->Wt_delivery_order_model->cariDeliveryOrderjurnal();
 
 		$list_do_indent = [];
-		foreach($data as $item) {
+		foreach ($data as $item) {
 			$indent = 0;
 			$get_so = $this->db->get_where('tr_sales_order', array('no_so' => $item->no_so))->row();
-			if(!empty($get_so) && $get_so->order_status == 'ind') {
+			if (!empty($get_so) && $get_so->order_status == 'ind') {
 				$indent = 1;
 			}
 
-			if($indent == 1) {
+			if ($indent == 1) {
 				$list_do_indent[$item->no_do] = $get_so->indent_check;
 			}
 		}
@@ -1019,7 +1019,7 @@ class Wt_delivery_order extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		
+
 		$this->template->title('Delivery Order');
 		$this->template->render('index_deliveryorder_detail');
 	}
@@ -1104,19 +1104,23 @@ class Wt_delivery_order extends Admin_Controller
 		$this->mpdf->Output('Deliveryorder.pdf', 'I');
 	}
 
-	public function get_data_history_delivery_order() {
+	public function get_data_history_delivery_order()
+	{
 		$this->Wt_delivery_order_model->get_data_history_delivery_order();
 	}
 
-	public function get_data_history_delivery_order_detail() {
+	public function get_data_history_delivery_order_detail()
+	{
 		$this->Wt_delivery_order_model->get_data_history_delivery_order_detail();
 	}
 
-	public function get_data_planning_delivery() {
+	public function get_data_planning_delivery()
+	{
 		$this->Wt_delivery_order_model->get_data_planning_delivery();
 	}
 
-	public function get_data_so_delivery() {
+	public function get_data_so_delivery()
+	{
 		$this->Wt_delivery_order_model->get_data_so_delivery();
 	}
 }
