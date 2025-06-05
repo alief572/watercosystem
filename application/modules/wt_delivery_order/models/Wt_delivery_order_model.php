@@ -872,7 +872,7 @@ class Wt_delivery_order_model extends BF_Model
       }
 
       $action = '';
-      if (($plan->total_spk == 0  && ($plan->total_so > $plan->total_spk) && $item->approval_finance == 1)) :
+      if (($plan->total_so > $plan->total_spk) && $item->approval_finance == 1) :
         $action = '<a class="btn btn-success btn-sm" href="' . base_url('/wt_delivery_order/proses/?param=' . $item->no_planning) . '" title="Create SPK" data-no_inquiry="' . $item->no_inquiry . '"> <i class="fa fa-check">Create SPK</i>';
       endif;
 

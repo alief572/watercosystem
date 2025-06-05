@@ -1094,13 +1094,13 @@ class Stock_material extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$gudang = $this->Inventory_4_model->PerGudang($id_gudang);
-		$jumlah = $this->Inventory_4_model->SumPerGudang($id_gudang);
-		$data = [
-			'gudang' => $gudang,
-			'jumlah' => $jumlah,
-		];
-		$this->template->set('results', $data);
+		// $gudang = $this->Inventory_4_model->PerGudang($id_gudang);
+		// $jumlah = $this->Inventory_4_model->SumPerGudang($id_gudang);
+		// $data = [
+		// 	'gudang' => $gudang,
+		// 	'jumlah' => $jumlah,
+		// ];
+		// $this->template->set('results', $data);
 		$this->template->title('Nilai Inventory Akhir Bulan');
 		$this->template->render('gudang_raw_material_harga');
 		// $this->template->render('gudang');
@@ -1154,7 +1154,8 @@ class Stock_material extends Admin_Controller
 		echo json_encode($status);
 	}
 
-	public function get_data_kartu_stock() {
+	public function get_data_kartu_stock()
+	{
 		$this->Inventory_4_model->get_data_kartu_stock();
 	}
 }
