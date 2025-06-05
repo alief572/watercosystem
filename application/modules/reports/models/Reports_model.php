@@ -916,9 +916,9 @@ class Reports_model extends BF_Model
             }
             if ($item->transaksi == 'incoming') {
                 $transaksi_price_unit = ($item->cost_book);
-                $transaksi_total = ($item->cost_book * $item->qty_transaksi);
+                $transaksi_total = ($transaksi_price_unit * $item->qty_transaksi);
 
-                $saldo_total += ($item->qty_akhir * $item->cost_book);
+                $saldo_total += ($item->qty_akhir * $transaksi_price_unit);
                 if ($saldo_total < 1 || $item->qty_akhir < 1) {
                     $saldo_total_per = 0;
                 } else {
