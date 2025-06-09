@@ -269,7 +269,7 @@ foreach ($headerso as $hdo => $hd) {
 						</tr>
 						
 						";
-													} else if ($level1 == 'LVL200031' || $level1 == 'LVL200032' || $level1 == 'LVL200033' || $level1 == 'LVL200035' || $level1 == 'LVL200036' || $level1 == 'LVL200037' || $level1 == 'LVL200038' || $level1 == 'LVL200039' || $level1 == 'LVL200040' || $level1 == 'LVL200041' || $level1 == 'LVL200042' || $level1 == 'LVL200043' || $level1 == 'LVL200044' || $level1 == 'LVL200045' || $level1 == 'LVL200046' || $level1 == 'LVL200047' || $level1 == 'LVL200048' || $level1 == 'LVL200049' || $level1 == 'LVL200050' || $level1 == 'LVL200051' || $level1 == 'LVL200003') {
+													} else if ($level1 == 'LVL200031' || $level1 == 'LVL200032' || $level1 == 'LVL200033' || $level1 == 'LVL200035' || $level1 == 'LVL200036' || $level1 == 'LVL200037' || $level1 == 'LVL200038' || $level1 == 'LVL200039' || $level1 == 'LVL200040' || $level1 == 'LVL200041' || $level1 == 'LVL200042' || $level1 == 'LVL200043' || $level1 == 'LVL200044' || $level1 == 'LVL200045' || $level1 == 'LVL200046' || $level1 == 'LVL200047' || $level1 == 'LVL200048' || $level1 == 'LVL200049' || $level1 == 'LVL200050' || $level1 == 'LVL200051') {
 
 														echo "
 						<tr id='tr_$no'>
