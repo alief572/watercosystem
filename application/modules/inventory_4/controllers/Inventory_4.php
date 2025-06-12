@@ -592,6 +592,17 @@ class Inventory_4 extends Admin_Controller
 			//Add Data
 			$this->db->insert('stock_material', $stok);
 		}
+
+		$costbook =  array(
+			'id_category3'	 	=> $id_category3,
+			'nilai_costbook'    => 0,
+			'created_on'		=> date('Y-m-d H:i:s'),
+			'created_by'		=> $this->auth->user_id()
+
+		);
+		//Add Data
+		$this->db->insert('ms_costbook', $costbook);
+
 		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
 			$status	= array(
