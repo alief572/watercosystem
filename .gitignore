@@ -16,3 +16,9 @@ application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
 /vendor/
+docker-compose.yml
+docker/mysql/init.sql
+docker/php/php.ini
+docker/apache/Dockerfile
+application/config/database.php
+application/config/config.php
