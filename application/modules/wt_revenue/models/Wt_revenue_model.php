@@ -143,7 +143,7 @@ class Wt_revenue_model extends BF_Model
     $this->db->from('tr_sales_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
-    $where = "a.perseninvoice_revenue <>'100'";
+    $where = "a.perseninvoice_revenue <> '100'";
     $where2 = "a.status !='0'";
     $this->db->where($where);
     $this->db->where($where2);
