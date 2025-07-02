@@ -797,6 +797,9 @@ class Wt_delivery_order extends Admin_Controller
 
 		$mat = $this->db->query("SELECT * FROM stock_material WHERE id_category3='$material' ")->row();
 
+		$so = $this->db->query("SELECT no_so, cost_book, qty_do FROM tr_delivery_order_detail WHERE id_category3='$material' AND no_do='$notr' limit 1")->row();
+
+		$costbook = $so->cost_book;
 
 		$qty   = (int) $mat->qty      - (int) $qtyso;
 		$book  = (int) $mat->qty_book - (int) $qtyso;
@@ -821,6 +824,7 @@ class Wt_delivery_order extends Admin_Controller
 			'qty_free_akhir'		=> $free,
 			'status_transaksi'		=> 'out',
 			'no_surat'		        => $surat,
+			'cost_book'		        => $costbook,
 		];
 
 		$this->db->insert('kartu_stok', $kartu);
