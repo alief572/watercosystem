@@ -877,9 +877,10 @@ class Reports_model extends BF_Model
         $qty_saldo = 0;
         $price_unit_saldo = 0;
         $saldo_total = 0;
-        $saldo_total_per = 0;
         foreach ($get_data->result() as $item) {
             $no++;
+
+            $saldo_total_per = 0;
 
             // $this->db->select('a.nilai_costbook');
             // $this->db->from('ms_costbook_backup a');
@@ -890,39 +891,38 @@ class Reports_model extends BF_Model
             $transaksi_in_out = $item->qty_transaksi;
             if ($item->transaksi == 'delivery order') {
 
-                $this->db->select('a.nilai_costbook');
-                $this->db->from('ms_costbook_backup a');
-                $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tgl_transaksi);
-                $this->db->order_by('a.tgl', 'desc');
-                $this->db->limit(1);
-                $get_costbook = $this->db->get()->row();
+                $do = $this->db->query("SELECT no_so, cost_book, qty_do FROM tr_delivery_order_detail WHERE id_category3='" . $item->id_category3 . "' AND no_do='" . $item->no_transaksi . "' limit 1")->row();
 
-                $harga_do = (!empty($get_costbook) && $get_costbook->nilai_costbook > 0) ? ($get_costbook->nilai_costbook / $item->qty_transaksi) : $item->cost_book;
+                $costbook = $do->cost_book;
+
+                // $harga_do = (!empty($get_costbook) && $get_costbook->nilai_costbook > 0) ? ($get_costbook->nilai_costbook / $item->qty_transaksi) : $item->cost_book;
 
                 // if($saldo_total < 1 || $item->qty_akhir < 1) {
                 //     $transaksi_price_unit = 0;
                 // } else {
-                $transaksi_price_unit = ($saldo_total_per);
+                $transaksi_price_unit = $costbook;
                 // }
                 // $transaksi_price_unit = $harga_do;
 
                 $transaksi_in_out = ($item->qty_transaksi * -1);
-                $transaksi_total = ($transaksi_price_unit * ($item->qty_transaksi * -1));
+                $transaksi_total = ($transaksi_price_unit * ($item->qty_transaksi * 1));
 
-                $saldo_total += $transaksi_total;
+                $saldo_total_per = ($transaksi_price_unit);
+
+                $saldo_total = ($saldo_total_per * $item->qty_akhir);
                 if ($item->qty_akhir < 1) {
                     $saldo_total = 0;
                 }
             }
             if ($item->transaksi == 'incoming') {
-                $transaksi_price_unit = ($item->cost_book);
-                $transaksi_total = ($transaksi_price_unit * $item->qty_transaksi);
+                $transaksi_price_unit = ($item->harga_do / $item->qty_transaksi);
+                $transaksi_total = $item->harga_do;
 
-                $saldo_total += ($item->qty_akhir * $transaksi_price_unit);
+                $saldo_total = ($item->qty_akhir * $item->cost_book);
                 if ($saldo_total < 1 || $item->qty_akhir < 1) {
                     $saldo_total_per = 0;
                 } else {
-                    $saldo_total_per = ($saldo_total / $item->qty_akhir);
+                    $saldo_total_per = $item->cost_book;
                 }
             }
 
