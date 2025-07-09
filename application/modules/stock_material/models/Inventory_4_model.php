@@ -312,6 +312,7 @@ class Inventory_4_model extends BF_Model
 			$this->db->group_end();
 		}
 		$this->db->order_by('a.id_kartu_stok', 'desc');
+		$this->db->order_by('a.created_on', 'desc');
 		$this->db->limit($length, $start);
 		$query = $this->db->get();
 
@@ -332,6 +333,7 @@ class Inventory_4_model extends BF_Model
 			$this->db->group_end();
 		}
 		$this->db->order_by('a.id_kartu_stok', 'desc');
+		$this->db->order_by('a.created_on', 'desc');
 		$query_all = $this->db->get();
 
 		$hasil = [];
