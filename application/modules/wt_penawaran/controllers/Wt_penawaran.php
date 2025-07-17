@@ -93,13 +93,14 @@ class Wt_penawaran extends Admin_Controller
 	{
 		$loop = $_GET['jumlah'] + 1;
 
+		$deleted = '0';
 		$customers = $this->Wt_penawaran_model->get_data('master_customers', 'deleted', $deleted);
 
 
 		$material = $this->db->query("SELECT a.*, b.nama as nama_produk, b.kode_barang, c.nama_category2 as nama_formula FROM ms_product_pricelist as a 
 										JOIN ms_inventory_category3 b on b.id_category3=a.id_category3
 										JOIN ms_product_costing c on c.id_category2 = a.id_formula
-										WHERE a.deleted != '1' AND b.deleted != '1'
+										WHERE b.deleted != '1'
 										")->result();
 
 
@@ -1176,14 +1177,17 @@ class Wt_penawaran extends Admin_Controller
 		$this->template->render('lihatpenawaran');
 	}
 
-	public function get_penawaran() {
+	public function get_penawaran()
+	{
 		$this->Wt_penawaran_model->get_penawaran();
 	}
-	public function get_loss_penawaran() {
+	public function get_loss_penawaran()
+	{
 		$this->Wt_penawaran_model->get_loss_penawaran();
 	}
 
-	public function get_history_penawaran() {
+	public function get_history_penawaran()
+	{
 		$this->Wt_penawaran_model->get_history_penawaran();
 	}
 }
