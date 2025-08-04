@@ -194,6 +194,7 @@ class Penerimaan extends Admin_Controller
 			'no_account' => '-',
 			'selisih' => '-',
 			'keterangan' => $this->input->post('ket_bayar'),
+			'id_customer' => $idcs,
 			'nm_customer' => $nmcs,
 			'lebih_bayar' => str_replace(",", "", $this->input->post('pakai_lebih_bayar')),
 			'tambah_lebih_bayar' => str_replace(",", "", $this->input->post('tambah_lebih_bayar')),
@@ -1297,7 +1298,8 @@ class Penerimaan extends Admin_Controller
 		$html2pdf->Output('Penerimaan.pdf', 'I');
 	}
 
-	public function get_penerimaan() {
+	public function get_penerimaan()
+	{
 		$this->penerimaan_model->get_penerimaan();
 	}
 }
