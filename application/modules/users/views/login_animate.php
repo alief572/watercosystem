@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title><? php // echo $idt->nm_perusahaan; 
+  <title><?php // echo $idt->nm_perusahaan; 
           ?></title>  -->
 <style>
   /* NOTE: The styles were added inline because Prefixfree needs access to your styles and they must be inlined if they are on local disk! */
