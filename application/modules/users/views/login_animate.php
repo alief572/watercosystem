@@ -199,6 +199,7 @@
   <input type="text" name="username" placeholder="Username" value="<?= set_value('username') ?>" required autofocus>
   <i class="fa fa-user"></i>
   <input type="password" name="password" placeholder="Password" value="" required>
+  <input type="hidden" name="recaptcha_token" id="recaptcha_token">
   <i class="fa fa-key"></i>
   <a href="#">Forgot your password?</a>
   <button type="submit" class="btn" name="login">Sign In</button>
