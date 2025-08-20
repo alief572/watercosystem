@@ -16,14 +16,17 @@ class Users extends Front_Controller
      * 
      */
 
-    protected $sitekey = '6LfRy6ErAAAAAIh8BomRhCz8Y4iOyR8OIm95qOwA';
-    protected $secretkey = '6LfRy6ErAAAAALA6QN1Gwd8HtnyR0ljIOZuK023B';
+    protected $sitekey;
+    protected $secretkey;
 
     public function __construct()
     {
         parent::__construct();
         $this->load->model(array('identitas_model'));
         $this->load->library('users/auth');
+
+        $this->site_key = '6LfRy6ErAAAAAIh8BomRhCz8Y4iOyR8OIm95qOwA';
+        $this->secret_key = '6LfRy6ErAAAAALA6QN1Gwd8HtnyR0ljIOZuK023B';
     }
 
     public function index()
