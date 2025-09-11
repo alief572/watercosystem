@@ -76,12 +76,13 @@ $query_builder = true;
 
 $db['default'] = array(
     'dsn' => '',
-    'hostname' => 'localhost',
-    'username' => 'watercosystem',
-    'password' => 'ssc@123',
+    'hostname' => 'db',
+    'username' => 'root',
+    'password' => 'root',
     'database' => 'waterco_demo',
     'dbdriver' => 'mysqli',
     'dbprefix' => '',
+    'port' => '3306',
     'pconnect' => false,
     'db_debug' => (ENVIRONMENT !== 'production'),
     'cache_on' => false,
