@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
@@ -76,9 +76,9 @@ $query_builder = true;
 
 $db['default'] = array(
     'dsn' => '',
-    'hostname' => 'db',
-    'username' => 'root',
-    'password' => 'root',
+    'hostname' => 'localhost',
+    'username' => 'waterco',
+    'password' => 'asdj49(**&JHJgeOIjsdw',
     'database' => 'waterco_demo',
     'dbdriver' => 'mysqli',
     'dbprefix' => '',
@@ -97,24 +97,24 @@ $db['default'] = array(
     'save_queries' => true,
 );
 
-$db['cms'] = array(
-    'dsn' => '',
-    'hostname' => 'localhost',
-    'username' => 'root',
-    'password' => '123',
-    'database' => 'GL_UBER',
-    'dbdriver' => 'mysqli',
-    'dbprefix' => '',
-    'pconnect' => false,
-    'db_debug' => (ENVIRONMENT !== 'production'),
-    'cache_on' => false,
-    'cachedir' => '',
-    'char_set' => 'utf8',
-    'dbcollat' => 'utf8_general_ci',
-    'swap_pre' => '',
-    'encrypt' => false,
-    'compress' => false,
-    'stricton' => false,
-    'failover' => array(),
-    'save_queries' => true,
-);
+// $db['cms'] = array(
+//     'dsn' => '',
+//     'hostname' => 'localhost',
+//     'username' => 'waterco',
+//     'password' => 'asdj49(**&JHJgeOIjsdw',
+//     'database' => 'GL_UBER',
+//     'dbdriver' => 'mysqli',
+//     'dbprefix' => '',
+//     'pconnect' => false,
+//     'db_debug' => (ENVIRONMENT !== 'production'),
+//     'cache_on' => false,
+//     'cachedir' => '',
+//     'char_set' => 'utf8',
+//     'dbcollat' => 'utf8_general_ci',
+//     'swap_pre' => '',
+//     'encrypt' => false,
+//     'compress' => false,
+//     'stricton' => false,
+//     'failover' => array(),
+//     'save_queries' => true,
+// );

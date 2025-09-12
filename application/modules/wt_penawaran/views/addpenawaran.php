@@ -533,9 +533,6 @@ $tanggal = date('Y-m-d');
 		var valqty = getNum(qty)
 		var valqty_stok = getNum(qty_stok)
 
-
-
-
 		if (valDiscon > valDisconcompare) {
 			swal({
 				title: "Warning!",

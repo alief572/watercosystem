@@ -31,19 +31,19 @@ class Request_payment extends Admin_Controller
 	{
 		$data = $this->Request_payment_model->GetListDataRequest();
 		$this->template->set('data', $data);
-		
+
 		$data_coa = $this->All_model->GetCoaCombo();
-		
+
 		$this->template->set('data_coa', $data_coa);
 		$this->template->title('Request Payment');
 		$this->template->render('index');
 	}
 	public function save_request()
 	{
-		
+
 		// print_r($this->input->post());
 		// exit;
-		
+
 		$status	= $this->input->post("status");
 		$this->db->trans_begin();
 		if (!empty($status)) {
@@ -206,9 +206,9 @@ class Request_payment extends Admin_Controller
 	private function _getIdPayment($date)
 	{
 		$count 		= 1;
-//		$m 			= date_format(date_create($date), 'm');
+		//		$m 			= date_format(date_create($date), 'm');
 		$y 			= date_format(date_create($date), 'Y');
-		
+
 		$sql 		= "SELECT MAX(RIGHT(id,5)) as max_id FROM payment_approve where YEAR(tgl_doc) = '$y'";
 		$max_id 	= $this->db->query($sql)->row()->max_id;
 
@@ -216,7 +216,7 @@ class Request_payment extends Admin_Controller
 			$max_id = (int)$max_id;
 			$count 	= $max_id + 1;
 		}
-		$new_id  	= 'PAY' .$y. str_pad($count, 5, '0', STR_PAD_LEFT);
+		$new_id  	= 'PAY' . $y . str_pad($count, 5, '0', STR_PAD_LEFT);
 		return  $new_id;
 	}
 
@@ -238,12 +238,12 @@ class Request_payment extends Admin_Controller
 	public function save_approval()
 	{
 		$Data		= $this->input->post();
-		
-			// print_r($Data);
-			// exit;
-		
-			
-		$header 	= $this->db->get_where('request_payment', ['ids' => $Data['id'],'tipe' => $Data['tipe']])->row_array();
+
+		// print_r($Data);
+		// exit;
+
+
+		$header 	= $this->db->get_where('request_payment', ['ids' => $Data['id'], 'tipe' => $Data['tipe']])->row_array();
 		$Id 		= $this->_getIdPayment($Data['date']);
 
 		// $detail = 
@@ -401,11 +401,11 @@ class Request_payment extends Admin_Controller
 			$header['id'] = $Id;
 			$header['approved_by'] = $this->auth->user_name();
 			$header['approved_on'] = date("Y-m-d h:i:s");
-			$exist_data = $this->db->get_where('payment_approve', ['ids' => $Data['id'],'tipe' => $Data['tipe']])->num_rows();
-			
+			$exist_data = $this->db->get_where('payment_approve', ['ids' => $Data['id'], 'tipe' => $Data['tipe']])->num_rows();
+
 			// print_r($exist_data);
 			// exit;
-			
+
 			if ($exist_data == '0') {
 				$this->db->insert(DBERP . '.payment_approve', $header);
 			}
@@ -529,8 +529,8 @@ class Request_payment extends Admin_Controller
 		$accnumber		= $this->input->post("accnumber");
 		$accname		= $this->input->post("accname");
 
-		$tanggal		= $this->input->post("tanggal");	
-		
+		$tanggal		= $this->input->post("tanggal");
+
 		$this->db->trans_begin();
 		$jenis_jurnal = 'BUK030';
 		$payment_date = date("Y-m-d");
@@ -581,67 +581,166 @@ class Request_payment extends Admin_Controller
 					$this->All_model->dataUpdate(DBERP . '.payment_approve', $data, array('id' => $val));
 
 					if ($tipe[$keys] == 'transportasi') {
-//						$rec = $this->db->query("select * from ".DBACC.".master_oto_jurnal_detail where kode_master_jurnal='". $jenis_jurnal."' and menu='".$tipe[$keys]."'")->row();
-						$rec = $this->db->query("select coa from ".DBERP.".tr_transport_req where no_doc='".$no_doc[$keys]."'")->row();
+						//						$rec = $this->db->query("select * from ".DBACC.".master_oto_jurnal_detail where kode_master_jurnal='". $jenis_jurnal."' and menu='".$tipe[$keys]."'")->row();
+						$rec = $this->db->query("select coa from " . DBERP . ".tr_transport_req where no_doc='" . $no_doc[$keys] . "'")->row();
 						$det_Jurnaltes1[] = array(
-							'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->coa, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => $bank_nilai[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+							'nomor' => $nomor_jurnal,
+							'tanggal' => $payment_date,
+							'tipe' => 'BUK',
+							'no_perkiraan' => $rec->coa,
+							'keterangan' => $keterangan[$keys],
+							'no_request' => $no_doc[$keys],
+							'debet' => $bank_nilai[$keys],
+							'kredit' => 0,
+							'no_reff' =>  $no_doc[$keys],
+							'jenis_jurnal' => $jenis_jurnal,
+							'nocust' => $nama[$keys],
+							'stspos' => '0'
 						);
 						if ($bank_admin[$keys] > 0) {
 							$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='admin'")->row();
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' =>  $bank_admin[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $rec->no_perkiraan,
+								'keterangan' => $keterangan[$keys],
+								'no_request' => $no_doc[$keys],
+								'debet' =>  $bank_admin[$keys],
+								'kredit' => 0,
+								'no_reff' =>  $no_doc[$keys],
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
 					}
 					if ($tipe[$keys] == 'kasbon') {
 						$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='" . $tipe[$keys] . "'")->row();
 						$det_Jurnaltes1[] = array(
-							'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => $bank_nilai[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+							'nomor' => $nomor_jurnal,
+							'tanggal' => $payment_date,
+							'tipe' => 'BUK',
+							'no_perkiraan' => $rec->no_perkiraan,
+							'keterangan' => $keterangan[$keys],
+							'no_request' => $no_doc[$keys],
+							'debet' => $bank_nilai[$keys],
+							'kredit' => 0,
+							'no_reff' =>  $no_doc[$keys],
+							'jenis_jurnal' => $jenis_jurnal,
+							'nocust' => $nama[$keys],
+							'stspos' => '0'
 						);
 						if ($bank_admin[$keys] > 0) {
 							$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='admin'")->row();
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' =>  $bank_admin[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $rec->no_perkiraan,
+								'keterangan' => $keterangan[$keys],
+								'no_request' => $no_doc[$keys],
+								'debet' =>  $bank_admin[$keys],
+								'kredit' => 0,
+								'no_reff' =>  $no_doc[$keys],
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
 					}
 
 					if ($tipe[$keys] == 'expense') {
-						$ketpetty='';
+						$ketpetty = '';
 						$recpc = $this->db->query("select * from " . DBERP . ".tr_expense where no_doc='" . $no_doc[$keys] . "'")->row();
-						$ketpetty=$recpc->pettycash.' ';
+						$ketpetty = $recpc->pettycash . ' ';
 						$rec = $this->db->query("select * from " . DBERP . ".tr_expense_detail where no_doc='" . $no_doc[$keys] . "' and status = '1'")->result();
 						// $rec = $this->db->get_where('payment_approve_details', ['payment_id' => $val])->result();
 						$this->db->update('tr_expense_detail', ['status' => '2'], ['no_doc' => $no_doc[$keys], 'status' => '1']);
 						foreach ($rec as $record) {
 							if ($record->id_kasbon != '') {
 								$det_Jurnaltes1[] = array(
-									'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $record->coa, 'keterangan' => $ketpetty.$keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => 0, 'kredit' => $record->kasbon, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+									'nomor' => $nomor_jurnal,
+									'tanggal' => $payment_date,
+									'tipe' => 'BUK',
+									'no_perkiraan' => $record->coa,
+									'keterangan' => $ketpetty . $keterangan[$keys],
+									'no_request' => $no_doc[$keys],
+									'debet' => 0,
+									'kredit' => $record->kasbon,
+									'no_reff' =>  $no_doc[$keys],
+									'jenis_jurnal' => $jenis_jurnal,
+									'nocust' => $nama[$keys],
+									'stspos' => '0'
 								);
 							} else {
 								$det_Jurnaltes1[] = array(
-									'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $record->coa, 'keterangan' => $ketpetty.$keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => $record->expense, 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+									'nomor' => $nomor_jurnal,
+									'tanggal' => $payment_date,
+									'tipe' => 'BUK',
+									'no_perkiraan' => $record->coa,
+									'keterangan' => $ketpetty . $keterangan[$keys],
+									'no_request' => $no_doc[$keys],
+									'debet' => $record->expense,
+									'kredit' => 0,
+									'no_reff' =>  $no_doc[$keys],
+									'jenis_jurnal' => $jenis_jurnal,
+									'nocust' => $nama[$keys],
+									'stspos' => '0'
 								);
 							}
 						}
-						
+
 						if ($bank_admin[$keys] > 0) {
 							$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='admin'")->row();
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' =>  $bank_admin[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $rec->no_perkiraan,
+								'keterangan' => $keterangan[$keys],
+								'no_request' => $no_doc[$keys],
+								'debet' =>  $bank_admin[$keys],
+								'kredit' => 0,
+								'no_reff' =>  $no_doc[$keys],
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
 
-						if($recpc->add_ppn_nilai > 0){
+						if ($recpc->add_ppn_nilai > 0) {
 							//ppn coa
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $recpc->add_ppn_coa, 'keterangan' => $ketpetty, 'no_request' => $recpc->no_doc, 'debet' =>  $recpc->add_ppn_nilai, 'kredit' =>0, 'no_reff' =>  $recpc->no_doc, 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $recpc->add_ppn_coa,
+								'keterangan' => $ketpetty,
+								'no_request' => $recpc->no_doc,
+								'debet' =>  $recpc->add_ppn_nilai,
+								'kredit' => 0,
+								'no_reff' =>  $recpc->no_doc,
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
-						if($recpc->add_pph_nilai > 0){
+						if ($recpc->add_pph_nilai > 0) {
 							//pph coa
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $recpc->add_pph_coa, 'keterangan' => $ketpetty, 'no_request' => $recpc->no_doc, 'debet' =>  0, 'kredit' =>$recpc->add_pph_nilai, 'no_reff' =>  $recpc->no_doc, 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $recpc->add_pph_coa,
+								'keterangan' => $ketpetty,
+								'no_request' => $recpc->no_doc,
+								'debet' =>  0,
+								'kredit' => $recpc->add_pph_nilai,
+								'no_reff' =>  $recpc->no_doc,
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
 					}
@@ -649,12 +748,34 @@ class Request_payment extends Admin_Controller
 					if ($tipe[$keys] == 'nonpo') {
 						$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='" . $tipe[$keys] . "'")->row();
 						$det_Jurnaltes1[] = array(
-							'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => $bank_nilai[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+							'nomor' => $nomor_jurnal,
+							'tanggal' => $payment_date,
+							'tipe' => 'BUK',
+							'no_perkiraan' => $rec->no_perkiraan,
+							'keterangan' => $keterangan[$keys],
+							'no_request' => $no_doc[$keys],
+							'debet' => $bank_nilai[$keys],
+							'kredit' => 0,
+							'no_reff' =>  $no_doc[$keys],
+							'jenis_jurnal' => $jenis_jurnal,
+							'nocust' => $nama[$keys],
+							'stspos' => '0'
 						);
 						if ($bank_admin[$keys] > 0) {
 							$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='admin'")->row();
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' =>  $bank_admin[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $rec->no_perkiraan,
+								'keterangan' => $keterangan[$keys],
+								'no_request' => $no_doc[$keys],
+								'debet' =>  $bank_admin[$keys],
+								'kredit' => 0,
+								'no_reff' =>  $no_doc[$keys],
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
 					}
@@ -662,12 +783,34 @@ class Request_payment extends Admin_Controller
 					if ($tipe[$keys] == 'periodik') {
 						$rec = $this->db->query("select coa from " . DBERP . ".tr_pengajuan_rutin_detail where id='" . $ids[$keys] . "' and no_doc='" . $no_doc[$keys] . "'")->row();
 						$det_Jurnaltes1[] = array(
-							'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->coa, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => $bank_nilai[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+							'nomor' => $nomor_jurnal,
+							'tanggal' => $payment_date,
+							'tipe' => 'BUK',
+							'no_perkiraan' => $rec->coa,
+							'keterangan' => $keterangan[$keys],
+							'no_request' => $no_doc[$keys],
+							'debet' => $bank_nilai[$keys],
+							'kredit' => 0,
+							'no_reff' =>  $no_doc[$keys],
+							'jenis_jurnal' => $jenis_jurnal,
+							'nocust' => $nama[$keys],
+							'stspos' => '0'
 						);
 						if ($bank_admin[$keys] > 0) {
 							$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='admin'")->row();
 							$det_Jurnaltes1[] = array(
-								'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $rec->no_perkiraan, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' =>  $bank_admin[$keys], 'kredit' => 0, 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+								'nomor' => $nomor_jurnal,
+								'tanggal' => $payment_date,
+								'tipe' => 'BUK',
+								'no_perkiraan' => $rec->no_perkiraan,
+								'keterangan' => $keterangan[$keys],
+								'no_request' => $no_doc[$keys],
+								'debet' =>  $bank_admin[$keys],
+								'kredit' => 0,
+								'no_reff' =>  $no_doc[$keys],
+								'jenis_jurnal' => $jenis_jurnal,
+								'nocust' => $nama[$keys],
+								'stspos' => '0'
 							);
 						}
 					}
@@ -675,12 +818,34 @@ class Request_payment extends Admin_Controller
 
 					//bank coa
 					$det_Jurnaltes1[] = array(
-						'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $bank_coa, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => ($bank_nilai[$keys] < 0 ? ($bank_nilai[$keys] * -1) : 0), 'kredit' => ($bank_nilai[$keys] >= 0 ? $bank_nilai[$keys] : 0), 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+						'nomor' => $nomor_jurnal,
+						'tanggal' => $payment_date,
+						'tipe' => 'BUK',
+						'no_perkiraan' => $bank_coa,
+						'keterangan' => $keterangan[$keys],
+						'no_request' => $no_doc[$keys],
+						'debet' => ($bank_nilai[$keys] < 0 ? ($bank_nilai[$keys] * -1) : 0),
+						'kredit' => ($bank_nilai[$keys] >= 0 ? $bank_nilai[$keys] : 0),
+						'no_reff' =>  $no_doc[$keys],
+						'jenis_jurnal' => $jenis_jurnal,
+						'nocust' => $nama[$keys],
+						'stspos' => '0'
 					);
 					if ($bank_admin[$keys] > 0) {
 						$rec = $this->db->query("select * from " . DBACC . ".master_oto_jurnal_detail where kode_master_jurnal='" . $jenis_jurnal . "' and menu='admin'")->row();
 						$det_Jurnaltes1[] = array(
-							'nomor' => $nomor_jurnal, 'tanggal' => $payment_date, 'tipe' => 'BUK', 'no_perkiraan' => $bank_coa, 'keterangan' => $keterangan[$keys], 'no_request' => $no_doc[$keys], 'debet' => 0, 'kredit' => $bank_admin[$keys], 'no_reff' =>  $no_doc[$keys], 'jenis_jurnal' => $jenis_jurnal, 'nocust' => $nama[$keys], 'stspos' => '0'
+							'nomor' => $nomor_jurnal,
+							'tanggal' => $payment_date,
+							'tipe' => 'BUK',
+							'no_perkiraan' => $bank_coa,
+							'keterangan' => $keterangan[$keys],
+							'no_request' => $no_doc[$keys],
+							'debet' => 0,
+							'kredit' => $bank_admin[$keys],
+							'no_reff' =>  $no_doc[$keys],
+							'jenis_jurnal' => $jenis_jurnal,
+							'nocust' => $nama[$keys],
+							'stspos' => '0'
 						);
 					}
 				}
@@ -710,16 +875,16 @@ class Request_payment extends Admin_Controller
 	}
 	public function view_jurnal($id)
 	{
-		
-		
-		
+
+
+
 		$data = $this->db->query("select * from " . DBERP . ".jurnal where nomor='" . $id . "' order by kredit,debet,no_perkiraan")->result();
 		$data_coa = $this->All_model->GetCoaCombo();
 		$results = $this->Request_payment_model->GetListDataPayment('status=1');
-		
+
 		// print_r($data);
 		// exit;
-		
+
 		$this->template->set('data', $data);
 		$this->template->set('datacoa', $data_coa);
 		$this->template->set('results', $results);
@@ -783,7 +948,7 @@ class Request_payment extends Admin_Controller
 			$this->db->insert(DBACC . '.jurnal', $datadetail);
 		}
 
-		$keterangan	= 'Payment'.$no_reff;
+		$keterangan	= 'Payment' . $no_reff;
 		$dataJVhead = array(
 			'nomor' 	    	=> $Nomor_JV,
 			'tgl'	         	=> $tanggal,

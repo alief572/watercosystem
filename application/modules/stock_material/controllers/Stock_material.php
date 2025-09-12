@@ -991,8 +991,14 @@ class Stock_material extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$customer = $this->Inventory_4_model->get_data('ms_inventory_category3');
-		$this->template->set('customer', $customer);
+		// $customer = $this->Inventory_4_model->get_data('ms_inventory_category3');
+
+		$this->db->select('a.id_category3, a.nama');
+		$this->db->from('ms_inventory_category3 a');
+		$this->db->where('a.deleted', '0');
+		$get_inventory3 = $this->db->get()->result();
+
+		$this->template->set('customer', $get_inventory3);
 
 		$this->template->title('Kartu Stok');
 		$this->template->render('index_kartu_stok');

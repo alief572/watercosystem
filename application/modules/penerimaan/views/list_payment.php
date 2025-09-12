@@ -38,7 +38,7 @@ $ENABLE_DELETE  = has_permission('Penerimaan.Delete');
 					</tr>
 				</thead>
 				<tbody>
-					
+
 				</tbody>
 			</table>
 		</div>
@@ -170,7 +170,7 @@ $ENABLE_DELETE  = has_permission('Penerimaan.Delete');
 			}
 		});
 	});
-	
+
 	function DataTables() {
 		var DataTables = $('#example2').dataTable({
 			serverSide: true,
@@ -183,8 +183,7 @@ $ENABLE_DELETE  = has_permission('Penerimaan.Delete');
 				url: siteurl + active_controller + 'get_penerimaan',
 				dataType: 'json'
 			},
-			columns: [
-				{
+			columns: [{
 					data: 'no'
 				},
 				{
