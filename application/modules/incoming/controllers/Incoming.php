@@ -2321,7 +2321,7 @@ class Incoming extends Admin_Controller
 
 
 
-		$qty   = (int) $mat->qty + (int)$qtyso;;
+		$qty   = (int) $mat->qty + (int)$qtyso;
 		$book  = (int) $mat->qty_book;
 		$free  = (int) $mat->qty_free + (int)$qtyso;
 		$nilaicostbook = $costbook->nilai_costbook;

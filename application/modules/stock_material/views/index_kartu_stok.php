@@ -11,7 +11,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	}
 </style>
 <div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
-<link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
 
 <div class="box">
 	<!-- /.box-header -->
@@ -36,9 +36,6 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	<div class="box-body">
 		<table id="example2" class="table table-bordered table-st riped">
 			<thead>
-
-
-
 				<tr align='center'>
 					<th width="5%" rowspan='2'>#</th>
 					<th width="10%" rowspan='2'>Tgl Transaksi</th>
@@ -49,9 +46,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 					<th width='50' align="center" colspan='3'>AWAL</th>
 					<th width='50' align="center" colspan='2'>TRANSAKSI</th>
 					<th width='50' align="center" colspan='3'>AKHIR</th>
-
 				</tr>
-
 				<tr align='center'>
 					<th width='50'>Stock</th>
 					<th width='50'>Booking</th>
@@ -133,13 +128,10 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 <!-- /.modal -->
 
 <!-- DataTables -->
-<script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
-<script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js') ?>"></script>
 
 
-<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
 
 <!-- page script -->
 <script type="text/javascript">
@@ -152,6 +144,11 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	function DataTables() {
 		var produk = $('#idcustomer').val();
 		$('#example2').DataTable({
+			processing: false,
+			serverSide: true,
+			stateSave: true,
+			destroy: true,
+			paging: true,
 			ajax: {
 				url: siteurl + active_controller + 'get_data_kartu_stock',
 				type: "POST",
@@ -202,13 +199,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 				{
 					data: 'akhir_free_stock'
 				}
-			],
-			responsive: true,
-			processing: true,
-			serverSide: true,
-			stateSave: true,
-			destroy: true,
-			paging: true
+			]
 		});
 	}
 

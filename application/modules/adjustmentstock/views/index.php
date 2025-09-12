@@ -41,7 +41,7 @@ $id_bentuk = $this->uri->segment(3);
 						</tr>
 					</thead>
 					<tbody>
-						
+
 					</tbody>
 				</table>
 			</div>
@@ -292,11 +292,10 @@ $id_bentuk = $this->uri->segment(3);
 				type: "POST",
 				dataType: "JSON",
 				data: function(d) {
-					
+
 				}
 			},
-			columns: [
-				{
+			columns: [{
 					data: 'no'
 				},
 				{

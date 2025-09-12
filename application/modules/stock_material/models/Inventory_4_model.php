@@ -313,28 +313,11 @@ class Inventory_4_model extends BF_Model
 		}
 		$this->db->order_by('a.id_kartu_stok', 'desc');
 		$this->db->order_by('a.created_on', 'desc');
+
+		$totalFiltered = $this->db->count_all_results('', false);
+
 		$this->db->limit($length, $start);
 		$query = $this->db->get();
-
-		$this->db->select('a.id_kartu_stok');
-		$this->db->from('kartu_stok a');
-		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
-		if ($produk != null) {
-			$where = "a.id_category3='" . $produk . "'";
-			$this->db->where($where);
-		}
-		if (!empty($search)) {
-			$this->db->group_start();
-			$this->db->like('a.tgl_transaksi', $search['value'], 'both');
-			$this->db->or_like('a.no_surat', $search['value'], 'both');
-			$this->db->or_like('a.transaksi', $search['value'], 'both');
-			$this->db->or_like('a.id_category3', $search['value'], 'both');
-			$this->db->or_like('b.nama', $search['value'], 'both');
-			$this->db->group_end();
-		}
-		$this->db->order_by('a.id_kartu_stok', 'desc');
-		$this->db->order_by('a.created_on', 'desc');
-		$query_all = $this->db->get();
 
 		$hasil = [];
 
@@ -380,8 +363,8 @@ class Inventory_4_model extends BF_Model
 
 		echo json_encode([
 			'draw' => intval($draw),
-			'recordsTotal' => $query_all->num_rows(),
-			'recordsFiltered' => $query_all->num_rows(),
+			'recordsTotal' => $totalFiltered,
+			'recordsFiltered' => $totalFiltered,
 			'data' => $hasil
 		]);
 	}
