@@ -21,3 +21,4 @@ docker/mysql/init.sql
 docker/php/php.ini
 docker/apache/Dockerfile
 application/config/config.php
+application/config/database.php
