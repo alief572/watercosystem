@@ -1275,9 +1275,9 @@ class Adjustmentstockmulti extends Admin_Controller
 		$mat = $this->db->query("SELECT * FROM stock_material_multigudang WHERE id_category3='$material' AND id_gudang='$gudang' ")->row();
 
 
-		$qty   = (int) $mat->qty + (int)$qtyso;;
+		$qty   = (int) $mat->qty + (int)$qtyso;
 		$book  = (int) $mat->qty_book;
-		$free  = (int)$qty - (int) $mat->qty_book;;
+		$free  = (int)$qty - (int) $mat->qty_book;
 		$book2  = $mat->qty_book;
 
 		// print_r($free);

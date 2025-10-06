@@ -24,9 +24,11 @@ foreach (@$headerso as $hdo => $hd) {
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 					<div class="row">
-						<center><label for="customer">
+						<center>
+							<label for="customer">
 								<h3>Delivery Order</h3>
-							</label></center>
+							</label>
+						</center>
 						<div class="col-sm-12">
 							<div class="col-sm-6">
 								<div class="form-group row">

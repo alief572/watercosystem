@@ -733,30 +733,30 @@ class Wt_delivery_order extends Admin_Controller
 		$totalconfirm = 0;
 		foreach ($_POST['dt'] as $used) {
 			$numb1++;
-			$id_detail = $used[id_do];
+			$id_detail = $used['id_do'];
 			$so = $this->db->query("SELECT no_so, cost_book, qty_do FROM tr_delivery_order_detail WHERE id_do_detail='$id_detail'")->row();
 			$costbook = $so->cost_book * $so->qty_do;
-			if ($used[status_kirim] == '1') {
+			if ($used['status_kirim'] == '1') {
 				$totalconfirm += $costbook;
 			}
 			$dt =  array(
-				'status_kirim'		    => $used[status_kirim],
-				'keterangan_statuskirim' => $used[keterangan_statuskirim],
+				'status_kirim'		    => $used['status_kirim'],
+				'keterangan_statuskirim' => $used['keterangan_statuskirim'],
 				'modified_on' => date('Y-m-d H:i:s'),
 				'confirm_costbook' => $costbook,
 			);
 
 			$this->db->where('id_do_detail', $used[id_do])->update("tr_delivery_order_detail", $dt);
 
-			$material = $used[id_category3];
+			$material = $used['id_category3'];
 			$notr     = $post['no_surat'];
 			$nomorsurat = $this->db->query("SELECT no_surat FROM tr_delivery_order WHERE no_do='$notr'")->row();
 			$surat      = $nomorsurat->no_surat;
-			$qtydo    = $used[qty_delivery];
+			$qtydo    = $used['qty_delivery'];
 
-			if ($used[status_kirim] == '1') {
+			if ($used['status_kirim'] == '1') {
 				$this->kartu_stok_out($material, $qtydo, $notr, $surat);
-			} else if ($used[status_kirim] == '0') {
+			} else if ($used['status_kirim'] == '0') {
 				$this->kartu_stok_in($material, $qtydo, $notr, $surat);
 			}
 		}
@@ -803,6 +803,9 @@ class Wt_delivery_order extends Admin_Controller
 
 		$qty   = (int) $mat->qty      - (int) $qtyso;
 		$book  = (int) $mat->qty_book - (int) $qtyso;
+		if ($book <= 0) {
+			$book = 0;
+		}
 		$free  = (int) $mat->qty_free;
 
 		// print_r($free);
@@ -842,6 +845,9 @@ class Wt_delivery_order extends Admin_Controller
 
 		$qty   = (int) $mat->qty;
 		$book  = (int) $mat->qty_book - (int) $qtyso;
+		if ($book <= 0) {
+			$book = 0;
+		}
 		$free  = (int) $mat->qty_free + (int)$qtyso;
 
 		// print_r($free);
