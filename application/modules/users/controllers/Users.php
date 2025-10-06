@@ -49,29 +49,29 @@ class Users extends Front_Controller
             $password = $this->security->xss_clean($this->input->post('password'));
             $token = $this->security->xss_clean($this->input->post('recaptcha_token'));
 
-            $urlVeryfy    = "https://www.google.com/recaptcha/api/siteverify?secret=" . urlencode($this->secret_key) . "&response=" . urlencode($token);
-            $resGoogle     = json_decode(file_get_contents($urlVeryfy));
-            // print_r($resGoogle);
-            // exit;
+            // $urlVeryfy    = "https://www.google.com/recaptcha/api/siteverify?secret=" . urlencode($this->secret_key) . "&response=" . urlencode($token);
+            // $resGoogle     = json_decode(file_get_contents($urlVeryfy));
+            // // print_r($resGoogle);
+            // // exit;
 
-            if (!$resGoogle->success) {
-                $pesan = 'Gagal validasi reCAPTCHA Google...!';
-                $this->session->set_flashdata('error_captcha', $pesan);
+            // if (!$resGoogle->success) {
+            //     $pesan = 'Gagal validasi reCAPTCHA Google...!';
+            //     $this->session->set_flashdata('error_captcha', $pesan);
 
-                redirect('login');
-            } else if ($resGoogle->score < 0.5 || $resGoogle->action !== 'login') {
-                $pesan = 'Gagal, terdeteksi login mencurigakan. Silahkan coba lagi...!';
-                $this->session->set_flashdata('error_captcha', $pesan);
+            //     redirect('login');
+            // } else if ($resGoogle->score < 0.5 || $resGoogle->action !== 'login') {
+            //     $pesan = 'Gagal, terdeteksi login mencurigakan. Silahkan coba lagi...!';
+            //     $this->session->set_flashdata('error_captcha', $pesan);
 
-                redirect('login');
-            } else if ($resGoogle->success && $resGoogle->score >= 0.5) {
-                $this->auth->login($username, $password, $token);
-            } else {
-                $pesan = 'Gagal login, silahkan coba lagi...!';
-                $this->session->set_flashdata('error_captcha', $pesan);
+            //     redirect('login');
+            // } else if ($resGoogle->success && $resGoogle->score >= 0.5) {
+            $this->auth->login($username, $password, $token);
+            // } else {
+            //     $pesan = 'Gagal login, silahkan coba lagi...!';
+            //     $this->session->set_flashdata('error_captcha', $pesan);
 
-                redirect('login');
-            }
+            //     redirect('login');
+            // }
         }
 
         $this->template->set('sitekey', $this->site_key);
