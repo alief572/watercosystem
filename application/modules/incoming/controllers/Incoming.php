@@ -322,7 +322,7 @@ class Incoming extends Admin_Controller
 		<td				        ><input  type='text' 		value='" . number_format($material->qty - $material->qty_terima) . "'									class='form-control input-sm text-right' id='dt_qtyrecive_" . $id . "_" . $no . "' 		required name='dt[" . $id . "][detail][" . $no . "][qtyrecive]'  onkeyup='HitungHarga(" . $loop . ")'	></td>
 		<td				        >
 		
-		<input  type='text' 		value='0'									class='form-control input-sm text-right' id='dt_hargasatuan_" . $id . "_" . $no . "' 		required name='dt[" . $id . "][detail][" . $no . "][hargasatuan]' 	onBlur='cariPanjang($id,$no)'	>
+		<input  type='text' 		value='0'									class='form-control input-sm text-right hargasatuan' id='dt_hargasatuan_" . $id . "_" . $no . "' 		required name='dt[" . $id . "][detail][" . $no . "][hargasatuan]' 	onBlur='cariPanjang($id,$no)'	>
 		<input  type='text' 										class='form-control input-sm text-right totalHarga' id='dt_totalharga_" . $id . "_" . $no . "' 		required name='dt[" . $id . "][detail][" . $no . "][totalharga]' placeholder='Total Harga'	>
 		
 		</td>
