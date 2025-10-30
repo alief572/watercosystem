@@ -1018,10 +1018,19 @@ class Wt_delivery_order extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_delivery_order_model->cariDeliveryOrderhistory();
-		$this->template->set('results', $data);
+		// $data = $this->Wt_delivery_order_model->cariDeliveryOrderhistory();
+		// $this->template->set('results', $data);
 		$this->template->title('Delivery Order');
 		$this->template->render('index_deliveryorder_history');
+	}
+
+	public function download_excel($tgl_from = null, $tgl_to = null)
+	{
+		$data = [
+			'results' => $this->Wt_delivery_order_model->cariDeliveryOrderhistory($tgl_from, $tgl_to)
+		];
+
+		$this->load->view('download_excel_delivery_history', $data);
 	}
 
 	public function history_pengiriman()
@@ -1132,5 +1141,10 @@ class Wt_delivery_order extends Admin_Controller
 	public function get_data_so_delivery()
 	{
 		$this->Wt_delivery_order_model->get_data_so_delivery();
+	}
+
+	public function get_data_do()
+	{
+		$this->Wt_delivery_order_model->get_data_do();
 	}
 }
