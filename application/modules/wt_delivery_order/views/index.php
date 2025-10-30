@@ -34,7 +34,7 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 			</thead>
 
 			<tbody>
-				
+
 			</tbody>
 		</table>
 	</div>

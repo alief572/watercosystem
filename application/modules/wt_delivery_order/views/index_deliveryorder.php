@@ -11,12 +11,16 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 	}
 </style>
 <div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
-<link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css">
 
 <div class="box">
+	<div class="box-header">
+		<div class="row">
 
+		</div>
+	</div>
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="example2" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -24,59 +28,12 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 					<th>Tanggal SPK</th>
 					<th>Nama Customer</th>
 					<th>No DO</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th>Action</th>
-					<?php endif; ?>
+					<th>Action</th>
 				</tr>
 			</thead>
 
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
 
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-				?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->nomor_spk ?></td>
-							<td><?= date('d-F-Y', strtotime($record->tgl_do)) ?></td>
-							<td><?= $record->name_customer ?></td>
-							<td><?= $record->no_surat ?></td>
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_MANAGE) : ?>
-									<a class="btn btn-success btn-sm" href="<?= base_url('/wt_delivery_order/viewDO/' . $record->no_do) ?>" title="View DO"><i class="fa fa-eye"></i>
-									</a>
-									<a class="btn btn-primary btn-sm" target='_blank' href="<?= base_url('/wt_delivery_order/printDO/' . $record->no_do) ?>" title="Print DO"><i class="fa fa-print"></i>
-									</a>
-									<?php
-									if (isset($list_do_indent[$record->no_do])) {
-										if ($list_do_indent[$record->no_do] == '1') {
-									?>
-
-											<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_delivery_order/confirmDO/' . $record->no_do) ?>" title="Confirm DO"><i class="fa fa-list"></i>
-											</a>
-
-										<?php
-										}
-									} else {
-										?>
-
-										<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_delivery_order/confirmDO/' . $record->no_do) ?>" title="Confirm DO"><i class="fa fa-list"></i>
-										</a>
-
-									<?php
-									}
-									?>
-
-								<?php endif; ?>
-
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
 			</tbody>
 		</table>
 	</div>
@@ -144,11 +101,28 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 <!-- /.modal -->
 
 <!-- DataTables -->
-<script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
-<script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js') ?>"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 
 <!-- page script -->
 <script type="text/javascript">
+	$(document).ready(function() {
+		Datatables();
+	});
+
+	$(document).on('click', '.search_data', function() {
+		var tgl_from = $('input[name="tgl_from"]').val();
+		var tgl_to = $('input[name="tgl_to"]').val();
+
+		Datatables(tgl_from, tgl_to);
+	});
+
+	$(document).on('click', '.reset_data', function() {
+		$('input[name="tgl_from"]').val('');
+		$('input[name="tgl_to"]').val('');
+
+		Datatables();
+	});
+
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
@@ -265,5 +239,44 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 	function PreviewRekap() {
 		tujuan = 'customer/rekap_pdf';
 		$(".modal-body").html('<iframe src="' + tujuan + '" frameborder="no" width="100%" height="400"></iframe>');
+	}
+
+	function Datatables(tgl_from = null, tgl_to = null) {
+		var Datatables = $('#example2').dataTable({
+			serverSide: true,
+			processing: true,
+			stateSave: true,
+			paging: true,
+			destroy: true,
+			ajax: {
+				type: 'post',
+				url: siteurl + active_controller + 'get_data_do',
+				cache: false,
+				dataType: 'json',
+				data: function(d) {
+					d.tgl_from = tgl_from;
+					d.tgl_to = tgl_to;
+				}
+			},
+			columns: [{
+					data: 'no'
+				},
+				{
+					data: 'no_spk_delivery'
+				},
+				{
+					data: 'tanggal_spk'
+				},
+				{
+					data: 'nama_customer'
+				},
+				{
+					data: 'no_do'
+				},
+				{
+					data: 'action'
+				}
+			]
+		});
 	}
 </script>

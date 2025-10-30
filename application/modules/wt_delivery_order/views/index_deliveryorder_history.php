@@ -14,7 +14,19 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 <link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
 
 <div class="box">
-
+	<div class="box-header">
+		<div class="col-md-3">
+			<input type="date" class="form-control form-control-sm" name="tgl_from" placeholder="Tgl Dari">
+		</div>
+		<div class="col-md-3">
+			<input type="date" class="form-control form-control-sm" name="tgl_to" placeholder="Tgl Ke">
+		</div>
+		<div class="col-md-4">
+			<button type="button" class="btn btn-sm btn-primary search_data"><i class="fa fa-search"></i> Search</button>
+			<button type="button" class="btn btn-sm btn-danger reset_data"><i class="fa fa-refresh"></i> Reset</button>
+			<button type="button" class="btn btn-sm btn-success download_excel"><i class="fa fa-download"></i> Download Excel</button>
+		</div>
+	</div>
 	<div class="box-body">
 		<table id="data_table" class="table table-bordered table-striped">
 			<thead>
@@ -109,6 +121,19 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 	$(document).ready(function() {
 		DataTables();
 	});
+	$(document).on('click', '.search_data', function() {
+		var tgl_from = $('input[name="tgl_from"]').val();
+		var tgl_to = $('input[name="tgl_to"]').val();
+
+		DataTables(tgl_from, tgl_to);
+	});
+
+	$(document).on('click', '.reset_data', function() {
+		$('input[name="tgl_from"]').val('');
+		$('input[name="tgl_to"]').val('');
+
+		DataTables();
+	});
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
@@ -151,6 +176,13 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 
 			}
 		})
+	});
+
+	$(document).on('click', '.download_excel', function() {
+		var tgl_from = $('input[name="tgl_from"]').val();
+		var tgl_to = $('input[name="tgl_to"]').val();
+
+		window.open(siteurl + active_controller + 'download_excel/' + tgl_from + '/' + tgl_to, '_blank');
 	});
 
 
@@ -215,14 +247,15 @@ $ENABLE_DELETE  = has_permission('Planning_Delivery.Delete');
 
 	//Delete
 
-	function DataTables() {
+	function DataTables(tgl_from = null, tgl_to = null) {
 		var DataTables = $('#data_table').dataTable({
 			ajax: {
 				url: siteurl + active_controller + 'get_data_history_delivery_order',
 				type: "POST",
 				dataType: "JSON",
 				data: function(d) {
-
+					d.tgl_from = tgl_from
+					d.tgl_to = tgl_to
 				}
 			},
 			columns: [{

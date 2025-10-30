@@ -56,6 +56,11 @@ class Wt_delivery_order_model extends BF_Model
    */
   protected $log_user = true;
 
+  protected $viewPermission   = 'Planning_Delivery.View';
+  protected $addPermission    = 'Planning_Delivery.Add';
+  protected $managePermission = 'Planning_Delivery.Manage';
+  protected $deletePermission = 'Planning_Delivery.Delete';
+
   /**
    * Function construct used to load some library, do some actions, etc.
    */
@@ -474,13 +479,23 @@ class Wt_delivery_order_model extends BF_Model
     return $query->result();
   }
 
-  public function cariDeliveryOrderHistory()
+  public function cariDeliveryOrderHistory($tgl_from = null, $tgl_to = null)
   {
     $this->db->select('a.*, b.name_customer as name_customer, c.no_surat as no_surat_spk');
     $this->db->from('tr_delivery_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
     $this->db->where('a.status_confirm', 1);
+    if (!empty($tgl_from) && empty($tgl_to)) {
+      $this->db->where('a.tgl_do >=', $tgl_from);
+    } else if (!empty($tgl_to) && empty($tgl_from)) {
+      $this->db->where('a.tgl_do <=', $tgl_to);
+    } else {
+      if (!empty($tgl_from) && !empty($tgl_to)) {
+        $this->db->where('a.tgl_do >=', $tgl_from);
+        $this->db->where('a.tgl_do <=', $tgl_to);
+      }
+    }
     $this->db->order_by('a.tgl_do', DESC);
     $query = $this->db->get();
     return $query->result();
@@ -506,11 +521,26 @@ class Wt_delivery_order_model extends BF_Model
     $length = $this->input->post('length');
     $search = $this->input->post('search');
 
+    $tgl_from = $this->input->post('tgl_from');
+    $tgl_to = $this->input->post('tgl_to');
+
     $this->db->select('a.*, b.name_customer as name_customer, c.no_surat as no_surat_spk');
     $this->db->from('tr_delivery_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
     $this->db->where('a.status_confirm', 1);
+
+    if (!empty($tgl_from) && empty($tgl_to)) {
+      $this->db->where('a.tgl_do >=', $tgl_from);
+    } else if (!empty($tgl_to) && empty($tgl_from)) {
+      $this->db->where('a.tgl_do <=', $tgl_to);
+    } else {
+      if (!empty($tgl_from) && !empty($tgl_to)) {
+        $this->db->where('a.tgl_do >=', $tgl_from);
+        $this->db->where('a.tgl_do <=', $tgl_to);
+      }
+    }
+
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('c.no_surat', $search['value'], 'both');
@@ -529,6 +559,18 @@ class Wt_delivery_order_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
     $this->db->where('a.status_confirm', 1);
+
+    if (!empty($tgl_from) && empty($tgl_to)) {
+      $this->db->where('a.tgl_do >=', $tgl_from);
+    } else if (!empty($tgl_to) && empty($tgl_from)) {
+      $this->db->where('a.tgl_do <=', $tgl_to);
+    } else {
+      if (!empty($tgl_from) && !empty($tgl_to)) {
+        $this->db->where('a.tgl_do >=', $tgl_from);
+        $this->db->where('a.tgl_do <=', $tgl_to);
+      }
+    }
+
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('c.no_surat', $search['value'], 'both');
@@ -895,5 +937,97 @@ class Wt_delivery_order_model extends BF_Model
       'recordsFiltered' => $get_data_all->num_rows(),
       'data' => $hasil
     ]);
+  }
+
+  public function get_data_do()
+  {
+    $post = $this->input->post();
+
+    $draw = $post['draw'];
+    $length = $post['length'];
+    $start = $post['start'];
+    $search = $post['search'];
+
+    $tgl_from = $post['tgl_from'];
+    $tgl_to = $post['tgl_to'];
+
+    $this->db->select('a.*, c.no_surat as nomor_spk, b.name_customer as name_customer');
+    $this->db->from('tr_delivery_order a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+    $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
+
+    if (!empty($tgl_from) && empty($tgl_to)) {
+      $this->db->where('a.tgl_do >=', $tgl_from);
+    } else if (!empty($tgl_to) && empty($tgl_from)) {
+      $this->db->where('a.tgl_do <=', $tgl_to);
+    } else {
+      if (!empty($tgl_from) && !empty($tgl_to)) {
+        $this->db->where('a.tgl_do >=', $tgl_from);
+        $this->db->where('a.tgl_do <=', $tgl_to);
+      }
+    }
+
+    $db_clone1 = clone $this->db;
+    $count_all = $db_clone1->count_all_results();
+
+    if (!empty($search['value'])) {
+      $arr_filter = ['c.nomor_spk', 'b.name_customer', 'a.tgl_do', 'a.no_surat'];
+      $this->db->group_start();
+
+      foreach ($arr_filter as $xac => $val) {
+        if ($xac == 0) {
+          $this->db->like($val, $search['value'], 'both');
+        } else {
+          $this->db->or_like($val, $search['value'], 'both');
+        }
+      }
+
+      $this->db->group_end();
+    }
+
+    $db_clone2 = clone $this->db;
+    $count_filter = $db_clone2->count_all_results();
+
+    $this->db->group_by('a.no_surat');
+    $this->db->order_by('a.created_on', 'desc');
+    $this->db->limit($length, $start);
+
+    $get_data = $this->db->get()->result();
+
+    $no = (0 + $start);
+    $hasil = [];
+
+    foreach ($get_data as $row) {
+      $no++;
+
+      $tanggal_spk = (!empty($row->tgl_do)) ? date('d F Y', strtotime($row->tgl_do)) : '';
+      $name_customer = (!empty($row->name_customer)) ? $row->name_customer : '';
+
+      $btn_view = '<a class="btn btn-success btn-sm" href="' . base_url("/wt_delivery_order/viewDO/" . $row->no_do) . '" title="View DO"><i class="fa fa-eye"></i></a>';
+
+      $btn_print_do = '<a class="btn btn-primary btn-sm" target="_blank" href="' . base_url('/wt_delivery_order/printDO/' . $row->no_do) . '" title="Print DO"><i class="fa fa-print"></i></a>';
+
+      $btn_confirm_do = '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_delivery_order/confirmDO/' . $row->no_do) . '" title="Confirm DO"><i class="fa fa-list"></i></a>';
+
+      $action = $btn_view . ' ' . $btn_print_do . ' ' . $btn_confirm_do;
+
+      $hasil[] = [
+        'no' => $no,
+        'no_spk_delivery' => $row->nomor_spk,
+        'tanggal_spk' => $tanggal_spk,
+        'nama_customer' => $name_customer,
+        'no_do' => $row->no_surat,
+        'action' => $action
+      ];
+    }
+
+    $response = [
+      'draw' => intval($draw),
+      'recordsTotal' => $count_all,
+      'recordsFiltered' => $count_filter,
+      'data' => $hasil
+    ];
+
+    echo json_encode($response);
   }
 }
