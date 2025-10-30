@@ -359,7 +359,7 @@ class Inventory_4_model extends BF_Model
 				'akhir_stock' => $item->qty_akhir,
 				'akhir_booking' => $item->qty_book_akhir,
 				'akhir_free_stock' => $item->qty_free_akhir,
-				'costbook' => number_format($item->cost_book, 2)
+				'costbook' => (has_permission('Stock_Gudang_Display.Manage')) ? number_format($item->cost_book, 2) : ''
 			];
 		}
 
