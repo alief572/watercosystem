@@ -46,6 +46,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 					<th width='50' align="center" colspan='3'>AWAL</th>
 					<th width='50' align="center" colspan='2'>TRANSAKSI</th>
 					<th width='50' align="center" colspan='3'>AKHIR</th>
+					<th rowspan="2">Costbook</th>
 				</tr>
 				<tr align='center'>
 					<th width='50'>Stock</th>
@@ -198,6 +199,9 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 				},
 				{
 					data: 'akhir_free_stock'
+				},
+				{
+					data: 'costbook'
 				}
 			]
 		});

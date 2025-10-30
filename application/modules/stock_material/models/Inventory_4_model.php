@@ -302,6 +302,7 @@ class Inventory_4_model extends BF_Model
 			$where = "a.id_category3='" . $produk . "'";
 			$this->db->where($where);
 		}
+
 		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('a.tgl_transaksi', $search['value'], 'both');
@@ -357,7 +358,8 @@ class Inventory_4_model extends BF_Model
 				'transaksi_booking' => $transaksi_booking,
 				'akhir_stock' => $item->qty_akhir,
 				'akhir_booking' => $item->qty_book_akhir,
-				'akhir_free_stock' => $item->qty_free_akhir
+				'akhir_free_stock' => $item->qty_free_akhir,
+				'costbook' => number_format($item->cost_book, 2)
 			];
 		}
 
