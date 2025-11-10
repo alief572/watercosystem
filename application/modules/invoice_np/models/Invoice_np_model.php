@@ -1,4 +1,4 @@
-<?php 
+<?php
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
@@ -63,13 +63,35 @@ class Invoice_np_model extends BF_Model
     {
         parent::__construct();
     }
-	
-	public function CariInvoice()
-   {
-		$this->db->select('a.*');
-		$this->db->from('tr_invoice_np_header a');
-		$query = $this->db->get();	
-		return $query->result();
-	}
-	
+
+    public function CariInvoice()
+    {
+        $this->db->select('a.*');
+        $this->db->from('tr_invoice_np_header a');
+        $this->db->order_by('a.created_date', 'desc');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function get_no_invoice()
+    {
+        $this->db->select('MAX(a.no_invoice) as max');
+        $this->db->from('tr_invoice_np_header a');
+        $this->db->like('a.no_invoice', 'WI-PNP/' . date('Y'), 'both');
+        $get_data = $this->db->get()->row();
+
+        if (!empty($get_data->max)) {
+            $max = $get_data->max;
+            $substr = substr($max, 14, 4);
+            $substr = intval($substr) + 1;
+
+            $prefix = 'WI-PNP/' . date('Y_m') . '/';
+
+            $noInvoice = $prefix . str_pad($substr + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $noInvoice = 'WI-PNP/' . date('Y_m') . '/0001';
+        }
+
+        return $noInvoice;
+    }
 }
