@@ -20,7 +20,7 @@ if (isset($results['data']->ppn_persen)) {
 			<div class='form-group row'>
 				<label class='label-control col-sm-2'><b>Nomor Invoice</b></label>
 				<div class='col-sm-4'>
-					<input type="text" class="form-control" id="no_invoice" name="no_invoice" value="<?php echo (isset($results['data']->no_invoice) ? $results['data']->no_invoice : ""); ?>">
+					<input type="text" class="form-control" id="no_invoice" name="no_invoice" value="<?php echo (isset($results['data']->no_invoice) ? $results['data']->no_invoice : ""); ?>" readonly>
 				</div>
 				<label class='label-control col-sm-2'><b>Tanggal Invoice</b></label>
 				<div class='col-sm-4'>

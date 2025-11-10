@@ -5,10 +5,10 @@ class Invoice_np extends Admin_Controller
 {
 
 	//Permission
-	protected $viewPermission 	= 'Invoicing.View';
-	protected $addPermission  	= 'Invoicing.Add';
-	protected $managePermission = 'Invoicing.Manage';
-	protected $deletePermission = 'Invoicing.Delete';
+	protected $viewPermission 	= 'Penjualan_Non_Product.View';
+	protected $addPermission  	= 'Penjualan_Non_Product.Add';
+	protected $managePermission = 'Penjualan_Non_Product.Manage';
+	protected $deletePermission = 'Penjualan_Non_Product.Delete';
 
 
 	public function __construct()
@@ -234,6 +234,13 @@ class Invoice_np extends Admin_Controller
 		$data_session	= $this->session->userdata;
 		$id_invoice		= $this->input->post("id_invoice");
 		$no_invoice		= $this->input->post("no_invoice");
+		if (empty($no_invoice)) {
+			$no_invoice = $this->Invoice_np_model->get_no_invoice();
+		}
+
+		// print_r($no_invoice);
+		// exit;
+
 		$no_invoice_old	= $this->input->post("no_invoice_old");
 		$tgl_invoice	= $this->input->post("tgl_invoice");
 		$id_customer	= $this->input->post("id_customer");
