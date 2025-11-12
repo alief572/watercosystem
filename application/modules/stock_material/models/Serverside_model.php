@@ -590,6 +590,9 @@ class Serverside_model extends BF_Model
 		$urut1  = 1;
 		$urut2  = 0;
 		$sumx	= 0;
+
+		$grand_total_nilai = 0;
+
 		foreach ($query->result_array() as $row) {
 			$total_data     = $totalData;
 			$start_dari     = $requestData['start'];
@@ -619,6 +622,8 @@ class Serverside_model extends BF_Model
 			$nestedData[]	= "<div align='right'>" . number_format($row['nilai_costbook'], 2) . "</div>";
 			$nestedData[]	= "<div align='right'>" . number_format($row['qty'] * $row['nilai_costbook']) . "</div>";
 
+			$grand_total_nilai += ($row['qty'] * $row['nilai_costbook']);
+
 			$data[] = $nestedData;
 			$urut1++;
 			$urut2++;
@@ -630,6 +635,7 @@ class Serverside_model extends BF_Model
 			"recordsFiltered" 	=> intval($totalFiltered),
 			"data"            	=> $data,
 			"recordsAset"		=> $totalAset,
+			'grand_total_nilai' => $grand_total_nilai
 		);
 
 		echo json_encode($json_data);
