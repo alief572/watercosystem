@@ -42,7 +42,12 @@ $id_bentuk = $this->uri->segment(3);
 				</tr>
 			</thead>
 			<tbody></tbody>
-
+			<tfoot>
+				<tr>
+					<th colspan="12" class="text-right">Grand Total</th>
+					<th class="text-right grand_total_nilai"></th>
+				</tr>
+			</tfoot>
 		</table>
 	</div>
 </div>
@@ -144,13 +149,15 @@ $id_bentuk = $this->uri->segment(3);
 				},
 				dataSrc: function(data) {
 					total_aset = data.recordsAset;
+					grand_total_nilai = data.grand_total_nilai;
 					return data.data;
 				}
 			},
 			drawCallback: function(settings) {
 				var api = this.api();
 
-				$(api.column(2).footer()).html("<div align='right'>" + number_format(total_aset, 2) + "</div>");
+				// $(api.column(2).footer()).html("<div align='right'>" + number_format(total_aset, 2) + "</div>");
+				$(api.column(12).footer()).html("<div align='right'>" + number_format(grand_total_nilai, 2) + "</div>");
 			}
 
 
