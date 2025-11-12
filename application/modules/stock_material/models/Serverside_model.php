@@ -649,13 +649,25 @@ class Serverside_model extends BF_Model
 			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal2 . "%' ";
 		}
 
+		$where_like = '';
+		if (!empty($like_value)) {
+			$where_like = "
+				AND (
+                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR c.maker LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+                    )
+			";
+		}
+
 		$sql = "SELECT
                     a.*, 
                     b.nama_gudang as nama_gudang,
 					c. nama as nama_material,
 					c. kode_barang,
 					c. kode_mas,
-					g. nilai_costbook,
+					g. nilai_costbook,  
 					g. tgl
                 FROM
                     stock_material_backup a
@@ -667,12 +679,7 @@ class Serverside_model extends BF_Model
 					JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
                 WHERE 1=1 AND
                     a.aktif='Y' " . $where_tanggal . "  " . $where_tanggal2 . " 
-                    AND (
-                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-						OR c.make LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                    )
+                    " . $where_like . "
                 ";
 
 		$Query_Sum	= "SELECT
@@ -687,12 +694,7 @@ class Serverside_model extends BF_Model
 							JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
                         WHERE 1=1 AND
                             a.aktif='Y' " . $where_tanggal . " " . $where_tanggal2 . "
-                            AND (
-                                b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                                OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-								OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-								OR c.make LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                            )
+                            " . $where_like . "
                         ";
 		$Total_Aset	= 0;
 		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
