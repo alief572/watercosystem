@@ -671,6 +671,7 @@ class Serverside_model extends BF_Model
                         b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                         OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
 						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+						OR c.make LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                     )
                 ";
 
@@ -690,6 +691,7 @@ class Serverside_model extends BF_Model
                                 b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                                 OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
 								OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+								OR c.make LIKE '%" . $this->db->escape_like_str($like_value) . "%'
                             )
                         ";
 		$Total_Aset	= 0;
