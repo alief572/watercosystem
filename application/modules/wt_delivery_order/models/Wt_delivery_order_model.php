@@ -528,7 +528,7 @@ class Wt_delivery_order_model extends BF_Model
     $this->db->from('tr_delivery_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
-    $this->db->where('a.status_confirm', 1);
+    // $this->db->where('a.status_confirm', 1);
 
     if (!empty($tgl_from) && empty($tgl_to)) {
       $this->db->where('a.tgl_do >=', $tgl_from);
@@ -540,7 +540,6 @@ class Wt_delivery_order_model extends BF_Model
         $this->db->where('a.tgl_do <=', $tgl_to);
       }
     }
-
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('c.no_surat', $search['value'], 'both');
