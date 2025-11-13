@@ -526,8 +526,8 @@ class Wt_delivery_order_model extends BF_Model
 
     $this->db->select('a.*, b.name_customer as name_customer, c.no_surat as no_surat_spk');
     $this->db->from('tr_delivery_order a');
-    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
-    $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer', 'left');
+    $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk', 'left');
     // $this->db->where('a.status_confirm', 1);
 
     if (!empty($tgl_from) && empty($tgl_to)) {
@@ -540,6 +540,10 @@ class Wt_delivery_order_model extends BF_Model
         $this->db->where('a.tgl_do <=', $tgl_to);
       }
     }
+
+    $db_clone = clone $this->db;
+    $count_all = $db_clone->count_all_results();
+
     if (!empty($search)) {
       $this->db->group_start();
       $this->db->like('c.no_surat', $search['value'], 'both');
@@ -549,38 +553,15 @@ class Wt_delivery_order_model extends BF_Model
       $this->db->or_like('a.no_invoice', $search['value'], 'both');
       $this->db->group_end();
     }
+
+    $db_clone2 = clone $this->db;
+    $count_filter = $db_clone2->count_all_results();
+
     $this->db->order_by('a.tgl_do', 'desc');
     $this->db->limit($length, $start);
     $query = $this->db->get();
 
-    $this->db->select('a.*, b.name_customer as name_customer, c.no_surat as no_surat_spk');
-    $this->db->from('tr_delivery_order a');
-    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
-    $this->db->join('tr_spk_delivery c', 'c.no_spk=a.no_spk');
-    $this->db->where('a.status_confirm', 1);
 
-    if (!empty($tgl_from) && empty($tgl_to)) {
-      $this->db->where('a.tgl_do >=', $tgl_from);
-    } else if (!empty($tgl_to) && empty($tgl_from)) {
-      $this->db->where('a.tgl_do <=', $tgl_to);
-    } else {
-      if (!empty($tgl_from) && !empty($tgl_to)) {
-        $this->db->where('a.tgl_do >=', $tgl_from);
-        $this->db->where('a.tgl_do <=', $tgl_to);
-      }
-    }
-
-    if (!empty($search)) {
-      $this->db->group_start();
-      $this->db->like('c.no_surat', $search['value'], 'both');
-      $this->db->or_like('DATE_FORMAT(a.tgl_do, "%d-%M-%Y")', $search['value'], 'both');
-      $this->db->or_like('a.no_surat', $search['value'], 'both');
-      $this->db->or_like('b.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.no_invoice', $search['value'], 'both');
-      $this->db->group_end();
-    }
-    $this->db->order_by('a.tgl_do', 'desc');
-    $query_all = $this->db->get();
 
     $hasil = [];
 
@@ -623,7 +604,7 @@ class Wt_delivery_order_model extends BF_Model
         'no_do' => $item->no_surat,
         'nama_customer' => $item->name_customer,
         'no_invoice' => $item->no_invoice,
-        'nilai_costbook' => number_format($nilai_costbook, 2),
+        'nilai_costbook' => number_format($item->totalcostbook, 2),
         'option' => $option
       ];
 
@@ -632,8 +613,8 @@ class Wt_delivery_order_model extends BF_Model
 
     echo json_encode([
       'draw' => intval($draw),
-      'recordsTotal' => $query_all->num_rows(),
-      'recordsFiltered' => $query_all->num_rows(),
+      'recordsTotal' => $count_all,
+      'recordsFiltered' => $count_filter,
       'data' => $hasil
     ]);
   }

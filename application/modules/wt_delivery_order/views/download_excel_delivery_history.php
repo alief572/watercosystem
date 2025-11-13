@@ -47,7 +47,7 @@ header("Content-Disposition: attachment; filename=Delivery_Order.xls");
             echo '<td>' . $item->no_surat . '</td>';
             echo '<td>' . $item->name_customer . '</td>';
             echo '<td>' . $item->no_invoice . '</td>';
-            echo '<td style="text-align: right;">' . number_format($nilai_costbook, 2) . '</td>';
+            echo '<td style="text-align: right;">' . number_format($item->totalcostbook, 2) . '</td>';
 
             echo '</tr>';
 
