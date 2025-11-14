@@ -82,12 +82,12 @@ class Invoice_np_model extends BF_Model
 
         if (!empty($get_data->max)) {
             $max = $get_data->max;
-            $substr = substr($max, 14, 4);
+            $substr = substr($max, 15, 4);
             $substr = intval($substr) + 1;
 
             $prefix = 'WI-PNP/' . date('Y_m') . '/';
 
-            $noInvoice = $prefix . str_pad($substr + 1, 4, '0', STR_PAD_LEFT);
+            $noInvoice = $prefix . str_pad($substr, 4, '0', STR_PAD_LEFT);
         } else {
             $noInvoice = 'WI-PNP/' . date('Y_m') . '/0001';
         }

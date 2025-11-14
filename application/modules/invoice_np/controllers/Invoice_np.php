@@ -196,7 +196,6 @@ class Invoice_np extends Admin_Controller
 
 	public function data_form($id = "", $tipe = "")
 	{
-
 		$data_customer = $this->db->query("SELECT * FROM master_customers ORDER BY name_customer ASC ")->result();
 		$data_category = $this->db->query("SELECT * FROM ms_inv_category ORDER BY nama ASC ")->result();
 		$data_currency = $this->db->query("SELECT * FROM matauang ORDER BY kode ASC ")->result();
