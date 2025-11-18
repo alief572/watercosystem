@@ -38,12 +38,12 @@ class Wt_revenue extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_revenue_model->cariSalesOrder();
+		// $data = $this->Wt_revenue_model->cariSalesOrder();
 
-		// print_r($data);
-		// exit;
+		// // print_r($data);
+		// // exit;
 
-		$this->template->set('results', $data);
+		// $this->template->set('results', $data);
 		$this->template->title('Revenue Recognition');
 		$this->template->render('index');
 	}
@@ -1503,5 +1503,102 @@ class Wt_revenue extends Admin_Controller
 		$this->template->set('results', $data);
 		$this->template->title('Journal Revenue');
 		$this->template->render('create_revenue');
+	}
+
+	public function get_rev_rec()
+	{
+		$post = $this->input->post();
+
+		$draw = intval($post['draw']);
+		$length = $post['length'];
+		$start = $post['start'];
+		$search = $post['search']['value'];
+
+		$this->db->select('a.*, b.name_customer as name_customer, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, e.id as id_do, e.status_confirm');
+		$this->db->from('tr_sales_order a');
+		$this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+		$this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
+		$this->db->join('tr_spk_delivery d', 'd.no_so = a.no_so');
+		$this->db->join('tr_delivery_order e', 'e.no_spk = d.no_spk');
+		$this->db->where('a.perseninvoice_revenue <>', '100');
+		$this->db->where('a.status <>', '0');
+		$this->db->where_not_in('a.status', ['6', '7']);
+		$this->db->where('e.status_confirm <>', null);
+
+		$db_clone = clone $this->db;
+		$count_all = $db_clone->count_all_results();
+
+		if (!empty($search)) {
+			$this->db->group_start();
+			$this->db->like('a.no_surat', $search, 'both');
+			$this->db->or_like('b.name_customer', $search, 'both');
+			$this->db->or_like('a.nama_sales', $search, 'both');
+			$this->db->or_like('c.grand_total', $search, 'both');
+			$this->db->or_like('a.nilai_so', $search, 'both');
+			$this->db->or_like('a.percent_invoice', $search, 'both');
+			$this->db->or_like('a.percent_do', $search, 'both');
+			$this->db->group_end();
+		}
+
+		$this->db->group_by('a.no_so');
+		$db_clone = clone $this->db;
+		$count_filtered = $db_clone->count_all_results();
+
+		$this->db->order_by('a.no_so', 'desc');
+		$this->db->limit($length, $start);
+
+		// print_r($this->db->get_compiled_select());
+		// exit;
+
+		$get_data = $this->db->get()->result();
+
+		$no = (0 + $start);
+		$hasil = [];
+
+		foreach ($get_data as $item) {
+			$no++;
+
+			$no_so = $item->no_so;
+			$this->db->select('a.no_surat');
+			$this->db->from('tr_invoice a');
+			$this->db->where('a.no_so', $no_so);
+			$get_invoice = $this->db->get()->result();
+
+			$allinv = array();
+			foreach ($get_invoice as $inv) {
+				$allinv[] = $inv->no_surat;
+			}
+
+			$separator = ', ';
+			$invc =  implode($separator, $allinv);
+
+			$action = '';
+			if (has_permission($this->managePermission) && $item->no_invoice == '') {
+				$action = '<a class="btn btn-success btn-sm" href="' . base_url('/wt_revenue/createRevenue/' . $item->no_so) . '" target="_blank" title="Create Revenue" data-no_so="<?= $record->no_so ?>"><i class="fa fa-plus"></i></a>';
+			}
+
+			$hasil[] = [
+				'no' => $no,
+				'no_so' => $item->no_surat,
+				'no_invoice' => $invc,
+				'nama_customer' => $item->name_customer,
+				'marketing' => $item->nama_sales,
+				'nilai_penawaran' => number_format($item->total_penawaran),
+				'nilai_dpp' => number_format($item->nilai_so),
+				'persentase_invoice' => number_format($item->percent_invoice) . '%',
+				'persentase_do' => number_format($item->percent_do) . '%',
+				'belum_diakui' => number_format($item->percent_invoice - $item->perseninvoice_revenue) . '%',
+				'action' => $action
+			];
+		}
+
+		$response = [
+			'draw' => $draw,
+			'recordsTotal' => $count_filtered,
+			'recordsFiltered' => $count_filtered,
+			'data' => $hasil
+		];
+
+		echo json_encode($response);
 	}
 }
