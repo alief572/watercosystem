@@ -23,7 +23,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="example2" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -43,47 +43,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 			</thead>
 
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
 
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-
-						$so = $record->no_so;
-						$invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so='$so'")->result();
-						$separator = ',';
-						$allinv = array();
-						foreach ($invoice as $inv) {
-							$allinv[] = $inv->no_surat;
-						}
-
-						$invc =  implode($separator, $allinv);
-
-				?>
-
-						<?php if ($record->status <> '6' or $record->status <> '7') { ?>
-							<tr>
-								<td><?= $numb; ?></td>
-								<td><?= $record->no_surat ?></td>
-								<td><?= $invc ?></td>
-								<td><?= strtoupper($record->name_customer) ?></td>
-								<td><?= $record->nama_sales ?></td>
-								<td><?= number_format($record->total_penawaran) ?></td>
-								<td><?= number_format($record->nilai_so) ?></td>
-								<td><?= number_format($record->percent_invoice) ?>%</td>
-								<td><?= number_format($record->percent_do) ?>%</td>
-								<td><?= number_format($record->percent_invoice - $record->perseninvoice_revenue) ?>%</td>
-								<td style="padding-left:20px">
-									<?php if ($ENABLE_MANAGE and $record->no_invoice == '') : ?>
-										<a class="btn btn-success btn-sm" href="<?= base_url('/wt_revenue/createRevenue/' . $record->no_so) ?>" target="_blank" title="Create Revenue" data-no_so="<?= $record->no_so ?>"><i class="fa fa-plus"></i>
-										</a>
-									<?php endif; ?>
-
-							</tr>
-				<?php 	 }
-					}
-				}  ?>
 			</tbody>
 		</table>
 	</div>
@@ -156,6 +116,10 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 
 <!-- page script -->
 <script type="text/javascript">
+	$(document).ready(function() {
+		datatables();
+	});
+
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
@@ -235,6 +199,58 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 		$("#form-area").hide();
 	});
 
+	function datatables() {
+		var datatables = $('#example2').DataTable({
+			serverSide: true,
+			processing: true,
+			destroy: true,
+			stateSave: true,
+			paging: true,
+			ajax: {
+				type: 'post',
+				url: siteurl + active_controller + 'get_rev_rec',
+				data: function(d) {
+
+				},
+				cache: false,
+				dataType: 'json'
+			},
+			columns: [{
+					data: 'no'
+				},
+				{
+					data: 'no_so'
+				},
+				{
+					data: 'no_invoice'
+				},
+				{
+					data: 'nama_customer'
+				},
+				{
+					data: 'marketing'
+				},
+				{
+					data: 'nilai_penawaran'
+				},
+				{
+					data: 'nilai_dpp'
+				},
+				{
+					data: 'persentase_invoice'
+				},
+				{
+					data: 'persentase_do'
+				},
+				{
+					data: 'belum_diakui'
+				},
+				{
+					data: 'action'
+				}
+			]
+		});
+	}
 
 	//Delete
 
