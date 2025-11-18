@@ -951,7 +951,7 @@ class Wt_delivery_order_model extends BF_Model
     $count_all = $db_clone1->count_all_results();
 
     if (!empty($search['value'])) {
-      $arr_filter = ['c.nomor_spk', 'b.name_customer', 'a.tgl_do', 'a.no_surat'];
+      $arr_filter = ['c.no_surat', 'b.name_customer', 'a.tgl_do', 'a.no_surat'];
       $this->db->group_start();
 
       foreach ($arr_filter as $xac => $val) {
@@ -988,6 +988,10 @@ class Wt_delivery_order_model extends BF_Model
       $btn_print_do = '<a class="btn btn-primary btn-sm" target="_blank" href="' . base_url('/wt_delivery_order/printDO/' . $row->no_do) . '" title="Print DO"><i class="fa fa-print"></i></a>';
 
       $btn_confirm_do = '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_delivery_order/confirmDO/' . $row->no_do) . '" title="Confirm DO"><i class="fa fa-list"></i></a>';
+
+      if ($row->status_confirm == '1') {
+        $btn_confirm_do = '';
+      }
 
       $action = $btn_view . ' ' . $btn_print_do . ' ' . $btn_confirm_do;
 
