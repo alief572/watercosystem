@@ -1,8 +1,8 @@
 <?php
-$ENABLE_ADD     = has_permission('Penawaran.Add');
-$ENABLE_MANAGE  = has_permission('Penawaran.Manage');
-$ENABLE_VIEW    = has_permission('Penawaran.View');
-$ENABLE_DELETE  = has_permission('Penawaran.Delete');
+$ENABLE_ADD     = has_permission('Pengakuan_Revenue.Add');
+$ENABLE_MANAGE  = has_permission('Pengakuan_Revenue.Manage');
+$ENABLE_VIEW    = has_permission('Pengakuan_Revenue.View');
+$ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 $tanggal = date('Y-m-d');
 foreach ($results['header'] as $hd) {
 }
@@ -268,7 +268,8 @@ $plan = $results['plan'];
 					},
 					function(isConfirm) {
 						if (isConfirm) {
-							var formData = new FormData($('#data-form')[0]);
+							// var formData = new FormData($('#data-form')[0]);
+							var formData = $('#data-form').serialize();
 							var baseurl = siteurl + 'wt_revenue/SaveNewRevenue';
 							$.ajax({
 								url: baseurl,
@@ -276,8 +277,6 @@ $plan = $results['plan'];
 								data: formData,
 								cache: false,
 								dataType: 'json',
-								processData: false,
-								contentType: false,
 								success: function(data) {
 									if (data.status == 1) {
 										swal({
