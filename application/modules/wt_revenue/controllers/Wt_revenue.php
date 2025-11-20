@@ -1545,7 +1545,7 @@ class Wt_revenue extends Admin_Controller
 		$this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
 		$this->db->join('tr_spk_delivery d', 'd.no_so = a.no_so');
 		$this->db->join('tr_delivery_order e', 'e.no_spk = d.no_spk');
-		$this->db->join('tr_invoice f', 'd.no_so = a.no_so');
+		$this->db->join('tr_invoice f', 'f.no_so = a.no_so');
 		$this->db->where('a.perseninvoice_revenue <>', '100');
 		$this->db->where('a.status <>', '0');
 		$this->db->where_not_in('a.status', ['6', '7']);
