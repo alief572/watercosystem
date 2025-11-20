@@ -1545,13 +1545,14 @@ class Wt_revenue extends Admin_Controller
 		$this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
 		$this->db->join('tr_spk_delivery d', 'd.no_so = a.no_so');
 		$this->db->join('tr_delivery_order e', 'e.no_spk = d.no_spk');
+		$this->db->join('tr_invoice f', 'd.no_so = a.no_so');
 		$this->db->where('a.perseninvoice_revenue <>', '100');
 		$this->db->where('a.status <>', '0');
 		$this->db->where_not_in('a.status', ['6', '7']);
 		$this->db->where('e.status_confirm <>', null);
 
 		$db_clone = clone $this->db;
-		$count_all = $db_clone->count_all_results();
+		$count_all = $db_clone->group_by('a.no_so')->count_all_results();
 
 		if (!empty($search)) {
 			$this->db->group_start();
@@ -1562,6 +1563,7 @@ class Wt_revenue extends Admin_Controller
 			$this->db->or_like('a.nilai_so', $search, 'both');
 			$this->db->or_like('a.percent_invoice', $search, 'both');
 			$this->db->or_like('a.percent_do', $search, 'both');
+			$this->db->or_like('f.no_surat', $search, 'both');
 			$this->db->group_end();
 		}
 
@@ -1619,7 +1621,7 @@ class Wt_revenue extends Admin_Controller
 
 		$response = [
 			'draw' => $draw,
-			'recordsTotal' => $count_filtered,
+			'recordsTotal' => $count_all,
 			'recordsFiltered' => $count_filtered,
 			'data' => $hasil
 		];
