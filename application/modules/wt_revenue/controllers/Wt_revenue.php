@@ -13,10 +13,10 @@ if (!defined('BASEPATH')) {
 class Wt_revenue extends Admin_Controller
 {
 	//Permission
-	protected $viewPermission 	= 'Penawaran.View';
-	protected $addPermission  	= 'Penawaran.Add';
-	protected $managePermission = 'Penawaran.Manage';
-	protected $deletePermission = 'Penawaran.Delete';
+	protected $viewPermission 	= 'Pengakuan_Revenue.View';
+	protected $addPermission  	= 'Pengakuan_Revenue.Add';
+	protected $managePermission = 'Pengakuan_Revenue.Manage';
+	protected $deletePermission = 'Pengakuan_Revenue.Delete';
 
 	public function __construct()
 	{
@@ -193,6 +193,31 @@ class Wt_revenue extends Admin_Controller
 	{
 		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
+
+		$get_so = $this->db->get_where('tr_sales_order', ['no_so' => $post['no_so']])->row();
+
+		$valid_costbook = 1;
+		$this->db->select('a.id_so_detail, b.nilai_costbook');
+		$this->db->from('tr_sales_order_detail a');
+		$this->db->join('ms_costbook b', 'b.id_category3 = a.id_category3');
+		$this->db->where('a.no_so', $post['no_so']);
+		$this->db->where('b.nilai_costbook >', 0);
+		$get_detail_so = $this->db->get()->result();
+
+		if (count($get_detail_so) < 1 || $get_detail_so->nilai_costbook == null) {
+			$valid_costbook = 0;
+		}
+
+		if ($valid_costbook < 1) {
+			$status	= array(
+				'pesan'		=> 'Costbook belum lengkap !',
+				'status'	=> 0
+			);
+
+			echo json_encode($status);
+			exit;
+		}
+
 
 		$this->db->trans_begin();
 		$noso = $post['no_so'];
@@ -1544,7 +1569,7 @@ class Wt_revenue extends Admin_Controller
 		$db_clone = clone $this->db;
 		$count_filtered = $db_clone->count_all_results();
 
-		$this->db->order_by('a.no_so', 'desc');
+		$this->db->order_by('a.created_on', 'desc');
 		$this->db->limit($length, $start);
 
 		// print_r($this->db->get_compiled_select());
