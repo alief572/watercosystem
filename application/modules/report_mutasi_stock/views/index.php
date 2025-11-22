@@ -16,36 +16,29 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
 
 <div class="box">
     <div class="box-header">
-        <form method="post" action="<?= base_url() ?>reports/tampilkan_detail_salesorder" autocomplete="off">
-            <div class="row">
-                <div class="col-sm-10">
+        <div class="row">
+            <div class="col-sm-10">
 
-                    <div class="col-sm-2">
-                        <br>
-                        <div class="form-group">
-                            <label for="">Tanggal</label>
-                            <input type="date" name="tgl" id="" class="form-control form-control-sm" max="<?= date('Y-m-d') ?>">
-                        </div>
+                <div class="col-sm-2">
+                    <br>
+                    <div class="form-group">
+                        <label for="">Tanggal</label>
+                        <input type="date" name="tgl" id="" class="form-control form-control-sm" max="<?= date('Y-m-d') ?>">
                     </div>
-                    <div class="col-sm-5">
-                        <div class="form-group">
-                            <br>
-                            <label> &nbsp;</label><br>
-                            <input type="button" name="" value="Tampilkan" class="btn btn-sm btn-primary pull-center tampilkan">
-                            <button type="button" class="btn btn-sm btn-danger reset_search" title="Reset Search">Reset</button>
-                            <button type="button" class="btn btn-sm btn-success" title="Export Excel">Export Excel</button>
-                            <!-- <input type="button" name="" value="Export Excel" class="btn btn-sm btn-primary pull-center export_excel"> &nbsp;
+                </div>
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <br>
+                        <label> &nbsp;</label><br>
+                        <input type="button" name="" value="Tampilkan" class="btn btn-sm btn-primary pull-center tampilkan">
+                        <button type="button" class="btn btn-sm btn-danger reset_search" title="Reset Search">Reset</button>
+                        <button type="button" class="btn btn-sm btn-success export_excel" title="Export Excel">Export Excel</button>
+                        <!-- <input type="button" name="" value="Export Excel" class="btn btn-sm btn-primary pull-center export_excel"> &nbsp;
 							<input type="button" name="" value="Bersihkan" class="btn btn-sm btn-danger pull-center bersihkan"> &nbsp; -->
-                        </div>
                     </div>
                 </div>
             </div>
-
-
-        </form>
-
-        <span class="pull-right">
-        </span>
+        </div>
     </div>
 
     <!-- /.box-header -->
@@ -67,37 +60,25 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
             <tbody>
 
             </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="6" class="text-center">Grand Total</th>
+                    <th class="text-right ttl_total">0</th>
+                    <th></th>
+                </tr>
+            </tfoot>
         </table>
     </div>
     <!-- /.box-body -->
 </div>
 
-<!-- awal untuk modal dialog -->
-<!-- Modal -->
-<div class="modal modal-primary" id="dialog-rekap" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel"><span class="fa fa-file-pdf-o"></span>&nbsp;Rekap Data Customer</h4>
-            </div>
-            <div class="modal-body" id="MyModalBody">
-                ...
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                    <span class="glyphicon glyphicon-remove"></span> Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="modal modal-default fade" id="dialog-popup" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width: 90% !important">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="myModalLabel"><span class="fa fa-users"></span>&nbsp;Data Penawaran</h4>
+                <h4 class="modal-title" id="myModalLabel"></h4>
             </div>
             <div class="modal-body" id="ModalView">
                 ...
@@ -110,27 +91,6 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
     </div>
 </div>
 
-<!-- modal -->
-<div class="modal modal-default fade" id="ModalViewX" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id='head_title'>Closing Penawaran</h4>
-            </div>
-            <div class="modal-body" id="viewX">
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal" id='close_penawaran'>Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
 
 <!-- DataTables -->
 <script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
@@ -142,6 +102,7 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
 <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- page script -->
 <script type="text/javascript">
@@ -164,11 +125,49 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
     })
 
     $(document).on('click', '.export_excel', function() {
-        var tanggal = $('#tanggal').val();
-        var tanggal_to = $('#tanggal_to').val();
+        var tgl = $('input[name="tgl"]').val();
 
-        window.open(siteurl + active_controller + 'export_excel?tanggal=' + tanggal + '&tanggal_to=' + tanggal_to);
+        window.open(siteurl + active_controller + 'export_excel/?tgl=' + tgl);
     });
+
+    $(document).on('click', '.export_excel_detail', function() {
+        var tgl = $(this).data('tgl');
+        var id_category3 = $(this).data('id_category3');
+
+        window.open(siteurl + active_controller + 'export_excel_detail/?tgl=' + tgl + '&id_category3=' + id_category3);
+    });
+
+    $(document).on('click', '.detail', function() {
+        var id_category3 = $(this).data('id_category3');
+        var tgl = $('input[name="tgl"]').val();
+
+        $.ajax({
+            type: 'post',
+            url: siteurl + active_controller + 'detail_mutasi',
+            data: {
+                'id_category3': id_category3,
+                'tgl': tgl
+            },
+            cache: false,
+            success: function(result) {
+                $('#myModalLabel').html('<i class="fa fa-list"></i> List Mutasi Stock');
+                $('#ModalView').html(result);
+
+                $('#dialog-popup').modal('show');
+            },
+            error: function(result) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error !',
+                    text: 'Please try again later !',
+                    showConfirmButton: false,
+                    showCancelButton: false,
+                    allowOutsideClick: false,
+                    timer: 3000
+                });
+            }
+        });
+    })
 
     function number_format(number, decimals, dec_point, thousands_sep) {
         // Strip all characters but numerical ones.
@@ -203,7 +202,12 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
                 type: "POST",
                 dataType: "JSON",
                 data: function(d) {
-                    d.tgl = tgl
+                    d.tgl = tgl;
+                },
+                dataSrc: function(response) {
+                    ttl_total = response.ttl_total;
+
+                    return response.data;
                 }
             },
             columns: [{
@@ -237,10 +241,18 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
             stateSave: true,
             destroy: true,
             paging: true,
-            searching: false,
-            lengthMenu: [10, 50, 100, 200, 500, 1000]
+            lengthMenu: [10, 50, 100, 200, 500, 1000],
+            footerCallback: function(row, data, start, end, display) {
+                // Tidak perlu lagi menghitung ttl_total di sini karena sudah ada dari backend
+                var api = this.api();
+
+
+                // Update footer dengan ttl_total dari backend
+                $(api.column(6).footer()).html(number_format(ttl_total)); // Tampilkan ttl_total di footer
+            }
         });
     }
+
 
 
     $(document).on('click', '.edit', function(e) {

@@ -1060,4 +1060,53 @@ class Report_mutasi_stock_model extends BF_Model
             'data' => $hasil
         ]);
     }
+
+    public function get_data_mutasi_stock($tgl = null)
+    {
+        if (empty($tgl)) {
+            $tgl = date('Y-m-d');
+        }
+
+        if (empty($tgl) || $tgl == date('Y-m-d')) {
+            $this->db->select('a.*, b.qty_free as qty, c.nilai_costbook');
+            $this->db->from('ms_inventory_category3 a');
+            $this->db->join('stock_material b', 'b.id_category3 = a.id_category3');
+            $this->db->join('ms_costbook c', 'c.id_category3 = a.id_category3');
+            $this->db->where('b.deleted', null);
+        } else {
+            $this->db->select('a.*, b.qty_free as qty, c.nilai_costbook');
+            $this->db->from('ms_inventory_category3 a');
+            $this->db->join('stock_material_backup b', 'b.id_category3 = a.id_category3');
+            $this->db->join('ms_costbook_backup c', 'c.id_category3 = a.id_category3');
+            $this->db->where('b.deleted', null);
+            $this->db->like('b.tgl', $tgl, 'both');
+            $this->db->like('c.tgl', $tgl, 'both');
+        }
+        $this->db->order_by('a.id_category3', 'asc');
+        $get_data = $this->db->get()->result();
+
+        return $get_data;
+    }
+
+    public function get_kartu_mutasi_stock($id_category3 = null, $tgl = null)
+    {
+        $this->db->select('a.*');
+        $this->db->from('kartu_stok a');
+        $this->db->where('a.tgl_transaksi >', '2024-01-31');
+        $this->db->where('a.tgl_transaksi <=', $tgl);
+        if (!empty($id_category3)) {
+            $this->db->where('a.id_category3', $id_category3);
+        }
+        $this->db->order_by('a.id_kartu_stok', 'asc');
+        $get_data = $this->db->get()->result();
+
+        return $get_data;
+    }
+
+    public function get_inventory3($id_category3)
+    {
+        $get_data = $this->db->get_where('ms_inventory_category3', array('id_category3' => $id_category3))->row();
+
+        return $get_data;
+    }
 }

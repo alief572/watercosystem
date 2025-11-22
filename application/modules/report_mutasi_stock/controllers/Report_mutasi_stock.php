@@ -33,6 +33,70 @@ class Report_mutasi_stock extends Admin_Controller
         $this->template->render('index');
     }
 
+    public function export_excel()
+    {
+        $tgl = $this->input->get('tgl');
+
+        if (empty($tgl)) {
+            $tgl = date('Y-m-d');
+        }
+
+        $get_data_mutasi_stock = $this->Report_mutasi_stock_model->get_data_mutasi_stock($tgl);
+
+        $data = [
+            'data_mutasi_stock' => $get_data_mutasi_stock,
+            'tgl' => $tgl
+        ];
+
+        $this->load->view('export_excel', $data);
+    }
+
+    public function detail_mutasi()
+    {
+        $post = $this->input->post();
+
+        $id_category3 = $post['id_category3'];
+        $tgl = $post['tgl'];
+        if (empty($tgl)) {
+            $tgl = date('Y-m-d');
+        }
+
+        $get_data = $this->Report_mutasi_stock_model->get_kartu_mutasi_stock($id_category3, $tgl);
+        $get_category3 = $this->Report_mutasi_stock_model->get_inventory3($id_category3);
+
+        $nm_category3 = (!empty($get_category3->nama)) ? $get_category3->nama : '';
+
+
+        $data = [
+            'data_mutasi' => $get_data,
+            'id_category3' => $id_category3,
+            'nm_category3' => $nm_category3,
+            'tgl' => $tgl
+        ];
+
+        $this->template->render('detail', $data);
+    }
+
+    public function export_excel_detail()
+    {
+        $id_category3 = $this->input->get('id_category3');
+        $tgl = $this->input->get('tgl');
+
+        $get_data = $this->Report_mutasi_stock_model->get_kartu_mutasi_stock($id_category3, $tgl);
+        $get_category3 = $this->Report_mutasi_stock_model->get_inventory3($id_category3);
+
+        $nm_category3 = (!empty($get_category3->nama)) ? $get_category3->nama : '';
+
+        $data = [
+            'data_mutasi' => $get_data,
+            'id_category3' => $id_category3,
+            'nm_category3' => $nm_category3,
+            'tgl' => $tgl
+        ];
+
+        $this->load->view('export_excel_detail', $data);
+    }
+
     public function get_data_report_mutasi_stock()
     {
         $post = $this->input->post();
@@ -80,6 +144,8 @@ class Report_mutasi_stock extends Admin_Controller
         $no = (0 + $start);
         $hasil = [];
 
+        $ttl_total = 0;
+
         foreach ($get_data as $item) {
             $no++;
 
@@ -89,7 +155,7 @@ class Report_mutasi_stock extends Admin_Controller
                 $tanggal = date('d F Y');
             }
 
-            $action = '<button type="button" class="btn btn-sm btn-info" title="View Mutasi"><i class="fa fa-eye"></i></button>';
+            $action = '<button type="button" class="btn btn-sm btn-info detail" data-id_category3="' . $item->id_category3 . '" title="View Mutasi"><i class="fa fa-eye"></i></button>';
 
             $hasil[] = [
                 'no' => $no,
@@ -101,13 +167,16 @@ class Report_mutasi_stock extends Admin_Controller
                 'total' => number_format($item->nilai_costbook * $item->qty),
                 'action' => $action
             ];
+
+            $ttl_total += ($item->nilai_costbook * $item->qty);
         }
 
         $response = [
             'draw' => $draw,
             'recordsTotal' => $count_all,
             'recordsFiltered' => $count_filtered,
-            'data' => $hasil
+            'data' => $hasil,
+            'ttl_total' => $ttl_total
         ];
 
         echo json_encode($response);
