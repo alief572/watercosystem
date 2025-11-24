@@ -1,8 +1,8 @@
 <?php
-$ENABLE_ADD     = has_permission('Penawaran.Add');
-$ENABLE_MANAGE  = has_permission('Penawaran.Manage');
-$ENABLE_VIEW    = has_permission('Penawaran.View');
-$ENABLE_DELETE  = has_permission('Penawaran.Delete');
+$ENABLE_ADD     = has_permission('Pengakuan_Revenue.Add');
+$ENABLE_MANAGE  = has_permission('Pengakuan_Revenue.Manage');
+$ENABLE_VIEW    = has_permission('Pengakuan_Revenue.View');
+$ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 
 ?>
 <style type="text/css">
