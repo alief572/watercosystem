@@ -153,7 +153,7 @@
 <table border="0px" cellspacing="0" width='100%' valign="top">
     <tr>
         <td align="left"width="70%" valign="top" >
-            <img src='<?=$_SERVER['DOCUMENT_ROOT'];?>watercosystem/assets/images/logo_waterco.png' alt="" height='100' width='250'>
+            <img src='<?=$_SERVER['DOCUMENT_ROOT'];?>/watercosystem/assets/images/logo_waterco.png' alt="" height='100' width='250'>
         </td>
         <td align="right" valign="top" width="30%">
 			<br>
