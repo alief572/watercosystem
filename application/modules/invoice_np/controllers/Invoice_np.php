@@ -149,7 +149,7 @@ class Invoice_np extends Admin_Controller
 	function print_pdf($id)
 	{
 		$sroot 		= $_SERVER['DOCUMENT_ROOT'];
-		include $sroot . "watercosystem/application/libraries/MPDF57/mpdf.php";
+		include "application/libraries/MPDF57/mpdf.php";
 		$data_session	= $this->session->userdata;
 		$mpdf		= new mPDF('utf-8', 'A4');
 		$mpdf->SetImportUse();
