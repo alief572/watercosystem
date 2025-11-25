@@ -345,7 +345,7 @@
 					</tr>
 					<tr>
 						<td align="center" width="70%" valign="top">
-							<img src='<?= $_SERVER['DOCUMENT_ROOT']; ?>watercosystem/assets/files/tandatangan/<?= $sales->tanda_tangan ?>' alt="" height='80' width='100'>
+							<img src='assets/files/tandatangan/<?= $sales->tanda_tangan ?>' alt="" height='80' width='100'>
 						</td>
 					</tr>
 					<tr>
@@ -364,7 +364,7 @@
 						</tr>
 						<tr>
 							<td align="center" width="70%" valign="top">
-								<img src='<?= $_SERVER['DOCUMENT_ROOT']; ?>watercosystem/assets/files/tandatangan/Cap_Waterco_dan_ttd_-_Fajar.png' alt="" height='80' width='100'>
+								<img src='assets/files/tandatangan/Cap_Waterco_dan_ttd_-_Fajar.png' alt="" height='80' width='100'>
 							</td>
 						</tr>
 						<tr>
