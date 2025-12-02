@@ -25,10 +25,11 @@
     ?>
     <table border="0px" cellspacing="0" width='100%' valign="top">
         <tr>
-            <td align="left" width="100%" valign="top">
+            <td align="left" valign="top" width="70%">
                 <!-- <img src='assets/images/logo_waterco.png' alt="" height='100' width='250'> -->
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </td>
-            <td align="right" valign="top" width="30%">
+            <td align="right" valign="right">
                 <br>
                 PT WATERCO INDONESIA<br>
                 Inkopal Plaza Kelapa Gading Blok B, No.31-32 <br>
