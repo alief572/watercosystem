@@ -25,8 +25,8 @@
     ?>
     <table border="0px" cellspacing="0" width='100%' valign="top">
         <tr>
-            <td align="left" width="70%" valign="top">
-                <img src='assets/images/logo_waterco.png' alt="" height='100' width='250'>
+            <td align="left" width="100%" valign="top">
+                <!-- <img src='assets/images/logo_waterco.png' alt="" height='100' width='250'> -->
             </td>
             <td align="right" valign="top" width="30%">
                 <br>
@@ -159,14 +159,14 @@
             foreach ($detail as $detail) {
                 $no++;
             ?>
-                <tr>
-                    <td align="center"><?= $no ?></td>
-                    <td align="left">&nbsp;<?= $detail->nama_produk ?></td>
-                    <td align="left">&nbsp;<?= $detail->kode_barang ?></td>
-                    <td align="center"><?= number_format($detail->qty_do) ?></td>
-                    <td align="left"><?= $detail->serial_number ?></td>
-                    <td align="left"><?= $detail->kartu_garansi ?></td>
-                </tr>
+            <tr>
+                <td align="center"><?= $no ?></td>
+                <td align="left">&nbsp;<?= $detail->nama_produk ?></td>
+                <td align="left">&nbsp;<?= $detail->kode_barang ?></td>
+                <td align="center"><?= number_format($detail->qty_do) ?></td>
+                <td align="left"><?= $detail->serial_number ?></td>
+                <td align="left"><?= $detail->kartu_garansi ?></td>
+            </tr>
             <? } ?>
         </tbody>
 
