@@ -149,6 +149,14 @@ class Report_mutasi_stock extends Admin_Controller
         foreach ($get_data as $item) {
             $no++;
 
+            $this->db->select('COUNT(a.id_kartu_stok) AS total_transaksi');
+            $this->db->from('kartu_stok a');
+            $this->db->where('a.id_category3', $item->id_category3);
+            $this->db->where('a.tgl_transaksi', $tgl);
+            $get_ttl_transaksi = $this->db->get()->row();
+
+            $ttl_transaksi = (!empty($get_ttl_transaksi)) ? $get_ttl_transaksi->total_transaksi : 0;
+
             if (!empty($tgl)) {
                 $tanggal = date('d F Y', strtotime($tgl));
             } else {
@@ -163,8 +171,9 @@ class Report_mutasi_stock extends Admin_Controller
                 'nomor' => $item->id_category3,
                 'nama_barang' => $item->nama,
                 'qty' => number_format($item->qty),
-                'costbook' => number_format($item->nilai_costbook),
-                'total' => number_format($item->nilai_costbook * $item->qty),
+                'costbook' => number_format($item->nilai_costbook, 2),
+                'total' => number_format($item->nilai_costbook * $item->qty, 2),
+                'jumlah_transaksi' => number_format($ttl_transaksi),
                 'action' => $action
             ];
 
