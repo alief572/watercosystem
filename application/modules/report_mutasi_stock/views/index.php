@@ -54,6 +54,7 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
                     <th class="text-center">Qty</th>
                     <th class="text-center">Costbook</th>
                     <th class="text-center">Total</th>
+                    <th class="text-center">Jumlah Transaksi</th>
                     <th class="text-center">Action</th>
                 </tr>
             </thead>
@@ -64,7 +65,7 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
                 <tr>
                     <th colspan="6" class="text-center">Grand Total</th>
                     <th class="text-right ttl_total">0</th>
-                    <th></th>
+                    <th colspan="2"></th>
                 </tr>
             </tfoot>
         </table>
@@ -232,6 +233,9 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
                     data: 'total'
                 },
                 {
+                    data: 'jumlah_transaksi'
+                },
+                {
                     data: 'action'
                 }
             ],
@@ -241,14 +245,14 @@ $ENABLE_DELETE  = has_permission('Report_Mutasi_Stock.Delete');
             stateSave: true,
             destroy: true,
             paging: true,
-            lengthMenu: [10, 50, 100, 200, 500, 1000],
+            lengthMenu: [10, 50, 100, 200, 500, 1000, 10000, 100000],
             footerCallback: function(row, data, start, end, display) {
                 // Tidak perlu lagi menghitung ttl_total di sini karena sudah ada dari backend
                 var api = this.api();
 
 
                 // Update footer dengan ttl_total dari backend
-                $(api.column(6).footer()).html(number_format(ttl_total)); // Tampilkan ttl_total di footer
+                $(api.column(6).footer()).html(number_format(ttl_total, 2)); // Tampilkan ttl_total di footer
             }
         });
     }
