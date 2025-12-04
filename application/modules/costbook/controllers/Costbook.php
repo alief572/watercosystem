@@ -171,4 +171,157 @@ class Costbook extends Admin_Controller
 
 		echo json_encode($status);
 	}
+
+	public function check_costbook()
+	{
+		$get_inventory3 = $this->db->get_where('ms_inventory_category3', ['deleted' => 0])->result();
+
+		$hasil = [];
+
+		foreach ($get_inventory3 as $item) {
+			$this->db->select('a.nilai_costbook');
+			$this->db->from('ms_costbook a');
+			$this->db->where('a.id_category3', $item->id_category3);
+			$get_costbook_master = $this->db->get()->row();
+
+			$costbook_master = (!empty($get_costbook_master->nilai_costbook)) ? $get_costbook_master->nilai_costbook : 0;
+
+			$this->db->select('a.cost_book');
+			$this->db->from('kartu_stok a');
+			$this->db->where('a.id_category3', $item->id_category3);
+			$this->db->where('a.cost_book <>', null);
+			$this->db->where('a.cost_book >', 0);
+			$this->db->order_by('a.created_on', 'desc');
+			$this->db->limit(1);
+			$get_costbook_report = $this->db->get()->row();
+
+			$costbook_report = (!empty($get_costbook_report->cost_book)) ? $get_costbook_report->cost_book : 0;
+
+			if ($costbook_master <> $costbook_report && $costbook_report > 0) {
+				$hasil[] = [
+					'id_category3' => $item->id_category3,
+					'nm_barang' => $item->nama,
+					'nilai_costbook_master' => $costbook_master,
+					'nilai_costbook_report' => $costbook_report
+				];
+			}
+		}
+
+		$data = [
+			'list_barang' => $hasil
+		];
+
+		$this->load->view('check_costbook', $data);
+	}
+
+	public function save_check_costbook()
+	{
+		$post = $this->input->post();
+
+		if (isset($post['check'])) {
+			$arr_update = [];
+
+			foreach ($post['check'] as $item_check) {
+				$id_category3 = $post['detail'][$item_check]['id_category3'];
+				$costbook_report = $post['detail'][$item_check]['costbook_report'];
+
+				$arr_update[] = [
+					'id_category3' => $id_category3,
+					'nilai_costbook' => $costbook_report,
+					'modified_by' => $this->auth->user_id(),
+					'modified_on' => date('Y-m-d H:i:s')
+				];
+			}
+
+			$this->db->trans_begin();
+
+			try {
+				$update_costbook = $this->db->update_batch('ms_costbook', $arr_update, 'id_category3');
+
+				$this->db->trans_commit();
+
+				$response = [
+					'status' => 1,
+					'msg' => 'Data costbook yang dipilih sudah terupdate !'
+				];
+			} catch (Exception $e) {
+				$this->db->trans_rollback();
+
+				$response = [
+					'status' => 0,
+					'msg' => $e->getMessage()
+				];
+			}
+		} else {
+			$response = [
+				'status' => 0,
+				'msg' => 'Tidak ada data yang di proses !'
+			];
+		}
+
+		echo json_encode($response);
+	}
+
+	public function get_costbooks()
+	{
+		$post = $this->input->post();
+
+		$draw = intval($post['draw']);
+		$length = $post['length'];
+		$start = $post['start'];
+		$search = $post['search']['value'];
+
+		$this->db->select('a.*, b.nama as nama_produk, b.kode_barang');
+		$this->db->from('ms_costbook a');
+		$this->db->join('ms_inventory_category3 b', 'b.id_category3 =a.id_category3');
+		$this->db->where('b.deleted <>', '1');
+
+		$count_all = $this->db->count_all_results('', false);
+
+		if (!empty($search)) {
+			$this->db->group_start();
+			$this->db->like('a.id_category3', $search, 'both');
+			$this->db->or_like('b.nama', $search, 'both');
+			$this->db->or_like('b.kode_barang', $search, 'both');
+			$this->db->or_like('a.nilai_costbook', $search, 'both');
+			$this->db->group_end();
+		}
+
+		$count_filter = $this->db->count_all_results('', false);
+
+		$this->db->order_by('a.id_category3', 'asc');
+		$this->db->limit($length, $start);
+
+		$get_data = $this->db->get()->result();
+
+		$no = (0 + $start);
+		$hasil = [];
+
+		foreach ($get_data as $item) {
+			$no++;
+
+			$btn_edit = '';
+			if (has_permission($this->managePermission)) {
+				$btn_edit = '<a href="javascript:void(0);" class="btn btn-success btn-sm edit" title="Edit" data-id_inventory1="' . $item->id . '"><i class="fa fa-edit"></i></a>';
+			}
+
+			$hasil[] = [
+				'no' => $no,
+				'id_product' => $item->id_category3,
+				'nm_product' => $item->nama_produk,
+				'kode_barang' => $item->kode_barang,
+				'harga_hpp' => number_format($item->nilai_costbook, 2),
+				'action' => $btn_edit
+			];
+		}
+
+		$response = [
+			'draw' => $draw,
+			'recordsTotal' => $count_all,
+			'recordsFiltered' => $count_filter,
+			'data' => $hasil
+		];
+
+		echo json_encode($response);
+	}
 }
