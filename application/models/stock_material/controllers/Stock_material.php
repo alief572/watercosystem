@@ -23,7 +23,9 @@ class Stock_material extends Admin_Controller
 	{
 		parent::__construct();
 
-		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+		require_once 'vendor/autoload.php';
+
+		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
 			'stock_material/Inventory_4_model',
 			'Aktifitas/aktifitas_model',
