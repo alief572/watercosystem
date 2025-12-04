@@ -15,54 +15,32 @@ $ENABLE_DELETE  = has_permission('Costbooks.Delete');
 <div class="box">
 	<div class="box-header">
 		<?php if ($ENABLE_VIEW) : ?>
-			<a class="btn btn-success btn-sm add" href="javascript:void(0)" title="Add"><i class="fa fa-plus">&nbsp;</i>Add Material Costbook</a>
+			<a class="btn btn-primary btn-sm add" href="javascript:void(0)" title="Add"><i class="fa fa-plus">&nbsp;</i>Add Material Costbook</a>
+		<?php endif; ?>
+
+		<?php if ($ENABLE_MANAGE) : ?>
+			<a class="btn btn-sm btn-success" href="<?= base_url('costbook/download_excel') ?>" target="_blank" title="Download Excel"><i class="fa fa-download"></i> Download Excel</a>
+
+			<button type="button" class="btn btn-sm btn-danger" onclick="check_costbook();"><i class="fa fa-cogs"></i> Check</button>
 		<?php endif; ?>
 
 		<span class="pull-right">
-		</span>
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example2" width="50%" class="table table-bordered table-striped">
+		<table id="example3" width="100%" class="table table-bordered table-striped">
 			<thead>
 				<tr>
-					<th width="5">#</th>
-					<th width="13%">Id Produk</th>
+					<th>#</th>
+					<th>Id Produk</th>
 					<th>Nama Produk</th>
 					<th>Kode Barang</th>
-					<th width="13%">Harga HPP</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th width="13%">Action</th>
-					<?php endif; ?>
+					<th>Harga HPP</th>
+					<th>Action</th>
 				</tr>
 			</thead>
-
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++; ?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->id_category3 ?></td>
-							<td><?= $record->nama_produk ?></td>
-							<td><?= $record->kode_barang ?></td>
-							<td align="right"><?= number_format($record->nilai_costbook, 2) ?></td>
-							<td style="padding-left:20px">
 
-
-								<?php if ($ENABLE_MANAGE) : ?>
-									<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory1="<?= $record->id ?>"><i class="fa fa-edit"></i>
-									</a>
-								<?php endif; ?>
-
-
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
 			</tbody>
 		</table>
 	</div>
@@ -71,6 +49,7 @@ $ENABLE_DELETE  = has_permission('Costbooks.Delete');
 
 <!-- awal untuk modal dialog -->
 <!-- Modal -->
+</span>
 <div class="modal modal-primary" id="dialog-rekap" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -96,13 +75,18 @@ $ENABLE_DELETE  = has_permission('Costbooks.Delete');
 				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 				<h4 class="modal-title" id="myModalLabel"><span class="fa fa-users"></span>&nbsp;Data Inventory</h4>
 			</div>
-			<div class="modal-body" id="ModalView">
-				...
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" data-dismiss="modal">
-					<span class="glyphicon glyphicon-remove"></span> Close</button>
-			</div>
+			<form action="" id="form_datas" enctype="multipart/form-data">
+				<div class="modal-body" id="ModalView">
+					...
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal">
+						<span class="glyphicon glyphicon-remove"></span> Close</button>
+					<button type="submit" class="btn btn-primary">
+						<i class="fa fa-save"></i> Proses
+					</button>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>
@@ -119,19 +103,7 @@ $ENABLE_DELETE  = has_permission('Costbooks.Delete');
 <!-- page script -->
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('#example2').DataTable({
-			orderCellsTop: true,
-			fixedHeader: true,
-			scrollX: true,
-			dom: 'Blfrtip',
-			buttons: [{
-				extend: 'excel',
-			}],
-			"lengthMenu": [
-				[10, 25, 50, -1],
-				[10, 25, 50, "All"]
-			]
-		});
+		datatables();
 	});
 
 	$(document).on('click', '.edit', function(e) {
@@ -237,6 +209,90 @@ $ENABLE_DELETE  = has_permission('Costbooks.Delete');
 
 	})
 
+	$(document).on('submit', '#form_datas', function(e) {
+		e.preventDefault();
+
+		if ($('.checklist:checked').length === 0) {
+			swal({
+				type: 'warning',
+				title: 'Warning !',
+				text: 'Mohon check list salah satu barang yang mau di proses !',
+				showConfirmButton: false,
+				showCancelButton: false,
+				allowEscapeKey: false,
+				allowOutsideClick: false,
+				timer: 3000
+			}, function() {
+				return false;
+			});
+		}
+
+		swal({
+			type: 'warning',
+			title: 'Anda yakin ?',
+			text: 'Data yang anda pilih akan terupdate costbook nya sesuai report mutasi stock !',
+			showConfirmButton: true,
+			showCancelButton: true,
+			allowEscapeKey: false,
+			allowOutsideClick: false
+		}, function(next) {
+			if (next) {
+				var formdata = new FormData($('#form_datas')[0]);
+
+				$.ajax({
+					type: 'post',
+					url: siteurl + active_controller + 'save_check_costbook',
+					data: formdata,
+					cache: false,
+					dataType: 'json',
+					contentType: false,
+					processData: false,
+					success: function(result) {
+						if (result.status == 1) {
+							swal({
+								type: 'success',
+								title: 'Success !',
+								text: result.msg,
+								showConfirmButton: false,
+								showCancelButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+								timer: 3000
+							}, function() {
+								swal.close();
+								$('#dialog-popup').modal('hide');
+								datatables();
+							});
+						} else {
+							swal({
+								type: 'warning',
+								title: 'Failed !',
+								text: result.msg,
+								showConfirmButton: false,
+								showCancelButton: false,
+								allowEscapeKey: false,
+								allowOutsideClick: false,
+								timer: 3000
+							});
+						}
+					},
+					error: function(result) {
+						swal({
+							type: 'error',
+							title: 'Error !',
+							text: 'Please try again !',
+							showConfirmButton: false,
+							showCancelButton: false,
+							allowEscapeKey: false,
+							allowOutsideClick: false,
+							timer: 3000
+						});
+					}
+				});
+			}
+		});
+	});
+
 	$(function() {
 		// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
 		// $('#example1 thead tr:eq(1) th').each( function (i) {
@@ -283,5 +339,66 @@ $ENABLE_DELETE  = has_permission('Costbooks.Delete');
 	function PreviewRekap() {
 		tujuan = 'customer/rekap_pdf';
 		$(".modal-body").html('<iframe src="' + tujuan + '" frameborder="no" width="100%" height="400"></iframe>');
+	}
+
+	function datatables() {
+		var datatables = $('#example3').dataTable({
+			serverSide: true,
+			processing: true,
+			destroy: true,
+			paging: true,
+			stateSave: true,
+			ajax: {
+				type: 'post',
+				url: siteurl + active_controller + 'get_costbooks',
+				cache: false,
+				dataType: 'json'
+			},
+			columns: [{
+					data: 'no'
+				},
+				{
+					data: 'id_product'
+				},
+				{
+					data: 'nm_product'
+				},
+				{
+					data: 'kode_barang'
+				},
+				{
+					data: 'harga_hpp'
+				},
+				{
+					data: 'action'
+				}
+			]
+		});
+	}
+
+	function check_costbook() {
+		$.ajax({
+			type: 'post',
+			url: siteurl + active_controller + 'check_costbook',
+			cache: false,
+			success: function(result) {
+				$('.modal-title').html('<i class="fa fa-cogs"></i> Check Costbooks');
+				$('.modal-body').html(result);
+
+				$('#dialog-popup').modal('show');
+			},
+			error: function(result) {
+				swal({
+					type: 'error',
+					title: 'Error !',
+					text: 'Please try again later !',
+					showConfirmButton: false,
+					showCancelButton: false,
+					allowOutsideClick: false,
+					allowEscapeKey: false,
+					timer: 3000
+				});
+			}
+		});
 	}
 </script>
