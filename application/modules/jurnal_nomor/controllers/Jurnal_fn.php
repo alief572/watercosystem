@@ -211,6 +211,7 @@ class Jurnal_fn extends CI_Controller
         $id_cust   = $invoicing->id_customer;
         $nama   = $invoicing->name_customer;
         $No_Inv  = $invoicing->no_surat;
+        $dpp  = $invoicing->grand_total;
 
 
         $datapiutang = array(
@@ -227,6 +228,22 @@ class Jurnal_fn extends CI_Controller
 
         );
         $this->db->insert('tr_kartu_piutang', $datapiutang);
+
+        $datapiutang2 = array(
+            'tipe'            => 'JV',
+            'nomor'            => $Nomor_JV,
+            'tanggal'        => $tgl_inv,
+            'no_perkiraan'  => '2101-03-01',
+            'keterangan'    => $keterangan,
+            'no_reff'       => $No_Inv,
+            'debet'         => 0,
+            'kredit'         =>  $dpp,
+            'id_supplier'     => $id_cust,
+            'nama_supplier'   => $nama,
+
+        );
+        $this->db->insert('tr_kartu_piutang', $datapiutang2);
+
 
 
         if ($this->db->trans_status() === FALSE) {
@@ -491,6 +508,24 @@ class Jurnal_fn extends CI_Controller
                 );
                 $this->db->insert('tr_kartu_piutang', $datapiutang);
             }
+
+            if ($perkiraan == '2101-08-01') {
+
+                $datapiutang2 = array(
+                    'tipe'            => 'BUM',
+                    'nomor'            => $Nomor_BUM,
+                    'tanggal'        => $this->input->post('tgl_jurnal')[$i],
+                    'no_perkiraan'   => '2101-08-01',
+                    'keterangan'     => $this->input->post('keterangan')[$i],
+                    'no_reff'        => $this->input->post('reff')[$i],
+                    'debet'          => round($this->input->post('debet')[$i]),
+                    'kredit'         => round($this->input->post('kredit')[$i]),
+                    'id_supplier'     => $id_vendor,
+                    'nama_supplier'   => $nama_vendor,
+
+                );
+                $this->db->insert('tr_kartu_piutang', $datapiutang2);
+            }
             $jurnal_posting     = "UPDATE jurnal SET stspos=1 WHERE tipe = '$tipe'
 			AND  jenis_jurnal = '$jenisjurnal' AND no_reff  = '$noreff' ";
             $this->db->query($jurnal_posting);
@@ -596,6 +631,25 @@ class Jurnal_fn extends CI_Controller
             );
 
             $this->db->insert(DBACC . '.jurnal', $datadetail);
+
+
+            if ($perkiraan == '2101-03-01') {
+
+                $datapiutang2 = array(
+                    'tipe'            => 'BUM',
+                    'nomor'            => $Nomor_JV,
+                    'tanggal'        => $this->input->post('tgl_jurnal')[$i],
+                    'no_perkiraan'   => '2101-03-01',
+                    'keterangan'     => $this->input->post('keterangan')[$i],
+                    'no_reff'        => $this->input->post('reff')[$i],
+                    'debet'          => round($this->input->post('debet')[$i]),
+                    'kredit'         => round($this->input->post('kredit')[$i]),
+                    'id_supplier'     => $id_vendor,
+                    'nama_supplier'   => $nama_vendor,
+
+                );
+                $this->db->insert('tr_kartu_piutang', $datapiutang2);
+            }
         }
 
 
