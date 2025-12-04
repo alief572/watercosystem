@@ -2,6 +2,8 @@
 if (!defined('BASEPATH')) {
 	exit('No direct script access allowed');
 }
+// Require composer autoload
+require_once 'vendor/autoload.php';
 
 /*
  * @author Syamsudin
@@ -21,7 +23,7 @@ class Wt_penawaran extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
 			'Wt_penawaran/Wt_penawaran_model',
 			'Aktifitas/aktifitas_model',

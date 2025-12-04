@@ -1,6 +1,10 @@
 <?php
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+require_once 'vendor/autoload.php';
+
+
+use Spipu\Html2Pdf\Html2Pdf;
 /*
  * @Author Syamsudin
  * @Copyright (c) 2022, Syamsudin
@@ -275,7 +279,7 @@ class Wt_delivery_order_model extends BF_Model
     $this->db->join('ms_top d', 'd.id_top=a.top');
     $where = "a.approval_finance is null";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -340,7 +344,7 @@ class Wt_delivery_order_model extends BF_Model
     }
     $where2 = "a.status_planning ='1'";
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -823,7 +827,7 @@ class Wt_delivery_order_model extends BF_Model
     $length = $this->input->post('length');
     $search = $this->input->post('search');
 
-    $this->db->select('a.*, c.name_customer as name_customer,d.nama_top');
+    $this->db->select('a.*, a.nama_sales as nm_sales, c.name_customer as name_customer,d.nama_top');
     $this->db->from('tr_planning_delivery a');
     $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
     $this->db->join('ms_top d', 'd.id_top = a.top');
@@ -841,7 +845,7 @@ class Wt_delivery_order_model extends BF_Model
 
     $get_data = $this->db->get();
 
-    $this->db->select('a.*, c.name_customer as name_customer,d.nama_top');
+    $this->db->select('a.*, a.nama_sales as nm_sales, c.name_customer as name_customer,d.nama_top');
     $this->db->from('tr_planning_delivery a');
     $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
     $this->db->join('ms_top d', 'd.id_top = a.top');

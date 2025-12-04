@@ -42,7 +42,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 			</thead>
 
 			<tbody>
-				
+
 			</tbody>
 		</table>
 	</div>
@@ -205,8 +205,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 
 				}
 			},
-			columns: [
-				{
+			columns: [{
 					data: 'no'
 				},
 				{

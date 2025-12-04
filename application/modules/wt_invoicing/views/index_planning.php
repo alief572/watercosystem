@@ -97,7 +97,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 								<td style="padding-left:20px">
 									<?php if ($ENABLE_MANAGE && $record->status_invoice == '0') : ?>
 
-										<a class="btn btn-success btn-sm" href="<?= base_url('/wt_invoicing/createInvoice/' . $record->id_plan_tagih) ?>" title="Create Invoice" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-check">&nbsp;Create Invoice</i>
+										<a class="btn btn-success btn-sm" href="<?= base_url('/wt_invoicing/createInvoice/' . $record->id_plan_tagih) ?>" title="Create Invoice" data-no_inquiry=""><i class="fa fa-check">&nbsp;Create Invoice</i>
 										</a>
 									<?php endif; ?>
 

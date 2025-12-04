@@ -194,7 +194,7 @@ class Wt_invoicing_model extends BF_Model
     // $where2 = "a.status<>'7'";
     $this->db->where($where);
     // $this->db->where($where2);
-    // $this->db->order_by('a.no_penawaran', DESC);
+    // $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -210,7 +210,7 @@ class Wt_invoicing_model extends BF_Model
     // $where2 = "a.status<>'7'";
     // $this->db->where($where);
     // $this->db->where($where2);
-    $this->db->order_by('a.no_invoice', DESC);
+    $this->db->order_by('a.no_invoice', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -226,7 +226,7 @@ class Wt_invoicing_model extends BF_Model
     $this->db->where($where);
     $this->db->where($where2);
     $this->db->where('a.deleted_by', null);
-    $this->db->order_by('a.no_invoice', DESC);
+    $this->db->order_by('a.no_invoice', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -240,7 +240,7 @@ class Wt_invoicing_model extends BF_Model
     $where2 = "a.status_close ='1'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_invoice', DESC);
+    $this->db->order_by('a.no_invoice', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -264,7 +264,7 @@ class Wt_invoicing_model extends BF_Model
     $this->db->join('ms_top c', 'c.id_top=a.top');
     $where = "a.status_jurnal ='OPN'";
     $this->db->where($where);
-    $this->db->order_by('a.no_invoice', DESC);
+    $this->db->order_by('a.no_invoice', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -321,15 +321,15 @@ class Wt_invoicing_model extends BF_Model
 
       $option = '';
       if (has_permission($this->managePermission) && $item->no_proforma_invoice != '') {
-        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_invoicing/PrintProformaInvoice/' . $item->id_invoice) . '" target="_blank" title="Cetak Proforma Invoice" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_invoicing/PrintProformaInvoice/' . $item->id_invoice) . '" target="_blank" title="Cetak Proforma Invoice" data-no_inquiry=""><i class="fa fa-print"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->no_invoice == '') {
-        $option .= '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_invoicing/createDealInvoice/' . $item->id_invoice) . '" target="_blank" title="Create Invoice" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-plus"></i></a>';
+        $option .= '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_invoicing/createDealInvoice/' . $item->id_invoice) . '" target="_blank" title="Create Invoice" data-no_inquiry=""><i class="fa fa-plus"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->no_invoice != '') {
-        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_invoicing/print_invoice/' . $item->no_invoice) . '" target="_blank" title="Cetak Invoice" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_invoicing/print_invoice/' . $item->no_invoice) . '" target="_blank" title="Cetak Invoice" data-no_inquiry=""><i class="fa fa-print"></i></a>';
       }
 
       $noso =  $item->no_so;

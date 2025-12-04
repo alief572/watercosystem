@@ -3,6 +3,10 @@ if (!defined('BASEPATH')) {
 	exit('No direct script access allowed');
 }
 
+require_once 'vendor/autoload.php';
+
+
+use Spipu\Html2Pdf\Html2Pdf;
 /*
  * @author Syamsudin
  * @Copyright (c) 2022, Syamsudin
@@ -21,7 +25,9 @@ class Wt_delivery_order extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+
+
+		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
 			'Wt_penawaran/Wt_penawaran_model',
 			'Wt_delivery_order/Wt_delivery_order_model',
@@ -417,7 +423,7 @@ class Wt_delivery_order extends Admin_Controller
 
 	public function printSPK($id)
 	{
-		ob_clean();
+		// ob_clean();
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -437,8 +443,8 @@ class Wt_delivery_order extends Admin_Controller
 		$this->load->view('PrintSPKDelivery', $data);
 		$html = ob_get_contents();
 
-		require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
-		$html2pdf = new HTML2PDF('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
+		// require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
+		$html2pdf = new Html2Pdf('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->WriteHTML($html);
 		ob_end_clean();
@@ -879,7 +885,7 @@ class Wt_delivery_order extends Admin_Controller
 
 	public function printDO($id)
 	{
-		ob_clean();
+		// ob_clean();
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -903,7 +909,7 @@ class Wt_delivery_order extends Admin_Controller
 		$this->load->view('PrintDeliveryOrder', $data);
 		$html = ob_get_contents();
 
-		require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
+		// require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
 		$html2pdf = new HTML2PDF('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->WriteHTML($html);

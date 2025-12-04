@@ -2,12 +2,15 @@
 if (!defined('BASEPATH')) {
 	exit('No direct script access allowed');
 }
+require_once 'vendor/autoload.php';
 
+
+use Spipu\Html2Pdf\Html2Pdf;
 /*
  * @author Syamsudin
  * @Copyright (c) 2022, Syamsudin
  *
- * This is controller for Wt_penawaran
+ * This is controller for Wt_penawarans
  */
 
 class Wt_sales_order extends Admin_Controller
@@ -26,7 +29,8 @@ class Wt_sales_order extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+
+		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
 			'Wt_penawaran/Wt_penawaran_model',
 			'Wt_sales_order/Wt_sales_order_model',
@@ -446,13 +450,6 @@ class Wt_sales_order extends Admin_Controller
 					'nilai_diskon'		=> str_replace(',', '', $used[nilai_diskon]),
 					'costbook_so'	    => $costbook
 				);
-
-
-
-
-
-
-
 
 				$material = $used[no_surat];
 				$qtyso    = (int) $used[qty_so];
@@ -940,7 +937,7 @@ class Wt_sales_order extends Admin_Controller
 
 	public function PrintSO($id)
 	{
-		ob_clean();
+		// ob_clean();
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -950,13 +947,14 @@ class Wt_sales_order extends Admin_Controller
 		$this->load->view('PrintSO', $data);
 		$html = ob_get_contents();
 
-		require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
-		$html2pdf = new HTML2PDF('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
+		// require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
+		$html2pdf = new Html2Pdf('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->WriteHTML($html);
 		ob_end_clean();
 		$html2pdf->Output('Sales Order.pdf', 'I');
 	}
+
 
 	public function ajukanApprove($id)
 	{

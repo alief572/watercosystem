@@ -337,23 +337,23 @@ class Wt_penawaran_model extends BF_Model
       }
 
       if (has_permission($this->viewPermission) && $item->status != '4') {
-        $option .= ' <a class="btn btn-info btn-sm" href="' . base_url('/wt_penawaran/printpenawaran/' . $item->no_penawaran) . '" target="_blank" title="Print" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+        $option .= ' <a class="btn btn-info btn-sm" href="' . base_url('/wt_penawaran/printpenawaran/' . $item->no_penawaran) . '" target="_blank" title="Print" data-no_inquiry=""><i class="fa fa-print"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->status != '4' && $item->printed_by != null) {
-        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/statusterkirim/' . $item->no_penawaran) . '" title="Ubah Status" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-check"></i></a>';
+        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/statusterkirim/' . $item->no_penawaran) . '" title="Ubah Status" data-no_inquiry=""><i class="fa fa-check"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->status != '4') {
-        $option .= ' <a class="btn btn-warning btn-sm" href="' . base_url('/wt_penawaran/ajukanapprove/' . $item->no_penawaran) . '" title="Ajukan approval" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-mail-forward"></i></a>';
+        $option .= ' <a class="btn btn-warning btn-sm" href="' . base_url('/wt_penawaran/ajukanapprove/' . $item->no_penawaran) . '" title="Ajukan approval" data-no_inquiry=""><i class="fa fa-mail-forward"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->status == '4' && $item->printed_by != null) {
-        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_sales_order/createSO/' . $item->no_penawaran) . '" title="Create SO" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-plus">Create SO</i></a>';
+        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_sales_order/createSO/' . $item->no_penawaran) . '" title="Create SO" data-no_inquiry=""><i class="fa fa-plus">Create SO</i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->status == '4') {
-        $option .= ' <a class="btn btn-danger btn-sm" href="' . base_url('/wt_penawaran/statusloss/' . $item->no_penawaran) . '" title="Loss" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-check"></i>';
+        $option .= ' <a class="btn btn-danger btn-sm" href="' . base_url('/wt_penawaran/statusloss/' . $item->no_penawaran) . '" title="Loss" data-no_inquiry=""><i class="fa fa-check"></i>';
       }
 
       if ($item->status != '6' || $item->status != '7') {
@@ -452,7 +452,7 @@ class Wt_penawaran_model extends BF_Model
         $Status = "<span class='badge bg-red'>Loss</span>";
       }
 
-      $option = '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/lihatpenawaran/' . $item->no_penawaran) . '" title="View" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-search"></i></a>';
+      $option = '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/lihatpenawaran/' . $item->no_penawaran) . '" title="View" data-no_inquiry=""><i class="fa fa-search"></i></a>';
 
       $hasil[] = [
         'no' => $no,
@@ -600,7 +600,7 @@ class Wt_penawaran_model extends BF_Model
     $get_data_all = $this->db->query($query_all);
     $no = (0 + $start);
     foreach ($get_data->result() as $item) {
-      
+
       if ($item->status == 0) {
         $Status = "<span class='badge bg-grey'>Draft</span>";
       } elseif ($item->status == 1) {
@@ -622,11 +622,11 @@ class Wt_penawaran_model extends BF_Model
 
       $option = '';
       if (has_permission($this->viewPermission) && $item->status != '6') {
-        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/viewhistory/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-eye"></i></a>';
+        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/viewhistory/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry=""><i class="fa fa-eye"></i></a>';
       }
 
       if (has_permission($this->viewPermission)) {
-        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/viewhistoryso/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-eye"></i></a>';
+        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/viewhistoryso/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry=""><i class="fa fa-eye"></i></a>';
       }
 
       if ($item->status != '6' || $item->status != '7') {

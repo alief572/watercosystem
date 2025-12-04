@@ -23,7 +23,9 @@ class Adjustmentstock extends Admin_Controller
 	{
 		parent::__construct();
 
-		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+		require_once 'vendor/autoload.php';
+
+		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
 			'Adjustmentstock/Inventory_4_model',
 			'Aktifitas/aktifitas_model',
@@ -1460,7 +1462,8 @@ class Adjustmentstock extends Admin_Controller
 		$this->db->query("UPDATE stock_material SET qty=qty+$qtyso, qty_free=$free  WHERE id_category3='$material'");
 	}
 
-	public function get_data_adjustment_stock() {
+	public function get_data_adjustment_stock()
+	{
 		$this->Inventory_4_model->get_data_adjustment_stock();
 	}
 }

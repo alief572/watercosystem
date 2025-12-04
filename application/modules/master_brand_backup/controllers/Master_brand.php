@@ -23,10 +23,13 @@ class Master_brand extends Admin_Controller
     {
         parent::__construct();
 
-        $this->load->library(array('Mpdf', 'upload', 'Image_lib'));
-        $this->load->model(array('Master_brand/Brand_model',
-                                 'Aktifitas/aktifitas_model',
-                                ));
+        require_once 'vendor/autoload.php';
+
+        $this->load->library(array('upload', 'Image_lib'));
+        $this->load->model(array(
+            'Master_brand/Brand_model',
+            'Aktifitas/aktifitas_model',
+        ));
         $this->template->title('Manage Data Brand');
         $this->template->page_icon('fa fa-table');
 
@@ -40,215 +43,216 @@ class Master_brand extends Admin_Controller
         $this->template->render('index');
     }
 
-    public function getDataJSON(){
-    		$requestData	= $_REQUEST;
-    		$fetch			= $this->queryDataJSON(
-          $requestData['activation'],
-    			$requestData['search']['value'],
-    			$requestData['order'][0]['column'],
-    			$requestData['order'][0]['dir'],
-    			$requestData['start'],
-    			$requestData['length']
-    		);
-    		$totalData		= $fetch['totalData'];
-    		$totalFiltered	= $fetch['totalFiltered'];
-    		$query			= $fetch['query'];
+    public function getDataJSON()
+    {
+        $requestData    = $_REQUEST;
+        $fetch            = $this->queryDataJSON(
+            $requestData['activation'],
+            $requestData['search']['value'],
+            $requestData['order'][0]['column'],
+            $requestData['order'][0]['dir'],
+            $requestData['start'],
+            $requestData['length']
+        );
+        $totalData        = $fetch['totalData'];
+        $totalFiltered    = $fetch['totalFiltered'];
+        $query            = $fetch['query'];
 
-    		$data	= array();
-    		$urut1  = 1;
-            $urut2  = 0;
-    		foreach($query->result_array() as $row)
-    		{
-    			$total_data     = $totalData;
-                $start_dari     = $requestData['start'];
-                $asc_desc       = $requestData['order'][0]['dir'];
-                if($asc_desc == 'asc')
-                {
-                    $nomor = $urut1 + $start_dari;
-                }
-                if($asc_desc == 'desc')
-                {
-                    $nomor = ($total_data - $start_dari) - $urut2;
-                }
+        $data    = array();
+        $urut1  = 1;
+        $urut2  = 0;
+        foreach ($query->result_array() as $row) {
+            $total_data     = $totalData;
+            $start_dari     = $requestData['start'];
+            $asc_desc       = $requestData['order'][0]['dir'];
+            if ($asc_desc == 'asc') {
+                $nomor = $urut1 + $start_dari;
+            }
+            if ($asc_desc == 'desc') {
+                $nomor = ($total_data - $start_dari) - $urut2;
+            }
 
-    			$nestedData 	= array();
-    				$detail = "";
-    			$nestedData[]	= "<div align='center'>".$nomor."</div>";
-    			$nestedData[]	= "<div align='left'>".strtoupper($row['id_brand'])."</div>";
-    			$nestedData[]	= "<div align='left'>".strtoupper($row['name_brand'])."</div>";
-    			if($this->auth->restrict($this->viewPermission) ) :
-            $nestedData[]	= "<div style='text-align:center'>
+            $nestedData     = array();
+            $detail = "";
+            $nestedData[]    = "<div align='center'>" . $nomor . "</div>";
+            $nestedData[]    = "<div align='left'>" . strtoupper($row['id_brand']) . "</div>";
+            $nestedData[]    = "<div align='left'>" . strtoupper($row['name_brand']) . "</div>";
+            if ($this->auth->restrict($this->viewPermission)) :
+                $nestedData[]    = "<div style='text-align:center'>
 
-              <a class='btn btn-sm btn-success edit' href='javascript:void(0)' title='Edit' data-id_brand='".$row['id_brand']."' style='width:30px; display:inline-block'>
+              <a class='btn btn-sm btn-success edit' href='javascript:void(0)' title='Edit' data-id_brand='" . $row['id_brand'] . "' style='width:30px; display:inline-block'>
                 <span class='glyphicon glyphicon-edit'></span>
               </a>
-              <a class='detail btn btn-sm btn-danger delete' href='javascript:void(0)' title='Delete' data-id_brand = '".$row['id_brand']."'  style='width:30px; display:inline-block'>
+              <a class='detail btn btn-sm btn-danger delete' href='javascript:void(0)' title='Delete' data-id_brand = '" . $row['id_brand'] . "'  style='width:30px; display:inline-block'>
                 <i class='fa fa-trash'></i>
               </a>
               </div>
       		      ";
             endif;
-    			$data[] = $nestedData;
-                $urut1++;
-                $urut2++;
-    		}
+            $data[] = $nestedData;
+            $urut1++;
+            $urut2++;
+        }
 
-    		$json_data = array(
-    			"draw"            	=> intval( $requestData['draw'] ),
-    			"recordsTotal"    	=> intval( $totalData ),
-    			"recordsFiltered" 	=> intval( $totalFiltered ),
-    			"data"            	=> $data
-    		);
+        $json_data = array(
+            "draw"                => intval($requestData['draw']),
+            "recordsTotal"        => intval($totalData),
+            "recordsFiltered"     => intval($totalFiltered),
+            "data"                => $data
+        );
 
-    		echo json_encode($json_data);
-  	}
+        echo json_encode($json_data);
+    }
 
-  	public function queryDataJSON($activation, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL){
-  		// echo $series."<br>";
-  		// echo $group."<br>";
-  		// echo $komponen."<br>";
+    public function queryDataJSON($activation, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+    {
+        // echo $series."<br>";
+        // echo $group."<br>";
+        // echo $komponen."<br>";
 
-      $where_activation = "";
-  		if(!empty($activation)){
-  			$where_activation = " AND activation = '".$activation."' ";
-  		}
+        $where_activation = "";
+        if (!empty($activation)) {
+            $where_activation = " AND activation = '" . $activation . "' ";
+        }
 
-  		$sql = "
+        $sql = "
   			SELECT
   				*
   			FROM
   				master_product_brand
   			WHERE 1=1
-          ".$where_activation."
+          " . $where_activation . "
   				AND deleted ='N' AND (
-  				id_brand LIKE '%".$this->db->escape_like_str($like_value)."%'
-  				OR name_brand LIKE '%".$this->db->escape_like_str($like_value)."%'
+  				id_brand LIKE '%" . $this->db->escape_like_str($like_value) . "%'
+  				OR name_brand LIKE '%" . $this->db->escape_like_str($like_value) . "%'
   	        )
   		";
 
-  		// echo $sql;
+        // echo $sql;
 
-  		$data['totalData'] = $this->db->query($sql)->num_rows();
-  		$data['totalFiltered'] = $this->db->query($sql)->num_rows();
-  		$columns_order_by = array(
-  			0 => 'nomor',
-  			1 => 'id_brand',
-  			2 => 'name_brand'
-  		);
-
-  		$sql .= " ORDER BY id_brand ASC, ".$columns_order_by[$column_order]." ".$column_dir." ";
-  		$sql .= " LIMIT ".$limit_start." ,".$limit_length." ";
-
-  		$data['query'] = $this->db->query($sql);
-  		return $data;
-  	}
-
-    public function modal_Process($action="",$id=""){
-      $this->template->set('action', $action);
-      $this->template->set('id', $id);
-  		$this->template->render('modal_Process');
-  	}
-
-    public function modal_Helper($action="",$id_sup=""){
-      $this->template->set('action', $action);
-      $this->template->set('id', $id_sup);
-  		$this->template->render('modal_Helper');
-  	}
-
-    public function saveBrand(){
-  		$data				= $this->input->post();
-      $counter = ($this->db->get('master_product_brand')->num_rows())+1;
-
-      $this->db->trans_begin();
-      if ($data['type'] == 'edit') {
-        $id_brand = $data['id_brand'];
-        $insertData	= array(
-          'name_brand'	=> strtoupper($data['name_brand']),
-          'modified_on'	=> date('Y-m-d H:i:s'),
-          'modified_by'	=> $this->auth->user_id()
-        );
-        $this->db->where('id_brand',$data['id_brand'])->update('master_product_brand',$insertData);
-      }else {
-        $id_brand = "MPB".str_pad($counter, 3, "0", STR_PAD_LEFT);
-        $insertData	= array(
-          'id_brand'    => $id_brand,
-          'name_brand'	=> strtoupper($data['name_brand']),
-          'activation'  => "active",
-          'created_on'	=> date('Y-m-d H:i:s'),
-          'created_by'	=> $this->auth->user_id()
-        );
-        $this->db->insert('master_product_brand',$insertData);
-      }
-      $this->db->trans_complete();
-
-      if($this->db->trans_status() === FALSE){
-        $this->db->trans_rollback();
-        $Arr_Kembali	= array(
-          'pesan'		=>'Failed Add Changes. Please try again later ...',
-          'status'	=> 0
-        );
-        $keterangan = 'FAILED, '.$data['type'].' Brand Data '.$id_brand;
-        $status = 0;
-        $nm_hak_akses = $this->addPermission;
-        $kode_universal = $this->auth->user_id();
-        $jumlah = 1;
-        $sql = $this->db->last_query();
-      }
-      else{
-        $this->db->trans_commit();
-        $Arr_Kembali	= array(
-          'pesan'		=>'Success Save Item. Thanks ...',
-          'status'	=> 1
+        $data['totalData'] = $this->db->query($sql)->num_rows();
+        $data['totalFiltered'] = $this->db->query($sql)->num_rows();
+        $columns_order_by = array(
+            0 => 'nomor',
+            1 => 'id_brand',
+            2 => 'name_brand'
         );
 
-        $keterangan = 'SUCCESS, '.$data['type'].' Brand Data '.$id_brand;
-        $status = 1;
-        $nm_hak_akses = $this->addPermission;
-        $kode_universal = $this->auth->user_id();
-        $jumlah = 1;
-        $sql = $this->db->last_query();
-      }
-      simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+        $sql .= " ORDER BY id_brand ASC, " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+        $sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
 
-  		echo json_encode($Arr_Kembali);
+        $data['query'] = $this->db->query($sql);
+        return $data;
     }
 
-    public function deleteBrand($id){
-  		$this->db->trans_begin();
-      $this->db->where('id_brand',$id)->delete('master_product_brand');
-      $this->db->trans_complete();
+    public function modal_Process($action = "", $id = "")
+    {
+        $this->template->set('action', $action);
+        $this->template->set('id', $id);
+        $this->template->render('modal_Process');
+    }
 
-      if($this->db->trans_status() === FALSE){
-        $this->db->trans_rollback();
-        $Arr_Kembali	= array(
-          'pesan'		=>'Delete fail. Please try again later.',
-          'status'	=> 0
-        );
-        $keterangan = 'Delete fail for Brand Data '.$id;
-        $status = 0;
-        $nm_hak_akses = $this->addPermission;
-        $kode_universal = $this->auth->user_id();
-        $jumlah = 1;
-        $sql = $this->db->last_query();
-      }
-      else{
-        $this->db->trans_commit();
-        $Arr_Kembali	= array(
-          'pesan'		=>'Success delete brand item. Thanks.',
-          'status'	=> 1
-        );
+    public function modal_Helper($action = "", $id_sup = "")
+    {
+        $this->template->set('action', $action);
+        $this->template->set('id', $id_sup);
+        $this->template->render('modal_Helper');
+    }
 
-        $keterangan = 'SUCCESS, delete Brand Data '.$id;
-        $status = 1;
-        $nm_hak_akses = $this->addPermission;
-        $kode_universal = $this->auth->user_id();
-        $jumlah = 1;
-        $sql = $this->db->last_query();
-      }
-      simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+    public function saveBrand()
+    {
+        $data                = $this->input->post();
+        $counter = ($this->db->get('master_product_brand')->num_rows()) + 1;
 
-  		echo json_encode($Arr_Kembali);
-	  }
+        $this->db->trans_begin();
+        if ($data['type'] == 'edit') {
+            $id_brand = $data['id_brand'];
+            $insertData    = array(
+                'name_brand'    => strtoupper($data['name_brand']),
+                'modified_on'    => date('Y-m-d H:i:s'),
+                'modified_by'    => $this->auth->user_id()
+            );
+            $this->db->where('id_brand', $data['id_brand'])->update('master_product_brand', $insertData);
+        } else {
+            $id_brand = "MPB" . str_pad($counter, 3, "0", STR_PAD_LEFT);
+            $insertData    = array(
+                'id_brand'    => $id_brand,
+                'name_brand'    => strtoupper($data['name_brand']),
+                'activation'  => "active",
+                'created_on'    => date('Y-m-d H:i:s'),
+                'created_by'    => $this->auth->user_id()
+            );
+            $this->db->insert('master_product_brand', $insertData);
+        }
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $Arr_Kembali    = array(
+                'pesan'        => 'Failed Add Changes. Please try again later ...',
+                'status'    => 0
+            );
+            $keterangan = 'FAILED, ' . $data['type'] . ' Brand Data ' . $id_brand;
+            $status = 0;
+            $nm_hak_akses = $this->addPermission;
+            $kode_universal = $this->auth->user_id();
+            $jumlah = 1;
+            $sql = $this->db->last_query();
+        } else {
+            $this->db->trans_commit();
+            $Arr_Kembali    = array(
+                'pesan'        => 'Success Save Item. Thanks ...',
+                'status'    => 1
+            );
+
+            $keterangan = 'SUCCESS, ' . $data['type'] . ' Brand Data ' . $id_brand;
+            $status = 1;
+            $nm_hak_akses = $this->addPermission;
+            $kode_universal = $this->auth->user_id();
+            $jumlah = 1;
+            $sql = $this->db->last_query();
+        }
+        simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+
+        echo json_encode($Arr_Kembali);
+    }
+
+    public function deleteBrand($id)
+    {
+        $this->db->trans_begin();
+        $this->db->where('id_brand', $id)->delete('master_product_brand');
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $Arr_Kembali    = array(
+                'pesan'        => 'Delete fail. Please try again later.',
+                'status'    => 0
+            );
+            $keterangan = 'Delete fail for Brand Data ' . $id;
+            $status = 0;
+            $nm_hak_akses = $this->addPermission;
+            $kode_universal = $this->auth->user_id();
+            $jumlah = 1;
+            $sql = $this->db->last_query();
+        } else {
+            $this->db->trans_commit();
+            $Arr_Kembali    = array(
+                'pesan'        => 'Success delete brand item. Thanks.',
+                'status'    => 1
+            );
+
+            $keterangan = 'SUCCESS, delete Brand Data ' . $id;
+            $status = 1;
+            $nm_hak_akses = $this->addPermission;
+            $kode_universal = $this->auth->user_id();
+            $jumlah = 1;
+            $sql = $this->db->last_query();
+        }
+        simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+
+        echo json_encode($Arr_Kembali);
+    }
 
     public function produk()
     {
@@ -269,9 +273,9 @@ class Master_brand extends Admin_Controller
 
         $data_barang = $this->Barang_model->select('barang_master.id_barang,
                                             barang_master.nm_barang')
-                                            ->where('barang_master.deleted', 0)
-                                            ->where("`id_barang` NOT IN (SELECT `id_barang` FROM `supplier_barang` where id_supplier='$id')", null, false)
-                                            ->order_by('barang_master.nm_barang', 'ASC')->find_all();
+            ->where('barang_master.deleted', 0)
+            ->where("`id_barang` NOT IN (SELECT `id_barang` FROM `supplier_barang` where id_supplier='$id')", null, false)
+            ->order_by('barang_master.nm_barang', 'ASC')->find_all();
 
         $this->template->set('data', $data_barang);
         $this->template->set('results', $data);
@@ -286,9 +290,9 @@ class Master_brand extends Admin_Controller
         for ($i = 0; $i < $jumlah; ++$i) {
             $id_barang = $_POST['id_barang'][$i];
             $datasm = array(
-                            'id_supplier' => $id,
-                            'id_barang' => $id_barang,
-                        );
+                'id_supplier' => $id,
+                'id_barang' => $id_barang,
+            );
             $insert = $this->Supplier_model->insert_supplier_barang($datasm);
         }
 
@@ -305,7 +309,7 @@ class Master_brand extends Admin_Controller
     {
         $delete = $this->Supplier_model->delete_supplier_barang($id);
         if ($delete !== true) {
-            $this->session->set_flashdata('error', 'Gagal Menghapus Data. '.$delete);
+            $this->session->set_flashdata('error', 'Gagal Menghapus Data. ' . $delete);
         } else {
             $this->session->set_flashdata('success', 'Data Berhasil Dihapus');
         }
@@ -336,16 +340,16 @@ class Master_brand extends Admin_Controller
         $this->auth->restrict($this->addPermission);
 
         $data = array(
-                        'kode' => $kode,
-                        'mata_uang' => $mata_uang,
-                        'negara' => $negara,
-                        );
+            'kode' => $kode,
+            'mata_uang' => $mata_uang,
+            'negara' => $negara,
+        );
 
         //Add Data
         $id = $this->Matuang_model->insert($data);
 
         if (is_numeric($id)) {
-            $keterangan = 'SUKSES, tambah data mata_uang atas Nama : '.$kode;
+            $keterangan = 'SUKSES, tambah data mata_uang atas Nama : ' . $kode;
             $status = 1;
             $nm_hak_akses = $this->addPermission;
             $kode_universal = 'NewData';
@@ -354,7 +358,7 @@ class Master_brand extends Admin_Controller
 
             $result = true;
         } else {
-            $keterangan = 'GAGAL, tambah data mata_uang atas Nama : '.$kode;
+            $keterangan = 'GAGAL, tambah data mata_uang atas Nama : ' . $kode;
             $status = 0;
             $nm_hak_akses = $this->addPermission;
             $kode_universal = 'NewData';
@@ -380,7 +384,7 @@ class Master_brand extends Admin_Controller
         echo "<select id='mata_uang' name='mata_uang' class='form-control pil_matu select2-hidden-accessible'>";
         echo "<option value=''></option>";
         foreach ($rmatu as $key => $st) :
-                    echo "<option value='$st->id' set_select('mata_uang', $st->id, isset($data->mata_uang) && $data->mata_uang == $st->id)>$st->kode - $st->mata_uang - $st->negara
+            echo "<option value='$st->id' set_select('mata_uang', $st->id, isset($data->mata_uang) && $data->mata_uang == $st->id)>$st->kode - $st->mata_uang - $st->negara
                     </option>";
         endforeach;
         echo '</select>';
@@ -465,35 +469,35 @@ class Master_brand extends Admin_Controller
 
             if ($id_supplier != '') {
                 $data = array(
-                            array(
-                                'id_supplier' => $id_supplier,
-                                'nm_supplier' => $nm_supplier,
-                                'group_produk' => $group_produk,
-                                'alamat' => $alamat,
-                                'telpon' => $telpon,
-                                'fax' => $fax,
-                                'email' => $email,
-                                'cp' => $cp,
-                                'hp_cp' => $hp_cp,
-                                'npwp' => $npwp,
-                                'alamat_npwp' => $alamat_npwp,
-                                'mata_uang' => $mat_uang,
-                                'sts_aktif' => $sts_aktif,
-                                'id_negara' => $id_negara,
-                                'id_prov' => $id_prov,
-                                'id_kab' => $id_kab,
-                                'id_webchat' => $id_webchat,
-                                'keterangan' => $keterangan_sup,
-                                'produksi_awal' => $produksi_awal,
-                                'produksi_akhir' => $produksi_akhir,
-                                'pengapalan_awal' => $pengapalan_awal,
-                                'pengapalan_akhir' => $pengapalan_akhir,
-                                'pengiriman_awal' => $pengiriman_awal,
-                                'pengiriman_akhir' => $pengiriman_akhir,
-                                'cukai_awal' => $cukai_awal,
-                                'cukai_akhir' => $cukai_akhir,
-                            ),
-                        );
+                    array(
+                        'id_supplier' => $id_supplier,
+                        'nm_supplier' => $nm_supplier,
+                        'group_produk' => $group_produk,
+                        'alamat' => $alamat,
+                        'telpon' => $telpon,
+                        'fax' => $fax,
+                        'email' => $email,
+                        'cp' => $cp,
+                        'hp_cp' => $hp_cp,
+                        'npwp' => $npwp,
+                        'alamat_npwp' => $alamat_npwp,
+                        'mata_uang' => $mat_uang,
+                        'sts_aktif' => $sts_aktif,
+                        'id_negara' => $id_negara,
+                        'id_prov' => $id_prov,
+                        'id_kab' => $id_kab,
+                        'id_webchat' => $id_webchat,
+                        'keterangan' => $keterangan_sup,
+                        'produksi_awal' => $produksi_awal,
+                        'produksi_akhir' => $produksi_akhir,
+                        'pengapalan_awal' => $pengapalan_awal,
+                        'pengapalan_akhir' => $pengapalan_akhir,
+                        'pengiriman_awal' => $pengiriman_awal,
+                        'pengiriman_akhir' => $pengiriman_akhir,
+                        'cukai_awal' => $cukai_awal,
+                        'cukai_akhir' => $cukai_akhir,
+                    ),
+                );
 
                 //Update data
                 $result = $this->Supplier_model->update_batch($data, 'id_supplier');
@@ -529,7 +533,7 @@ class Master_brand extends Admin_Controller
                     }
                 }
 
-                $keterangan = 'SUKSES, Edit data Supplier '.$id_supplier.', atas Nama : '.$nm_supplier;
+                $keterangan = 'SUKSES, Edit data Supplier ' . $id_supplier . ', atas Nama : ' . $nm_supplier;
                 $status = 1;
                 $nm_hak_akses = $this->addPermission;
                 $kode_universal = $id_supplier;
@@ -540,7 +544,7 @@ class Master_brand extends Admin_Controller
             } else {
                 $result = false;
 
-                $keterangan = 'GAGAL, Edit data Supplier '.$id_supplier.', atas Nama : '.$nm_supplier;
+                $keterangan = 'GAGAL, Edit data Supplier ' . $id_supplier . ', atas Nama : ' . $nm_supplier;
                 $status = 1;
                 $nm_hak_akses = $this->addPermission;
                 $kode_universal = $id_customer;
@@ -553,33 +557,33 @@ class Master_brand extends Admin_Controller
             $this->auth->restrict($this->addPermission);
 
             $data = array(
-                        'id_supplier' => $id_supplier,
-                        'nm_supplier' => $nm_supplier,
-                        'group_produk' => $group_produk,
-                        'alamat' => $alamat,
-                        'telpon' => $telpon,
-                        'fax' => $fax,
-                        'email' => $email,
-                        'cp' => $cp,
-                        'hp_cp' => $hp_cp,
-                        'npwp' => $npwp,
-                        'alamat_npwp' => $alamat_npwp,
-                        'mata_uang' => $mat_uang,
-                        'sts_aktif' => $sts_aktif,
-                        'id_negara' => $id_negara,
-                        'id_prov' => $id_prov,
-                        'id_kab' => $id_kab,
-                        'id_webchat' => $id_webchat,
-                        'keterangan' => $keterangan_sup,
-                        'produksi_awal' => $produksi_awal,
-                        'produksi_akhir' => $produksi_akhir,
-                        'pengapalan_awal' => $pengapalan_awal,
-                        'pengapalan_akhir' => $pengapalan_akhir,
-                        'pengiriman_awal' => $pengiriman_awal,
-                        'pengiriman_akhir' => $pengiriman_akhir,
-                        'cukai_awal' => $cukai_awal,
-                        'cukai_akhir' => $cukai_akhir,
-                        );
+                'id_supplier' => $id_supplier,
+                'nm_supplier' => $nm_supplier,
+                'group_produk' => $group_produk,
+                'alamat' => $alamat,
+                'telpon' => $telpon,
+                'fax' => $fax,
+                'email' => $email,
+                'cp' => $cp,
+                'hp_cp' => $hp_cp,
+                'npwp' => $npwp,
+                'alamat_npwp' => $alamat_npwp,
+                'mata_uang' => $mat_uang,
+                'sts_aktif' => $sts_aktif,
+                'id_negara' => $id_negara,
+                'id_prov' => $id_prov,
+                'id_kab' => $id_kab,
+                'id_webchat' => $id_webchat,
+                'keterangan' => $keterangan_sup,
+                'produksi_awal' => $produksi_awal,
+                'produksi_akhir' => $produksi_akhir,
+                'pengapalan_awal' => $pengapalan_awal,
+                'pengapalan_akhir' => $pengapalan_akhir,
+                'pengiriman_awal' => $pengiriman_awal,
+                'pengiriman_akhir' => $pengiriman_akhir,
+                'cukai_awal' => $cukai_awal,
+                'cukai_akhir' => $cukai_akhir,
+            );
 
             //Add Data
             $id = $this->Supplier_model->insert($data);
@@ -589,17 +593,17 @@ class Master_brand extends Admin_Controller
                 $id_cbm = $_POST['id_cbm'][$i];
                 if (!empty($cbm)) {
                     $datasm = array(
-                            'id_supplier' => $id_supplier,
-                            'id_cbm' => $id_cbm,
-                            'cbm' => $cbm,
-                            'kgs' => $_POST['cbm_kgs'][$i],
-                        );
+                        'id_supplier' => $id_supplier,
+                        'id_cbm' => $id_cbm,
+                        'cbm' => $cbm,
+                        'kgs' => $_POST['cbm_kgs'][$i],
+                    );
                     $this->Supplier_model->insert_supplier_cbm($datasm);
                 }
             }
 
             if (is_numeric($id)) {
-                $keterangan = 'SUKSES, tambah data Supplier '.$id_supplier.', atas Nama : '.$nm_supplier;
+                $keterangan = 'SUKSES, tambah data Supplier ' . $id_supplier . ', atas Nama : ' . $nm_supplier;
                 $status = 1;
                 $nm_hak_akses = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -609,7 +613,7 @@ class Master_brand extends Admin_Controller
                 $result = true;
                 $customer = $id_customer;
             } else {
-                $keterangan = 'GAGAL, tambah data Supplier '.$id_supplier.', atas Nama : '.$nm_supplier;
+                $keterangan = 'GAGAL, tambah data Supplier ' . $id_supplier . ', atas Nama : ' . $nm_supplier;
                 $status = 0;
                 $nm_hak_akses = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -622,9 +626,9 @@ class Master_brand extends Admin_Controller
         }
 
         $param = array(
-                'supplier' => $supplier,
-                'save' => $result,
-                );
+            'supplier' => $supplier,
+            'save' => $result,
+        );
 
         echo json_encode($param);
     }
@@ -637,7 +641,7 @@ class Master_brand extends Admin_Controller
         if ($id != '') {
             $result = $this->Supplier_model->delete($id);
 
-            $keterangan = 'SUKSES, Delete data Supplier '.$id;
+            $keterangan = 'SUKSES, Delete data Supplier ' . $id;
             $status = 1;
             $nm_hak_akses = $this->addPermission;
             $kode_universal = $id;
@@ -645,7 +649,7 @@ class Master_brand extends Admin_Controller
             $sql = $this->db->last_query();
         } else {
             $result = 0;
-            $keterangan = 'GAGAL, Delete data Supplier '.$id;
+            $keterangan = 'GAGAL, Delete data Supplier ' . $id;
             $status = 0;
             $nm_hak_akses = $this->addPermission;
             $kode_universal = $id;
@@ -657,9 +661,9 @@ class Master_brand extends Admin_Controller
         simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
 
         $param = array(
-                'delete' => $result,
-                'idx' => $id,
-                );
+            'delete' => $result,
+            'idx' => $id,
+        );
 
         echo json_encode($param);
     }
@@ -730,8 +734,8 @@ class Master_brand extends Admin_Controller
             ),
         );
         $objPHPExcel->getActiveSheet()->getStyle('A1:J2')
-                ->applyFromArray($header)
-                ->getFont()->setSize(14);
+            ->applyFromArray($header)
+            ->getFont()->setSize(14);
         $objPHPExcel->getActiveSheet()->mergeCells('A1:J2');
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('A1', 'Rekap Data Supplier')
@@ -750,18 +754,18 @@ class Master_brand extends Admin_Controller
         $no = 1;
         $counter = 4;
         foreach ($rekap as $row):
-            $ex->setCellValue('A'.$counter, $no++);
-        $ex->setCellValue('B'.$counter, strtoupper($row['id_supplier']));
-        $ex->setCellValue('C'.$counter, $row['nm_supplier']);
-        $ex->setCellValue('D'.$counter, strtoupper($row['nm_negara']));
-        $ex->setCellValue('E'.$counter, $row['alamat']);
-        $ex->setCellValue('F'.$counter, $row['telpon'].' / '.$row['fax']);
-        $ex->setCellValue('G'.$counter, $row['cp']);
-        $ex->setCellValue('H'.$counter, $row['hp_cp'].' / '.$row['id_webchat']);
-        $ex->setCellValue('I'.$counter, $row['email']);
-        $ex->setCellValue('J'.$counter, $row['sts_aktif']);
+            $ex->setCellValue('A' . $counter, $no++);
+            $ex->setCellValue('B' . $counter, strtoupper($row['id_supplier']));
+            $ex->setCellValue('C' . $counter, $row['nm_supplier']);
+            $ex->setCellValue('D' . $counter, strtoupper($row['nm_negara']));
+            $ex->setCellValue('E' . $counter, $row['alamat']);
+            $ex->setCellValue('F' . $counter, $row['telpon'] . ' / ' . $row['fax']);
+            $ex->setCellValue('G' . $counter, $row['cp']);
+            $ex->setCellValue('H' . $counter, $row['hp_cp'] . ' / ' . $row['id_webchat']);
+            $ex->setCellValue('I' . $counter, $row['email']);
+            $ex->setCellValue('J' . $counter, $row['sts_aktif']);
 
-        $counter = $counter + 1;
+            $counter = $counter + 1;
         endforeach;
 
         $objPHPExcel->getProperties()->setCreator('Yunaz Fandy')
@@ -774,12 +778,12 @@ class Master_brand extends Admin_Controller
         $objPHPExcel->getActiveSheet()->setTitle('Rekap Data Supplier');
         ob_end_clean();
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-        header('Last-Modified:'.gmdate('D, d M Y H:i:s').'GMT');
+        header('Last-Modified:' . gmdate('D, d M Y H:i:s') . 'GMT');
         header('Chace-Control: no-store, no-cache, must-revalation');
         header('Chace-Control: post-check=0, pre-check=0', false);
         header('Pragma: no-cache');
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="ExportRekapSupplier'.date('Ymd').'.xls"');
+        header('Content-Disposition: attachment;filename="ExportRekapSupplier' . date('Ymd') . '.xls"');
 
         $objWriter->save('php://output');
     }

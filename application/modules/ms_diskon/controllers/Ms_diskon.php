@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
+	exit('No direct script access allowed');
 }
 
 /*
@@ -13,77 +13,80 @@ if (!defined('BASEPATH')) {
 
 class Ms_diskon extends Admin_Controller
 {
-    //Permission
-    protected $viewPermission 	= 'Diskon.View';
-    protected $addPermission  	= 'Diskon.Add';
-    protected $managePermission = 'Diskon.Manage';
-    protected $deletePermission = 'Diskon.Delete';
+	//Permission
+	protected $viewPermission 	= 'Diskon.View';
+	protected $addPermission  	= 'Diskon.Add';
+	protected $managePermission = 'Diskon.Manage';
+	protected $deletePermission = 'Diskon.Delete';
 
-    public function __construct()
-    {
-        parent::__construct();
+	public function __construct()
+	{
+		parent::__construct();
 
-        $this->load->library(array('Mpdf', 'upload', 'Image_lib'));
-        $this->load->model(array('ms_diskon/Ms_diskon_model',
-                                 'Aktifitas/aktifitas_model',
-                                ));
-        $this->template->title('Manage Data Supplier');
-        $this->template->page_icon('fa fa-building-o');
+		require_once 'vendor/autoload.php';
 
-        date_default_timezone_set('Asia/Bangkok');
-    }
+		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->model(array(
+			'ms_diskon/Ms_diskon_model',
+			'Aktifitas/aktifitas_model',
+		));
+		$this->template->title('Manage Data Supplier');
+		$this->template->page_icon('fa fa-building-o');
 
-    public function index()
-    {
-       $this->auth->restrict($this->viewPermission);
-        $session = $this->session->userdata('app_session');
+		date_default_timezone_set('Asia/Bangkok');
+	}
+
+	public function index()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
 		$deleted = '0';
-        $data = $this->Ms_diskon_model->get_data_diskon();
-        $this->template->set('results', $data);
-        $this->template->title('Diskon');
-        $this->template->render('index');
-    }
+		$data = $this->Ms_diskon_model->get_data_diskon();
+		$this->template->set('results', $data);
+		$this->template->title('Diskon');
+		$this->template->render('index');
+	}
 
 
-    public function AddDiskon()
-    {
-        $this->auth->restrict($this->viewPermission);
-        $session = $this->session->userdata('app_session');
+	public function AddDiskon()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-plus');
 		$this->template->title('Add Diskon');
-        $this->template->render('adddiskon');
-    }
-    
-    function GetProduk()
-    {
-		$loop=$_GET['jumlah']+1;
-		
-		$customers = $this->Ms_diskon_model->get_data('master_customers','deleted',$deleted);
-		
-		
+		$this->template->render('adddiskon');
+	}
+
+	function GetProduk()
+	{
+		$loop = $_GET['jumlah'] + 1;
+
+		$customers = $this->Ms_diskon_model->get_data('master_customers', 'deleted', $deleted);
+
+
 		$material = $this->db->query("SELECT a.* FROM ms_inventory_type as a ")->result();
-        $top      = $this->db->query("SELECT a.* FROM ms_top as a ")->result();
-		
-		
-		
+		$top      = $this->db->query("SELECT a.* FROM ms_top as a ")->result();
+
+
+
 		echo "
 		<tr id='tr_$loop'>
 			<td>$loop</td>
 			<td>
 				<select id='used_level1_$loop' name='dt[$loop][level1]' data-no='$loop' class='form-control select' required>
-					<option value=''>-Pilih-</option>";					
-					foreach($material as $produk){
-					echo"<option value='$produk->id_type'>$produk->nama</option>";
-					}
+					<option value=''>-Pilih-</option>";
+		foreach ($material as $produk) {
+			echo "<option value='$produk->id_type'>$produk->nama</option>";
+		}
 		echo	"</select>
 			</td>
             <td>
 				<select id='used_top_$loop' name='dt[$loop][top]' data-no='$loop' class='form-control select' required>
-					<option value=''>-Pilih-</option>";					
-					foreach($top as $top){
-					echo"<option value='$top->id_top'>$top->nama_top</option>";
-					}
+					<option value=''>-Pilih-</option>";
+		foreach ($top as $top) {
+			echo "<option value='$top->id_top'>$top->nama_top</option>";
+		}
 		echo	"</select>
 			</td>";
 
@@ -97,55 +100,55 @@ class Ms_diskon extends Admin_Controller
 	}
 
 
-    public function SaveNewDiskon()
-    {
-        $this->auth->restrict($this->addPermission);
+	public function SaveNewDiskon()
+	{
+		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
-       	$this->db->trans_begin();
+		$this->db->trans_begin();
 
-	           $numb1 =0;
-               foreach($_POST['dt'] as $used){
-                   if(!empty($used[level1])){
-                       $numb1++;   
-                       $dt[] =  array(
-                               'id_type'		    => $used[level1],
-                               'id_top'		        => $used[top],
-                               'nilai_diskon'	    => $used[nilai],
-                               'created_on'			=> date('Y-m-d H:i:s'),
-                               'created_by'			=> $this->auth->user_id()                       
-                               );
-                   }
-               }
-            //    print_r($dt);
-            //    exit();
-            $this->db->insert_batch('ms_diskon',$dt);
+		$numb1 = 0;
+		foreach ($_POST['dt'] as $used) {
+			if (!empty($used[level1])) {
+				$numb1++;
+				$dt[] =  array(
+					'id_type'		    => $used[level1],
+					'id_top'		        => $used[top],
+					'nilai_diskon'	    => $used[nilai],
+					'created_on'			=> date('Y-m-d H:i:s'),
+					'created_by'			=> $this->auth->user_id()
+				);
+			}
+		}
+		//    print_r($dt);
+		//    exit();
+		$this->db->insert_batch('ms_diskon', $dt);
 
-		if($this->db->trans_status() === FALSE){
+		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
 			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'code' => $code,
-			  'status'	=> 0
+				'pesan'		=> 'Gagal Save Item. Thanks ...',
+				'code' => $code,
+				'status'	=> 0
 			);
 		} else {
 			$this->db->trans_commit();
 			$status	= array(
-			  'pesan'		=>'Success Save Item. invenThanks ...',
-			  'code' => $code,
-			  'status'	=> 1
+				'pesan'		=> 'Success Save Item. invenThanks ...',
+				'code' => $code,
+				'status'	=> 1
 			);
 		}
 
-  		echo json_encode($status);
+		echo json_encode($status);
+	}
 
-    }
 
-
-    public function editDiskon($id){
+	public function editDiskon($id)
+	{
 		$this->auth->restrict($this->viewPermission);
-        $session = $this->session->userdata('app_session');
+		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-edit');
-		$diskon = $this->db->get_where('ms_diskon',array('id' => $id))->result();
+		$diskon = $this->db->get_where('ms_diskon', array('id' => $id))->result();
 		$lvl1 = $this->Ms_diskon_model->get_data('ms_inventory_type');
 		$lvl2 = $this->Ms_diskon_model->get_data('ms_top');
 		$data = [
@@ -153,13 +156,13 @@ class Ms_diskon extends Admin_Controller
 			'lvl1' => $lvl1,
 			'lvl2' => $lvl2
 		];
-        $this->template->set('results', $data);
+		$this->template->set('results', $data);
 		$this->template->title('Diskon');
-        $this->template->render('editdiskon');
-		
+		$this->template->render('editdiskon');
 	}
 
-    public function saveEditDiskon(){
+	public function saveEditDiskon()
+	{
 		$this->auth->restrict($this->editPermission);
 		$post = $this->input->post();
 		// print_r($post);
@@ -169,56 +172,54 @@ class Ms_diskon extends Admin_Controller
 			'id_type'		    => $post['level1'],
 			'id_top'		    => $post['top'],
 			'nilai_diskon'      => $post['nilai'],
-		    'modified_on'		=> date('Y-m-d H:i:s'),
+			'modified_on'		=> date('Y-m-d H:i:s'),
 			'modified_by'		=> $this->auth->user_id()
 		];
-	 
-		$this->db->where('id',$post['id_diskon'])->update("ms_diskon",$data);
-		
-		if($this->db->trans_status() === FALSE){
+
+		$this->db->where('id', $post['id_diskon'])->update("ms_diskon", $data);
+
+		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
 			$status	= array(
-			  'pesan'		=>'Gagal Save Data. Thanks ...',
-			  'status'	=> 0
+				'pesan'		=> 'Gagal Save Data. Thanks ...',
+				'status'	=> 0
 			);
 		} else {
 			$this->db->trans_commit();
 			$status	= array(
-			  'pesan'		=>'Success Save Data. Thanks ...',
-			  'status'	=> 1
-			);			
+				'pesan'		=> 'Success Save Data. Thanks ...',
+				'status'	=> 1
+			);
 		}
-		
-  		echo json_encode($status);
-	
+
+		echo json_encode($status);
 	}
 
-    public function deleteDiskon(){
+	public function deleteDiskon()
+	{
 		$this->auth->restrict($this->deletePermission);
 		$id = $this->input->post('id');
 		$data = [
 			'deleted' 		=> '1',
 			'deleted_by' 	=> $this->auth->user_id()
 		];
-		
+
 		$this->db->trans_begin();
-		$this->db->where('id',$id)->update("ms_diskon",$data);
-		
-		if($this->db->trans_status() === FALSE){
+		$this->db->where('id', $id)->update("ms_diskon", $data);
+
+		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
 			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'status'	=> 0
+				'pesan'		=> 'Gagal Save Item. Thanks ...',
+				'status'	=> 0
 			);
 		} else {
 			$this->db->trans_commit();
 			$status	= array(
-			  'pesan'		=>'Success Save Item. Thanks ...',
-			  'status'	=> 1
-			);			
+				'pesan'		=> 'Success Save Item. Thanks ...',
+				'status'	=> 1
+			);
 		}
-  		echo json_encode($status);
+		echo json_encode($status);
 	}
-
-	
 }

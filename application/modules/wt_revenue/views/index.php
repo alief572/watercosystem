@@ -36,9 +36,9 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 					<th width="5%">Persentase Invoice</th>
 					<th width="5%">Persentase DO</th>
 					<th width="5%">Belum Diakui</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th>Action</th>
-					<?php endif; ?>
+					<!-- <?php if ($ENABLE_MANAGE) : ?> -->
+					<th>Action</th>
+					<!-- <?php endif; ?> -->
 				</tr>
 			</thead>
 

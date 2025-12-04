@@ -66,7 +66,7 @@
 		</thead>
 		<tbody>
 			<?
-			$n0 = 0;
+			$no = 0;
 			foreach ($detail as $detail) {
 				$kode = $this->db->query("SELECT kode_barang FROM ms_inventory_category3 WHERE id_category3='$detail->id_category3'")->row();
 

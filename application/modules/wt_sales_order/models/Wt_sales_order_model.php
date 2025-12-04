@@ -153,7 +153,7 @@ class Wt_sales_order_model extends BF_Model
     $where2 = "a.status !='0'";
     // $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_so', DESC);
+    $this->db->order_by('a.no_so', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -168,7 +168,7 @@ class Wt_sales_order_model extends BF_Model
     $where2 = "a.status !='0'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_so', DESC);
+    $this->db->order_by('a.no_so', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -183,7 +183,7 @@ class Wt_sales_order_model extends BF_Model
     $where2 = "a.status ='0'";
     // $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -194,7 +194,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $where = "a.status='1'";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -205,7 +205,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $where = "a.status='6'";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -216,7 +216,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $where = "a.status='7'";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -226,7 +226,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->select('a.*, b.name_customer as name_customer');
     $this->db->from('tr_penawaran_history a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query1 = $this->db->get();
 
     $this->db->select('a.*, b.name_customer as name_customer');
@@ -234,7 +234,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $where = "a.status_so='1'";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query2 = $this->db->get();
 
     $query3 = $this->db->query($query1 . ' UNION ' . $query2);
@@ -253,7 +253,7 @@ class Wt_sales_order_model extends BF_Model
     $where2 = "a.revisi='$rev'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'desc');
     $query = $this->db->get();
     return $query->result();
   }
@@ -277,7 +277,7 @@ class Wt_sales_order_model extends BF_Model
     $length = $this->input->post('length');
     $search = $this->input->post('search');
 
-    $this->db->select('a.no_surat, a.no_so, a.nama_sales, a.upload_po, a.upload_so, b.name_customer as name_customer, a.grand_total, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, d.nm_lengkap');
+    $this->db->select('a.no_surat, a.no_so, a.nama_sales, a.status, a.upload_po, a.upload_so, b.name_customer as name_customer, a.grand_total, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, d.nm_lengkap');
     $this->db->from('tr_sales_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
@@ -397,7 +397,7 @@ class Wt_sales_order_model extends BF_Model
     $length = $this->input->post('length');
     $search = $this->input->post('search');
 
-    $this->db->select('a.no_surat, a.no_so, a.nama_sales, a.upload_po, a.upload_so, b.name_customer as name_customer, a.grand_total, a.indent_check, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, d.nm_lengkap');
+    $this->db->select('a.no_surat, a.no_so, a.nama_sales, a.status, a.order_status, a.upload_po, a.upload_so, b.name_customer as name_customer, a.grand_total, a.indent_check, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, d.nm_lengkap');
     $this->db->from('tr_sales_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');
@@ -419,7 +419,7 @@ class Wt_sales_order_model extends BF_Model
     $this->db->limit($length, $start);
     $get_data = $this->db->get();
 
-    $this->db->select('a.no_surat, a.no_so, a.nama_sales, a.upload_po, a.upload_so, b.name_customer as name_customer, a.grand_total, a.indent_check, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, d.nm_lengkap');
+    $this->db->select('a.no_surat, a.no_so, a.nama_sales, a.status, a.order_status, a.upload_po, a.upload_so, b.name_customer as name_customer, a.grand_total, a.indent_check, c.grand_total as total_penawaran, c.no_surat as nomor_penawaran, c.tgl_penawaran, d.nm_lengkap');
     $this->db->from('tr_sales_order a');
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->join('tr_penawaran c', 'c.no_penawaran=a.no_penawaran');

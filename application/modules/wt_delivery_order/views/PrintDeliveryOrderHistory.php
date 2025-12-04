@@ -155,18 +155,18 @@
         </thead>
         <tbody>
             <?
-            $n0 = 0;
+            $no = 0;
             foreach ($detail as $detail) {
                 $no++;
             ?>
-            <tr>
-                <td align="center"><?= $no ?></td>
-                <td align="left">&nbsp;<?= $detail->nama_produk ?></td>
-                <td align="left">&nbsp;<?= $detail->kode_barang ?></td>
-                <td align="center"><?= number_format($detail->qty_do) ?></td>
-                <td align="left"><?= $detail->serial_number ?></td>
-                <td align="left"><?= $detail->kartu_garansi ?></td>
-            </tr>
+                <tr>
+                    <td align="center"><?= $no ?></td>
+                    <td align="left">&nbsp;<?= $detail->nama_produk ?></td>
+                    <td align="left">&nbsp;<?= $detail->kode_barang ?></td>
+                    <td align="center"><?= number_format($detail->qty_do) ?></td>
+                    <td align="left"><?= $detail->serial_number ?></td>
+                    <td align="left"><?= $detail->kartu_garansi ?></td>
+                </tr>
             <? } ?>
         </tbody>
 

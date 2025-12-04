@@ -12,7 +12,9 @@
 		public function __construct()
 		{
 			parent::__construct();
-			$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+			require_once 'vendor/autoload.php';
+
+			$this->load->library(array('upload', 'Image_lib'));
 			$this->load->model('Tools/Tools_model');
 			$this->template->title('Manage Data Plan Bayar');
 			$this->template->page_icon('fa fa-building-o');
