@@ -11,7 +11,7 @@
     <div class="container-fluid mt-4">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Data Kartu Hutang</h4>
+                <h4 class="mb-0"><i class="fas fa-file-invoice-dollar"></i> Data Kartu Piutang</h4>
             </div>
             <div class="card-body">
                 <!-- Flash Messages -->
