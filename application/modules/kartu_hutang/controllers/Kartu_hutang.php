@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Kartu_hutang extends CI_Controller {
+class Kartu_hutang extends Admin_Controller {
 
     public function __construct() {
         parent::__construct();
@@ -49,7 +49,7 @@ class Kartu_hutang extends CI_Controller {
         $data['pagination'] = $this->pagination->create_links();
         $data['search'] = $search;
 
-        $this->load->view('kartu_hutang/index', $data);
+        $this->load->view('index', $data);
     }
 
     // Display create form
