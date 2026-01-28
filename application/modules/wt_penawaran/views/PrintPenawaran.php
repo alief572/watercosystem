@@ -258,7 +258,7 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pembelian diatas Rp 5.000.000 mendapat Free Ongkir JABODETABEK ( S & K berlaku )</td>
+								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
 							</tr>
 
 						<?php } elseif ($header->top == 2) { ?>
@@ -292,7 +292,7 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pembelian diatas Rp 5.000.000 mendapat Free Ongkir JABODETABEK ( S & K berlaku )</td>
+								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
 							</tr>
 
 						<?php } else { ?>
@@ -325,7 +325,7 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pembelian diatas Rp 5.000.000 mendapat Free Ongkir JABODETABEK ( S & K berlaku )</td>
+								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
 							</tr>
 
 					<?php }
