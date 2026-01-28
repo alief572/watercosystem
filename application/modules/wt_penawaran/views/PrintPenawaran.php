@@ -256,6 +256,10 @@
 								<td align='right'>&#61;&#62;</td>
 								<td>Pembayaran Cash atau Transfer</td>
 							</tr>
+							<tr>
+								<td align='right'>&#61;&#62;</td>
+								<td>Pembelian diatas Rp 5.000.000 mendapat Free Ongkir JABODETABEK ( S & K berlaku )</td>
+							</tr>
 
 						<?php } elseif ($header->top == 2) { ?>
 
@@ -286,6 +290,10 @@
 								<td align='right'>&#61;&#62;</td>
 								<td>Pembayaran Cash atau Transfer</td>
 							</tr>
+							<tr>
+								<td align='right'>&#61;&#62;</td>
+								<td>Pembelian diatas Rp 5.000.000 mendapat Free Ongkir JABODETABEK ( S & K berlaku )</td>
+							</tr>
 
 						<?php } else { ?>
 							<tr>
@@ -314,6 +322,10 @@
 							<tr>
 								<td align='right'>&#61;&#62;</td>
 								<td>Pembayaran Cash atau Transfer</td>
+							</tr>
+							<tr>
+								<td align='right'>&#61;&#62;</td>
+								<td>Pembelian diatas Rp 5.000.000 mendapat Free Ongkir JABODETABEK ( S & K berlaku )</td>
 							</tr>
 
 					<?php }
