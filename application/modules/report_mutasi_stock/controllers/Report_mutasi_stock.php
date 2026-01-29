@@ -43,9 +43,21 @@ class Report_mutasi_stock extends Admin_Controller
 
         $get_data_mutasi_stock = $this->Report_mutasi_stock_model->get_data_mutasi_stock($tgl);
 
+        $arr_jumlah_transaksi = [];
+        foreach ($get_data_mutasi_stock as $item) {
+            $this->db->select('COUNT(a.id_kartu_stok) AS total_transaksi');
+            $this->db->from('kartu_stok a');
+            $this->db->where('a.id_category3', $item->id_category3);
+            $this->db->where('a.tgl_transaksi', $tgl);
+            $get_ttl_transaksi = $this->db->get()->row();
+
+            $arr_jumlah_transaksi[$item->id_category3] = $get_ttl_transaksi->total_transaksi;
+        }
+
         $data = [
             'data_mutasi_stock' => $get_data_mutasi_stock,
-            'tgl' => $tgl
+            'tgl' => $tgl,
+            'jumlah_transaksi' => $arr_jumlah_transaksi
         ];
 
         $this->load->view('export_excel', $data);
