@@ -324,4 +324,12 @@ class Costbook extends Admin_Controller
 
 		echo json_encode($response);
 	}
+
+
+	public function download_excel()
+	{
+		$get_costbook = $this->Costbook_model->get_costbook();
+
+		$this->load->view('costbook_excel', ['costbook' => $get_costbook]);
+	}
 }
