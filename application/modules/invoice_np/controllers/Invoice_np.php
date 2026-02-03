@@ -305,7 +305,7 @@ class Invoice_np extends Admin_Controller
 							'modified_date' => $dateTime
 						);
 						$this->All_model->dataSave('tr_invoice_np_detail', $data_detail);
-						$total_dpp_usd = ($total_dpp_usd + str_replace(',', '', $val['harga_satuan_usd']));
+						$total_dpp_usd += ($total_dpp_usd + str_replace(',', '', $val['harga_satuan_usd']));
 					}
 				}
 				if ($ppn_persen <> 0) $total_ppn_idr = ($total_dpp_usd * $ppn_persen / 100);
