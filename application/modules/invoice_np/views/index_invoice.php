@@ -48,6 +48,13 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 					foreach ($results as $record) {
 						$numb++;
 
+						$this->db->select('SUM(a.qty * a.harga_satuan_usd) as grand_total');
+						$this->db->from('tr_invoice_np_detail a');
+						$this->db->where('a.no_invoice', $record->no_invoice);
+						$get_total = $this->db->get()->row();
+
+						$grand_total = (!empty($get_total->grand_total)) ? $get_total->grand_total : 0;
+
 				?>
 						<tr>
 							<td><?= $numb; ?></td>
@@ -56,7 +63,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 							<td><?= $record->no_faktur ?></td>
 							<td><?= $record->keterangan ?></td>
 							<td><?= $record->nm_customer ?></td>
-							<td><?= number_format($record->total_invoice_idr) ?></td>
+							<td><?= number_format($grand_total) ?></td>
 							<td style="padding-left:20px">
 								<?php if ($ENABLE_MANAGE and $record->no_invoice != '') : ?>
 									<a class="btn btn-success btn-sm" href="<?= base_url('invoice_np/print_pdf/' . $record->id_invoice) ?>" target="_blank" title="View Invoice"><i class="fa fa-print"></i>
