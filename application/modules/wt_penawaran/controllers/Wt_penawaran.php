@@ -372,7 +372,7 @@ class Wt_penawaran extends Admin_Controller
 	{
 		$loop = $_GET['id'];
 		$id_category3 = $_GET['id_category3'];
-		$material	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$id_category3' ")->result();
+		$material	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$id_category3' AND deleted_by IS NULL")->result();
 		$produk = number_format($material[0]->harga_rupiah);
 
 
