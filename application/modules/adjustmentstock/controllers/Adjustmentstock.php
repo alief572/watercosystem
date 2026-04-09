@@ -769,14 +769,11 @@ class Adjustmentstock extends Admin_Controller
 		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
 
-
-
 		$code = $this->Inventory_4_model->generate_id();
 
 		$material  = $post['id_material'];
 		$qtydo     = $post['total_qty'];
 		$surat     = $code;
-
 
 		$adjustment = $post['adjustment'];
 		$id_gudang = $post['id_gudang'];
@@ -1460,7 +1457,8 @@ class Adjustmentstock extends Admin_Controller
 		$this->db->query("UPDATE stock_material SET qty=qty+$qtyso, qty_free=$free  WHERE id_category3='$material'");
 	}
 
-	public function get_data_adjustment_stock() {
+	public function get_data_adjustment_stock()
+	{
 		$this->Inventory_4_model->get_data_adjustment_stock();
 	}
 }

@@ -267,15 +267,16 @@ class Inventory_4_model extends BF_Model
 		return $query->result();
 	}
 
-	public function get_data_adjustment_stock() {
+	public function get_data_adjustment_stock()
+	{
 		$draw = $this->input->post('draw');
-        $start = $this->input->post('start');
-        $length = $this->input->post('length');
-        $search = $this->input->post('search');
+		$start = $this->input->post('start');
+		$length = $this->input->post('length');
+		$search = $this->input->post('search');
 
 		$this->db->select('a.*');
 		$this->db->from('adjustment_stock a');
-		if(!empty($search)) {
+		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('a.id_transaksi', $search['value'], 'both');
 			$this->db->or_like('a.tanggal_transaksi', $search['value'], 'both');
@@ -293,7 +294,7 @@ class Inventory_4_model extends BF_Model
 
 		$this->db->select('a.*');
 		$this->db->from('adjustment_stock a');
-		if(!empty($search)) {
+		if (!empty($search)) {
 			$this->db->group_start();
 			$this->db->like('a.id_transaksi', $search['value'], 'both');
 			$this->db->or_like('a.tanggal_transaksi', $search['value'], 'both');
@@ -305,13 +306,13 @@ class Inventory_4_model extends BF_Model
 			$this->db->group_end();
 		}
 		$this->db->order_by('a.tanggal_transaksi', 'desc');
-		
+
 		$get_data_all = $this->db->get();
 
 		$hasil = [];
 
 		$no = 0 + $start;
-		foreach($get_data->result() as $item) {
+		foreach ($get_data->result() as $item) {
 			$no++;
 
 			if ($item->adjustment == "PLUS") {
@@ -324,18 +325,30 @@ class Inventory_4_model extends BF_Model
 
 			$nilai_costbook = 0;
 
-			$this->db->select('a.nilai_costbook');
-			$this->db->from('ms_costbook_backup a');
-			$this->db->where('a.id_category3', $item->id_material);
-			$this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item->tanggal_transaksi);
-			$this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tanggal_transaksi);
-			$this->db->order_by('a.tgl', 'desc');
-			$this->db->limit(1);
-			$get_costbook = $this->db->get()->row();
+			if ($item->tanggal_transaksi == date('Y-m-d')) {
+				$this->db->select('a.nilai_costbook');
+				$this->db->from('ms_costbook a');
+				$this->db->where('a.id_category3', $item->id_material);
+				$get_costbook = $this->db->get()->row();
 
-			if(!empty($get_costbook)) {
-				$nilai_costbook = $get_costbook->nilai_costbook;
+				if (!empty($get_costbook)) {
+					$nilai_costbook = $get_costbook->nilai_costbook;
+				}
+			} else {
+				$this->db->select('a.nilai_costbook');
+				$this->db->from('ms_costbook_backup a');
+				$this->db->where('a.id_category3', $item->id_material);
+				$this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item->tanggal_transaksi);
+				$this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tanggal_transaksi);
+				$this->db->order_by('a.tgl', 'desc');
+				$this->db->limit(1);
+				$get_costbook = $this->db->get()->row();
+
+				if (!empty($get_costbook)) {
+					$nilai_costbook = $get_costbook->nilai_costbook;
+				}
 			}
+
 
 			$hasil[] = [
 				'no' => $no,
@@ -352,10 +365,10 @@ class Inventory_4_model extends BF_Model
 		}
 
 		echo json_encode([
-            'draw' => intval($draw),
-            'recordsTotal' => $get_data_all->num_rows(),
-            'recordsFiltered' => $get_data_all->num_rows(),
-            'data' => $hasil
-        ]);
+			'draw' => intval($draw),
+			'recordsTotal' => $get_data_all->num_rows(),
+			'recordsFiltered' => $get_data_all->num_rows(),
+			'data' => $hasil
+		]);
 	}
 }
