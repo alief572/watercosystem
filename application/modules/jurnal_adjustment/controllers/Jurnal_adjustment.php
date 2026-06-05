@@ -126,7 +126,7 @@ class Jurnal_adjustment extends Admin_Controller
 
             $nilai_costbook = (!empty($get_costbooks->nilai_costbook)) ? $get_costbooks->nilai_costbook : 0;
 
-            $ttl = ($get_adjustment->total_qty * $nilai_costbook);
+            $ttl = round($get_adjustment->total_qty * $nilai_costbook);
 
             $nomor = $this->Jurnal_adjustment_model->get_Nomor_Jurnal_Sales('101', date('Y-m-d'));
 
@@ -227,7 +227,7 @@ class Jurnal_adjustment extends Admin_Controller
             }
 
             $Qry_Update_Cabang_acc     = $this->db->query("UPDATE " . DBACC . ".pastibisa_tb_cabang SET nomorJC = nomorJC + 1 WHERE nocab='101'");
-            
+
             if (!$Qry_Update_Cabang_acc) {
                 throw new Exception('Proses simpan jurnal ke TRAS gagal !');
             }
