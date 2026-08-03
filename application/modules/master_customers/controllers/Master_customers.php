@@ -23,7 +23,7 @@ class Master_customers extends Admin_Controller
 	{
 		parent::__construct();
 
-		require_once FCPATH . 'vendor/autoload.php';
+		// require_once FCPATH . 'vendor/autoload.php';
 
 		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
