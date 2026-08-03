@@ -309,7 +309,16 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pembayaran I : DP 30% <br> Pembayaran II: 40% (Saat Shipment) <br> Pembayaran III: Pelunasan 30% Sebelum Barang di Kirim</td>
+								<!-- <td>Pembayaran I : DP 30% <br> Pembayaran II: 40% (Saat Shipment) <br> Pembayaran III: Pelunasan 30% Sebelum Barang di Kirim</td> -->
+								<td>
+									<?php
+									if (!empty($top)) {
+										foreach ($top as $item_top) {
+											echo $item_top->payment . ' : ' . number_format($item_top->persentase, 2) . '%' . ' ' . $item_top->keterangan . '<br>';
+										}
+									}
+									?>
+								</td>
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>

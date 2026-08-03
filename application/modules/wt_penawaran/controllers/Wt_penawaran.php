@@ -418,7 +418,10 @@ class Wt_penawaran extends Admin_Controller
 
 	public function PrintPenawaran($id)
 	{
-		ob_clean();
+		error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -433,14 +436,24 @@ class Wt_penawaran extends Admin_Controller
 
 		$data['header']   = $this->Wt_penawaran_model->get_data('tr_penawaran', 'no_penawaran', $id);
 		$data['detail']   = $this->Wt_penawaran_model->get_data('tr_penawaran_detail', 'no_penawaran', $id);
+
+		$this->db->select('a.payment, a.keterangan, a.persentase');
+		$this->db->from('ms_top_planning a');
+		$this->db->join('ms_top b', 'b.id_top = a.id_top');
+		$this->db->where('b.id_top', $data['header'][0]->top);
+		$this->db->order_by('a.payment', 'ASC');
+		$data['top'] = $this->db->get()->result();
+
 		$this->load->view('PrintPenawaran', $data);
 		$html = ob_get_contents();
+		ob_end_clean();
 
 		require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
 		$html2pdf = new HTML2PDF('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
 		$html2pdf->pdf->SetDisplayMode('fullpage');
+		$html2pdf->pdf->setHeaderFont(array('helvetica', '', 10));
+		$html2pdf->pdf->setFooterFont(array('helvetica', '', 8));
 		$html2pdf->WriteHTML($html);
-		ob_end_clean();
 		$html2pdf->Output('Penawaran.pdf', 'I');
 	}
 

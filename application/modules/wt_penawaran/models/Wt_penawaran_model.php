@@ -248,137 +248,135 @@ class Wt_penawaran_model extends BF_Model
     return $query->result();
   }
 
+  private function _where_penawaran($searchValue = '')
+  {
+    $this->db->from('tr_penawaran a');
+    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
+    $this->db->where('a.status <>', 6);
+    $this->db->where('a.status <>', 7);
+
+    if (!empty($searchValue)) {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $searchValue, 'both');
+      $this->db->or_like('a.no_revisi', $searchValue, 'both');
+      $this->db->or_like('b.name_customer', $searchValue, 'both');
+      $this->db->or_like('a.nama_sales', $searchValue, 'both');
+      $this->db->or_like('a.grand_total', $searchValue, 'both');
+      $this->db->or_like('a.tgl_penawaran', $searchValue, 'both');
+      $this->db->or_like('a.keterangan_approve', $searchValue, 'both');
+      $this->db->or_like('a.revisi', $searchValue, 'both');
+      $this->db->group_end();
+    }
+  }
+
   public function get_penawaran()
   {
-    $draw = $this->input->post('draw');
-    $length = $this->input->post('length');
-    $start = $this->input->post('start');
-    $search = $this->input->post('search');
+    $draw        = (int) $this->input->post('draw');
+    $length      = (int) $this->input->post('length');
+    $start       = (int) $this->input->post('start');
+    $search      = $this->input->post('search');
+    $searchValue = !empty($search['value']) ? trim($search['value']) : '';
 
-    $this->db->select('a.*, b.name_customer as name_customer');
+    // 1. Total records count (unfiltered)
     $this->db->from('tr_penawaran a');
-    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $this->db->where('a.status <>', 6);
     $this->db->where('a.status <>', 7);
-    if (!empty($search['value'])) {
-      $this->db->group_start();
-      $this->db->like('a.no_surat', $search['value'], 'both');
-      $this->db->or_like('a.no_revisi', $search['value'], 'both');
-      $this->db->or_like('b.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.nama_sales', $search['value'], 'both');
-      $this->db->or_like('a.grand_total', $search['value'], 'both');
-      $this->db->or_like('a.tgl_penawaran', $search['value'], 'both');
-      $this->db->or_like('a.keterangan_approve', $search['value'], 'both');
-      $this->db->or_like('a.revisi', $search['value'], 'both');
-      $this->db->group_end();
+    $recordsTotal = $this->db->count_all_results();
+
+    // 2. Filtered records count
+    if ($searchValue !== '') {
+      $this->_where_penawaran($searchValue);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
     }
+
+    // 3. Fetch paginated records with specific columns only
+    $this->_where_penawaran($searchValue);
+    $this->db->select('a.no_penawaran, a.no_surat, a.no_revisi, a.nama_sales, a.grand_total, a.tgl_penawaran, a.keterangan_approve, a.revisi, a.status, a.printed_by, b.name_customer');
     $this->db->order_by('a.no_penawaran', 'desc');
-    $this->db->limit($length, $start);
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
     $get_data = $this->db->get();
 
-    $this->db->select('a.*, b.name_customer as name_customer');
-    $this->db->from('tr_penawaran a');
-    $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
-    $this->db->where('a.status <>', 6);
-    $this->db->where('a.status <>', 7);
-    if (!empty($search['value'])) {
-      $this->db->group_start();
-      $this->db->like('a.no_surat', $search['value'], 'both');
-      $this->db->or_like('a.no_revisi', $search['value'], 'both');
-      $this->db->or_like('b.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.nama_sales', $search['value'], 'both');
-      $this->db->or_like('a.grand_total', $search['value'], 'both');
-      $this->db->or_like('a.tgl_penawaran', $search['value'], 'both');
-      $this->db->or_like('a.keterangan_approve', $search['value'], 'both');
-      $this->db->or_like('a.revisi', $search['value'], 'both');
-      $this->db->group_end();
-    }
-    $this->db->order_by('a.no_penawaran', 'desc');
-    $get_data_all = $this->db->get();
+    // Cache permissions once outside the loop
+    $can_manage = has_permission($this->managePermission);
+    $can_view   = has_permission($this->viewPermission);
+
+    $statusBadges = [
+      0 => "<span class='badge bg-grey'>Draft</span>",
+      1 => "<span class='badge bg-yellow'>Menunggu Approval</span>",
+      2 => "<span class='badge bg-green'>Approved</span>",
+      3 => "<span class='badge bg-blue'>Dicetak</span>",
+      4 => "<span class='badge bg-green'>Terkirim</span>",
+      5 => "<span class='badge bg-red'>Not Approved</span>",
+      6 => "<span class='badge bg-green'>SO</span>",
+      7 => "<span class='badge bg-red'>Loss</span>",
+    ];
 
     $hasil = array();
+    $no    = $start;
 
-    $no = (0 + $start);
     foreach ($get_data->result() as $item) {
-
-      if ($item->status == 0) {
-        $Status = "<span class='badge bg-grey'>Draft</span>";
-      } elseif ($item->status == 1) {
-
-        $Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
-      } elseif ($item->status == 2) {
-        $Status = "<span class='badge bg-green'>Approved</span>";
-      } elseif ($item->status == 3) {
-        $Status = "<span class='badge bg-blue'>Dicetak</span>";
-      } elseif ($item->status == 4) {
-        $Status = "<span class='badge bg-green'>Terkirim</span>";
-      } elseif ($item->status == 5) {
-        $Status = "<span class='badge bg-red'>Not Approved</span>";
-      } elseif ($item->status == 6) {
-        $Status = "<span class='badge bg-green'>SO</span>";
-      } elseif ($item->status == 7) {
-        $Status = "<span class='badge bg-red'>Loss</span>";
-      }
+      $no++;
+      $statusStr = (string)$item->status;
+      $Status    = isset($statusBadges[$item->status]) ? $statusBadges[$item->status] : '';
 
       $option = '';
 
-      if ($item->status != '4') {
-        if (has_permission($this->managePermission) && $item->status == '2') {
-          $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/editpenawaranapprove/' . $item->no_penawaran) . '" title="Edit" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-edit"></i></a>';
+      if ($statusStr !== '4') {
+        if ($can_manage && $statusStr === '2') {
+          $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/editpenawaranapprove/' . $item->no_penawaran) . '" title="Edit"><i class="fa fa-edit"></i></a>';
         }
       }
 
-      if ($item->status != '1') {
-        if ($item->status != '4') {
-          if (has_permission($this->managePermission) && $item->status != '2') {
-            $option .= ' <a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/editpenawaran/' . $item->no_penawaran) . '" title="Edit" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-edit"></i></a>';
-          }
+      if ($statusStr !== '1' && $statusStr !== '4') {
+        if ($can_manage && $statusStr !== '2') {
+          $option .= ' <a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/editpenawaran/' . $item->no_penawaran) . '" title="Edit"><i class="fa fa-edit"></i></a>';
         }
       }
 
-      if (has_permission($this->viewPermission) && $item->status != '4') {
-        $option .= ' <a class="btn btn-info btn-sm" href="' . base_url('/wt_penawaran/printpenawaran/' . $item->no_penawaran) . '" target="_blank" title="Print" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+      if ($can_view && $statusStr !== '4') {
+        $option .= ' <a class="btn btn-info btn-sm" href="' . base_url('/wt_penawaran/printpenawaran/' . $item->no_penawaran) . '" target="_blank" title="Print"><i class="fa fa-print"></i></a>';
       }
 
-      if (has_permission($this->managePermission) && $item->status != '4' && $item->printed_by != null) {
-        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/statusterkirim/' . $item->no_penawaran) . '" title="Ubah Status" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-check"></i></a>';
+      if ($can_manage && $statusStr !== '4' && $item->printed_by !== null) {
+        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/statusterkirim/' . $item->no_penawaran) . '" title="Ubah Status"><i class="fa fa-check"></i></a>';
       }
 
-      if (has_permission($this->managePermission) && $item->status != '4') {
-        $option .= ' <a class="btn btn-warning btn-sm" href="' . base_url('/wt_penawaran/ajukanapprove/' . $item->no_penawaran) . '" title="Ajukan approval" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-mail-forward"></i></a>';
+      if ($can_manage && $statusStr !== '4') {
+        $option .= ' <a class="btn btn-warning btn-sm" href="' . base_url('/wt_penawaran/ajukanapprove/' . $item->no_penawaran) . '" title="Ajukan approval"><i class="fa fa-mail-forward"></i></a>';
       }
 
-      if (has_permission($this->managePermission) && $item->status == '4' && $item->printed_by != null) {
-        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_sales_order/createSO/' . $item->no_penawaran) . '" title="Create SO" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-plus">Create SO</i></a>';
+      if ($can_manage && $statusStr === '4' && $item->printed_by !== null) {
+        $option .= ' <a class="btn btn-success btn-sm" href="' . base_url('/wt_sales_order/createSO/' . $item->no_penawaran) . '" title="Create SO"><i class="fa fa-plus">Create SO</i></a>';
       }
 
-      if (has_permission($this->managePermission) && $item->status == '4') {
-        $option .= ' <a class="btn btn-danger btn-sm" href="' . base_url('/wt_penawaran/statusloss/' . $item->no_penawaran) . '" title="Loss" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-check"></i>';
+      if ($can_manage && $statusStr === '4') {
+        $option .= ' <a class="btn btn-danger btn-sm" href="' . base_url('/wt_penawaran/statusloss/' . $item->no_penawaran) . '" title="Loss"><i class="fa fa-check"></i></a>';
       }
 
-      if ($item->status != '6' || $item->status != '7') {
-        $no++;
-        $hasil[] = [
-          'no' => $no,
-          'no_penawaran' => $item->no_surat,
-          'no_revisi' => $item->no_revisi,
-          'nama_customer' => strtoupper($item->name_customer),
-          'marketing' => $item->nama_sales,
-          'nilai_penawaran' => number_format($item->grand_total),
-          'tanggal_penawaran' => date('d-F-Y', strtotime($item->tgl_penawaran)),
-          'keterangan_approved' => $item->keterangan_approve,
-          'revisi' => $item->revisi,
-          'status' => $Status,
-          'option' => $option
-        ];
-      }
+      $hasil[] = [
+        'no'                  => $no,
+        'no_penawaran'        => $item->no_surat,
+        'no_revisi'           => $item->no_revisi,
+        'nama_customer'       => strtoupper($item->name_customer),
+        'marketing'           => $item->nama_sales,
+        'nilai_penawaran'     => number_format($item->grand_total),
+        'tanggal_penawaran'   => date('d-F-Y', strtotime($item->tgl_penawaran)),
+        'keterangan_approved' => $item->keterangan_approve,
+        'revisi'              => $item->revisi,
+        'status'              => $Status,
+        'option'              => $option
+      ];
     }
 
     echo json_encode([
-      'draw' => intval($draw),
-      'recordsTotal' => $get_data_all->num_rows(),
-      'recordsFiltered' => $get_data_all->num_rows(),
-      'data' => $hasil
+      'draw'            => $draw,
+      'recordsTotal'    => $recordsTotal,
+      'recordsFiltered' => $recordsFiltered,
+      'data'            => $hasil
     ]);
   }
 
@@ -600,7 +598,7 @@ class Wt_penawaran_model extends BF_Model
     $get_data_all = $this->db->query($query_all);
     $no = (0 + $start);
     foreach ($get_data->result() as $item) {
-      
+
       if ($item->status == 0) {
         $Status = "<span class='badge bg-grey'>Draft</span>";
       } elseif ($item->status == 1) {
