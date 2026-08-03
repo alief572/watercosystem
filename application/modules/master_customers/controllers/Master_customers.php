@@ -25,6 +25,14 @@ class Master_customers extends Admin_Controller
 
 		require_once FCPATH . 'vendor/autoload.php';
 
+		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->model(array(
+			'Master_customers/Customer_model',
+			'Aktifitas/aktifitas_model',
+		));
+		$this->template->title('Manage Data Supplier');
+		$this->template->page_icon('fa fa-building-o');
+
 		date_default_timezone_set('Asia/Bangkok');
 	}
 
