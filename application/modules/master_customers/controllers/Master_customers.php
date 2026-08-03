@@ -23,7 +23,7 @@ class Master_customers extends Admin_Controller
 	{
 		parent::__construct();
 
-		require_once 'vendor/autoload.php';
+		require_once FCPATH . 'vendor/autoload.php';
 
 		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
@@ -67,6 +67,7 @@ class Master_customers extends Admin_Controller
 		$karyawan = $this->db->get_where('ms_karyawan', array('deleted' => 0, '', 'divisi' => 2))->result();
 
 		$data = [
+			'supplier' => '',
 			'cus'	=> $cus,
 			'category' => $category,
 			'cate' => $cate,
@@ -131,6 +132,7 @@ class Master_customers extends Admin_Controller
 		$prof = $this->Customer_model->get_data('provinsi');
 		$karyawan = $this->db->get_where('ms_karyawan', array('divisi' => 2, 'deleted' => 0))->result();
 		$data = [
+			'supplier' => '',
 			'category' => $category,
 			'prof' => $prof,
 			'karyawan' => $karyawan
@@ -675,10 +677,10 @@ class Master_customers extends Admin_Controller
 			$code = $post['id_customer'];
 			$data =  array(
 				'id_customer'	=> $code,
-				'name_pic'		=> $d1[name_pic],
-				'phone_pic'		=> $d1[phone_pic],
-				'email_pic'		=> $d1[email_pic],
-				'position_pic'	=> $d1[position_pic]
+				'name_pic'		=> $d1['name_pic'],
+				'phone_pic'		=> $d1['phone_pic'],
+				'email_pic'		=> $d1['email_pic'],
+				'position_pic'	=> $d1['position_pic']
 			);
 			//Add Data
 			$this->db->insert('child_customer_pic', $data);
@@ -689,7 +691,7 @@ class Master_customers extends Admin_Controller
 			$numb2++;
 			$data =  array(
 				'id_customer'	=> $code,
-				'name_category_customer'		=> $d2[id_category_customer],
+				'name_category_customer'		=> $d2['id_category_customer'],
 			);
 			//Add Data
 			$this->db->insert('child_category_customer', $data);
