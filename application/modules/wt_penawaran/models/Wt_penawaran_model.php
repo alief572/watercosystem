@@ -450,7 +450,7 @@ class Wt_penawaran_model extends BF_Model
         $Status = "<span class='badge bg-red'>Loss</span>";
       }
 
-      $option = '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/lihatpenawaran/' . $item->no_penawaran) . '" title="View" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-search"></i></a>';
+      $option = '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/lihatpenawaran/' . $item->no_penawaran) . '" title="View" data-no_inquiry=""><i class="fa fa-search"></i></a>';
 
       $hasil[] = [
         'no' => $no,
@@ -620,11 +620,11 @@ class Wt_penawaran_model extends BF_Model
 
       $option = '';
       if (has_permission($this->viewPermission) && $item->status != '6') {
-        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/viewhistory/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-eye"></i></a>';
+        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_penawaran/viewhistory/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry=""><i class="fa fa-eye"></i></a>';
       }
 
       if (has_permission($this->viewPermission)) {
-        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/viewhistoryso/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-eye"></i></a>';
+        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/viewhistoryso/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry=""><i class="fa fa-eye"></i></a>';
       }
 
       if ($item->status != '6' || $item->status != '7') {

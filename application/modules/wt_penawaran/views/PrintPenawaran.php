@@ -242,7 +242,15 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pembayaran 100% Lunas</td>
+								<td>
+									<?php
+									if (!empty($top)) {
+										foreach ($top as $item_top) {
+											echo $item_top->payment . ' : ' . number_format($item_top->persentase, 2) . '%' . ' ' . $item_top->keterangan . '<br>';
+										}
+									}
+									?>
+								</td>
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
@@ -258,7 +266,7 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
+								<td>Pembelian filter Waterco tidak termasuk Silica Sand.</td>
 							</tr>
 
 						<?php } elseif ($header->top == 2) { ?>
@@ -276,7 +284,16 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pembayaran I: DP 30% <br> Pembayaran II: Pelunasan 70%, 30 hari setelah barang dikirim</td>
+								<!-- <td>Pembayaran I : DP 30% <br> Pembayaran II: 40% (Saat Shipment) <br> Pembayaran III: Pelunasan 30% Sebelum Barang di Kirim</td> -->
+								<td>
+									<?php
+									if (!empty($top)) {
+										foreach ($top as $item_top) {
+											echo $item_top->payment . ' : ' . number_format($item_top->persentase, 2) . '%' . ' ' . $item_top->keterangan . '<br>';
+										}
+									}
+									?>
+								</td>
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
@@ -292,7 +309,7 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
+								<td>Pembelian filter Waterco tidak termasuk Silica Sand.</td>
 							</tr>
 
 						<?php } else { ?>
@@ -334,7 +351,7 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
-								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
+								<td>Pembelian filter Waterco tidak termasuk Silica Sand.</td>
 							</tr>
 
 					<?php }

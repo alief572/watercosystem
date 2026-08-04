@@ -2,6 +2,8 @@
 if (!defined('BASEPATH')) {
 	exit('No direct script access allowed');
 }
+// Require composer autoload
+require_once 'vendor/autoload.php';
 
 /*
  * @author Syamsudin
@@ -21,7 +23,7 @@ class Wt_penawaran extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
+		$this->load->library(array('upload', 'Image_lib'));
 		$this->load->model(array(
 			'Wt_penawaran/Wt_penawaran_model',
 			'Aktifitas/aktifitas_model',
@@ -372,7 +374,7 @@ class Wt_penawaran extends Admin_Controller
 	{
 		$loop = $_GET['id'];
 		$id_category3 = $_GET['id_category3'];
-		$material	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$id_category3' AND deleted_by IS NULL")->result();
+		$material	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$id_category3' ")->result();
 		$produk = number_format($material[0]->harga_rupiah);
 
 
