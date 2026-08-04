@@ -157,6 +157,7 @@ class Wt_penawaran extends Admin_Controller
 
 
 		$this->upload->initialize($config);
+		$lokasi = '';
 		if ($this->upload->do_upload('upload_skb')) {
 			$gbr = $this->upload->data();
 			//Compress Image
