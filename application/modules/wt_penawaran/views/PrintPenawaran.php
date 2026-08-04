@@ -221,6 +221,10 @@
 						</tr>
 						<tr>
 							<td align='right'>&#61;&#62;</td>
+							<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
+						</tr>
+						<tr>
+							<td align='right'>&#61;&#62;</td>
 							<td>Pembayaran Cash atau Transfer</td>
 						</tr>
 
@@ -263,6 +267,10 @@
 							<tr>
 								<td align='right'>&#61;&#62;</td>
 								<td>Pembayaran Cash atau Transfer</td>
+							</tr>
+							<tr>
+								<td align='right'>&#61;&#62;</td>
+								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
@@ -309,6 +317,10 @@
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
+								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
+							</tr>
+							<tr>
+								<td align='right'>&#61;&#62;</td>
 								<td>Pembelian filter Waterco tidak termasuk Silica Sand.</td>
 							</tr>
 
@@ -348,6 +360,10 @@
 							<tr>
 								<td align='right'>&#61;&#62;</td>
 								<td>Pembayaran Cash atau Transfer</td>
+							</tr>
+							<tr>
+								<td align='right'>&#61;&#62;</td>
+								<td>Pengiriman gratis seJabodetabek untuk pembelian minimal transaksi Rp. 5.000.000,- [S&K berlaku]</td>
 							</tr>
 							<tr>
 								<td align='right'>&#61;&#62;</td>
