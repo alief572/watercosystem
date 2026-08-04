@@ -207,23 +207,23 @@ class Wt_penawaran extends Admin_Controller
 
 		$numb1 = 0;
 		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
+			if (!empty($used['no_surat'])) {
 				$numb1++;
 				$dt[] =  array(
 					'no_penawaran'		=> $code,
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'		=> $used[potensial_loss],
-					'diskon'		        => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    => str_replace(',', '', $used[total_harga]),
+					'id_category3'		=> $used['no_surat'],
+					'nama_produk'	    => $used['nama_produk'],
+					'qty'			    => $used['qty'],
+					'harga_satuan'		=> str_replace(',', '', $used['harga_satuan']),
+					'stok_tersedia'		=> $used['stok_tersedia'],
+					'potensial_loss'		=> $used['potensial_loss'],
+					'diskon'		        => $used['diskon'],
+					'freight_cost'		=> str_replace(',', '', $used['freight_cost']),
+					'total_harga'	    => str_replace(',', '', $used['total_harga']),
 					'created_on'			=> date('Y-m-d H:i:s'),
 					'created_by'			=> $this->auth->user_id(),
-					'nilai_diskon'		=> str_replace(',', '', $used[nilai_diskon]),
-					'diskon_compare'		=> $used[compare_diskon]
+					'nilai_diskon'		=> str_replace(',', '', $used['nilai_diskon']),
+					'diskon_compare'		=> $used['compare_diskon']
 				);
 			}
 		}
@@ -282,23 +282,23 @@ class Wt_penawaran extends Admin_Controller
 
 		$numb1 = 0;
 		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
+			if (!empty($used['no_surat'])) {
 				$numb1++;
 				$dt[] =  array(
 					'no_penawaran'		=> $code,
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'	=> $used[potensial_loss],
-					'diskon'		    => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    => str_replace(',', '', $used[total_harga]),
+					'id_category3'		=> $used['no_surat'],
+					'nama_produk'	    => $used['nama_produk'],
+					'qty'			    => $used['qty'],
+					'harga_satuan'		=> str_replace(',', '', $used['harga_satuan']),
+					'stok_tersedia'		=> $used['stok_tersedia'],
+					'potensial_loss'	=> $used['potensial_loss'],
+					'diskon'		    => $used['diskon'],
+					'freight_cost'		=> str_replace(',', '', $used['freight_cost']),
+					'total_harga'	    => str_replace(',', '', $used['total_harga']),
 					'created_on'		=> date('Y-m-d H:i:s'),
 					'created_by'		=> $this->auth->user_id(),
-					'nilai_diskon'		=> str_replace(',', '', $used[nilai_diskon]),
-					'diskon_compare'		=> $used[compare_diskon]
+					'nilai_diskon'		=> str_replace(',', '', $used['nilai_diskon']),
+					'diskon_compare'		=> $used['compare_diskon']
 				);
 			}
 		}
@@ -642,23 +642,23 @@ class Wt_penawaran extends Admin_Controller
 
 		$numb1 = 0;
 		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
+			if (!empty($used['no_surat'])) {
 				$numb1++;
 				$dt[] =  array(
 					'no_penawaran'		=> $code,
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'	=> $used[potensial_loss],
-					'diskon'		    => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    => str_replace(',', '', $used[total_harga]),
+					'id_category3'		=> $used['no_surat'],
+					'nama_produk'	    => $used['nama_produk'],
+					'qty'			    => $used['qty'],
+					'harga_satuan'		=> str_replace(',', '', $used['harga_satuan']),
+					'stok_tersedia'		=> $used['stok_tersedia'],
+					'potensial_loss'	=> $used['potensial_loss'],
+					'diskon'		    => $used['diskon'],
+					'freight_cost'		=> str_replace(',', '', $used['freight_cost']),
+					'total_harga'	    => str_replace(',', '', $used['total_harga']),
 					'created_on'		=> date('Y-m-d H:i:s'),
 					'created_by'		=> $this->auth->user_id(),
-					'nilai_diskon'      => str_replace(',', '', $used[nilai_diskon]),
-					'diskon_compare'		=> $used[compare_diskon]
+					'nilai_diskon'      => str_replace(',', '', $used['nilai_diskon']),
+					'diskon_compare'		=> $used['compare_diskon']
 				);
 			}
 		}
@@ -882,24 +882,24 @@ class Wt_penawaran extends Admin_Controller
 
 		$numb1 = 0;
 		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
+			if (!empty($used['no_surat'])) {
 				$numb1++;
 				$dt[] =  array(
 					'no_penawaran'		=> $code,
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'	=> $used[potensial_loss],
-					'diskon'		    => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    => str_replace(',', '', $used[total_harga]),
+					'id_category3'		=> $used['no_surat'],
+					'nama_produk'	    => $used['nama_produk'],
+					'qty'			    => $used['qty'],
+					'harga_satuan'		=> str_replace(',', '', $used['harga_satuan']),
+					'stok_tersedia'		=> $used['stok_tersedia'],
+					'potensial_loss'	=> $used['potensial_loss'],
+					'diskon'		    => $used['diskon'],
+					'freight_cost'		=> str_replace(',', '', $used['freight_cost']),
+					'total_harga'	    => str_replace(',', '', $used['total_harga']),
 					'revisi'			=> $norev,
 					'created_on'		=> date('Y-m-d H:i:s'),
 					'created_by'		=> $this->auth->user_id(),
-					'nilai_diskon'      => str_replace(',', '', $used[nilai_diskon]),
-					'diskon_compare'    => $used[compare_diskon]
+					'nilai_diskon'      => str_replace(',', '', $used['nilai_diskon']),
+					'diskon_compare'    => $used['compare_diskon']
 				);
 			}
 		}
