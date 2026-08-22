@@ -2197,4 +2197,364 @@ class Wt_invoicing extends Admin_Controller
 	{
 		$this->Wt_invoicing_model->get_data_invoice();
 	}
+
+	public function e_faktur()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->template->page_icon('fa fa-file-excel-o');
+		$this->template->title('E-Faktur CoreTax');
+		$this->template->render('index_efaktur');
+	}
+
+	public function e_faktur_list()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->template->page_icon('fa fa-history');
+		$this->template->title('Riwayat Batch E-Faktur CoreTax');
+		$this->template->render('index_efaktur_list');
+	}
+
+	public function get_efaktur()
+	{
+		$this->Wt_invoicing_model->get_efaktur();
+	}
+
+	public function get_all_efaktur_id()
+	{
+		$ids = $this->Wt_invoicing_model->get_all_efaktur_id();
+		echo json_encode($ids);
+	}
+
+	public function list_efaktur()
+	{
+		$this->Wt_invoicing_model->list_efaktur();
+	}
+
+	public function generate_efaktur()
+	{
+		$invoices = $this->input->post('id_generate');
+		if (empty($invoices)) {
+			echo json_encode([
+				'status' => 'error',
+				'pesan'  => 'Pilih minimal satu invoice untuk diekspor.'
+			]);
+			return;
+		}
+
+		$batch_id = date('ymdHi');
+		$date_export = date('Y-m-d');
+		$time_export = date('H:i:s');
+
+		$log_data = [];
+		foreach ($invoices as $inv_no) {
+			$log_data[] = [
+				'id_export'   => $batch_id,
+				'date_export' => $date_export,
+				'time_export' => $time_export,
+				'invoice_no'  => $inv_no
+			];
+		}
+
+		$this->db->trans_begin();
+
+		// 1. Insert batch logs
+		$this->db->insert_batch('faktur_e_logs', $log_data);
+
+		// 2. Update status tr_invoice
+		$this->db->group_start();
+		$this->db->where_in('no_surat', $invoices);
+		$this->db->or_where_in('no_invoice', $invoices);
+		$this->db->group_end();
+		$this->db->update('tr_invoice', ['stat_efaktur' => 1]);
+
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			echo json_encode([
+				'status' => 'error',
+				'pesan'  => 'Gagal memproses batch e-Faktur. Silakan coba kembali.'
+			]);
+		} else {
+			$this->db->trans_commit();
+			// Store in session for immediate download
+			$this->session->set_userdata('export_data_temp', $invoices);
+			$this->session->set_userdata('export_batch_id', $batch_id);
+
+			echo json_encode([
+				'status'   => 'success',
+				'pesan'    => 'Batch berhasil dibuat. Mengunduh file Excel CoreTax...',
+				'batch_id' => $batch_id
+			]);
+		}
+	}
+
+	public function export_coretax_excel()
+	{
+		$invoices = $this->session->userdata('export_data_temp');
+		$batch_id = $this->session->userdata('export_batch_id');
+
+		if (empty($invoices)) {
+			redirect('wt_invoicing/e_faktur');
+			return;
+		}
+
+		$this->_generate_coretax_spreadsheet($invoices, $batch_id);
+	}
+
+	public function export_coretax_excel_row()
+	{
+		$batch_id = $this->input->get('getID');
+		if (empty($batch_id)) {
+			redirect('wt_invoicing/e_faktur_list');
+			return;
+		}
+
+		$logs = $this->db->get_where('faktur_e_logs', ['id_export' => $batch_id])->result_array();
+		if (empty($logs)) {
+			redirect('wt_invoicing/e_faktur_list');
+			return;
+		}
+
+		$invoices = [];
+		foreach ($logs as $l) {
+			$invoices[] = $l['invoice_no'];
+		}
+
+		$this->_generate_coretax_spreadsheet($invoices, $batch_id);
+	}
+
+	private function _generate_coretax_spreadsheet($invoices, $batch_id = '')
+	{
+		error_reporting(0);
+		ini_set('display_errors', '0');
+		ini_set('memory_limit', '1024M');
+		set_time_limit(0);
+		while (ob_get_level()) {
+			ob_end_clean();
+		}
+
+		require_once APPPATH . 'libraries/PHPExcel.php';
+		PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
+		$objPHPExcel = new PHPExcel();
+
+		$data = $this->Wt_invoicing_model->get_export_coretax_data($invoices);
+
+		$npwp_penjual = '0210982047414000';
+		$tku_penjual  = '0210982047414000000000';
+
+		// ==========================================
+		// SHEET 1: Faktur
+		// ==========================================
+		$objPHPExcel->setActiveSheetIndex(0);
+		$sheetFaktur = $objPHPExcel->getActiveSheet();
+		$sheetFaktur->setTitle('Faktur');
+
+		// Header Penjual
+		$sheetFaktur->mergeCells('A1:B1');
+		$sheetFaktur->setCellValue('A1', 'NPWP Penjual');
+		$sheetFaktur->setCellValueExplicit('C1', $npwp_penjual, PHPExcel_Cell_DataType::TYPE_STRING);
+		$sheetFaktur->getStyle('A1:C1')->getFont()->setBold(true);
+		$sheetFaktur->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		// Header Table Row 3
+		$headersFaktur = [
+			'A' => 'Baris',
+			'B' => 'Tanggal Faktur',
+			'C' => 'Jenis Faktur',
+			'D' => 'Kode Transaksi',
+			'E' => 'Keterangan',
+			'F' => 'Dokumen Pendukung',
+			'G' => 'Period Dok Pendukung',
+			'H' => 'Referensi',
+			'I' => 'Cap Fasilitas',
+			'J' => 'ID TKU Penjual',
+			'K' => 'NPWP/NIK Pembeli',
+			'L' => 'Jenis ID Pembeli',
+			'M' => 'Negara Pembeli',
+			'N' => 'Nomor Dokumen Pembeli',
+			'O' => 'Nama Pembeli',
+			'P' => 'Alamat Pembeli',
+			'Q' => 'Email Pembeli',
+			'R' => 'ID TKU Pembeli'
+		];
+
+		foreach ($headersFaktur as $col => $title) {
+			$sheetFaktur->setCellValue($col . '3', $title);
+			$sheetFaktur->getStyle($col . '3')->getFont()->setBold(true);
+		}
+
+		// ==========================================
+		// SHEET 2: DetailFaktur
+		// ==========================================
+		$sheetDetail = $objPHPExcel->createSheet(1);
+		$sheetDetail->setTitle('DetailFaktur');
+
+		$headersDetail = [
+			'A' => 'Baris',
+			'B' => 'Barang/Jasa',
+			'C' => 'Kode Barang Jasa',
+			'D' => 'Nama Barang/Jasa',
+			'E' => 'Nama Satuan Ukur',
+			'F' => 'Harga Satuan',
+			'G' => 'Jumlah Barang Jasa',
+			'H' => 'Total Diskon',
+			'I' => 'DPP',
+			'J' => 'DPP Nilai Lain',
+			'K' => 'Tarif PPN',
+			'L' => 'PPN',
+			'M' => 'Tarif PPnBM',
+			'N' => 'PPnBM'
+		];
+
+		foreach ($headersDetail as $col => $title) {
+			$sheetDetail->setCellValue($col . '1', $title);
+			$sheetDetail->getStyle($col . '1')->getFont()->setBold(true);
+		}
+
+		// Populate Data
+		$rowFaktur = 4;
+		$rowDetail = 2;
+		$barisIndex = 1;
+
+		foreach ($data as $item) {
+			$hd = $item['header'];
+			$dt = $item['details'];
+
+			$is_kawasan_berikat = ($hd['facility'] == 'Kawasan Berikat');
+			$kode_transaksi = $is_kawasan_berikat ? '07' : '04';
+			$cap_fasilitas  = $is_kawasan_berikat ? 'Bebas PPN' : '';
+
+			// Bersihkan dan format NPWP Pembeli (16 digit)
+			$raw_npwp = preg_replace('/[^0-9]/', '', (string)$hd['npwp']);
+			if (empty($raw_npwp)) {
+				$clean_npwp = '0000000000000000';
+			} else {
+				$clean_npwp = str_pad($raw_npwp, 16, '0', STR_PAD_LEFT);
+			}
+
+			// ID TKU Pembeli: 16 digit + 000000 (22 digit)
+			$tku_pembeli = $clean_npwp . '000000';
+
+			// Format Nama & Alamat Pembeli
+			$nama_pembeli = !empty($hd['npwp_name']) ? $hd['npwp_name'] : $hd['name_customer'];
+			$alamat_pembeli = !empty($hd['npwp_address']) ? $hd['npwp_address'] : (!empty($hd['address_office']) ? $hd['address_office'] : '-');
+			$email_pembeli = !empty($hd['email']) ? $hd['email'] : '';
+			$referensi = !empty($hd['no_surat']) ? $hd['no_surat'] : $hd['no_invoice'];
+
+			// Tulis ke Sheet Faktur
+			$sheetFaktur->setCellValue('A' . $rowFaktur, $barisIndex);
+			$sheetFaktur->setCellValue('B' . $rowFaktur, date('Y-m-d', strtotime($hd['tgl_invoice'])));
+			$sheetFaktur->setCellValue('C' . $rowFaktur, 'FAKTUR');
+			$sheetFaktur->setCellValueExplicit('D' . $rowFaktur, $kode_transaksi, PHPExcel_Cell_DataType::TYPE_STRING);
+			$sheetFaktur->setCellValue('E' . $rowFaktur, '');
+			$sheetFaktur->setCellValue('F' . $rowFaktur, '');
+			$sheetFaktur->setCellValue('G' . $rowFaktur, '');
+			$sheetFaktur->setCellValue('H' . $rowFaktur, $referensi);
+			$sheetFaktur->setCellValue('I' . $rowFaktur, $cap_fasilitas);
+			$sheetFaktur->setCellValueExplicit('J' . $rowFaktur, $tku_penjual, PHPExcel_Cell_DataType::TYPE_STRING);
+			$sheetFaktur->setCellValueExplicit('K' . $rowFaktur, $clean_npwp, PHPExcel_Cell_DataType::TYPE_STRING);
+			$sheetFaktur->setCellValue('L' . $rowFaktur, 'TIN');
+			$sheetFaktur->setCellValue('M' . $rowFaktur, 'IDN');
+			$sheetFaktur->setCellValue('N' . $rowFaktur, '');
+			$sheetFaktur->setCellValue('O' . $rowFaktur, $nama_pembeli);
+			$sheetFaktur->setCellValue('P' . $rowFaktur, $alamat_pembeli);
+			$sheetFaktur->setCellValue('Q' . $rowFaktur, $email_pembeli);
+			$sheetFaktur->setCellValueExplicit('R' . $rowFaktur, $tku_pembeli, PHPExcel_Cell_DataType::TYPE_STRING);
+
+			$rowFaktur++;
+
+			// Tulis ke Sheet DetailFaktur
+			if (!empty($dt)) {
+				foreach ($dt as $d) {
+					$qty = (float)$d['qty_invoice'];
+					$harga_satuan = (float)$d['harga_satuan'];
+					$diskon = (float)$d['nilai_diskon'];
+					if ($diskon <= 0 && (float)$d['diskon'] > 0) {
+						$diskon = ($harga_satuan * $qty * (float)$d['diskon']) / 100;
+					}
+
+					$total_kotor = $harga_satuan * $qty;
+					$dpp = $total_kotor - $diskon;
+					$dpp_nilai_lain = ceil((11 / 12) * $dpp);
+					$tarif_ppn = $is_kawasan_berikat ? 0 : 12;
+					$nilai_ppn = round(($dpp_nilai_lain * $tarif_ppn) / 100, 2);
+
+					$sheetDetail->setCellValue('A' . $rowDetail, $barisIndex);
+					$sheetDetail->setCellValue('B' . $rowDetail, 'A');
+					$sheetDetail->setCellValueExplicit('C' . $rowDetail, '000000', PHPExcel_Cell_DataType::TYPE_STRING);
+					$sheetDetail->setCellValue('D' . $rowDetail, $d['nama_produk']);
+					$sheetDetail->setCellValueExplicit('E' . $rowDetail, 'UM.0001', PHPExcel_Cell_DataType::TYPE_STRING);
+					$sheetDetail->setCellValue('F' . $rowDetail, $harga_satuan);
+					$sheetDetail->setCellValue('G' . $rowDetail, $qty);
+					$sheetDetail->setCellValue('H' . $rowDetail, $diskon);
+					$sheetDetail->setCellValue('I' . $rowDetail, $dpp);
+					$sheetDetail->setCellValue('J' . $rowDetail, $dpp_nilai_lain);
+					$sheetDetail->setCellValue('K' . $rowDetail, $tarif_ppn);
+					$sheetDetail->setCellValue('L' . $rowDetail, $nilai_ppn);
+					$sheetDetail->setCellValue('M' . $rowDetail, 0);
+					$sheetDetail->setCellValue('N' . $rowDetail, 0);
+
+					$sheetDetail->getStyle('F' . $rowDetail . ':N' . $rowDetail)->getNumberFormat()->setFormatCode('#,##0.00');
+
+					$rowDetail++;
+				}
+			} else {
+				// Fallback jika tidak ada detail item, gunakan total invoice
+				$total_inv = (float)$hd['total'] > 0 ? (float)$hd['total'] : ((float)$hd['nilai_invoice'] > 0 ? (float)$hd['nilai_invoice'] : (float)$hd['grand_total']);
+				$diskon_inv = (float)$hd['diskon'];
+				$dpp = $total_inv - $diskon_inv;
+				$dpp_nilai_lain = (float)$hd['dpp'] > 0 ? (float)$hd['dpp'] : ceil((11 / 12) * $dpp);
+				$tarif_ppn = $is_kawasan_berikat ? 0 : 12;
+				$nilai_ppn = $is_kawasan_berikat ? 0 : ((float)$hd['nilai_ppn'] > 0 ? (float)$hd['nilai_ppn'] : round(($dpp_nilai_lain * $tarif_ppn) / 100, 2));
+
+				$sheetDetail->setCellValue('A' . $rowDetail, $barisIndex);
+				$sheetDetail->setCellValue('B' . $rowDetail, 'A');
+				$sheetDetail->setCellValueExplicit('C' . $rowDetail, '000000', PHPExcel_Cell_DataType::TYPE_STRING);
+				$sheetDetail->setCellValue('D' . $rowDetail, 'Penjualan Barang / Tagihan ' . $referensi);
+				$sheetDetail->setCellValueExplicit('E' . $rowDetail, 'UM.0001', PHPExcel_Cell_DataType::TYPE_STRING);
+				$sheetDetail->setCellValue('F' . $rowDetail, $total_inv);
+				$sheetDetail->setCellValue('G' . $rowDetail, 1);
+				$sheetDetail->setCellValue('H' . $rowDetail, $diskon_inv);
+				$sheetDetail->setCellValue('I' . $rowDetail, $dpp);
+				$sheetDetail->setCellValue('J' . $rowDetail, $dpp_nilai_lain);
+				$sheetDetail->setCellValue('K' . $rowDetail, $tarif_ppn);
+				$sheetDetail->setCellValue('L' . $rowDetail, $nilai_ppn);
+				$sheetDetail->setCellValue('M' . $rowDetail, 0);
+				$sheetDetail->setCellValue('N' . $rowDetail, 0);
+
+				$sheetDetail->getStyle('F' . $rowDetail . ':N' . $rowDetail)->getNumberFormat()->setFormatCode('#,##0.00');
+
+				$rowDetail++;
+			}
+
+			$barisIndex++;
+		}
+
+		// Baris Penutup Sheet Faktur: "END"
+		$sheetFaktur->setCellValue('A' . $rowFaktur, 'END');
+		$sheetFaktur->getStyle('A' . $rowFaktur)->getFont()->setBold(true);
+
+		// Auto-size kolom untuk kedua sheet
+		foreach (range('A', 'R') as $col) {
+			$sheetFaktur->getColumnDimension($col)->setAutoSize(true);
+		}
+		foreach (range('A', 'N') as $col) {
+			$sheetDetail->getColumnDimension($col)->setAutoSize(true);
+		}
+
+		$objPHPExcel->setActiveSheetIndex(0);
+
+		$filename = 'Impor_Faktur_Keluaran_Coretax_' . date('Ymd_His') . '.xlsx';
+		if (!empty($batch_id)) {
+			$filename = 'Impor_Faktur_Keluaran_Coretax_' . $batch_id . '.xlsx';
+		}
+
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment;filename="' . $filename . '"');
+		header('Cache-Control: max-age=0');
+
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter->save('php://output');
+		exit;
+	}
 }
+
