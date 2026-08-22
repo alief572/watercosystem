@@ -13,9 +13,18 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 <div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
 <link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
 
-<div class="box">
-	<!-- /.box-header -->
-	<!-- /.box-header -->
+<div class="box box-primary">
+	<div class="box-header with-border">
+		<h3 class="box-title"><i class="fa fa-file-text-o"></i> Daftar Invoice Resmi</h3>
+		<div class="box-tools pull-right">
+			<a href="<?= base_url('wt_invoicing/e_faktur') ?>" class="btn btn-sm btn-success">
+				<i class="fa fa-file-excel-o"></i> E-Faktur CoreTax
+			</a>
+			<a href="<?= base_url('wt_invoicing/e_faktur_list') ?>" class="btn btn-sm btn-info">
+				<i class="fa fa-history"></i> Riwayat Batch CoreTax
+			</a>
+		</div>
+	</div>
 	<div class="box-body">
 		<table id="data_table" class="table table-bordered table-striped">
 			<thead>

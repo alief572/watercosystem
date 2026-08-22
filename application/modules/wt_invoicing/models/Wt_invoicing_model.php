@@ -357,4 +357,251 @@ class Wt_invoicing_model extends BF_Model
       'data' => $hasil
     ]);
   }
+
+  public function get_efaktur()
+  {
+    $draw   = $this->input->post('draw');
+    $length = $this->input->post('length');
+    $start  = $this->input->post('start');
+    $search = $this->input->post('search');
+    $search_val = is_array($search) ? (isset($search['value']) ? $search['value'] : '') : $search;
+
+    $this->db->select('a.*, b.name_customer, b.npwp, b.npwp_name, b.npwp_address, b.facility, b.email, c.nama_top');
+    $this->db->from('tr_invoice a');
+    $this->db->join('master_customers b', 'b.id_customer = a.id_customer', 'left');
+    $this->db->join('ms_top c', 'c.id_top = a.top', 'left');
+    $this->db->where('a.stat_efaktur', 0);
+    $this->db->where('a.deleted_by IS NULL');
+
+    if (!empty($search_val)) {
+      $this->_apply_efaktur_search($search_val);
+    }
+    $this->db->order_by('a.tgl_invoice', 'DESC');
+    $this->db->order_by('a.no_invoice', 'DESC');
+    if ($length != -1) {
+      $this->db->limit($length, $start);
+    }
+    $query = $this->db->get();
+
+    // Total filtered query
+    $this->db->select('a.id');
+    $this->db->from('tr_invoice a');
+    $this->db->join('master_customers b', 'b.id_customer = a.id_customer', 'left');
+    $this->db->join('ms_top c', 'c.id_top = a.top', 'left');
+    $this->db->where('a.stat_efaktur', 0);
+    $this->db->where('a.deleted_by IS NULL');
+    if (!empty($search_val)) {
+      $this->_apply_efaktur_search($search_val);
+    }
+    $recordsFiltered = $this->db->count_all_results();
+
+    // Total records
+    $this->db->where('stat_efaktur', 0);
+    $this->db->where('deleted_by IS NULL');
+    $recordsTotal = $this->db->count_all_results('tr_invoice');
+
+    $hasil = [];
+    $no = $start;
+
+    foreach ($query->result() as $item) {
+      $no++;
+      $clean_npwp = preg_replace('/[^0-9]/', '', (string)$item->npwp);
+      $has_npwp = !empty($clean_npwp);
+
+      if ($has_npwp) {
+        $npwp_badge = '<span class="label label-success" title="' . htmlspecialchars($item->npwp) . '">' . htmlspecialchars($item->npwp) . '</span>';
+      } else {
+        $npwp_badge = '<span class="label label-danger">KOSONG</span>';
+      }
+
+      $invoice_key = !empty($item->no_surat) ? $item->no_surat : $item->no_invoice;
+      $checkbox = '<input type="checkbox" name="set_choose_invoice[]" class="set_choose_invoice" value="' . $invoice_key . '" data-npwp="' . ($has_npwp ? 'valid' : 'invalid') . '">';
+
+      $dpp = (float)$item->dpp;
+      if ($dpp <= 0) {
+        $nilai = (float)$item->nilai_invoice > 0 ? (float)$item->nilai_invoice : (float)$item->grand_total;
+        $dpp = ceil((11 / 12) * $nilai);
+      }
+
+      $nilai_ppn = (float)$item->nilai_ppn;
+      if ($item->facility == 'Kawasan Berikat') {
+        $nilai_ppn = 0;
+      }
+
+      $hasil[] = [
+        'no'            => $no,
+        'checkbox'      => $checkbox,
+        'no_invoice'    => $invoice_key,
+        'tgl_invoice'   => date('d-m-Y', strtotime($item->tgl_invoice)),
+        'nama_customer' => $item->name_customer,
+        'npwp'          => $npwp_badge,
+        'dpp'           => number_format($dpp, 2),
+        'nilai_ppn'     => number_format($nilai_ppn, 2),
+        'grand_total'   => number_format($item->grand_total, 2),
+      ];
+    }
+
+    echo json_encode([
+      'draw'            => intval($draw),
+      'recordsTotal'    => $recordsTotal,
+      'recordsFiltered' => $recordsFiltered,
+      'data'            => $hasil
+    ]);
+  }
+
+  public function get_all_efaktur_id()
+  {
+    $search = $this->input->post('search');
+    $search_val = is_array($search) ? (isset($search['value']) ? $search['value'] : '') : $search;
+
+    $this->db->select('a.no_surat, a.no_invoice');
+    $this->db->from('tr_invoice a');
+    $this->db->join('master_customers b', 'b.id_customer = a.id_customer', 'left');
+    $this->db->where('a.stat_efaktur', 0);
+    $this->db->where('a.deleted_by IS NULL');
+
+    if (!empty($search_val)) {
+      $this->_apply_efaktur_search($search_val);
+    }
+
+    $query = $this->db->get();
+
+    $ids = [];
+    foreach ($query->result() as $row) {
+      $ids[] = !empty($row->no_surat) ? $row->no_surat : $row->no_invoice;
+    }
+    return $ids;
+  }
+
+  private function _apply_efaktur_search($search_val)
+  {
+    $search_val = trim($search_val);
+    if ($search_val === '') {
+      return;
+    }
+
+    $clean_num = preg_replace('/[^0-9]/', '', $search_val);
+
+    $this->db->group_start();
+    // 1. No. Invoice (no_surat dan no_invoice internal)
+    $this->db->like('a.no_surat', $search_val);
+    $this->db->or_like('a.no_invoice', $search_val);
+
+    // 2. Tanggal Invoice (format DB Y-m-d dan format tampilan d-m-Y, d/m/Y, d M Y, d-M-Y)
+    $this->db->or_like('a.tgl_invoice', $search_val);
+    $this->db->or_like("DATE_FORMAT(a.tgl_invoice, '%d-%m-%Y')", $search_val);
+    $this->db->or_like("DATE_FORMAT(a.tgl_invoice, '%d/%m/%Y')", $search_val);
+    $this->db->or_like("DATE_FORMAT(a.tgl_invoice, '%d-%M-%Y')", $search_val);
+    $this->db->or_like("DATE_FORMAT(a.tgl_invoice, '%d %M %Y')", $search_val);
+
+    // 3. Nama Customer
+    $this->db->or_like('b.name_customer', $search_val);
+    $this->db->or_like('b.npwp_name', $search_val);
+
+    // 4. NPWP Customer (teks berformat, angka bersih, atau kata kunci 'kosong')
+    $this->db->or_like('b.npwp', $search_val);
+    if (!empty($clean_num)) {
+      $this->db->or_like("REPLACE(REPLACE(REPLACE(b.npwp, '.', ''), '-', ''), ' ', '')", $clean_num);
+    }
+    if (strtolower($search_val) === 'kosong') {
+      $this->db->or_where("b.npwp IS NULL OR b.npwp = '' OR b.npwp = '0'");
+    }
+    $this->db->group_end();
+  }
+
+  public function list_efaktur()
+  {
+    $draw   = $this->input->post('draw');
+    $length = $this->input->post('length');
+    $start  = $this->input->post('start');
+    $search = $this->input->post('search');
+
+    $this->db->select('id_export, date_export, time_export, COUNT(invoice_no) as total_inv');
+    $this->db->from('faktur_e_logs');
+    if (!empty($search['value'])) {
+      $this->db->group_start();
+      $this->db->like('id_export', $search['value']);
+      $this->db->or_like('date_export', $search['value']);
+      $this->db->group_end();
+    }
+    $this->db->group_by('id_export, date_export, time_export');
+    $this->db->order_by('id_export', 'DESC');
+    if ($length != -1) {
+      $this->db->limit($length, $start);
+    }
+    $query = $this->db->get();
+
+    // Count distinct id_export
+    $this->db->select('COUNT(DISTINCT id_export) as total');
+    $this->db->from('faktur_e_logs');
+    if (!empty($search['value'])) {
+      $this->db->group_start();
+      $this->db->like('id_export', $search['value']);
+      $this->db->or_like('date_export', $search['value']);
+      $this->db->group_end();
+    }
+    $resFiltered = $this->db->get()->row();
+    $recordsFiltered = $resFiltered ? (int)$resFiltered->total : 0;
+
+    $this->db->select('COUNT(DISTINCT id_export) as total');
+    $resTotal = $this->db->get('faktur_e_logs')->row();
+    $recordsTotal = $resTotal ? (int)$resTotal->total : 0;
+
+    $hasil = [];
+    $no = $start;
+
+    foreach ($query->result() as $item) {
+      $no++;
+      $btn_download = '<a href="' . base_url('wt_invoicing/export_coretax_excel_row?getID=' . $item->id_export) . '" class="btn btn-sm btn-success" title="Download Excel CoreTax"><i class="fa fa-file-excel-o"></i> Unduh Excel</a>';
+
+      $hasil[] = [
+        'no'          => $no,
+        'id_export'   => $item->id_export,
+        'date_export' => date('d-m-Y', strtotime($item->date_export)),
+        'time_export' => $item->time_export ? date('H:i:s', strtotime($item->time_export)) : '-',
+        'total_inv'   => '<span class="badge bg-blue">' . $item->total_inv . ' Invoice</span>',
+        'action'      => $btn_download
+      ];
+    }
+
+    echo json_encode([
+      'draw'            => intval($draw),
+      'recordsTotal'    => $recordsTotal,
+      'recordsFiltered' => $recordsFiltered,
+      'data'            => $hasil
+    ]);
+  }
+
+  public function get_export_coretax_data($invoices = [])
+  {
+    if (empty($invoices)) {
+      return [];
+    }
+
+    $this->db->select('a.*, b.name_customer, b.npwp, b.npwp_name, b.npwp_address, b.facility, b.email, b.address_office');
+    $this->db->from('tr_invoice a');
+    $this->db->join('master_customers b', 'b.id_customer = a.id_customer', 'left');
+    $this->db->group_start();
+    $this->db->where_in('a.no_surat', $invoices);
+    $this->db->or_where_in('a.no_invoice', $invoices);
+    $this->db->group_end();
+    $this->db->order_by('a.tgl_invoice', 'ASC');
+    $headers = $this->db->get()->result_array();
+
+    $result = [];
+    foreach ($headers as $hd) {
+      $no_inv = $hd['no_invoice'];
+      $details = $this->db->get_where('tr_invoice_detail', ['no_invoice' => $no_inv])->result_array();
+      if (empty($details) && !empty($hd['id_invoice'])) {
+        $details = $this->db->get_where('tr_invoice_detail', ['id_invoice' => $hd['id_invoice']])->result_array();
+      }
+
+      $result[] = [
+        'header'  => $hd,
+        'details' => $details
+      ];
+    }
+
+    return $result;
+  }
 }
