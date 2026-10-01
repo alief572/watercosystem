@@ -126,13 +126,13 @@ class Piutang_invoice_dataset
 
     public function compare_invoices($a, $b)
     {
+        $date = strcmp($b['tgl_invoice'], $a['tgl_invoice']);
+        if ($date !== 0) {
+            return $date;
+        }
         $customer = strcasecmp($a['customer'], $b['customer']);
         if ($customer !== 0) {
             return $customer;
-        }
-        $date = strcmp($a['tgl_invoice'], $b['tgl_invoice']);
-        if ($date !== 0) {
-            return $date;
         }
         $number = strcmp($a['no_surat'], $b['no_surat']);
         return $number !== 0 ? $number : strcmp($a['no_invoice'], $b['no_invoice']);

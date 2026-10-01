@@ -42,6 +42,8 @@ The server calculates the historical dataset in batches, applies whitelisted sor
 and sends only the requested invoice groups. Each DataTables record is a complete invoice;
 receipt lines align inside its nine cells so pagination never separates an invoice's payments.
 The page footer and Excel represent all filtered groups, regardless of the displayed page.
+Default invoice order is invoice date descending (newest first) for the table, dropdown, and Excel.
+Receipt history within each invoice remains chronological for running payment balances.
 Customer choices omit null/blank names. Searchable invoice options are drawn only from reportable
 outstanding invoices at the selected date/customer and ignore the invoice dropdown's own selection.
 Choosing an invoice uses exact `no_surat` equality rather than substring search. Date/customer changes
