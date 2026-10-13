@@ -101,7 +101,7 @@
             var fields = ['customer', 'tgl_invoice', 'no_surat', 'nilai_invoice', 'kd_pembayaran', 'tgl_pembayaran', 'nilai_bayar', 'total_bayar', 'sisa_piutang'];
             table = $('#piutang-table').DataTable({
                 processing: true, serverSide: true, searching: false, scrollX: true, autoWidth: false,
-                pageLength: 25, lengthMenu: [10, 25, 50, 100], order: [],
+                pageLength: 25, lengthMenu: [10, 25, 50, 100], order: [[1, 'desc']],
                 ajax: function (request, callback) {
                     var version = ++tableVersion;
                     if (tableRequest) { tableRequest.abort(); }

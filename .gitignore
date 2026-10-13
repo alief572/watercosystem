@@ -16,7 +16,10 @@ application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
 /vendor/
-docker-compose.yml
+# docker & env
+.env
+.kiro/
+output/
 docker/mysql/init.sql
 docker/php/php.ini
 docker/apache/Dockerfile

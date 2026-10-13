@@ -23,7 +23,9 @@ class Report_piutang_invoice_model extends CI_Model
         $this->db->select("COALESCE(c.name_customer, i.id_customer, '') AS customer", false);
         $this->db->from('tr_invoice i')->join('master_customers c', 'c.id_customer = i.id_customer', 'left');
         $this->db->where('i.deleted_by IS NULL', null, false)->where('i.printed_on IS NOT NULL', null, false)
-            ->where('i.printed_on >=', '1000-01-01 00:00:00')->where('i.tgl_invoice <=', $filters['tanggal']);
+            ->where('i.printed_on >=', '1000-01-01 00:00:00')
+            ->where('i.tgl_invoice >=', '2024-01-01')
+            ->where('i.tgl_invoice <=', $filters['tanggal']);
         if ($filters['customer_id'] !== '') {
             $this->db->where('i.id_customer', $filters['customer_id']);
         }
@@ -45,6 +47,10 @@ class Report_piutang_invoice_model extends CI_Model
         $this->detail_query();
         $this->db->select("COALESCE(NULLIF(d.nm_customer, ''), p.nm_customer, '') AS customer", false);
         $this->db->join('tr_invoice i', 'i.no_invoice = d.no_invoice', 'left')->where('i.id IS NULL', null, false);
+        $this->db->group_start()
+            ->where('p.tgl_pembayaran >=', '2024-01-01')
+            ->or_where('p.tgl_pembayaran IS NULL', null, false)
+            ->group_end();
         if ($filters['customer_id'] !== '') {
             $this->db->where("COALESCE(NULLIF(d.id_customer, ''), p.id_customer) = " . $this->db->escape($filters['customer_id']), null, false);
         }

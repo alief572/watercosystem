@@ -31,7 +31,8 @@ class Piutang_invoice_dataset
         $groups = array();
         foreach ($invoices as $invoice) {
             if (!empty($invoice['deleted_by']) || !self::valid_date($invoice['tgl_invoice'])
-                || $invoice['tgl_invoice'] > $tanggal || empty($invoice['printed_on'])
+                || $invoice['tgl_invoice'] > $tanggal || $invoice['tgl_invoice'] < '2024-01-01'
+                || empty($invoice['printed_on'])
                 || !self::valid_date(substr($invoice['printed_on'], 0, 10))) {
                 continue;
             }
@@ -103,7 +104,7 @@ class Piutang_invoice_dataset
         usort($result['invoices'], array($this, 'compare_invoices'));
         foreach ($orphans as $orphan) {
             if ($this->cancelled($orphan)
-                || (self::valid_date($orphan['tgl_pembayaran']) && $orphan['tgl_pembayaran'] > $tanggal)) {
+                || (self::valid_date($orphan['tgl_pembayaran']) && ($orphan['tgl_pembayaran'] > $tanggal || $orphan['tgl_pembayaran'] < '2024-01-01'))) {
                 continue;
             }
             $result['verification'][] = array(
