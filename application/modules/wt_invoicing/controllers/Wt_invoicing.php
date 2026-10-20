@@ -2437,7 +2437,8 @@ class Wt_invoicing extends Admin_Controller
 
 			// Tulis ke Sheet Faktur
 			$sheetFaktur->setCellValue('A' . $rowFaktur, $barisIndex);
-			$sheetFaktur->setCellValue('B' . $rowFaktur, date('Y-m-d', strtotime($hd['tgl_invoice'])));
+			$sheetFaktur->setCellValueExplicit('B' . $rowFaktur, PHPExcel_Shared_Date::PHPToExcel(new DateTime(date('Y-m-d', strtotime($hd['tgl_invoice'])))), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+			$sheetFaktur->getStyle('B' . $rowFaktur)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
 			$sheetFaktur->setCellValue('C' . $rowFaktur, 'FAKTUR');
 			$sheetFaktur->setCellValueExplicit('D' . $rowFaktur, $kode_transaksi, PHPExcel_Cell_DataType::TYPE_STRING);
 			$sheetFaktur->setCellValue('E' . $rowFaktur, '');
