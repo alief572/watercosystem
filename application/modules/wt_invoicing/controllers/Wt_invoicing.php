@@ -2440,7 +2440,7 @@ class Wt_invoicing extends Admin_Controller
 			// Converter XML memerlukan teks tanggal, bukan angka serial Excel (Double).
 			$sheetFaktur->setCellValueExplicit('B' . $rowFaktur, date('d/m/Y', strtotime($hd['tgl_invoice'])), PHPExcel_Cell_DataType::TYPE_STRING);
 			$sheetFaktur->getStyle('B' . $rowFaktur)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
-			$sheetFaktur->setCellValue('C' . $rowFaktur, 'FAKTUR');
+			$sheetFaktur->setCellValue('C' . $rowFaktur, 'Normal');
 			$sheetFaktur->setCellValueExplicit('D' . $rowFaktur, $kode_transaksi, PHPExcel_Cell_DataType::TYPE_STRING);
 			$sheetFaktur->setCellValue('E' . $rowFaktur, '');
 			$sheetFaktur->setCellValue('F' . $rowFaktur, '');

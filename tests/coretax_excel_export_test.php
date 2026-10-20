@@ -67,6 +67,7 @@ try {
             'Faktur!B' . $row . ' must be text, not an Excel serial number; got ' . $cell->getDataType());
         check($cell->getValue() === $expected, 'Incorrect invoice date at B' . $row);
         check($cell->getFormattedValue() === $expected, 'Incorrect visible invoice date at B' . $row);
+        check($faktur->getCell('C' . $row)->getValue() === 'Normal', 'Jenis Faktur must be Normal at C' . $row);
         check($faktur->getCell('H' . $row)->getValue() === 'TEST-' . ($row - 3), 'Invoice reference changed');
     }
     check($faktur->getCell('A8')->getValue() === 'END', 'Missing END marker');
@@ -77,7 +78,7 @@ try {
     check($detail->getCell('G2')->getValue() == 2, 'Product quantity changed');
     check($detail->getCell('F2')->getDataType() === PHPExcel_Cell_DataType::TYPE_NUMERIC, 'Price must remain numeric');
     check($detail->getCell('D3')->getValue() === 'Penjualan Barang / Tagihan TEST-2', 'Invoice fallback detail changed');
-    echo "PASS: exported XLSX dates are text with dd/mm/yyyy values; datetime, leap day, leading zeros, sheets and details verified.\n";
+    echo "PASS: exported XLSX dates are text with DD/MM/YYYY values; Normal invoice type, datetime, leap day, leading zeros, sheets and details verified.\n";
 } finally {
     unlink($file);
 }
