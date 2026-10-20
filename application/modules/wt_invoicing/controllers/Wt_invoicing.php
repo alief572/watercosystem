@@ -2333,8 +2333,8 @@ class Wt_invoicing extends Admin_Controller
 
 		$data = $this->Wt_invoicing_model->get_export_coretax_data($invoices);
 
-		$npwp_penjual = '0210982047414000';
-		$tku_penjual  = '0210982047414000000000';
+		$npwp_penjual = '0024144743056000';
+		$tku_penjual  = '0024144743056000000000';
 
 		// ==========================================
 		// SHEET 1: Faktur
