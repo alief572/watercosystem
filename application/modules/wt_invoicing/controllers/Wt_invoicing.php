@@ -2449,7 +2449,7 @@ class Wt_invoicing extends Admin_Controller
 			$sheetFaktur->setCellValueExplicit('K' . $rowFaktur, $clean_npwp, PHPExcel_Cell_DataType::TYPE_STRING);
 			$sheetFaktur->setCellValue('L' . $rowFaktur, 'TIN');
 			$sheetFaktur->setCellValue('M' . $rowFaktur, 'IDN');
-			$sheetFaktur->setCellValue('N' . $rowFaktur, '');
+			$sheetFaktur->setCellValue('N' . $rowFaktur, $referensi);
 			$sheetFaktur->setCellValue('O' . $rowFaktur, $nama_pembeli);
 			$sheetFaktur->setCellValue('P' . $rowFaktur, $alamat_pembeli);
 			$sheetFaktur->setCellValue('Q' . $rowFaktur, $email_pembeli);
