@@ -317,7 +317,7 @@ class Report_progress_so_model extends CI_Model
             }
         }
 
-        // 3. Build rows with progressive cumulative running balance
+        // One row per SO detail keeps quantities and final progress additive.
         $rows = array();
         $total_qty_so = 0;
         $total_qty_kirim = 0;
@@ -326,84 +326,53 @@ class Report_progress_so_model extends CI_Model
         foreach ($items as $item) {
             $id_dtl = $item['id_so_detail'];
             $qty_so = (float) $item['qty_so'];
-            $no_so_display = !empty($item['no_surat_so']) ? $item['no_surat_so'] : $item['no_so'];
-            $sales = !empty($item['nama_sales']) ? $item['nama_sales'] : '-';
-
             $deliveries = isset($deliveries_by_item[$id_dtl]) ? $deliveries_by_item[$id_dtl] : array();
+            $qty_kirim = 0;
+            $do_numbers = array();
+            $latest_do_date = '-';
 
-            if (empty($deliveries)) {
-                // Item has not been shipped at all
-                $total_qty_so += $qty_so;
-                $total_outstanding += $qty_so;
-
-                $rows[] = array(
-                    'no_so' => $no_so_display,
-                    'barang' => $item['nama_produk'],
-                    'qty' => $qty_so,
-                    'tanggal_so' => $item['tgl_so'],
-                    'qty_kirim' => 0,
-                    'outstanding' => $qty_so,
-                    'persen_terkirim' => 0,
-                    'status_kirim' => 'Belum Terkirim',
-                    'status_code' => 'belum_terkirim',
-                    'tanggal_do' => '-',
-                    'no_do' => '-',
-                    'nama_customer' => $item['customer_name'],
-                    'account_handler' => $sales
-                );
-            } else {
-                // Progressive running balance across DO shipments
-                $cumulative_shipped = 0;
-                $is_first_line = true;
-
-                foreach ($deliveries as $do) {
-                    $qty_do = (float) $do['qty_do'];
-                    $cumulative_shipped += $qty_do;
-                    $outstanding = max(0, $qty_so - $cumulative_shipped);
-                    $pct_terkirim = ($qty_so > 0) ? min(100, round(($cumulative_shipped / $qty_so) * 100, 2)) : 0;
-
-                    if ($cumulative_shipped >= $qty_so) {
-                        $status_kirim = 'Terkirim';
-                        $status_code = 'terkirim';
-                    } elseif ($cumulative_shipped > 0) {
-                        $status_kirim = 'Sebagian Kirim';
-                        $status_code = 'sebagian_kirim';
-                    } else {
-                        $status_kirim = 'Belum Terkirim';
-                        $status_code = 'belum_terkirim';
-                    }
-
-                    $do_num = !empty($do['no_surat_do']) ? $do['no_surat_do'] : (!empty($do['no_do']) ? $do['no_do'] : '-');
-                    $do_date = !empty($do['tgl_do']) ? $do['tgl_do'] : '-';
-
-                    // For the grand totals: only count Qty SO once per item
-                    if ($is_first_line) {
-                        $total_qty_so += $qty_so;
-                        $is_first_line = false;
-                    }
-                    $total_qty_kirim += $qty_do;
-
-                    $rows[] = array(
-                        'no_so' => $no_so_display,
-                        'barang' => $item['nama_produk'],
-                        'qty' => $qty_so,
-                        'tanggal_so' => $item['tgl_so'],
-                        'qty_kirim' => $qty_do,
-                        'outstanding' => $outstanding,
-                        'persen_terkirim' => $pct_terkirim,
-                        'status_kirim' => $status_kirim,
-                        'status_code' => $status_code,
-                        'tanggal_do' => $do_date,
-                        'no_do' => $do_num,
-                        'nama_customer' => $item['customer_name'],
-                        'account_handler' => $sales
-                    );
+            foreach ($deliveries as $do) {
+                $qty_kirim += (float) $do['qty_do'];
+                $do_num = !empty($do['no_surat_do']) ? $do['no_surat_do'] : (!empty($do['no_do']) ? $do['no_do'] : '-');
+                if ($do_num !== '-' && !in_array($do_num, $do_numbers, true)) {
+                    $do_numbers[] = $do_num;
                 }
-
-                // Remaining final outstanding for this item in grand total
-                $final_outstanding = max(0, $qty_so - $cumulative_shipped);
-                $total_outstanding += $final_outstanding;
+                if (!empty($do['tgl_do']) && ($latest_do_date === '-' || $do['tgl_do'] > $latest_do_date)) {
+                    $latest_do_date = $do['tgl_do'];
+                }
             }
+
+            $outstanding = max(0, $qty_so - $qty_kirim);
+            $pct_terkirim = ($qty_so > 0) ? min(100, round(($qty_kirim / $qty_so) * 100, 2)) : 0;
+            if ($qty_kirim <= 0) {
+                $status_kirim = 'Belum Terkirim';
+                $status_code = 'belum_terkirim';
+            } elseif ($qty_kirim < $qty_so) {
+                $status_kirim = 'Sebagian Kirim';
+                $status_code = 'sebagian_kirim';
+            } else {
+                $status_kirim = 'Terkirim';
+                $status_code = 'terkirim';
+            }
+
+            $total_qty_so += $qty_so;
+            $total_qty_kirim += $qty_kirim;
+            $total_outstanding += $outstanding;
+            $rows[] = array(
+                'no_so' => !empty($item['no_surat_so']) ? $item['no_surat_so'] : $item['no_so'],
+                'barang' => $item['nama_produk'],
+                'qty' => $qty_so,
+                'tanggal_so' => $item['tgl_so'],
+                'qty_kirim' => $qty_kirim,
+                'outstanding' => $outstanding,
+                'persen_terkirim' => $pct_terkirim,
+                'status_kirim' => $status_kirim,
+                'status_code' => $status_code,
+                'tanggal_do' => $latest_do_date,
+                'no_do' => !empty($do_numbers) ? implode(', ', $do_numbers) : '-',
+                'nama_customer' => $item['customer_name'],
+                'account_handler' => !empty($item['nama_sales']) ? $item['nama_sales'] : '-'
+            );
         }
 
         return array(
