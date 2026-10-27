@@ -229,7 +229,6 @@ class Wt_penawaran extends Admin_Controller
 			'pic_customer'			=> $post['pic_customer'],
 			'email_customer'		=> $post['email_customer'],
 			'top'			        => $post['top'],
-			'order_status'			=> $post['order_sts'],
 			'id_sales'				=> $post['id_sales'],
 			'nama_sales'			=> $post['nama_sales'],
 			'nilai_penawaran'		=> str_replace(',','',$post['totalproduk']),
