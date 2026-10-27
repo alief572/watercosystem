@@ -121,7 +121,7 @@
 				        <label for='email_customer'>Order Status</label>
 			        </div>
 			        <div class='col-md-8' id="">
-					    <select id="order_sts" name="order_sts" class="form-control select" required>
+					    <select id="order_sts" name="order_sts" class="form-control select" disabled>
 							<option value="">--Pilih--</option>
                            <?php if($hd->order_status==stk){ ?>
 						    <option value="stk" selected>Stock</option>
