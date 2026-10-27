@@ -40,7 +40,7 @@ controller_check($auth->permission === 'Report_Progress_Po.View', 'Dedicated rep
 $auth->allowed = true; $controller = new Report_progress_po();
 class Po_input {
     public $values = array();
-    public function get($name) { return $this->values[$name] ?? null; }
+    public function get($name) { return isset($this->values[$name]) ? $this->values[$name] : null; }
 }
 class Po_output {
     public $body, $status, $headers = array();
@@ -84,11 +84,27 @@ $controller->input->values = array('id' => 'missing'); $controller->detail();
 controller_check($controller->output->status === 404, 'Unknown PO returns 404');
 $controller->input->values = array(); $controller->summary();
 controller_check(!isset(json_decode($controller->output->body, true)['rows']), 'Summary endpoint omits item datasets');
+class Sorted_po_model extends Po_model {
+    public function get_dataset($filters, $id = null) {
+        $data = parent::get_dataset($filters, $id);
+        $amounts = array(2, 100, 30);
+        foreach ($data['rows'] as $index => &$row) { $row['native'] = $amounts[$index]; }
+        unset($row);
+        return $data;
+    }
+}
+$controller->report_model = new Sorted_po_model();
+foreach (array('asc' => array('P1', 'P3', 'P2'), 'desc' => array('P2', 'P3', 'P1')) as $direction => $expected) {
+    $controller->input->values = array('sort' => 'native', 'direction' => $direction);
+    $controller->data_po(); $sorted = json_decode($controller->output->body, true);
+    controller_check(array_column($sorted['data'], 'id') === $expected, 'Numeric PO sorting ' . $direction . ' works on PHP 5.6');
+}
 ob_start(); $controller->index(); $html = ob_get_clean();
 controller_check(strpos($html, '&lt;script&gt;unsafe&lt;/script&gt;') !== false && strpos($html, '<script>unsafe</script>') === false, 'Supplier dropdown escapes stored HTML');
 controller_check(strpos($html, 'id="po-filters"') !== false && strpos($html, 'id="po-detail"') !== false, 'Report page renders filters and detail dialog');
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__) . '/application/libraries/PHPExcel.php';
+if (!class_exists('ZipArchive')) { PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP); }
 require dirname(__DIR__) . '/application/modules/report_progress_po/libraries/Progress_po_workbook.php';
 class Export_po_model extends Po_model {
     public function get_dataset($filters, $id = null) {
@@ -106,6 +122,7 @@ $controller->workbook = new Progress_po_workbook();
 $controller->input->values = array('start_date' => '2026-10-01', 'end_date' => '2026-10-31');
 $controller->export_excel();
 controller_check(substr($controller->output->body, 0, 2) === 'PK', 'Export endpoint returns binary XLSX without appended HTML');
+controller_check($controller->workbook->build((new Export_po_model())->get_dataset(array()), Progress_po_rules::filters(array())) instanceof PHPExcel, 'Export uses bundled PHPExcel without Composer');
 controller_check(count(array_filter($controller->output->headers, function ($header) { return strpos($header, 'Content-Disposition: attachment; filename="Report_Progress_PO_2026-10-01_sd_2026-10-31.xlsx"') === 0; })) === 1, 'Download filename contains validated period');
 $controller->input->values = array('start_date' => 'bad'); $controller->export_excel();
 controller_check($controller->output->status === 422, 'Invalid export filter returns JSON before download headers');

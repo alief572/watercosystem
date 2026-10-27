@@ -11,7 +11,8 @@ if (file_exists(APPPATH . 'config/development/database.php')) { require APPPATH 
 require BASEPATH . 'database/DB.php';
 require BASEPATH . 'core/Model.php';
 require APPPATH . 'modules/report_progress_po/models/Report_progress_po_model.php';
-require dirname(__DIR__) . '/vendor/autoload.php';
+require_once dirname(__DIR__) . '/application/libraries/PHPExcel.php';
+if (!class_exists('ZipArchive')) { PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP); }
 require APPPATH . 'modules/report_progress_po/libraries/Progress_po_workbook.php';
 $connection = DB($active_group, true);
 class Integration_progress_po_model extends Report_progress_po_model { public $db; }
@@ -65,13 +66,13 @@ $book = (new Progress_po_workbook())->build($exportData, $filters);
 integration_check($book->getSheetNames() === array('Ringkasan', 'Data PO'), 'Workbook has two expected sheets');
 if ($data['rows']) {
     integration_check($book->getSheet(1)->getCell('B6')->getDataType() === 's', 'Formula-like PO text is exported literally');
-    integration_check($book->getSheet(1)->getHighestDataRow() === 506, 'Export exceeds 500 PO rows');
+    integration_check((int) $book->getSheet(1)->getHighestRow() === 506, 'Export exceeds 500 PO rows');
     integration_check($book->getSheet(1)->getCell('A6')->getDataType() === 'n', 'Excel dates are typed numeric dates');
 }
 $path = tempnam(sys_get_temp_dir(), 'progress-po-');
 try {
-    (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($book))->save($path);
-    $loaded = \PhpOffice\PhpSpreadsheet\IOFactory::load($path);
+    PHPExcel_IOFactory::createWriter($book, 'Excel2007')->save($path);
+    $loaded = PHPExcel_IOFactory::load($path);
     integration_check($loaded->getSheetCount() === 2, 'XLSX serializes and can be reopened');
     $loaded->disconnectWorksheets();
 } finally { unlink($path); $book->disconnectWorksheets(); }
@@ -80,7 +81,7 @@ $issueCounts = array();
 foreach ($data['rows'] as $row) {
     foreach ($row['issues'] as $issue) {
         $reason = strpos($issue, ': ') !== false ? substr($issue, strpos($issue, ': ') + 2) : $issue;
-        $issueCounts[$reason] = ($issueCounts[$reason] ?? 0) + 1;
+        $issueCounts[$reason] = (isset($issueCounts[$reason]) ? $issueCounts[$reason] : 0) + 1;
     }
 }
 echo 'Issue categories: ' . json_encode($issueCounts) . "\n";

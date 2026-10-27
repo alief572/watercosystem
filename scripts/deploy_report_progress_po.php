@@ -16,7 +16,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $connection = mysqli_init();
 $connection->options(MYSQLI_OPT_CONNECT_TIMEOUT, 10);
 try {
-    $connection->real_connect($config['hostname'], $config['username'], $config['password'], $config['database'], (int) ($config['port'] ?? 3306));
+    $connection->real_connect($config['hostname'], $config['username'], $config['password'], $config['database'], (int) (isset($config['port']) ? $config['port'] : 3306));
     $connection->set_charset('utf8mb4');
     echo ($apply ? 'Apply' : 'Check only') . ' database: ' . $config['database'] . "\n";
     $required = array('tr_purchase_order' => array('no_po', 'tanggal', 'matauang', 'nominal_kurs', 'status'),
@@ -60,7 +60,7 @@ try {
         $connection->commit();
         echo "Report registered. No role grants, transaction records or indexes changed.\n";
     }
-} catch (Throwable $error) {
+} catch (Exception $error) {
     if (isset($connection) && $connection->connect_errno === 0 && $apply) { $connection->rollback(); }
     fwrite(STDERR, "Report registration failed; verify database connectivity, schema and metadata.\n");
     exit(1);

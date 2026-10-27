@@ -1,18 +1,15 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Cell\DataType;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+require_once dirname(dirname(dirname(__DIR__))) . '/libraries/PHPExcel.php';
 
 class Progress_po_workbook
 {
     private function row($sheet, $row, $values)
     {
         foreach (array_values($values) as $index => $value) {
-            $cell = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($index + 1) . $row;
-            if (is_string($value)) { $sheet->setCellValueExplicit($cell, $value, DataType::TYPE_STRING); }
+            $cell = PHPExcel_Cell::stringFromColumnIndex($index) . $row;
+            if (is_string($value)) { $sheet->setCellValueExplicit($cell, $value, PHPExcel_Cell_DataType::TYPE_STRING); }
             elseif ($value !== null) { $sheet->setCellValue($cell, $value); }
         }
     }
@@ -20,7 +17,7 @@ class Progress_po_workbook
     private function date($sheet, $cell, $value)
     {
         if ($value) {
-            $sheet->setCellValue($cell, Date::PHPToExcel(new DateTimeImmutable($value, new DateTimeZone('UTC'))));
+            $sheet->setCellValue($cell, PHPExcel_Shared_Date::PHPToExcel(new DateTime($value, new DateTimeZone('UTC'))));
             $sheet->getStyle($cell)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
         }
     }
@@ -28,15 +25,15 @@ class Progress_po_workbook
     private function header($sheet, $row, $labels)
     {
         $this->row($sheet, $row, $labels);
-        $last = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($labels));
+        $last = PHPExcel_Cell::stringFromColumnIndex(count($labels) - 1);
         $style = $sheet->getStyle('A' . $row . ':' . $last . $row);
         $style->getFont()->setBold(true)->getColor()->setARGB('FFFFFFFF');
-        $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FF365A6E');
+        $style->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setARGB('FF365A6E');
     }
 
     public function build($data, $filters)
     {
-        $book = new Spreadsheet();
+        $book = new PHPExcel();
         $book->getProperties()->setTitle('Report Progress PO')->setCreator('Waterco System');
         $book->getDefaultStyle()->getFont()->setName('Calibri')->setSize(11);
         $summary = $book->getActiveSheet()->setTitle('Ringkasan');

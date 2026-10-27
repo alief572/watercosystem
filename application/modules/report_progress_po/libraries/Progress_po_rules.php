@@ -81,7 +81,7 @@ class Progress_po_rules
             $itemReceivedIdr = $validQty ? 0.0 : null; $allocated = 0.0; $history = array();
             $itemReceipts = isset($byItem[$item['id_dt_po']]) ? $byItem[$item['id_dt_po']] : array();
             usort($itemReceipts, function ($a, $b) {
-                return strcmp((string) $a['tanggal'], (string) $b['tanggal']) ?: ((int) $a['id_dt_incoming'] <=> (int) $b['id_dt_incoming']);
+                return strcmp((string) $a['tanggal'], (string) $b['tanggal']) ?: ((int) $a['id_dt_incoming'] == (int) $b['id_dt_incoming'] ? 0 : ((int) $a['id_dt_incoming'] < (int) $b['id_dt_incoming'] ? -1 : 1));
             });
             foreach ($itemReceipts as $receipt) {
                 $rq = $this->number($receipt['qty_recive']);
@@ -181,7 +181,7 @@ class Progress_po_rules
             $suppliers[] = array_merge(array('id' => $id, 'supplier' => $supplierRows[0]['supplier'],
                 'share' => $totals['total_idr'] > 0 ? 100 * $sum['total_idr'] / $totals['total_idr'] : 0.0), $sum);
         }
-        usort($suppliers, function ($a, $b) { return $b['total_idr'] <=> $a['total_idr']; });
+        usort($suppliers, function ($a, $b) { return $a['total_idr'] == $b['total_idr'] ? 0 : ($a['total_idr'] < $b['total_idr'] ? 1 : -1); });
         return array('totals' => $totals, 'monthly' => $monthly, 'suppliers' => $suppliers);
     }
 }

@@ -49,7 +49,7 @@ Ekspor menyimpan tanggal/angka dengan tipe Excel yang sesuai, memaksa teks sebag
 
 ## Registrasi dan rollback
 
-Gunakan PHP 8.1+ dengan PhpSpreadsheet dan ekstensi PHP yang dibutuhkannya terpasang serta tersedia melalui autoloader Composer aplikasi. Perubahan upgrade runtime dan dependency Composer yang masih lokal tidak disertakan dalam commit modul ini; environment tujuan harus menyediakan prasyarat tersebut sebelum mengaktifkan modul. Contoh perintah dari root proyek, dengan konfigurasi environment yang dituju:
+Branch dev dan main tetap menggunakan PHP 5.6. Modul memakai PHPExcel bawaan repository, tanpa PhpSpreadsheet atau autoloader Composer. Ekstensi mysqli/mysqlnd, mbstring, XML dan ZIP mengikuti kebutuhan aplikasi/PHPExcel yang sudah ada; harness tes dapat memakai PCLZip bawaan PHPExcel jika ZipArchive tidak tersedia. Tidak perlu upgrade PHP atau Composer untuk modul ini. Contoh perintah dari root proyek, dengan konfigurasi environment yang dituju:
 
 ```text
 php scripts/deploy_report_progress_po.php --environment=development
@@ -67,6 +67,7 @@ Rollback: nonaktifkan menu `report_progress_po` melalui pengaturan menu, lalu le
 ```text
 php tests/report_progress_po_rules_test.php
 php tests/report_progress_po_controller_test.php
+php tests/report_progress_po_workbook_test.php
 php tests/report_progress_po_integration_test.php
 php tests/report_progress_so_delivery_test.php
 node --check assets/js/report_progress_po.js
@@ -77,7 +78,7 @@ Tes aturan dan controller menggunakan fixture. Tes integrasi membaca database ya
 
 ## Batas validasi awal
 
-Implementasi diverifikasi melalui CLI pada PHP 8.3 dan database Docker lokal `waterco_demo`. Tidak ada pengujian browser. Data lokal awal memuat 311 PO Approved/Closed dan 1.536 detail Incoming terkait; 11 PO ditandai perlu diperiksa. Database dev/produksi terpisah belum didaftarkan atau divalidasi oleh pekerjaan ini. Beberapa harness/framework lama masih mengeluarkan deprecation dynamic property pada PHP 8.3.
+Perbaikan kompatibilitas diverifikasi pada PHP 5.6.40 dengan snapshot file committed dan PHPExcel bawaan repository, tanpa perubahan lokal upgrade PHP/Composer. Tes aturan, controller, dan ekspor XLSX menggunakan fixture; tes integrasi database membutuhkan environment mysqli yang sesuai. Validasi integrasi awal menggunakan PHP 8.3 dan database Docker lokal `waterco_demo`. Tidak ada pengujian browser. Data lokal awal memuat 311 PO Approved/Closed dan 1.536 detail Incoming terkait; 11 PO ditandai perlu diperiksa. Database dev/produksi terpisah belum didaftarkan atau divalidasi oleh pekerjaan ini. Beberapa harness/framework lama masih mengeluarkan deprecation dynamic property pada PHP 8.3.
 
 ## Arah UI dan pemeriksaan antislop
 

@@ -27,7 +27,7 @@ class Report_progress_po extends Admin_Controller
     private function json($data, $status = 200)
     {
         return $this->output->set_status_header($status)->set_content_type('application/json', 'utf-8')
-            ->set_header('Cache-Control: no-store')->set_output(json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE));
+            ->set_header('Cache-Control: no-store')->set_output(json_encode($data));
     }
 
     private function failure($error)
@@ -60,7 +60,7 @@ class Report_progress_po extends Admin_Controller
                 || !in_array($direction, array('asc', 'desc'), true)) { throw new InvalidArgumentException('Pengurutan tidak valid.'); }
             $data = $this->report_model->get_dataset($filters);
             usort($data['rows'], function ($a, $b) use ($sort, $direction) {
-                $result = ($a[$sort] <=> $b[$sort]) ?: strcmp($a['id'], $b['id']);
+                $result = ($a[$sort] == $b[$sort] ? 0 : ($a[$sort] < $b[$sort] ? -1 : 1)) ?: strcmp($a['id'], $b['id']);
                 return $direction === 'asc' ? $result : -$result;
             });
             $rows = array_slice($data['rows'], $start, $length);
@@ -69,7 +69,7 @@ class Report_progress_po extends Admin_Controller
             return $this->json(array('draw' => (int) $draw, 'recordsTotal' => $data['records_total'],
                 'recordsFiltered' => count($data['rows']), 'data' => $rows,
                 'totals' => $data['totals'], 'monthly' => $data['monthly'], 'suppliers' => $data['suppliers'], 'generated_at' => $data['generated_at']));
-        } catch (Throwable $error) { return $this->failure($error); }
+        } catch (Exception $error) { return $this->failure($error); }
     }
 
     public function summary()
@@ -78,7 +78,7 @@ class Report_progress_po extends Admin_Controller
             $data = $this->report_model->get_dataset($this->filters());
             unset($data['rows']);
             return $this->json($data);
-        } catch (Throwable $error) { return $this->failure($error); }
+        } catch (Exception $error) { return $this->failure($error); }
     }
 
     public function detail()
@@ -89,12 +89,12 @@ class Report_progress_po extends Admin_Controller
             $data = $this->report_model->get_dataset($this->filters(), $id);
             if (!$data['rows']) { return $this->json(array('error' => 'PO tidak ditemukan pada filter ini.'), 404); }
             return $this->json($data['rows'][0]);
-        } catch (Throwable $error) { return $this->failure($error); }
+        } catch (Exception $error) { return $this->failure($error); }
     }
 
     public function export_excel()
     {
-        $stream = null; $book = null;
+        $path = null; $book = null;
         try {
             $filters = $this->filters();
             $data = $this->report_model->get_dataset($filters);
@@ -102,18 +102,17 @@ class Report_progress_po extends Admin_Controller
             $book = $this->workbook->build($data, $filters);
             $filename = 'Report_Progress_PO_' . $filters['start_date'] . '_sd_' . $filters['end_date'] . '.xlsx';
             // Finish serialization before setting download headers so failures remain valid JSON.
-            $stream = fopen('php://temp', 'w+b');
-            if ($stream === false) { throw new RuntimeException('Cannot create export stream.'); }
-            (new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($book))->save($stream);
-            rewind($stream);
-            $body = stream_get_contents($stream);
-            if ($body === false) { throw new RuntimeException('Cannot read export stream.'); }
+            $path = tempnam(sys_get_temp_dir(), 'progress-po-');
+            if ($path === false) { throw new RuntimeException('Cannot create export file.'); }
+            PHPExcel_IOFactory::createWriter($book, 'Excel2007')->save($path);
+            $body = file_get_contents($path);
+            if ($body === false) { throw new RuntimeException('Cannot read export file.'); }
             $this->output->enable_profiler(false);
             return $this->output->set_content_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                 ->set_header('Cache-Control: no-store')->set_header('Content-Disposition: attachment; filename="' . $filename . '"')->set_output($body);
-        } catch (Throwable $error) { return $this->failure($error); }
+        } catch (Exception $error) { return $this->failure($error); }
         finally {
-            if (is_resource($stream)) { fclose($stream); }
+            if (is_string($path) && is_file($path)) { unlink($path); }
             if ($book !== null) { $book->disconnectWorksheets(); }
         }
     }
