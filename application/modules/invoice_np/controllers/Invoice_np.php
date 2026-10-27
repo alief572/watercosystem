@@ -67,6 +67,14 @@ class Invoice_np extends Admin_Controller
 			if ($asc_desc == 'desc') {
 				$nomor = ($total_data - $start_dari) - $urut2;
 			}
+
+			$this->db->select('SUM(a.qty * a.harga_total_usd) as grand_total');
+			$this->db->from('tr_invoice_np_detail a');
+			$this->db->where('a.no_invoice', $row['no_invoice']);
+			$get_total = $this->db->get()->row();
+
+			$grand_total = (!empty($get_total->grand_total)) ? $get_total->grand_total : 0;
+
 			$printX = '';
 			$updX = '';
 			$ajukan = '';
@@ -78,7 +86,7 @@ class Invoice_np extends Admin_Controller
 			$nestedData[]	= "<div>" . $row['no_faktur'] . "</div>";
 			$nestedData[]	= "<div>" . $row['keterangan'] . "</div>";
 			$nestedData[]	= "<div>" . $row['nm_customer'] . "</div>";
-			$nestedData[]	= "<div align='right'>" . $row['base_cur'] . " " . number_format($row['total_invoice_usd'], 2) . "</div>";
+			$nestedData[]	= "<div align='right'>" . $row['base_cur'] . " " . number_format($grand_total, 2) . "</div>";
 			//$class = Color_status($row['status']);
 			if ($row['status'] == '0') {
 				if ($Arr_Akses['update'] == '1') {
@@ -297,7 +305,7 @@ class Invoice_np extends Admin_Controller
 							'modified_date' => $dateTime
 						);
 						$this->All_model->dataSave('tr_invoice_np_detail', $data_detail);
-						$total_dpp_usd = ($total_dpp_usd + str_replace(',', '', $val['harga_satuan_usd']));
+						$total_dpp_usd += ($total_dpp_usd + str_replace(',', '', $val['harga_satuan_usd']));
 					}
 				}
 				if ($ppn_persen <> 0) $total_ppn_idr = ($total_dpp_usd * $ppn_persen / 100);

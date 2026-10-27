@@ -1,0 +1,74 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: waterco_web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - ./:/var/www/html
+      - ./php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - TZ=Asia/Jakarta
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USER:-alief}
+      - DB_PASS=${MYSQL_PASSWORD:-sdk*^HkfJKjkefJFJLEJLE}
+      - DB_NAME=${MYSQL_DATABASE:-waterco_demo}
+      - DB_CHARSET=utf8mb4
+      - DB_COLLAT=utf8mb4_unicode_ci
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - waterco_net
+
+  db:
+    build:
+      context: ./docker/mysql
+    container_name: waterco_db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-waterco_demo}
+      MYSQL_USER: ${MYSQL_USER:-alief}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sdk*^HkfJKjkefJFJLEJLE}
+      TZ: Asia/Jakarta
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - waterco_net
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: waterco_pma
+    restart: unless-stopped
+    ports:
+      - "${PMA_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - waterco_net
+
+volumes:
+  db_data:
+
+networks:
+  waterco_net:
+    driver: bridge

@@ -51,7 +51,7 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 
 					$numb = 0;
 					foreach ($results as $record) {
-						$numb++;
+						
 
 						$so = $record->no_so;
 						$invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so='$so'")->result();
@@ -63,6 +63,16 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 
 						$invc =  implode($separator, $allinv);
 
+						// $check_revenue = $this->db->get_where('tr_revenue', array('no_so' => $record->no_surat, 'status_jurnal' => 'CLS'))->result();
+
+						$this->db->select('a.id');
+						$this->db->from('tr_revenue a');
+						$where = "a.no_surat = '$record->no_surat' AND a.status_jurnal = 'CLS'";
+						$this->db->where($where);
+						$check_revenue = $this->db->get()->result();
+
+						if (COUNT($check_revenue) <= 0) :
+							$numb++;
 				?>
 
 
@@ -82,7 +92,9 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 								<?php endif; ?>
 
 						</tr>
-				<?php 	 }
+				<?php 	 
+						endif;
+					}
 				}
 				?>
 			</tbody>

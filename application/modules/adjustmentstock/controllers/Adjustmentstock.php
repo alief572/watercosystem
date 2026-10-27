@@ -23,9 +23,7 @@ class Adjustmentstock extends Admin_Controller
 	{
 		parent::__construct();
 
-		require_once 'vendor/autoload.php';
-
-		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
 		$this->load->model(array(
 			'Adjustmentstock/Inventory_4_model',
 			'Aktifitas/aktifitas_model',
@@ -771,14 +769,11 @@ class Adjustmentstock extends Admin_Controller
 		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
 
-
-
 		$code = $this->Inventory_4_model->generate_id();
 
 		$material  = $post['id_material'];
 		$qtydo     = $post['total_qty'];
 		$surat     = $code;
-
 
 		$adjustment = $post['adjustment'];
 		$id_gudang = $post['id_gudang'];

@@ -21,9 +21,7 @@ class Wt_delivery_order extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		require_once 'vendor/autoload.php';
-
-		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
 		$this->load->model(array(
 			'Wt_penawaran/Wt_penawaran_model',
 			'Wt_delivery_order/Wt_delivery_order_model',

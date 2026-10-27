@@ -136,6 +136,7 @@ $nm_customer  = $total->nm_customer;
 		</thead>
 		<tbody>
 			<?php
+			$grand_total = 0;
 			if (! empty($results)) {
 				$no = 1;
 				$page = 1;
@@ -151,6 +152,8 @@ $nm_customer  = $total->nm_customer;
 					echo "</tr>";
 					$no++;
 				}
+
+				$grand_total += ($data->qty * $data->harga_satuan_usd);
 			}
 
 			echo "<tr>";
@@ -175,9 +178,10 @@ $nm_customer  = $total->nm_customer;
 			if ($total->ppn_persen > 0) {
 				echo number_format($total->total_ppn_idr, 2) . '<br>';
 			}
-			if ($total->total_invoice_usd > 0) {
-				echo number_format($total->total_invoice_usd, 2) . '<br>';
-			}
+			// if ($total->total_invoice_usd > 0) {
+			// 	echo number_format($total->total_invoice_usd, 2) . '<br>';
+			// }
+			echo number_format($grand_total, 2) . '<br>';
 			echo "</td>";
 			echo "</tr>";
 			?>

@@ -11,6 +11,7 @@ header("Content-Disposition: attachment; filename=Report Mutasi Stock (" . date(
         <th style="text-align: center;">Qty</th>
         <th style="text-align: center;">Costbook</th>
         <th style="text-align: center;">Total</th>
+        <th style="text-align: center;">Jumlah Transaksi</th>
     </thead>
     <tbody>
         <?php
@@ -35,6 +36,7 @@ header("Content-Disposition: attachment; filename=Report Mutasi Stock (" . date(
             echo '<td style="text-align: center;">' . number_format($item->qty) . '</td>';
             echo '<td style="text-align: right;">' . number_format($item->nilai_costbook) . '</td>';
             echo '<td style="text-align: right;">' . number_format($item->nilai_costbook * $item->qty) . '</td>';
+            echo '<td style="text-align: center;">' . number_format($jumlah_transaksi[$item->id_category3]) . '</td>';
             echo '</tr>';
 
             $ttl_total += ($item->nilai_costbook * $item->qty);

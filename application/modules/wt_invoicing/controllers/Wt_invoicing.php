@@ -3,10 +3,6 @@ if (!defined('BASEPATH')) {
 	exit('No direct script access allowed');
 }
 
-require_once 'vendor/autoload.php';
-
-use Mpdf\Mpdf;
-
 /*
  * @author Syamsudin
  * @Copyright (c) 2022, Syamsudin
@@ -25,8 +21,7 @@ class Wt_invoicing extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-
-		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
 		$this->load->model(array(
 			'Wt_penawaran/Wt_penawaran_model',
 			'Wt_sales_order/Wt_sales_order_model',
@@ -2127,8 +2122,8 @@ class Wt_invoicing extends Admin_Controller
 
 	function print_invoice($id)
 	{
-		$mpdf = new Mpdf();
-		// $mpdf->SetImportUse();
+		$mpdf = new mPDF('utf-8', array(216, 279), 10, 5, 5, 16, 16, 1, 4, 'P');
+		$mpdf->SetImportUse();
 
 		$data = [
 			'status'		        => 1,
@@ -2164,11 +2159,11 @@ class Wt_invoicing extends Admin_Controller
 			
         ';
 
-		$mpdf->SetHTMLHeader($kop, '0', true);
+		$this->mpdf->SetHTMLHeader($kop, '0', true);
 
 
 
-		$mpdf->AddPageByArray([
+		$this->mpdf->AddPageByArray([
 			'orientation' => 'P',
 			'format' => [216, 279],
 			'margin-top' => 35,
@@ -2178,8 +2173,8 @@ class Wt_invoicing extends Admin_Controller
 			'margin-header' => 0,
 			'margin-footer' => 0,
 		]);
-		$mpdf->WriteHTML($show);
-		$mpdf->Output('Invoice.pdf', 'I');
+		$this->mpdf->WriteHTML($show);
+		$this->mpdf->Output('Invoice.pdf', 'I');
 	}
 
 	public function invoice_jatuhtempo()
@@ -2338,8 +2333,8 @@ class Wt_invoicing extends Admin_Controller
 
 		$data = $this->Wt_invoicing_model->get_export_coretax_data($invoices);
 
-		$npwp_penjual = '0210982047414000';
-		$tku_penjual  = '0210982047414000000000';
+		$npwp_penjual = '0024144743056000';
+		$tku_penjual  = '0024144743056000000000';
 
 		// ==========================================
 		// SHEET 1: Faktur
@@ -2442,8 +2437,10 @@ class Wt_invoicing extends Admin_Controller
 
 			// Tulis ke Sheet Faktur
 			$sheetFaktur->setCellValue('A' . $rowFaktur, $barisIndex);
-			$sheetFaktur->setCellValue('B' . $rowFaktur, date('Y-m-d', strtotime($hd['tgl_invoice'])));
-			$sheetFaktur->setCellValue('C' . $rowFaktur, 'FAKTUR');
+			// Converter XML memerlukan teks tanggal, bukan angka serial Excel (Double).
+			$sheetFaktur->setCellValueExplicit('B' . $rowFaktur, date('d/m/Y', strtotime($hd['tgl_invoice'])), PHPExcel_Cell_DataType::TYPE_STRING);
+			$sheetFaktur->getStyle('B' . $rowFaktur)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
+			$sheetFaktur->setCellValue('C' . $rowFaktur, 'Normal');
 			$sheetFaktur->setCellValueExplicit('D' . $rowFaktur, $kode_transaksi, PHPExcel_Cell_DataType::TYPE_STRING);
 			$sheetFaktur->setCellValue('E' . $rowFaktur, '');
 			$sheetFaktur->setCellValue('F' . $rowFaktur, '');
@@ -2454,7 +2451,7 @@ class Wt_invoicing extends Admin_Controller
 			$sheetFaktur->setCellValueExplicit('K' . $rowFaktur, $clean_npwp, PHPExcel_Cell_DataType::TYPE_STRING);
 			$sheetFaktur->setCellValue('L' . $rowFaktur, 'TIN');
 			$sheetFaktur->setCellValue('M' . $rowFaktur, 'IDN');
-			$sheetFaktur->setCellValue('N' . $rowFaktur, '');
+			$sheetFaktur->setCellValue('N' . $rowFaktur, $referensi);
 			$sheetFaktur->setCellValue('O' . $rowFaktur, $nama_pembeli);
 			$sheetFaktur->setCellValue('P' . $rowFaktur, $alamat_pembeli);
 			$sheetFaktur->setCellValue('Q' . $rowFaktur, $email_pembeli);
@@ -2557,4 +2554,3 @@ class Wt_invoicing extends Admin_Controller
 		exit;
 	}
 }
-

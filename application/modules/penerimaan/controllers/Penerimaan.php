@@ -14,9 +14,7 @@ class Penerimaan extends Admin_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		require_once 'vendor/autoload.php';
-
-		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
 		$this->load->model('Wt_invoicing/Wt_invoicing_model');
 		$this->load->model('Penerimaan/penerimaan_model');
 		$this->load->model('Jurnal_nomor/Acc_model');
@@ -31,7 +29,6 @@ class Penerimaan extends Admin_Controller
 	{
 		$this->template->page_icon('fa fa-list');
 		$data = $this->penerimaan_model->get_data_pn();
-		$this->template->set('title', 'Penerimaan');
 		$this->template->set('results', $data);
 		$this->template->title('Indeks Of Receivable');
 		$this->template->render('list_payment');
@@ -41,7 +38,6 @@ class Penerimaan extends Admin_Controller
 	{
 		$this->template->page_icon('fa fa-list');
 		$data = $this->penerimaan_model->get_data_pn_np();
-		$this->template->set('title', 'Penerimaan Non Product');
 		$this->template->set('results', $data);
 		$this->template->title('Indeks Of Receivable');
 		$this->template->render('list_payment_np');

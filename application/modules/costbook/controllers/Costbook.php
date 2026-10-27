@@ -23,9 +23,7 @@ class Costbook extends Admin_Controller
 	{
 		parent::__construct();
 
-		require_once 'vendor/autoload.php';
-
-		$this->load->library(array('upload', 'Image_lib'));
+		$this->load->library(array('Mpdf', 'upload', 'Image_lib'));
 		$this->load->model(array(
 			'Costbook/Costbook_model',
 			'Crud/Crud_model',
@@ -325,5 +323,13 @@ class Costbook extends Admin_Controller
 		];
 
 		echo json_encode($response);
+	}
+
+
+	public function download_excel()
+	{
+		$get_costbook = $this->Costbook_model->get_costbook();
+
+		$this->load->view('costbook_excel', ['costbook' => $get_costbook]);
 	}
 }

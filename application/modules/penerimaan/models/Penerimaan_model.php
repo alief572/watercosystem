@@ -550,7 +550,7 @@ class Penerimaan_model extends BF_Model
 		$search = $this->input->post('search');
 
 		$subquery = $this->db
-			->select('kd_pembayaran, GROUP_CONCAT(no_surat SEPARATOR ",") as invoiced, SUM(total_bayar_idr) as totalinvoiced')
+			->select('kd_pembayaran, GROUP_CONCAT(DISTINCT no_surat SEPARATOR ",") as invoiced, GROUP_CONCAT(DISTINCT no_invoice SEPARATOR ",") as no_invoices, SUM(total_bayar_idr) as totalinvoiced')
 			->from('view_tr_invoice_payment')
 			->group_by('kd_pembayaran')
 			->get_compiled_select(); // compiles the subquery as a string
@@ -564,6 +564,8 @@ class Penerimaan_model extends BF_Model
 			$this->db->like('a.kd_pembayaran', $search['value'], 'both');
 			$this->db->or_like('a.nm_customer', $search['value'], 'both');
 			$this->db->or_like('a.keterangan', $search['value'], 'both');
+			$this->db->or_like('c.invoiced', $search['value'], 'both');
+			$this->db->or_like('c.no_invoices', $search['value'], 'both');
 			$this->db->group_end();
 		}
 		$this->db->order_by('a.tgl_pembayaran', 'desc');
@@ -571,13 +573,7 @@ class Penerimaan_model extends BF_Model
 
 		$query = $this->db->get();
 
-		$subquery = $this->db
-			->select('kd_pembayaran, GROUP_CONCAT(no_surat SEPARATOR ",") as invoiced, SUM(total_bayar_idr) as totalinvoiced')
-			->from('view_tr_invoice_payment')
-			->group_by('kd_pembayaran')
-			->get_compiled_select(); // compiles the subquery as a string
-
-		// Now do the main query and join the subquery
+		// Count query for total filtered records
 		$this->db->select('a.*, c.invoiced, c.totalinvoiced');
 		$this->db->from('tr_invoice_payment a');
 		$this->db->join("($subquery) c", 'a.kd_pembayaran = c.kd_pembayaran', 'left');
@@ -586,6 +582,8 @@ class Penerimaan_model extends BF_Model
 			$this->db->like('a.kd_pembayaran', $search['value'], 'both');
 			$this->db->or_like('a.nm_customer', $search['value'], 'both');
 			$this->db->or_like('a.keterangan', $search['value'], 'both');
+			$this->db->or_like('c.invoiced', $search['value'], 'both');
+			$this->db->or_like('c.no_invoices', $search['value'], 'both');
 			$this->db->group_end();
 		}
 		$this->db->order_by('a.tgl_pembayaran', 'desc');

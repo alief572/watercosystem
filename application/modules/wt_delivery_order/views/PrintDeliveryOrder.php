@@ -156,7 +156,7 @@
         </thead>
         <tbody>
             <?
-            $no = 0;
+            $n0 = 0;
             foreach ($detail as $detail) {
                 $no++;
             ?>
