@@ -4,9 +4,9 @@
     <title>Cetak PDF</title>
     <style>
         #tables td,
-        th {
+        #tables th {
             border: 1px solid;
-            padding: 0 px;
+            padding: 1.5mm 1mm;
             font-size: 12px;
             border-collapse: collapse;
         }
@@ -141,34 +141,34 @@
     </table>
 
     <br>
-    <table id="tables" border="1" width='100%' align="left">
+    <table id="tables" border="1" cellspacing="0" cellpadding="2" style="width: 100%;" align="left">
         <thead>
             <tr height='60' border="1">
-                <th align="center" width="20" border="1">No</th>
-                <th align="center" width="300" border="1">Produk</th>
-                <th align="center" width="100" border="1">Kode Barang</th>
-                <th align="center" width="30" border="1">Qty</th>
-                <th align="center" width="100" border="1">Serial Number</th>
-                <th align="center" width="100" border="1">No Kartu Garansi</th>
+                <th align="center" style="width: 4%;" border="1">No</th>
+                <th align="center" style="width: 39%;" border="1">Produk</th>
+                <th align="center" style="width: 17%;" border="1">Kode Barang</th>
+                <th align="center" style="width: 5%;" border="1">Qty</th>
+                <th align="center" style="width: 18%;" border="1">Serial Number</th>
+                <th align="center" style="width: 17%;" border="1">No Kartu Garansi</th>
             </tr>
-            <tr></tr>
+
 
         </thead>
         <tbody>
-            <?
-            $n0 = 0;
+            <?php
+            $no = 0;
             foreach ($detail as $detail) {
                 $no++;
             ?>
                 <tr>
-                    <td align="center"><?= $no ?></td>
-                    <td align="left">&nbsp;<?= $detail->nama_produk ?></td>
-                    <td align="left">&nbsp;<?= $detail->kode_barang ?></td>
-                    <td align="center"><?= number_format($detail->qty_do) ?></td>
-                    <td align="left"><?= $detail->serial_number ?></td>
-                    <td align="left"><?= $detail->kartu_garansi ?></td>
+                    <td align="center" style="width: 4%;"><?= $no ?></td>
+                    <td align="left" style="width: 39%; white-space: normal;"><?= htmlspecialchars($detail->nama_produk, ENT_QUOTES, 'UTF-8') ?></td>
+                    <td align="left" style="width: 17%;"><?= htmlspecialchars($detail->kode_barang, ENT_QUOTES, 'UTF-8') ?></td>
+                    <td align="center" style="width: 5%;"><?= number_format($detail->qty_do) ?></td>
+                    <td align="left" style="width: 18%;"><?= $detail->serial_number ?></td>
+                    <td align="left" style="width: 17%;"><?= $detail->kartu_garansi ?></td>
                 </tr>
-            <? } ?>
+            <?php } ?>
         </tbody>
 
 
@@ -176,278 +176,33 @@
 
 
 
-    <table border="0" width='100%' align="left">
+    <br><br>
+    <table border="0" cellspacing="0" style="width: 100%;" align="left">
         <tr>
-
-            <td width="200" align="left"><br><br>
-                <table>
-                    <tr>
-                        <td align='center'>Dibuat Oleh,</td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='center'><u><?= '(-------------------------)' ?></u> </td>
-                    </tr>
-                    <tr>
-                        <td align='center'></td>
-                    </tr>
-                </table>
-            </td>
-            <td width="200" align="left"><br><br>
-                <table>
-                    <tr>
-                        <td align='center'>Menyetujui</td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='center'><u><?= '(-------------------------)' ?></u></td>
-                    </tr>
-                    <tr>
-                        <td align='center'></td>
-                    </tr>
-                </table>
-            </td>
-            <td width="200" align="left"><br><br>
-                <table>
-                    <tr>
-                        <td align='center'>Ekspedisi</td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='center'><u><?= '(-------------------------)' ?></u></td>
-                    </tr>
-                    <tr>
-                        <td align='center'></td>
-                    </tr>
-                </table>
-            </td>
-            <table>
-                <tr>
-                    <td align='center' border='1'>Barang diterima dengan baik &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    </td>
-                </tr>
-            </table>
-            <td width="200" align="left"><br><br>
-                <table>
-                    <tr>
-                        <td align='center'>Diterima Oleh</td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='right'></td>
-                    </tr>
-                    <tr>
-                        <td align='center'><u><?= '(-------------------------)' ?></u></td>
-                    </tr>
-                    <tr>
-                        <td align='center'></td>
-                    </tr>
-                </table>
-            </td>
+            <td style="width: 25%;" align="center">Dibuat Oleh,</td>
+            <td style="width: 25%;" align="center">Menyetujui</td>
+            <td style="width: 25%;" align="center">Ekspedisi</td>
+            <td style="width: 25%;" align="center">Diterima Oleh</td>
         </tr>
         <tr>
-            <td width="800" align="left"><br><br>
-                <table border='1'>
-                    <tr>
-                        <td align='center'>CATATAN : &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            <br><br><br>
-                        </td>
-                    </tr>
-                </table>
-            </td>
+            <td colspan="4" style="height: 22mm;">&nbsp;</td>
+        </tr>
+        <tr>
+            <td align="center"><u>(-------------------------)</u></td>
+            <td align="center"><u>(-------------------------)</u></td>
+            <td align="center"><u>(-------------------------)</u></td>
+            <td align="center"><u>(-------------------------)</u></td>
+        </tr>
+        <tr>
+            <td colspan="3"></td>
+            <td align="center" style="border: 1px solid; font-size: 10px;">Barang diterima dengan baik</td>
         </tr>
     </table>
+    <br>
+    <table border="1" cellspacing="0" cellpadding="3" style="width: 100%;">
+        <tr>
+            <td style="width: 100%; height: 15mm;" valign="top">CATATAN :</td>
+        </tr>
+    </table>
+</body>
+</html>

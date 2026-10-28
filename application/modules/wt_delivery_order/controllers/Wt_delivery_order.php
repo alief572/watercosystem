@@ -879,8 +879,6 @@ class Wt_delivery_order extends Admin_Controller
 
 	public function printDO($id)
 	{
-		ob_clean();
-		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
 
@@ -900,14 +898,12 @@ class Wt_delivery_order extends Admin_Controller
 		$data['detail'] = $this->Wt_delivery_order_model->cariDeliveryOrderDetail($id);
 
 
-		$this->load->view('PrintDeliveryOrder', $data);
-		$html = ob_get_contents();
+		$html = $this->load->view('PrintDeliveryOrder', $data, true);
 
 		require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
 		$html2pdf = new HTML2PDF('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->WriteHTML($html);
-		ob_end_clean();
 		$html2pdf->Output('DeliveryOrder.pdf', 'I');
 	}
 
@@ -915,8 +911,6 @@ class Wt_delivery_order extends Admin_Controller
 
 	public function printDOhistory($id)
 	{
-		ob_clean();
-		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
 
@@ -936,14 +930,12 @@ class Wt_delivery_order extends Admin_Controller
 		$data['detail'] = $this->Wt_delivery_order_model->cariDeliveryOrderDetail($id);
 
 
-		$this->load->view('PrintDeliveryOrderHistory', $data);
-		$html = ob_get_contents();
+		$html = $this->load->view('PrintDeliveryOrderHistory', $data, true);
 
 		require_once('./assets/html2pdf/html2pdf/html2pdf.class.php');
 		$html2pdf = new HTML2PDF('P', 'A4', 'en', true, 'UTF-8', array(10, 5, 10, 5));
 		$html2pdf->pdf->SetDisplayMode('fullpage');
 		$html2pdf->WriteHTML($html);
-		ob_end_clean();
 		$html2pdf->Output('DeliveryOrder.pdf', 'I');
 	}
 
