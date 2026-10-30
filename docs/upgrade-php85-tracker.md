@@ -10,7 +10,7 @@ Sistem ini menjamin pengerjaan bersifat deterministik dan context-independent.
 | Fase | Deskripsi | Status | Commit Checkpoint | Tanggal Selesai |
 | :---: | :--- | :---: | :---: | :---: |
 | **Fase 0** | Isolasi Branch `upgrade/php85`, Docker PHP 8.5 (`8085`), & Infrastruktur Checkpoint | `[x] LULUS` | `6d31140` | 2026-10-30 |
-| **Fase 1** | Audit Database `menus` & Matriks 54 Modul Aktif | `[ ] Belum Mulai` | - | - |
+| **Fase 1** | Audit Database `menus` & Matriks 54 Modul Aktif | `[x] LULUS` | `checkpoint-fase-1` | 2026-10-30 |
 | **Fase 2** | Upgrade Composer (`phpoffice/phpspreadsheet` major, `mpdf` ^8.3) & Fix Shims | `[ ] Belum Mulai` | - | - |
 | **Fase 3** | Patch Bedah Core CI3 (`system/`), HMVC MX & Strict Deprecation Mode | `[ ] Belum Mulai` | - | - |
 | **Fase 4** | Audit & Perbaikan 54 Modul Aktif di PHP 8.5 (Batch 4A–4D) | `[ ] Belum Mulai` | - | - |
@@ -32,6 +32,12 @@ Sistem ini menjamin pengerjaan bersifat deterministik dan context-independent.
 ## 3. Cakupan Modul (Total 54 Modul)
 - **48 Modul Sidebar Aktif** (`status = 1` & `group_menu = 1` pada tabel `menus`)
 - **6 Modul Dependensi Lintas-Modul**: `jurnal_nomor`, `all`, `pembayaran_rutin`, `customer`, `penawaran`, `aktifitas`
+- **Statistik Audit Fase 1**:
+  - Total file diperiksa: 624 file PHP
+  - Syntax error PHP 8.5: **0 file** (bersih)
+  - Modul memakai PDF (mPDF / HTML2PDF): **37 modul**
+  - Modul memakai Excel (Libexcel / Phpexcel_compat / PhpSpreadsheet): **8 modul**
+  - File dengan pola deprecation statis: **139 file** (akan ditangani di Fase 4)
 - Detail status per-modul disimpan di: `docs/upgrade-php85-modules.json`
 
 ---

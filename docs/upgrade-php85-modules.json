@@ -1,0 +1,1725 @@
+{
+    "adjustmentstock": {
+        "module": "adjustmentstock",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Adjustment Stock Gudang I"
+        ],
+        "menu_links": [
+            "adjustmentstock"
+        ],
+        "file_count": 10,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/adjustmentstock/views/gudang.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/adjustmentstock/views/index.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstock/views/list.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "adjustmentstockmulti": {
+        "module": "adjustmentstockmulti",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Adjustment Stock Display",
+            "Adjustment Stock Exdisplay",
+            "Adjustment Stock Retur",
+            "Adjustment Stock Konsinyasi"
+        ],
+        "menu_links": [
+            "adjustmentstockmulti/index_display",
+            "adjustmentstockmulti/index_exdisplay",
+            "Adjustment Stock Retur",
+            "adjustmentstockmulti/konsinyasi"
+        ],
+        "file_count": 18,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/adjustmentstockmulti/views/gudang.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/index.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/index_display.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/index_exdisplay.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/index_konsinyasi.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/index_mutasi.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/index_retur.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/adjustmentstockmulti/views/list.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "aktifitas": {
+        "module": "aktifitas",
+        "category": "cross_dependency",
+        "description": "Helper log aktifitas",
+        "menu_titles": [],
+        "menu_links": [],
+        "file_count": 2,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "all": {
+        "module": "all",
+        "category": "cross_dependency",
+        "description": "Helper model global (All_model)",
+        "menu_titles": [],
+        "menu_links": [],
+        "file_count": 2,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "approval": {
+        "module": "approval",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Request Approval Penawaran"
+        ],
+        "menu_links": [
+            "approval/index_approval"
+        ],
+        "file_count": 3,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/approval/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "budget_periodik": {
+        "module": "budget_periodik",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Budget Pembayaran Periodik"
+        ],
+        "menu_links": [
+            "budget_periodik"
+        ],
+        "file_count": 4,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "costbook": {
+        "module": "costbook",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Costbooks"
+        ],
+        "menu_links": [
+            "costbook"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/costbook/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "customer": {
+        "module": "customer",
+        "category": "cross_dependency",
+        "description": "Endpoint dan model transaksi customer",
+        "menu_titles": [],
+        "menu_links": [],
+        "file_count": 17,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/customer/views/list.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "dashboard": {
+        "module": "dashboard",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Dashboard",
+            "Dashboard Per Sales"
+        ],
+        "menu_links": [
+            "dashboard/management",
+            "dashboard/sales"
+        ],
+        "file_count": 12,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "debit_note": {
+        "module": "debit_note",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Debit Note",
+            "Approval Debit Note"
+        ],
+        "menu_links": [
+            "debit_note",
+            "debit_note/index_approval"
+        ],
+        "file_count": 8,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/debit_note/views/Add.php",
+                "type": "each_removed_80",
+                "count": 10
+            },
+            {
+                "file": "application/modules/debit_note/views/Edit.php",
+                "type": "each_removed_80",
+                "count": 10
+            },
+            {
+                "file": "application/modules/debit_note/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/debit_note/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "expense": {
+        "module": "expense",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Expense",
+            "Expense List",
+            "Expense Petty Cash",
+            "Approval Expense"
+        ],
+        "menu_links": [
+            "expense/index",
+            "expense/expense_list_all",
+            "expense/petty_cash",
+            "expense/list_expense_approval"
+        ],
+        "file_count": 22,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/expense/views/form.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/expense/views/form_pc.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/expense/views/transport_req_form.php",
+                "type": "each_removed_80",
+                "count": 5
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "incoming": {
+        "module": "incoming",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Incoming",
+            "Jurnal Pengakuan Hutang "
+        ],
+        "menu_links": [
+            "incoming",
+            "incoming/index_jurnal"
+        ],
+        "file_count": 14,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/incoming/views/Add.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/incoming/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/incoming/views/index_jurnal_incoming.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "inventory_2": {
+        "module": "inventory_2",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Product Type (lv 2)"
+        ],
+        "menu_links": [
+            "inventory_2"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/inventory_2/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "inventory_3": {
+        "module": "inventory_3",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Usage (lv 3)"
+        ],
+        "menu_links": [
+            "inventory_3"
+        ],
+        "file_count": 6,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/inventory_3/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "inventory_4": {
+        "module": "inventory_4",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Deskripsi produk"
+        ],
+        "menu_links": [
+            "inventory_4"
+        ],
+        "file_count": 11,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/inventory_4/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "invoice_np": {
+        "module": "invoice_np",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Penjualan Non Product"
+        ],
+        "menu_links": [
+            "invoice_np"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/invoice_np/views/form.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/invoice_np/views/index_invoice.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "jurnal_adjustment": {
+        "module": "jurnal_adjustment",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Jurnal Adjustment"
+        ],
+        "menu_links": [
+            "jurnal_adjustment"
+        ],
+        "file_count": 4,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/jurnal_adjustment/views/index.php",
+                "type": "dollar_brace_82",
+                "count": 2
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "jurnal_nomor": {
+        "module": "jurnal_nomor",
+        "category": "cross_dependency",
+        "description": "Helper model penomoran jurnal transaksi",
+        "menu_titles": [],
+        "menu_links": [],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "master_customers": {
+        "module": "master_customers",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Master Customer"
+        ],
+        "menu_links": [
+            "master_customers"
+        ],
+        "file_count": 15,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "master_department": {
+        "module": "master_department",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Department"
+        ],
+        "menu_links": [
+            "master_department"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/master_department/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "master_karyawan": {
+        "module": "master_karyawan",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Karyawan"
+        ],
+        "menu_links": [
+            "master_karyawan"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/master_karyawan/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "master_suplier": {
+        "module": "master_suplier",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Master Suplier"
+        ],
+        "menu_links": [
+            "master_suplier"
+        ],
+        "file_count": 16,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "menus": {
+        "module": "menus",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Menus"
+        ],
+        "menu_links": [
+            "menus"
+        ],
+        "file_count": 8,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "ms_diskon": {
+        "module": "ms_diskon",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Diskon"
+        ],
+        "menu_links": [
+            "ms_diskon"
+        ],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "ms_kurs": {
+        "module": "ms_kurs",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Master Kurs"
+        ],
+        "menu_links": [
+            "ms_kurs"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/ms_kurs/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "ms_product_costing": {
+        "module": "ms_product_costing",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Formula",
+            "Calculation",
+            "Pricelist"
+        ],
+        "menu_links": [
+            "ms_product_costing/formula",
+            "ms_product_costing/calculation",
+            "ms_product_costing/index_sales"
+        ],
+        "file_count": 12,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "ms_top": {
+        "module": "ms_top",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Term Of Payment"
+        ],
+        "menu_links": [
+            "ms_top"
+        ],
+        "file_count": 8,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "pembayaran_rutin": {
+        "module": "pembayaran_rutin",
+        "category": "cross_dependency",
+        "description": "Modul endpoint finance/rutin",
+        "menu_titles": [],
+        "menu_links": [],
+        "file_count": 4,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/pembayaran_rutin/views/input_form.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "penawaran": {
+        "module": "penawaran",
+        "category": "cross_dependency",
+        "description": "Model inventory penawaran",
+        "menu_titles": [],
+        "menu_links": [],
+        "file_count": 17,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/penawaran/views/detail.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/penawaran/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/penawaran/views/list.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "penerimaan": {
+        "module": "penerimaan",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Penerimaan",
+            "Jurnal Penerimaan",
+            "Penerimaan Non Product",
+            "Jurnal Penerimaan Non Product"
+        ],
+        "menu_links": [
+            "penerimaan",
+            "penerimaan/jurnal_bum",
+            "penerimaan/index_np",
+            "penerimaan/jurnal_bum_np"
+        ],
+        "file_count": 21,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/penerimaan/views/create_lebihbayar.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/penerimaan/views/create_penerimaan.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/penerimaan/views/create_penerimaan2.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/penerimaan/views/create_penerimaan_new.php",
+                "type": "each_removed_80",
+                "count": 4
+            },
+            {
+                "file": "application/modules/penerimaan/views/create_penerimaan_new_bck.php",
+                "type": "each_removed_80",
+                "count": 4
+            },
+            {
+                "file": "application/modules/penerimaan/views/create_penerimaan_np.php",
+                "type": "each_removed_80",
+                "count": 4
+            },
+            {
+                "file": "application/modules/penerimaan/views/create_unlocated.php",
+                "type": "each_removed_80",
+                "count": 2
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "penerimaandn": {
+        "module": "penerimaandn",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Penerimaan Debit Note"
+        ],
+        "menu_links": [
+            "penerimaandn"
+        ],
+        "file_count": 17,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/penerimaandn/views/create_lebihbayar.php",
+                "type": "each_removed_80",
+                "count": 2
+            },
+            {
+                "file": "application/modules/penerimaandn/views/create_penerimaan.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/penerimaandn/views/create_penerimaan2.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/penerimaandn/views/create_penerimaan_new.php",
+                "type": "each_removed_80",
+                "count": 4
+            },
+            {
+                "file": "application/modules/penerimaandn/views/create_penerimaan_new_bck.php",
+                "type": "each_removed_80",
+                "count": 4
+            },
+            {
+                "file": "application/modules/penerimaandn/views/create_unlocated.php",
+                "type": "each_removed_80",
+                "count": 2
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "pengajuan_rutin": {
+        "module": "pengajuan_rutin",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Pembayaran Periodik",
+            "Approval Pengajuan Pembayaran Rutin"
+        ],
+        "menu_links": [
+            "pengajuan_rutin",
+            "pengajuan_rutin/app_list"
+        ],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/pengajuan_rutin/views/input_form.php",
+                "type": "each_removed_80",
+                "count": 2
+            }
+        ],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "permissions": {
+        "module": "permissions",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Permissions"
+        ],
+        "menu_links": [
+            "permissions"
+        ],
+        "file_count": 7,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "pettycash": {
+        "module": "pettycash",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Petty Cash"
+        ],
+        "menu_links": [
+            "pettycash/index"
+        ],
+        "file_count": 4,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "purchase_order": {
+        "module": "purchase_order",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Purchase Order"
+        ],
+        "menu_links": [
+            "purchase_order"
+        ],
+        "file_count": 13,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/purchase_order/views/Add.php",
+                "type": "each_removed_80",
+                "count": 8
+            },
+            {
+                "file": "application/modules/purchase_order/views/add_purchaseorder.php",
+                "type": "each_removed_80",
+                "count": 13
+            },
+            {
+                "file": "application/modules/purchase_order/views/Edit.php",
+                "type": "each_removed_80",
+                "count": 8
+            },
+            {
+                "file": "application/modules/purchase_order/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order/views/index_pr.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "purchase_order_payment": {
+        "module": "purchase_order_payment",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Pembayaran Purchase Order",
+            "Jurnal Pembayaran PO",
+            "Request Pembayaran Approval",
+            "Request Pembayaran PO"
+        ],
+        "menu_links": [
+            "purchase_order_payment/index_payment",
+            "purchase_order_payment/jurnal_po",
+            "purchase_order_payment/index_approval",
+            "purchase_order_payment"
+        ],
+        "file_count": 15,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/purchase_order_payment/views/Add.php",
+                "type": "each_removed_80",
+                "count": 8
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/add_purchaseorder.php",
+                "type": "each_removed_80",
+                "count": 12
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/approval_bayar.php",
+                "type": "each_removed_80",
+                "count": 8
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/Edit.php",
+                "type": "each_removed_80",
+                "count": 8
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/index_incoming.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/index_jurnal.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/index_payment.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/index_pr.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_order_payment/views/request_bayar.php",
+                "type": "each_removed_80",
+                "count": 8
+            }
+        ],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "purchase_request": {
+        "module": "purchase_request",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Purchase Request",
+            "Purchase Request Approval"
+        ],
+        "menu_links": [
+            "purchase_request",
+            "purchase_request/index_approval"
+        ],
+        "file_count": 9,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/purchase_request/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/purchase_request/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "report_mutasi_stock": {
+        "module": "report_mutasi_stock",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Report Mutasi Stock V2"
+        ],
+        "menu_links": [
+            "report_mutasi_stock"
+        ],
+        "file_count": 6,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "report_piutang_invoice": {
+        "module": "report_piutang_invoice",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Report Piutang per Invoice"
+        ],
+        "menu_links": [
+            "report_piutang_invoice"
+        ],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "report_progress_po": {
+        "module": "report_progress_po",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Report Progress PO"
+        ],
+        "menu_links": [
+            "report_progress_po"
+        ],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "report_progress_so": {
+        "module": "report_progress_so",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Report Progress SO"
+        ],
+        "menu_links": [
+            "report_progress_so"
+        ],
+        "file_count": 4,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "reports": {
+        "module": "reports",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Deposit",
+            "Revenue",
+            "Revenue Detail",
+            "Report Payment Jurnal",
+            "Diskon SO",
+            "Report Mutasi Stock"
+        ],
+        "menu_links": [
+            "reports/unlocated",
+            "reports/revenue",
+            "reports/detailrevenue",
+            "reports/payment_jurnal_list",
+            "reports/detail_salesorder",
+            "reports/report_mutasi_stock"
+        ],
+        "file_count": 22,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/reports/views/report_invoice.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/reports/views/report_jurnal_invoice.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/reports/views/report_penawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/reports/views/report_penawaran_dikirim.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/reports/views/report_penawaran_loss.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/reports/views/report_penawaran_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "request_payment": {
+        "module": "request_payment",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Approval Request Payment",
+            "Payment",
+            "Payment Jurnal",
+            "Request Payment"
+        ],
+        "menu_links": [
+            "request_payment/list_approve",
+            "request_payment/list_payment",
+            "request_payment/payment_jurnal_list",
+            "request_payment/index"
+        ],
+        "file_count": 32,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/request_payment/bak/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/request_payment/bak2/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/request_payment/bak_20221031/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/request_payment/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/request_payment/views/list_payment.php",
+                "type": "each_removed_80",
+                "count": 2
+            }
+        ],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "stock_material": {
+        "module": "stock_material",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Stock Gudang I",
+            "Stock Gudang Backdate",
+            "Kartu Stok",
+            "Edit Kartu Stok",
+            "Nilai Inventory"
+        ],
+        "menu_links": [
+            "stock_material/GudangRawMaterial",
+            "stock_material/GudangRawMaterialBackdate",
+            "stock_material/view_kartu_stok",
+            "stock_material/view_kartu_stok_edit",
+            "stock_material/GudangRawMaterialHarga"
+        ],
+        "file_count": 24,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/stock_material/views/gudang.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material/views/index_kartu_stok.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material/views/index_kartu_stok_edit.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material/views/list.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "stock_material_multi": {
+        "module": "stock_material_multi",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Stock Gudang Display",
+            "Stock Gudang Exdisplay",
+            "Stock Gudang Retur",
+            "Stock Gudang Konsinyasi"
+        ],
+        "menu_links": [
+            "stock_material_multi/gudangdisplay",
+            "stock_material_multi/gudangexdisplay",
+            "stock_material_multi/gudangretur",
+            "stock_material_multi/gudangkonsinyasi"
+        ],
+        "file_count": 24,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/stock_material_multi/views/gudang.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material_multi/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material_multi/views/index_kartu_stok.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/stock_material_multi/views/list.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "tools": {
+        "module": "tools",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Batal Planning",
+            "Batal SO"
+        ],
+        "menu_links": [
+            "tools/batal_planning",
+            "tools/batal_so"
+        ],
+        "file_count": 4,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "users": {
+        "module": "users",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Users"
+        ],
+        "menu_links": [
+            "users/setting"
+        ],
+        "file_count": 14,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/users/views/user_permissions.php",
+                "type": "each_removed_80",
+                "count": 2
+            }
+        ],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "warehouse": {
+        "module": "warehouse",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Warehouse"
+        ],
+        "menu_links": [
+            "warehouse"
+        ],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "none",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "warehouse_material": {
+        "module": "warehouse_material",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Warehouse Material"
+        ],
+        "menu_links": [
+            "warehouse_material"
+        ],
+        "file_count": 12,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [],
+        "pdf_usage": "mpdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "wt_delivery_order": {
+        "module": "wt_delivery_order",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Delivery",
+            "Planning Delivery",
+            "SPK Delivery",
+            "Approval Finance",
+            "History Delivery",
+            "History Detail Pengiriman",
+            "SO Delivery",
+            "Jurnal Delivery"
+        ],
+        "menu_links": [
+            "wt_delivery_order/delivery_order",
+            "wt_delivery_order/planning_do",
+            "wt_delivery_order/spk_delivery",
+            "wt_delivery_order/approval_planning_do",
+            "wt_delivery_order/delivery_order_history",
+            "wt_delivery_order/history_pengiriman",
+            "wt_delivery_order/index_planning",
+            "wt_delivery_order/delivery_order_jurnal"
+        ],
+        "file_count": 25,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/wt_delivery_order/views/addpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/delivery_order.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_approval_delivery.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_deliveryorder.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_deliveryorder_detail_costbook.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_deliveryorder_history.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_planning.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_planningdelivery.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/index_spkdelivery.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_delivery_order/views/planning_delivery.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "wt_invoicing": {
+        "module": "wt_invoicing",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Planning Tagih",
+            "Invoice",
+            "Monitoring Invoice",
+            "Invoice Close",
+            "Jurnal Invoicing"
+        ],
+        "menu_links": [
+            "wt_invoicing/plan_tagih",
+            "wt_invoicing",
+            "wt_invoicing/index_monitoring",
+            "wt_invoicing/index_close",
+            "wt_invoicing/jurnal_invoicing"
+        ],
+        "file_count": 36,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/wt_invoicing/controllers/Wt_invoicing.php",
+                "type": "non_canonical_cast_85",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/addpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/create_invoice.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/create_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/deal_invoice.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/deal_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/editpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/formprosesapproval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/history.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/historyfu.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_close.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_efaktur.php",
+                "type": "each_removed_80",
+                "count": 3
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_jatuhtempo.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_loss.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_monitoring.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/index_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/preview_invoice.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_invoicing/views/revisipenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "phpexcel_alias",
+        "status": "audited"
+    },
+    "wt_penawaran": {
+        "module": "wt_penawaran",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Penawaran",
+            "Loss Penawaran",
+            "History Penawaran"
+        ],
+        "menu_links": [
+            "wt_penawaran",
+            "wt_penawaran/index_loss",
+            "wt_penawaran/history"
+        ],
+        "file_count": 21,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/wt_penawaran/views/addpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/editpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/editpenawaranapprove.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/formprosesapproval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/index_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/lihatpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_penawaran/views/revisipenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "wt_revenue": {
+        "module": "wt_revenue",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "Pengakuan Revenue",
+            "Jurnal Revenue"
+        ],
+        "menu_links": [
+            "wt_revenue",
+            "wt_revenue/jurnal_revenue"
+        ],
+        "file_count": 5,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/wt_revenue/views/create_revenue.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    },
+    "wt_sales_order": {
+        "module": "wt_sales_order",
+        "category": "menu_group_1",
+        "description": "Sidebar menu aktif group 1",
+        "menu_titles": [
+            "SO Invoice",
+            "SO Invoice Indent"
+        ],
+        "menu_links": [
+            "wt_sales_order",
+            "wt_sales_order/so_invoice_indent"
+        ],
+        "file_count": 24,
+        "php85_syntax_errors": [],
+        "php85_deprecations_static": [
+            {
+                "file": "application/modules/wt_sales_order/views/addpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/create_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/deal_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/editpenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/formprosesapproval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/history.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/index_approval.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/index_loss.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/index_so.php",
+                "type": "each_removed_80",
+                "count": 1
+            },
+            {
+                "file": "application/modules/wt_sales_order/views/revisipenawaran.php",
+                "type": "each_removed_80",
+                "count": 1
+            }
+        ],
+        "pdf_usage": "mpdf+html2pdf",
+        "excel_usage": "none",
+        "status": "audited"
+    }
+}
