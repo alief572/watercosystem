@@ -127,11 +127,22 @@ if ($phase === 1 || $showStatus) {
 
 if ($phase === 2 || $showStatus) {
     echo color("[FASE 2: Composer Dependency & Shims Excel/PDF]", "yellow") . "\n";
-    $p2_1 = check("Composer autoload aktif di root vendor", file_exists("$docRoot/vendor/autoload.php"));
+    $hasAutoload = file_exists("$docRoot/vendor/autoload.php");
+    if ($hasAutoload) {
+        require_once "$docRoot/vendor/autoload.php";
+    }
+    if (!defined('FCPATH')) define('FCPATH', "$docRoot/");
+    if (!defined('BASEPATH')) define('BASEPATH', "$docRoot/system/");
+    if (!defined('APPPATH')) define('APPPATH', "$docRoot/application/");
+    if (file_exists("$docRoot/application/libraries/Phpexcel_compat.php")) {
+        require_once "$docRoot/application/libraries/Phpexcel_compat.php";
+    }
+
+    $p2_1 = check("Composer autoload aktif di root vendor", $hasAutoload);
     $p2_2 = check("Class Spreadsheet resolve", class_exists('\\PhpOffice\\PhpSpreadsheet\\Spreadsheet'));
     $p2_3 = check("Class Mpdf resolve", class_exists('\\Mpdf\\Mpdf'));
     $p2_4 = check("Class Html2Pdf resolve", class_exists('\\Spipu\\Html2Pdf\\Html2Pdf'));
-    $p2_5 = check("Phpexcel_compat alias aktif", class_exists('PHPExcel', true) || file_exists("$docRoot/application/libraries/Phpexcel_compat.php"));
+    $p2_5 = check("Phpexcel_compat alias aktif", class_exists('PHPExcel'));
 
     $phase2Passed = $p2_1 && $p2_2 && $p2_3 && $p2_4 && $p2_5;
     echo "Hasil Fase 2: " . ($phase2Passed ? color("LULUS", "green") : color("BELUM LULUS", "red")) . "\n\n";

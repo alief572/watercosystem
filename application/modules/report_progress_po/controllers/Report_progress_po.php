@@ -104,7 +104,7 @@ class Report_progress_po extends Admin_Controller
             // Finish serialization before setting download headers so failures remain valid JSON.
             $path = tempnam(sys_get_temp_dir(), 'progress-po-');
             if ($path === false) { throw new RuntimeException('Cannot create export file.'); }
-            PHPExcel_IOFactory::createWriter($book, 'Excel2007')->save($path);
+            PHPExcel_IOFactory::createWriter($book, 'Xlsx')->save($path);
             $body = file_get_contents($path);
             if ($body === false) { throw new RuntimeException('Cannot read export file.'); }
             $this->output->enable_profiler(false);

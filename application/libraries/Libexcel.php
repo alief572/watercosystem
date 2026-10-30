@@ -135,9 +135,11 @@ class Libexcel
             }
         }
 
+        if (!headers_sent()) {
         header('Content-Type: application/vnd.ms-excel'); // mime type
         header('Content-Disposition: attachment;filename="' . $sFILNAM . '.xls"'); // nama file
         header('Cache-Control: max-age=0'); // no cache
+        }
 
         // Excel5 (PHPExcel) -> Xls (PhpSpreadsheet), tetap format .xls 2003.
         $objWriter = IOFactory::createWriter($objPHPExcel, 'Xls');

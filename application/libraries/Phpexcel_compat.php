@@ -50,6 +50,7 @@ class Phpexcel_compat
             'PHPExcel_Worksheet_PageSetup'  => '\\PhpOffice\\PhpSpreadsheet\\Worksheet\\PageSetup',
             'PHPExcel_Settings'             => '\\PhpOffice\\PhpSpreadsheet\\Settings',
             'PHPExcel_RichText'             => '\\PhpOffice\\PhpSpreadsheet\\RichText\\RichText',
+            'PHPExcel_Shared_Date'          => '\\PhpOffice\\PhpSpreadsheet\\Shared\\Date',
         );
 
         foreach ($map as $old => $new) {
