@@ -38,7 +38,7 @@ class Tools_model extends BF_Model {
         $where3 = "a.no_surat_planning  LIKE '%$noplanning%'"; 		
 		//$this->db->where($where2);
 		$this->db->where($where3);
-		$this->db->order_by('a.no_planning', DESC);
+		$this->db->order_by('a.no_planning', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 		
@@ -56,7 +56,7 @@ class Tools_model extends BF_Model {
 		$where2 = "a.status !='0'";
 		$this->db->where($where);
 		$this->db->where($where2);
-		$this->db->order_by('a.no_so', DESC);
+		$this->db->order_by('a.no_so', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

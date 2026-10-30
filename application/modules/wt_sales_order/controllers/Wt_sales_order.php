@@ -192,7 +192,7 @@ class Wt_sales_order extends Admin_Controller
 		$post = $this->input->post();
 
 		$code = $this->Wt_sales_order_model->generate_id();
-		$no_surat = $this->Wt_sales_order_model->BuatNomor();
+		$no_surat = $this->Wt_sales_order_model->BuatNomor($post['tanggal']);
 		$this->db->trans_begin();
 
 		$config['upload_path'] = './assets/file_po/'; //path folder
@@ -280,33 +280,31 @@ class Wt_sales_order extends Admin_Controller
 
 		$numb1 = 0;
 		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
+			if (!empty($used['no_surat'])) {
 				$numb1++;
 				$dt[] =  array(
 					'id_so'		=> $code,
-					'id_penawaran_detail' => $used[id_penawaran],
+					'id_penawaran_detail' => $used['id_penawaran'],
 					'no_penawaran'		=> $post['no_penawaran'],
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty_so'			    => $used[qty_so],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'		=> $used[potensial_loss],
-					'diskon'		        => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    =>  str_replace(',', '', $used[total_harga]),
-					'tgl_delivery'	    => $used[tgl_delivery],
+					'id_category3'		=> $used['no_surat'],
+					'nama_produk'	    => $used['nama_produk'],
+					'qty_so'			    => $used['qty_so'],
+					'qty'			    => $used['qty'],
+					'harga_satuan'		=> str_replace(',', '', $used['harga_satuan']),
+					'stok_tersedia'		=> $used['stok_tersedia'],
+					'potensial_loss'		=> $used['potensial_loss'],
+					'diskon'		        => $used['diskon'],
+					'freight_cost'		=> str_replace(',', '', $used['freight_cost']),
+					'total_harga'	    =>  str_replace(',', '', $used['total_harga']),
+					'tgl_delivery'	    => $used['tgl_delivery'],
 					'created_on'			=> date('Y-m-d H:i:s'),
 					'created_by'			=> $this->auth->user_id(),
-					'nilai_diskon'		=> str_replace(',', '', $used[nilai_diskon])
+					'nilai_diskon'		=> str_replace(',', '', $used['nilai_diskon'])
 				);
 
 
-				$material = $used[no_surat];
-				$qtyso    = $used[qty_so];
-
-				$this->db->query("UPDATE stock_material SET qty_free=qty_free - $qtyso , qty_book=qty_book + $qtyso  WHERE id_category3='$material'");
+				$material = $used['no_surat'];
+				$qtyso    = $used['qty_so'];
 			}
 		}
 		//    print_r($dt);
@@ -343,12 +341,16 @@ class Wt_sales_order extends Admin_Controller
 	public function SaveDealNewSalesOrder()
 	{
 		$this->auth->restrict($this->addPermission);
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () {
+		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
 		$id	= $post['id_so'];
 		$tanggal = $post['tanggal'];
 		$code = $this->Wt_sales_order_model->generate_code();
 		$no_surat = $this->Wt_sales_order_model->BuatNomor($tanggal);
 		$this->db->trans_begin();
+		$this->stock_booking->validateOrder($post['no_penawaran'], $post['order_sts'] ?? null, $post['booking_request_key'] ?? null);
 
 		$config['upload_path'] = './assets/file_po/'; //path folder
 		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp|doc|docx|xls|xlsx|ppt|pptx|pdf|rar|zip|vsd'; //type yang dapat diakses bisa anda sesuaikan
@@ -414,10 +416,10 @@ class Wt_sales_order extends Admin_Controller
 		$numb1 = 0;
 		$totalcostbook = 0;
 		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
+			if (!empty($used['no_surat'])) {
 				$numb1++;
-				$qtyso   	= $used[qty_so];
-				$idmaterial 	= $used[no_surat];
+				$qtyso   	= $used['qty_so'];
+				$idmaterial 	= $used['no_surat'];
 				$cost = $this->db->query("SELECT * FROM ms_costbook WHERE id_category3='$idmaterial'")->row();
 				$costbook = $cost->nilai_costbook * $qtyso;
 
@@ -428,22 +430,22 @@ class Wt_sales_order extends Admin_Controller
 				//    exit;
 				$dt[] =  array(
 					'no_so'		=> $code,
-					'id_penawaran_detail' => $used[id_penawaran],
+					'id_penawaran_detail' => $used['id_penawaran'],
 					'no_penawaran'		=> $post['no_penawaran'],
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty_so'			    => $used[qty_so],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'		=> $used[potensial_loss],
-					'diskon'		        => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    =>  str_replace(',', '', $used[total_harga]),
-					'tgl_delivery'	    => $used[tgl_delivery],
+					'id_category3'		=> $used['no_surat'],
+					'nama_produk'	    => $used['nama_produk'],
+					'qty_so'			    => $used['qty_so'],
+					'qty'			    => $used['qty'],
+					'harga_satuan'		=> str_replace(',', '', $used['harga_satuan']),
+					'stok_tersedia'		=> $used['stok_tersedia'],
+					'potensial_loss'		=> $used['potensial_loss'],
+					'diskon'		        => $used['diskon'],
+					'freight_cost'		=> str_replace(',', '', $used['freight_cost']),
+					'total_harga'	    =>  str_replace(',', '', $used['total_harga']),
+					'tgl_delivery'	    => $used['tgl_delivery'],
 					'created_on'			=> date('Y-m-d H:i:s'),
 					'created_by'			=> $this->auth->user_id(),
-					'nilai_diskon'		=> str_replace(',', '', $used[nilai_diskon]),
+					'nilai_diskon'		=> str_replace(',', '', $used['nilai_diskon']),
 					'costbook_so'	    => $costbook
 				);
 
@@ -454,12 +456,8 @@ class Wt_sales_order extends Admin_Controller
 
 
 
-				$material = $used[no_surat];
-				$qtyso    = (int) $used[qty_so];
-
-				if ($post['order_sts'] !== 'ind') {
-					$this->kartu_stok($material, $qtyso, $code, $no_surat);
-				}
+				$material = $used['no_surat'];
+				$qtyso    = (int) $used['qty_so'];
 			}
 		}
 		//    print_r($dt);
@@ -497,6 +495,7 @@ class Wt_sales_order extends Admin_Controller
 
 		//    $this->db->delete('tr_sales_order',array('id_so'=>$id));
 		$this->db->insert('tr_sales_order', $data);
+		$this->stock_booking->reserveSo($code);
 
 		$data = [
 			'status_so'				=> 1,
@@ -521,13 +520,13 @@ class Wt_sales_order extends Admin_Controller
 
 
 			$datatop = [
-				'id_top'			    => $det[id_top],
-				'id_top_planning'		=> $det[id_top_planning],
-				'payment'			    => $det[payment],
-				'keterangan'		    => $det[keterangan],
-				'persentase'			=> $det[persentase],
+				'id_top'			    => $det['id_top'],
+				'id_top_planning'		=> $det['id_top_planning'],
+				'payment'			    => $det['payment'],
+				'keterangan'		    => $det['keterangan'],
+				'persentase'			=> $det['persentase'],
 				'nilai'					=> $nilai,
-				'nilai_tagih'			=> round(($det[persentase] * $nilai) / 100, 2),
+				'nilai_tagih'			=> round(($det['persentase'] * $nilai) / 100, 2),
 				'no_so'			        => $code,
 				'created_on'			=> date('Y-m-d H:i:s'),
 				'created_by'			=> $this->auth->user_id(),
@@ -554,243 +553,20 @@ class Wt_sales_order extends Admin_Controller
 		}
 
 		echo json_encode($status);
+
+		});
 	}
 
 
-	public function kartu_stok($material, $qtyso, $notr, $no_surat)
+	protected function kartu_stok($material, $qtyso, $notr, $no_surat)
 	{
-
-		$mat = $this->db->query("SELECT * FROM stock_material WHERE id_category3='$material' ")->row();
-
-
-
-		$book  = (int) $mat->qty_book + (int) $qtyso;
-		$free  = (int) $mat->qty_free - (int)$qtyso;
-
-		// print_r($free);
-		// exit;
-		$kartu = [
-			'id_category3'		    => $material,
-			'qty'		            => $mat->qty,
-			'qty_book'			    => $mat->qty_book,
-			'qty_free'		        => $mat->qty_free,
-			'transaksi'			    => 'sales order',
-			'tgl_transaksi'			=> date('Y-m-d'),
-			'no_transaksi'			=> $notr,
-			'id_gudang'             => $mat->id_gudang,
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'qty_transaksi'         => $qtyso,
-			'qty_akhir'		        => $mat->qty,
-			'qty_book_akhir'	    => $book,
-			'qty_free_akhir'		=> $free,
-			'status_transaksi'		=> 'out',
-			'no_surat'		        => $no_surat,
-		];
-
-		$this->db->insert('kartu_stok', $kartu);
-
-		$this->db->query("UPDATE stock_material SET qty_free=qty_free-$qtyso , qty_book=qty_book+$qtyso  WHERE id_category3='$material'");
+		throw new DomainException('Gunakan layanan booking per detail SO.');
 	}
 
 
 	public function SaveDealSalesOrder()
 	{
-		$this->auth->restrict($this->addPermission);
-		$post = $this->input->post();
-
-		$tgl = $post['tanggal'];
-		print_r($post);
-		exit;
-
-		$id	= $post['id_so'];
-		$code = $this->Wt_sales_order_model->generate_code();
-		$no_surat = $this->Wt_sales_order_model->BuatNomor($tanggal);
-		$this->db->trans_begin();
-
-		$config['upload_path'] = './assets/file_po/'; //path folder
-		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp|doc|docx|xls|xlsx|ppt|pptx|pdf|rar|zip|vsd'; //type yang dapat diakses bisa anda sesuaikan
-		$config['encrypt_name'] = false; //Enkripsi nama yang terupload
-
-
-		$this->upload->initialize($config);
-		if ($this->upload->do_upload('upload_po')) {
-			$gbr = $this->upload->data();
-			//Compress Image
-			$config['image_library'] = 'gd2';
-			$config['source_image'] = './assets/file_po/' . $gbr['file_name'];
-			$config['create_thumb'] = FALSE;
-			$config['maintain_ratio'] = FALSE;
-			$config['umum'] = '50%';
-			$config['width'] = 260;
-			$config['height'] = 350;
-			$config['new_image'] = './assets/file_po/' . $gbr['file_name'];
-			$this->load->library('image_lib', $config);
-			$this->image_lib->resize();
-
-			$gambar  = $gbr['file_name'];
-			$type    = $gbr['file_type'];
-			$ukuran  = $gbr['file_size'];
-			$ext1    = explode('.', $gambar);
-			$ext     = $ext1[1];
-			$lokasi = './assets/file_po/' . $gbr['file_name'];
-		}
-
-		// print_r($lokasi);
-		// exit;
-
-		$config1['upload_path'] = './assets/file_do/'; //path folder
-		$config1['allowed_types'] = 'gif|jpg|png|jpeg|bmp|doc|docx|xls|xlsx|ppt|pptx|pdf|rar|zip|vsd'; //type yang dapat diakses bisa anda sesuaikan
-		$config1['encrypt_name'] = false; //Enkripsi nama yang terupload
-
-
-		$this->upload->initialize($config1);
-		if ($this->upload->do_upload('upload_so')) {
-			$gbr2 = $this->upload->data();
-			//Compress Image
-			$config1['image_library'] = 'gd2';
-			$config1['source_image'] = './assets/file_do/' . $gbr2['file_name'];
-			$config1['create_thumb'] = FALSE;
-			$config1['maintain_ratio'] = FALSE;
-			$config1['umum'] = '50%';
-			$config1['width'] = 260;
-			$config1['height'] = 350;
-			$config1['new_image'] = './assets/file_do/' . $gbr2['file_name'];
-			$this->load->library('image_lib', $config1);
-			$this->image_lib->resize();
-
-			$gambar1  = $gbr2['file_name'];
-			$type1    = $gbr2['file_type'];
-			$ukuran1  = $gbr2['file_size'];
-			$ext2    = explode('.', $gambar1);
-			$ext3     = $ext2[1];
-			$lokasi2 = './assets/file_do/' . $gbr2['file_name'];
-		}
-
-
-		$numb1 = 0;
-		$totalcostbook = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[no_surat])) {
-				$numb1++;
-
-				$idmaterial 	= $used[no_surat];
-				$qtyso       = $used[qty_so];
-				$cost = $this->db->query("SELECT * FROM ms_costbook WHERE id_category3='$idmaterial'")->row();
-				$costbook = $cost->nilai_costbook * $qtyso;
-
-
-				$totalcostbook += $cost->nilai_costbook;
-
-				//    print_r($used);
-				//    exit;
-				$dt[] =  array(
-					'no_so'		=> $code,
-					'id_penawaran_detail' => $used[id_penawaran],
-					'no_penawaran'		=> $post['no_penawaran'],
-					'id_category3'		=> $used[no_surat],
-					'nama_produk'	    => $used[nama_produk],
-					'qty_so'			    => $used[qty_so],
-					'qty'			    => $used[qty],
-					'harga_satuan'		=> str_replace(',', '', $used[harga_satuan]),
-					'stok_tersedia'		=> $used[stok_tersedia],
-					'potensial_loss'		=> $used[potensial_loss],
-					'diskon'		        => $used[diskon],
-					'freight_cost'		=> str_replace(',', '', $used[freight_cost]),
-					'total_harga'	    =>  str_replace(',', '', $used[total_harga]),
-					'tgl_delivery'	    => $used[tgl_delivery],
-					'created_on'			=> date('Y-m-d H:i:s'),
-					'created_by'			=> $this->auth->user_id(),
-					'nilai_diskon'		=> str_replace(',', '', $used[nilai_diskon]),
-					'costbook_so'		=> $costbook
-				);
-			}
-		}
-		// print_r($dt);
-		// exit();
-
-		$this->db->delete('tr_sales_order_detail', array('id_so' => $id));
-		$this->db->insert_batch('tr_sales_order_detail', $dt);
-
-
-
-
-		$data = [
-			'no_so'			        => $code,
-			'no_surat'				=> $no_surat,
-			'tgl_so'			    => $post['tanggal'],
-			'no_penawaran'		    => $post['no_penawaran'],
-			'id_customer'			=> $post['id_customer'],
-			'pic_customer'			=> $post['pic_customer'],
-			'email_customer'		=> $post['email_customer'],
-			'top'			        => $post['top'],
-			'order_status'			=> $post['order_sts'],
-			'id_sales'				=> $post['id_sales'],
-			'nama_sales'			=> $post['nama_sales'],
-			'status'			    => 1,
-			'nilai_so'				=> str_replace(',', '', $post['totalproduk']),
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'ppn'					=> str_replace(',', '', $post['ppn']),
-			'nilai_ppn'				=> str_replace(',', '', $post['totalppn']),
-			'grand_total'			=> str_replace(',', '', $post['grandtotal']),
-			'upload_po'				=> $lokasi,
-			'upload_so'				=> $lokasi2,
-			'total_costbook_so'		=> $totalcostbook,
-		];
-		//Add Data
-
-		$this->db->delete('tr_sales_order', array('id_so' => $id));
-		$this->db->insert('tr_sales_order', $data);
-
-
-
-		$data = [
-			'status_so'				=> 1,
-		];
-		//Edit Data
-		$this->db->where('no_penawaran', $post['no_penawaran'])->update("tr_penawaran", $data);
-		$id_top = $post['top'];
-		$top  = $this->db->query("SELECT * FROM ms_top_planning WHERE id_top='$id_top'")->result_array();
-
-		foreach ($top as $det) {
-			$nilai  = str_replace(',', '', $post['totalproduk']);
-
-
-			$datatop = [
-				'id_top'			    => $det[id_top],
-				'id_top_planning'		=> $det[id_top_planning],
-				'payment'			    => $det[payment],
-				'keterangan'		    => $det[keterangan],
-				'persentase'			=> $det[persentase],
-				'nilai'					=> $nilai,
-				'nilai_tagih'			=> round(($det[persentase] * $nilai) / 100, 2),
-				'no_so'			        => $code,
-				'created_on'			=> date('Y-m-d H:i:s'),
-				'created_by'			=> $this->auth->user_id(),
-			];
-
-			// $this->db->insert('wt_plan_tagih',$datatop);
-
-		}
-
-		if ($this->db->trans_status() === FALSE) {
-			$this->db->trans_rollback();
-			$status	= array(
-				'pesan'		=> 'Gagal Save Item. Thanks ...',
-				'code' => $code,
-				'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-				'pesan'		=> 'Success Save Item. invenThanks ...',
-				'code' => $code,
-				'status'	=> 1
-			);
-		}
-
-		echo json_encode($status);
+		$this->SaveDealNewSalesOrder();
 	}
 
 	public function SaveEditPenawaran()
@@ -1604,33 +1380,13 @@ class Wt_sales_order extends Admin_Controller
 
 	public function reddeliv()
 	{
-		$no_so = $this->input->post('no_so');
+		$this->auth->restrict($this->managePermission);
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () {
+		$this->stock_booking->readyIndent($this->input->post('no_so'));
+		echo json_encode(array('status'=>1,'msg'=>'Data has been updated !'));
 
-		$this->db->trans_begin();
-
-		$this->db->update('tr_sales_order', array('indent_check' => '1'), array('no_so' => $no_so));
-
-		$get_detail_so = $this->db->select('a.*, b.no_surat')->from('tr_sales_order_detail a')->join('tr_sales_order b', 'b.no_so = a.no_so')->where('a.no_so', $no_so)->get()->result();
-		foreach ($get_detail_so as $item) {
-			$this->kartu_stok($item->id_category3, $item->qty_so, $no_so, $item->no_surat);
-		}
-
-		if ($this->db->trans_status() === false) {
-			$this->db->trans_rollback();
-
-			$valid = 0;
-			$msg = 'Please try again later !';
-		} else {
-			$this->db->trans_commit();
-
-			$valid = 1;
-			$msg = 'Data has been updated !';
-		}
-
-		echo json_encode([
-			'status' => $valid,
-			'msg' => $msg
-		]);
+		});
 	}
 
 	public function get_so()

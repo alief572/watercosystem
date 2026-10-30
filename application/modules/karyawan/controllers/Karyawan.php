@@ -7,7 +7,8 @@
  * This is controller for Karyawan
  */
 
-class Karyawan extends Admin_Controller {
+class Karyawan extends Admin_Controller
+{
 
     //Permission
     protected $viewPermission   = "Karyawan.View";
@@ -19,11 +20,12 @@ class Karyawan extends Admin_Controller {
     {
         parent::__construct();
 
-        $this->load->library(array('Mpdf','upload','Image_lib','PHPExcel'));
-        $this->load->model(array('Karyawan/Karyawan_model',
-                                 'Karyawan/Divisi_model',
-                                 'Aktifitas/aktifitas_model'
-                                ));
+        $this->load->library(array('Mpdf', 'upload', 'Image_lib', 'PHPExcel'));
+        $this->load->model(array(
+            'Karyawan/Karyawan_model',
+            'Karyawan/Divisi_model',
+            'Aktifitas/aktifitas_model'
+        ));
 
         $this->template->title('Manage Data Karyawan');
         $this->template->page_icon('fa fa-table');
@@ -46,8 +48,8 @@ class Karyawan extends Admin_Controller {
                                             karyawan.sts_aktif,
                                             karyawan.sts_karyawan,
                                             divisi.nm_divisi")
-                                            ->join("divisi","karyawan.divisi = divisi.id_divisi")->where('karyawan.deleted',0)
-                                            ->order_by('nama_karyawan','ASC')->find_all_by(array('kdcab'=>$session['kdcab']));
+            ->join("divisi", "karyawan.divisi = divisi.id_divisi")->where('karyawan.deleted', 0)
+            ->order_by('nama_karyawan', 'ASC')->find_all_by(array('kdcab' => $session['kdcab']));
         $this->template->set('results', $data);
         $this->template->title('Karyawan');
         $this->template->render('list');
@@ -58,7 +60,7 @@ class Karyawan extends Admin_Controller {
     {
         $this->auth->restrict($this->addPermission);
         $datdiv     = $this->Divisi_model->pilih_div()->result();
-        $this->template->set('datdiv',$datdiv);
+        $this->template->set('datdiv', $datdiv);
 
         $this->template->title('Input Master Karyawan');
         $this->template->render('karyawan_form');
@@ -71,8 +73,7 @@ class Karyawan extends Admin_Controller {
 
         $id = $this->uri->segment(3);
         $data  = $this->Karyawan_model->find_by(array('id_karyawan' => $id));
-        if(!$data)
-        {
+        if (!$data) {
             $this->template->set_message("Invalid ID", 'error');
             redirect('Karyawan');
         }
@@ -80,8 +81,8 @@ class Karyawan extends Admin_Controller {
         $datdiv     = $this->Divisi_model->pilih_div()->result();
         //$datdiv = $this->Karyawan_model->get_div($id);
 
-        $this->template->set('data',$data);
-        $this->template->set('datdiv',$datdiv);
+        $this->template->set('data', $data);
+        $this->template->set('datdiv', $datdiv);
         $this->template->title('Edit Data Karyawan');
         $this->template->render('karyawan_form');
     }
@@ -91,22 +92,21 @@ class Karyawan extends Admin_Controller {
         $id_divisi   = $this->input->post("id_divisix");
         $nm_divisi   = strtoupper($this->input->post("nm_divisi"));
 
-        if($id_divisi!=""){
+        if ($id_divisi != "") {
 
             $this->auth->restrict($this->addPermission);
 
             $data = array(
-                            array(
-                                'id_divisi'=> $id_divisi,
-                                'nm_divisi'=> $nm_divisi,
-                            )
-                        );
+                array(
+                    'id_divisi' => $id_divisi,
+                    'nm_divisi' => $nm_divisi,
+                )
+            );
             //Add Data
-            $id = $this->Divisi_model->update_batch($data,'id_divisi');
+            $id = $this->Divisi_model->update_batch($data, 'id_divisi');
 
-            if(is_numeric($id))
-            {
-                $keterangan     = "SUKSES, Edit data Divisi atas Nama : ".$nm_divisi;
+            if (is_numeric($id)) {
+                $keterangan     = "SUKSES, Edit data Divisi atas Nama : " . $nm_divisi;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -114,10 +114,8 @@ class Karyawan extends Admin_Controller {
                 $sql            = $this->db->last_query();
 
                 $result = TRUE;
-            }
-            else
-            {
-                $keterangan     = "GAGAL, Edit data Divisi atas Nama : ".$nm_divisi;
+            } else {
+                $keterangan     = "GAGAL, Edit data Divisi atas Nama : " . $nm_divisi;
                 $status         = 0;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -125,21 +123,19 @@ class Karyawan extends Admin_Controller {
                 $sql            = $this->db->last_query();
                 $result = FALSE;
             }
-
-        }else{
+        } else {
 
             $this->auth->restrict($this->addPermission);
 
             $data = array(
-                        'nm_divisi'=> $nm_divisi,
-                    );
+                'nm_divisi' => $nm_divisi,
+            );
 
             //Add Data
             $id = $this->Divisi_model->insert($data);
 
-            if(is_numeric($id))
-            {
-                $keterangan     = "SUKSES, tambah data Divisi atas Nama : ".$nm_divisi;
+            if (is_numeric($id)) {
+                $keterangan     = "SUKSES, tambah data Divisi atas Nama : " . $nm_divisi;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -147,10 +143,8 @@ class Karyawan extends Admin_Controller {
                 $sql            = $this->db->last_query();
 
                 $result = TRUE;
-            }
-            else
-            {
-                $keterangan     = "GAGAL, tambah data Divisi atas Nama : ".$nm_divisi;
+            } else {
+                $keterangan     = "GAGAL, tambah data Divisi atas Nama : " . $nm_divisi;
                 $status         = 0;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -169,16 +163,18 @@ class Karyawan extends Admin_Controller {
         echo json_encode($param);
     }
 
-    function get_div(){
+    function get_div()
+    {
         $id_divisi = $_GET['id_divisi'];
         $dadiv = $this->Divisi_model->get_div($id_divisi);
         $param = array(
-                'nm_divisi' => $dadiv
-                );
+            'nm_divisi' => $dadiv
+        );
         echo json_encode($param);
     }
 
-    function ListDV(){
+    function ListDV()
+    {
         echo "<div class='box-body'><B>Divisi</B><table id='lis_dv' class='table table-bordered table-striped'>
         <thead>
         <tr>
@@ -187,14 +183,14 @@ class Karyawan extends Admin_Controller {
             <th width='25'>Action</th>
         </tr>
         </thead>";
-        $no=1;
-        $data=  $this->Divisi_model->tampil_dv()->result();
-        foreach ($data as $d){
+        $no = 1;
+        $data =  $this->Divisi_model->tampil_dv()->result();
+        foreach ($data as $d) {
             echo "<tr id='dataku$d->id_divisi'>
                 <td>$no</td>
                 <td>$d->nm_divisi</td>
                 <td>
-                <a class='text-black' href='javascript:void(0)' title='Edit' onclick=\"edit_dv('".$d->id_divisi."');\"><i class='fa fa-pencil'></i>
+                <a class='text-black' href='javascript:void(0)' title='Edit' onclick=\"edit_dv('" . $d->id_divisi . "');\"><i class='fa fa-pencil'></i>
                 </td>
                 </tr>";
             $no++;
@@ -203,44 +199,48 @@ class Karyawan extends Admin_Controller {
         <tr>
         </tr>
         </tfoot>";
-        echo"</table></div>";
+        echo "</table></div>";
     }
 
-    function edit_dv(){
+    function edit_dv()
+    {
         $id_dv = $this->input->post('id');
-        if(!empty($id_dv)){
+        if (!empty($id_dv)) {
             $detail  = $this->Divisi_model->find($id_dv);
         }
         echo json_encode($detail);
     }
 
-    function get_divisi(){
+    function get_divisi()
+    {
         $rdiv = $this->Divisi_model->pilih_div()->result();
         //echo $result;
         echo "<select id='id_divisi' name='id_divisi' class='form-control pil_divisi select2-hidden-accessible'>";
         echo "<option value=''></option>";
-                foreach ($rdiv as $key => $st) :
-                    echo "<option value='$st->id_divisi' set_select('id_divisi', $st->id_divisi, isset($data->divisi) && $data->divisi == $st->id_divisi)>$st->nm_divisi
+        foreach ($rdiv as $key => $st) :
+            echo "<option value='$st->id_divisi' set_select('id_divisi', $st->id_divisi, isset($data->divisi) && $data->divisi == $st->id_divisi)>$st->nm_divisi
                     </option>";
-                endforeach;
+        endforeach;
         echo "</select>";
     }
 
-    function get_kota(){
+    function get_kota()
+    {
         $provinsi = $_GET['provinsi'];
         $datkota = $this->Customer_model->pilih_kota($provinsi)->result();
         //echo $result;
         echo "<select id='kota' name='kota' class='form-control pil_kota select2-hidden-accessible'>";
         echo "<option value=''></option>";
-                foreach ($datkota as $key => $st) :
-                    echo "<option value='$st->id_kab' set_select('model', $st->id_kab, isset($data->id_kab) && $data->id_kab == $st->id_kab)>$st->nama
+        foreach ($datkota as $key => $st) :
+            echo "<option value='$st->id_kab' set_select('model', $st->id_kab, isset($data->id_kab) && $data->id_kab == $st->id_kab)>$st->nama
                     </option>";
-                endforeach;
+        endforeach;
         echo "</select>";
     }
 
 
-    public function save_biodata_ajax(){
+    public function save_biodata_ajax()
+    {
 
         $type           = $this->input->post("type");
         $id_karyawan    = $this->input->post("id_karyawan");
@@ -257,7 +257,7 @@ class Karyawan extends Admin_Controller {
         $agama          = strtoupper($this->input->post("agama"));
         $noktp          = $this->input->post("noktp");
         $npwp           = $this->input->post('npwp');
-        $levelpendidikan= $this->input->post('pendidikan');
+        $levelpendidikan = $this->input->post('pendidikan');
         $tanggalmasuk   = date("Y-m-d", strtotime($this->input->post('tglgabung')));
         $nohp           = $this->input->post('nohp');
         $email          = strtoupper($this->input->post('email'));
@@ -265,40 +265,38 @@ class Karyawan extends Admin_Controller {
         $sts_aktif   = $this->input->post('sts_aktif');
 
 
-        if($type=="edit")
-        {
+        if ($type == "edit") {
             $this->auth->restrict($this->managePermission);
 
-            if($id_karyawan!="")
-            {
+            if ($id_karyawan != "") {
                 $data = array(
-                            array(
-                                'id_karyawan'=>$id_karyawan,
-                                'nik'=> $nik,
-                                'nama_karyawan'=> $nama_karyawan,
-                                'tempatlahir'=> $tempatlahir,
-                                'tanggallahir'=> $tanggallahir,
-                                'divisi'=> $id_divisi,
-                                'jeniskelamin'=> $jeniskelamin,
-                                'agama'=> $agama,
-                                'levelpendidikan'=> $levelpendidikan,
-                                'alamataktif'=> $alamataktif,
-                                'nohp'=> $nohp,
-                                'noktp'=> $noktp,
-                                'npwp'=> $npwp,
-                                'email'=> $email,
-                                'sts_aktif'=> $sts_aktif,
-                                'tgl_join'=>$tgl_join,
-                                'tgl_end'=>$tgl_end,
-                                'sts_karyawan'=>$sts_karyawan,
-                                'norekening'=>$norekening,
-                            )
-                        );
+                    array(
+                        'id_karyawan' => $id_karyawan,
+                        'nik' => $nik,
+                        'nama_karyawan' => $nama_karyawan,
+                        'tempatlahir' => $tempatlahir,
+                        'tanggallahir' => $tanggallahir,
+                        'divisi' => $id_divisi,
+                        'jeniskelamin' => $jeniskelamin,
+                        'agama' => $agama,
+                        'levelpendidikan' => $levelpendidikan,
+                        'alamataktif' => $alamataktif,
+                        'nohp' => $nohp,
+                        'noktp' => $noktp,
+                        'npwp' => $npwp,
+                        'email' => $email,
+                        'sts_aktif' => $sts_aktif,
+                        'tgl_join' => $tgl_join,
+                        'tgl_end' => $tgl_end,
+                        'sts_karyawan' => $sts_karyawan,
+                        'norekening' => $norekening,
+                    )
+                );
 
                 //Update data
-                $result = $this->Karyawan_model->update_batch($data,'id_karyawan');
+                $result = $this->Karyawan_model->update_batch($data, 'id_karyawan');
 
-                $keterangan     = "SUKSES, Edit data Karyawan ".$id_karyawan.", atas Nama : ".$nama_karyawan;
+                $keterangan     = "SUKSES, Edit data Karyawan " . $id_karyawan . ", atas Nama : " . $nama_karyawan;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = $id_karyawan;
@@ -306,12 +304,10 @@ class Karyawan extends Admin_Controller {
                 $sql            = $this->db->last_query();
 
                 $karyawan          = $id_karyawan;
-            }
-            else
-            {
+            } else {
                 $result = FALSE;
 
-                $keterangan     = "GAGAL, Edit data Karyawan ".$id_karyawan.", atas Nama : ".$nama_karyawan;
+                $keterangan     = "GAGAL, Edit data Karyawan " . $id_karyawan . ", atas Nama : " . $nama_karyawan;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = $id_karyawan;
@@ -320,41 +316,38 @@ class Karyawan extends Admin_Controller {
             }
 
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-
-        }
-        else //Add New
+        } else //Add New
         {
             $this->auth->restrict($this->addPermission);
             $session = $this->session->userdata('app_session');
 
             $data = array(
-                        'nik'=> $nik,
-                        'nama_karyawan'=> $nama_karyawan,
-                        'tempatlahir'=> $tempatlahir,
-                        'tanggallahir'=> $tanggallahir,
-                        'divisi'=> $id_divisi,
-                        'jeniskelamin'=> $jeniskelamin,
-                        'agama'=> $agama,
-                        'levelpendidikan'=> $levelpendidikan,
-                        'alamataktif'=> $alamataktif,
-                        'nohp'=> $nohp,
-                        'noktp'=> $noktp,
-                        'npwp'=> $npwp,
-                        'email'=> $email,
-                        'sts_aktif'=> $sts_aktif,
-                        'tgl_join'=>$tgl_join,
-                        'tgl_end'=>$tgl_end,
-                        'sts_karyawan'=>$sts_karyawan,
-                        'norekening'=>$norekening,
-                        'kdcab'=>$session['kdcab'],
-                        );
+                'nik' => $nik,
+                'nama_karyawan' => $nama_karyawan,
+                'tempatlahir' => $tempatlahir,
+                'tanggallahir' => $tanggallahir,
+                'divisi' => $id_divisi,
+                'jeniskelamin' => $jeniskelamin,
+                'agama' => $agama,
+                'levelpendidikan' => $levelpendidikan,
+                'alamataktif' => $alamataktif,
+                'nohp' => $nohp,
+                'noktp' => $noktp,
+                'npwp' => $npwp,
+                'email' => $email,
+                'sts_aktif' => $sts_aktif,
+                'tgl_join' => $tgl_join,
+                'tgl_end' => $tgl_end,
+                'sts_karyawan' => $sts_karyawan,
+                'norekening' => $norekening,
+                'kdcab' => $session['kdcab'],
+            );
 
             //Add Data
             $id = $this->Karyawan_model->insert($data);
 
-            if(is_numeric($id))
-            {
-                $keterangan     = "SUKSES, tambah data Karyawan  atas Nama : ".$nama_karyawan;
+            if (is_numeric($id)) {
+                $keterangan     = "SUKSES, tambah data Karyawan  atas Nama : " . $nama_karyawan;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -362,10 +355,8 @@ class Karyawan extends Admin_Controller {
                 $sql            = $this->db->last_query();
 
                 $result = TRUE;
-            }
-            else
-            {
-                $keterangan     = "GAGAL, tambah data Karyawan  atas Nama : ".$nama_karyawan;
+            } else {
+                $keterangan     = "GAGAL, tambah data Karyawan  atas Nama : " . $nama_karyawan;
                 $status         = 0;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -375,14 +366,13 @@ class Karyawan extends Admin_Controller {
             }
             //Save Log
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-
         }
 
         $param = array(
-                'karyawan'=> $karyawan,
-                'save' => $result,
-                'token' => $this->security->get_csrf_hash()
-                );
+            'karyawan' => $karyawan,
+            'save' => $result,
+            'token' => $this->security->get_csrf_hash()
+        );
 
         echo json_encode($param);
     }
@@ -393,63 +383,61 @@ class Karyawan extends Admin_Controller {
         $this->auth->restrict($this->deletePermission);
         $id = $this->uri->segment(3);
 
-        if($id!=''){
+        if ($id != '') {
 
             $result = $this->Karyawan_model->delete($id);
 
-            $keterangan     = "SUKSES, Delete data Karyawan ".$id;
+            $keterangan     = "SUKSES, Delete data Karyawan " . $id;
             $status         = 1;
             $nm_hak_akses   = $this->addPermission;
             $kode_universal = $id;
             $jumlah         = 1;
             $sql            = $this->db->last_query();
-
-        }
-        else
-        {
+        } else {
             $result = 0;
-            $keterangan     = "GAGAL, Delete data Karyawan ".$id;
+            $keterangan     = "GAGAL, Delete data Karyawan " . $id;
             $status         = 0;
             $nm_hak_akses   = $this->addPermission;
             $kode_universal = $id;
             $jumlah         = 1;
             $sql            = $this->db->last_query();
-
         }
 
         //Save Log
-            simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+        simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
 
         $param = array(
-                'delete' => $result
-                );
+            'delete' => $result
+        );
 
         echo json_encode($param);
     }
 
-    function print_request($id){
+    function print_request($id)
+    {
         $id_karyawan = $id;
-        $mpdf=new mPDF('','','','','','','','','','');
+        $mpdf = new mPDF('', '', '', '', '', '', '', '', '', '');
         $mpdf->SetImportUse();
         $mpdf->RestartDocTemplate();
 
-        $kary_data      =  $this->Karyawan_model->find_data('karyawan',$id_karyawan,'id_karyawan');
+        $kary_data      =  $this->Karyawan_model->find_data('karyawan', $id_karyawan, 'id_karyawan');
         $this->template->set('kary_data', $kary_data);
-        $show = $this->template->load_view('print_data',$data);
+        $show = $this->template->load_view('print_data', $data);
 
         $this->mpdf->WriteHTML($show);
         $this->mpdf->Output();
     }
 
-    function rekap_pdf(){
-        $mpdf=new mPDF('','','','','','','','','','');
+    function rekap_pdf()
+    {
+        $mpdf = new mPDF('', '', '', '', '', '', '', '', '', '');
         $mpdf->SetImportUse();
         $mpdf->RestartDocTemplate();
 
         $data_kar = $this->Karyawan_model->rekap_data()->result_array();
         $this->template->set('data_kar', $data_kar);
 
-        $show = $this->template->load_view('print_rekap',$data);
+        $show = $this->template->load_view('print_rekap', $data);
 
         $this->mpdf->AddPage('L');
         $this->mpdf->WriteHTML($show);
@@ -478,7 +466,7 @@ class Karyawan extends Admin_Controller {
         //$objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(17);
         //$objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(17);
         //$objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setWidth(17);
-       //// $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(17);
+        //// $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(17);
 
         $objPHPExcel->getActiveSheet()->getStyle(1)->getFont()->setBold(true);
         $objPHPExcel->getActiveSheet()->getStyle(2)->getFont()->setBold(true);
@@ -486,18 +474,18 @@ class Karyawan extends Admin_Controller {
 
         $header = array(
             'alignment' => array(
-            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
-            'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
             ),
             'font' => array(
-            'bold' => true,
-            'color' => array('rgb' => '25500'),
-            'name' => 'Verdana'
+                'bold' => true,
+                'color' => array('rgb' => '25500'),
+                'name' => 'Verdana'
             )
         );
         $objPHPExcel->getActiveSheet()->getStyle("A1:M2")
-                ->applyFromArray($header)
-                ->getFont()->setSize(14);
+            ->applyFromArray($header)
+            ->getFont()->setSize(14);
         $objPHPExcel->getActiveSheet()->mergeCells('A1:M2');
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('A1', 'REKAP DATA KARYAWAN')
@@ -519,21 +507,21 @@ class Karyawan extends Admin_Controller {
         $no = 1;
         $counter = 4;
         foreach ($data_kar as $row):
-            $ex->setCellValue('A'.$counter, $no++);
-            $ex->setCellValue('B'.$counter, $row['nik']);
-            $ex->setCellValue('C'.$counter, $row['nama_karyawan']);
-            $ex->setCellValue('D'.$counter, $row['tempatlahir'].", ".date('d-m-Y', strtotime($row['tanggallahir'])));
-            $ex->setCellValue('E'.$counter, $row['sts_karyawan']);
-            $ex->setCellValue('F'.$counter, date('d-m-Y', strtotime($row['tgl_join'])));
-            $ex->setCellValue('G'.$counter, date('d-m-Y', strtotime($row['tgl_end'])));
-            $ex->setCellValue('H'.$counter, $row['jeniskelamin']);
-            $ex->setCellValue('I'.$counter, $row['agama']);
-            $ex->setCellValue('J'.$counter, $row['nm_divisi']);
-            $ex->setCellValue('K'.$counter, $row['norekening']);
-            $ex->setCellValue('L'.$counter, $row['nohp']);
-            $ex->setCellValue('M'.$counter, $row['alamataktif']);
+            $ex->setCellValue('A' . $counter, $no++);
+            $ex->setCellValue('B' . $counter, $row['nik']);
+            $ex->setCellValue('C' . $counter, $row['nama_karyawan']);
+            $ex->setCellValue('D' . $counter, $row['tempatlahir'] . ", " . date('d-m-Y', strtotime($row['tanggallahir'])));
+            $ex->setCellValue('E' . $counter, $row['sts_karyawan']);
+            $ex->setCellValue('F' . $counter, date('d-m-Y', strtotime($row['tgl_join'])));
+            $ex->setCellValue('G' . $counter, date('d-m-Y', strtotime($row['tgl_end'])));
+            $ex->setCellValue('H' . $counter, $row['jeniskelamin']);
+            $ex->setCellValue('I' . $counter, $row['agama']);
+            $ex->setCellValue('J' . $counter, $row['nm_divisi']);
+            $ex->setCellValue('K' . $counter, $row['norekening']);
+            $ex->setCellValue('L' . $counter, $row['nohp']);
+            $ex->setCellValue('M' . $counter, $row['alamataktif']);
 
-        $counter = $counter+1;
+            $counter = $counter + 1;
         endforeach;
 
         $objPHPExcel->getProperties()->setCreator("Yunaz Fandy")
@@ -545,17 +533,14 @@ class Karyawan extends Admin_Controller {
             ->setCategory("PHPExcel");
         $objPHPExcel->getActiveSheet()->setTitle('Rekap Data Karyawan');
         ob_end_clean();
-        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-        header('Last-Modified:'. gmdate("D, d M Y H:i:s").'GMT');
+        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Xls');
+        header('Last-Modified:' . gmdate("D, d M Y H:i:s") . 'GMT');
         header('Chace-Control: no-store, no-cache, must-revalation');
         header('Chace-Control: post-check=0, pre-check=0', FALSE);
         header('Pragma: no-cache');
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="ExportRekapKaryawan'. date('Ymd') .'.xls"');
+        header('Content-Disposition: attachment;filename="ExportRekapKaryawan' . date('Ymd') . '.xls"');
 
         $objWriter->save('php://output');
-
     }
 }
-
-?>

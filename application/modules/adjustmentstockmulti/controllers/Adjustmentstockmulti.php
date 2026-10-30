@@ -556,6 +556,9 @@ class Adjustmentstockmulti extends Admin_Controller
 	}
 	public function SavePlus()
 	{
+		$this->auth->restrict($this->managePermission);
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () {
 		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
 
@@ -762,6 +765,8 @@ class Adjustmentstockmulti extends Admin_Controller
 
 			echo json_encode($status);
 		}
+
+		});
 	}
 
 
@@ -1193,154 +1198,26 @@ class Adjustmentstockmulti extends Admin_Controller
 		echo "</select>";
 	}
 
-	public function kartu_stok_out($material, $qtyso, $notr, $surat, $gudang)
+	protected function kartu_stok_out($material, $qtyso, $notr, $surat, $gudang)
 	{
-
-		$mat = $this->db->query("SELECT * FROM stock_material_multigudang WHERE id_category3='$material' AND id_gudang='$gudang'")->row();
-
-
-		$qty   = (int) $mat->qty      - (int) $qtyso;
-		//$book  = (int) $mat->qty_book - (int) $qtyso;
-		$free  = (int)$qty - (int) $mat->qty_book;;
-		$book2  = $mat->qty_book;
-
-		// print_r($free);
-		// exit;
-		$kartu = [
-			'id_category3'		    => $material,
-			'qty'		            => $mat->qty,
-			'qty_book'			    => $mat->qty_book,
-			'qty_free'		        => $mat->qty_free,
-			'transaksi'			    => 'adjustment minus',
-			'tgl_transaksi'			=> date('Y-m-d'),
-			'no_transaksi'			=> $notr,
-			'id_gudang'             => $mat->id_gudang,
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'qty_transaksi'         => $qtyso,
-			'qty_akhir'		        => $qty,
-			'qty_book_akhir'	    => $mat->qty_book,
-			'qty_free_akhir'		=> $free,
-			'status_transaksi'		=> 'out',
-			'no_surat'		        => $surat,
-		];
-
-		$this->db->insert('kartu_stok_multigudang', $kartu);
-
-		$this->db->query("UPDATE stock_material_multigudang SET qty=qty-$qtyso, qty_free=$free  WHERE id_category3='$material' AND id_gudang='$gudang'");
+		$this->stock_booking->changeActual($material, $qtyso, $notr, $surat, 'out', $gudang, 'stock_material_multigudang');
 	}
 
-	public function kartu_stok_out_penjualan($material, $qtyso, $notr, $surat, $gudang)
+	protected function kartu_stok_out_penjualan($material, $qtyso, $notr, $surat, $gudang)
 	{
-
-		$mat = $this->db->query("SELECT * FROM stock_material WHERE id_category3='$material' AND id_gudang='$gudang'")->row();
-
-
-		$qty   = (int) $mat->qty      - (int) $qtyso;
-		//$book  = (int) $mat->qty_book - (int) $qtyso;
-		$free  = (int)$qty - (int) $mat->qty_book;;
-		$book2  = $mat->qty_book;
-
-		// print_r($free);
-		// exit;
-		$kartu = [
-			'id_category3'		    => $material,
-			'qty'		            => $mat->qty,
-			'qty_book'			    => $mat->qty_book,
-			'qty_free'		        => $mat->qty_free,
-			'transaksi'			    => 'adjustment minus',
-			'tgl_transaksi'			=> date('Y-m-d'),
-			'no_transaksi'			=> $notr,
-			'id_gudang'             => $mat->id_gudang,
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'qty_transaksi'         => $qtyso,
-			'qty_akhir'		        => $qty,
-			'qty_book_akhir'	    => $mat->qty_book,
-			'qty_free_akhir'		=> $free,
-			'status_transaksi'		=> 'out',
-			'no_surat'		        => $surat,
-		];
-
-		$this->db->insert('kartu_stok', $kartu);
-
-		$this->db->query("UPDATE stock_material SET qty=qty-$qtyso, qty_free=$free  WHERE id_category3='$material' AND id_gudang='$gudang'");
+		$this->stock_booking->changeActual($material, $qtyso, $notr, $surat, 'out', $gudang, 'stock_material');
 	}
 
 
 
-	public function kartu_stok_in($material, $qtyso, $notr, $surat, $gudang)
+	protected function kartu_stok_in($material, $qtyso, $notr, $surat, $gudang)
 	{
-
-		$mat = $this->db->query("SELECT * FROM stock_material_multigudang WHERE id_category3='$material' AND id_gudang='$gudang' ")->row();
-
-
-		$qty   = (int) $mat->qty + (int)$qtyso;
-		$book  = (int) $mat->qty_book;
-		$free  = (int)$qty - (int) $mat->qty_book;
-		$book2  = $mat->qty_book;
-
-		// print_r($free);
-		// exit;
-		$kartu = [
-			'id_category3'		    => $material,
-			'qty'		            => $mat->qty,
-			'qty_book'			    => $mat->qty_book,
-			'qty_free'		        => $mat->qty_free,
-			'transaksi'			    => 'adjustment plus',
-			'tgl_transaksi'			=> date('Y-m-d'),
-			'no_transaksi'			=> $notr,
-			'id_gudang'             => $mat->id_gudang,
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'qty_transaksi'         => $qtyso,
-			'qty_akhir'		        => $qty,
-			'qty_book_akhir'	    => $mat->qty_book,
-			'qty_free_akhir'		=> $free,
-			'status_transaksi'		=> 'in',
-			'no_surat'		        => $surat,
-		];
-
-		$this->db->insert('kartu_stok_multigudang', $kartu);
-
-		$this->db->query("UPDATE stock_material_multigudang SET qty=qty+$qtyso, qty_free=$free  WHERE id_category3='$material' AND id_gudang='$gudang'");
+		$this->stock_booking->changeActual($material, $qtyso, $notr, $surat, 'in', $gudang, 'stock_material_multigudang');
 	}
 
-	public function kartu_stok_in_penjualan($material, $qtyso, $notr, $surat, $gudang)
+	protected function kartu_stok_in_penjualan($material, $qtyso, $notr, $surat, $gudang)
 	{
-
-		$mat = $this->db->query("SELECT * FROM stock_material WHERE id_category3='$material' AND id_gudang='$gudang' ")->row();
-
-
-		$qty   = (int) $mat->qty + (int)$qtyso;;
-		$book  = (int) $mat->qty_book;
-		$free  = (int)$qty - (int) $mat->qty_book;;
-		$book2  = $mat->qty_book;
-
-		// print_r($free);
-		// exit;
-		$kartu = [
-			'id_category3'		    => $material,
-			'qty'		            => $mat->qty,
-			'qty_book'			    => $mat->qty_book,
-			'qty_free'		        => $mat->qty_free,
-			'transaksi'			    => 'adjustment plus',
-			'tgl_transaksi'			=> date('Y-m-d'),
-			'no_transaksi'			=> $notr,
-			'id_gudang'             => $mat->id_gudang,
-			'created_on'			=> date('Y-m-d H:i:s'),
-			'created_by'			=> $this->auth->user_id(),
-			'qty_transaksi'         => $qtyso,
-			'qty_akhir'		        => $qty,
-			'qty_book_akhir'	    => $mat->qty_book,
-			'qty_free_akhir'		=> $free,
-			'status_transaksi'		=> 'in',
-			'no_surat'		        => $surat,
-		];
-
-		$this->db->insert('kartu_stok', $kartu);
-
-		$this->db->query("UPDATE stock_material SET qty=qty+$qtyso, qty_free=$free  WHERE id_category3='$material' AND id_gudang='$gudang'");
+		$this->stock_booking->changeActual($material, $qtyso, $notr, $surat, 'in', $gudang, 'stock_material');
 	}
 
 

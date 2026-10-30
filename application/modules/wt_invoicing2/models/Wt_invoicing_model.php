@@ -158,7 +158,7 @@ class Wt_invoicing_model extends BF_Model
     // $where2 = "a.status<>'7'";
     $this->db->where($where);
     // $this->db->where($where2);
-		// $this->db->order_by('a.no_penawaran', DESC);
+		// $this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -174,7 +174,7 @@ class Wt_invoicing_model extends BF_Model
     // $where2 = "a.status<>'7'";
     // $this->db->where($where);
     // $this->db->where($where2);
-		$this->db->order_by('a.no_invoice', DESC);
+		$this->db->order_by('a.no_invoice', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -189,7 +189,7 @@ class Wt_invoicing_model extends BF_Model
      $where2 = "a.status_close ='0'";
     $this->db->where($where);
     $this->db->where($where2);
-		$this->db->order_by('a.no_invoice', DESC);
+		$this->db->order_by('a.no_invoice', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -203,7 +203,7 @@ class Wt_invoicing_model extends BF_Model
      $where2 = "a.status_close ='1'";
     $this->db->where($where);
     $this->db->where($where2);
-		$this->db->order_by('a.no_invoice', DESC);
+		$this->db->order_by('a.no_invoice', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

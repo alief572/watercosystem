@@ -157,7 +157,8 @@ class Invoice_np extends Admin_Controller
 	function print_pdf($id)
 	{
 		$sroot 		= $_SERVER['DOCUMENT_ROOT'];
-		include "application/libraries/MPDF57/mpdf.php";
+		// mPDF 5.7 lama (MPDF57) fatal di PHP 8 -> pakai shim mPDF 8 via library.
+		$this->load->library('Mpdf');
 		$data_session	= $this->session->userdata;
 		$mpdf		= new mPDF('utf-8', 'A4');
 		$mpdf->SetImportUse();

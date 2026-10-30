@@ -7,7 +7,8 @@
  * This is controller for Cabang
  */
 
-class Cabang extends Admin_Controller {
+class Cabang extends Admin_Controller
+{
 
     //Permission
     protected $viewPermission   = "Cabang.View";
@@ -19,9 +20,10 @@ class Cabang extends Admin_Controller {
     {
         parent::__construct();
 
-        $this->load->model(array('Cabang/Cabang_model',
-                                 'Aktifitas/aktifitas_model'
-                                ));
+        $this->load->model(array(
+            'Cabang/Cabang_model',
+            'Aktifitas/aktifitas_model'
+        ));
         $this->template->title('Manage Data Cabang');
         $this->template->page_icon('fa fa-table');
 
@@ -32,7 +34,7 @@ class Cabang extends Admin_Controller {
     {
         $this->auth->restrict($this->viewPermission);
 
-        $data = $this->Cabang_model->where('deleted',0)->order_by('namacabang','ASC')->find_all();
+        $data = $this->Cabang_model->where('deleted', 0)->order_by('namacabang', 'ASC')->find_all();
 
         $this->template->set('results', $data);
         $this->template->title('Cabang');
@@ -45,7 +47,7 @@ class Cabang extends Admin_Controller {
         $this->auth->restrict($this->addPermission);
         $datkota    = $this->Cabang_model->pilih_kota()->result();
 
-        $this->template->set('datkota',$datkota);
+        $this->template->set('datkota', $datkota);
         $this->template->title('Input Master Cabang');
         $this->template->render('cabang_form');
     }
@@ -57,22 +59,22 @@ class Cabang extends Admin_Controller {
 
         $id = $this->uri->segment(3);
         $data  = $this->Cabang_model->find_by(array('id' => $id));
-        if(!$data)
-        {
+        if (!$data) {
             $this->template->set_message("Invalid ID", 'error');
             redirect('Cabang');
         }
 
         $datkota    = $this->Cabang_model->pilih_kota()->result();
 
-        $this->template->set('datkota',$datkota);
+        $this->template->set('datkota', $datkota);
         $this->template->set('data', $data);
         $this->template->title('Edit Data Cabang');
         $this->template->render('cabang_form');
     }
 
     //Save customer ajax
-    public function save_data_cabang(){
+    public function save_data_cabang()
+    {
 
         $type           = $this->input->post("type");
         $id             = $this->input->post("id");
@@ -86,61 +88,56 @@ class Cabang extends Admin_Controller {
         $kota           = $this->input->post('kota');
         $no_so          = $this->input->post('no_so');
         $no_suratjalan  = $this->input->post('no_suratjalan');
-        $no_picking_list= $this->input->post('no_picking_list');
+        $no_picking_list = $this->input->post('no_picking_list');
         $no_invoice     = $this->input->post('no_invoice');
         $no_pr          = $this->input->post('no_pr');
         $no_po          = $this->input->post('no_po');
         $no_receive     = $this->input->post('no_receive');
-        $th_picking_list= $this->input->post('th_picking_list');
+        $th_picking_list = $this->input->post('th_picking_list');
         $biaya_logistik_lokal          = $this->input->post('biaya_logistik_lokal');
         $sts_aktif      = $this->input->post('sts_aktif');
 
-        if($type=="edit")
-        {
+        if ($type == "edit") {
             $this->auth->restrict($this->managePermission);
 
-            if($id!="")
-            {
+            if ($id != "") {
                 $data = array(
-                            array(
-                                'id'=>$id,
-                                'kdcab'=>$kdcab,
-                                'namacabang'=>$namacabang,
-                                'alamat'=>$alamat,
-                                'kepalacabang'=>$kepalacabang,
-                                'kabagjualan'=>$kabagjualan,
-                                'admcabang'=>$admcabang,
-                                'gudang'=>$gudang,
-                                'kota'=>$kota,
-                                'no_so'=>$no_so,
-                                'no_suratjalan'=>$no_suratjalan,
-                                'no_invoice'=>$no_invoice,
-                                'no_picking_list'=>$no_picking_list,
-                                'no_pr'=>$no_pr,
-                                'no_po'=>$no_po,
-                                'no_receive'=>$no_receive,
-                                'th_picking_list'=>$th_picking_list,
-                                'biaya_logistik_lokal'=>$biaya_logistik_lokal,
-                                'sts_aktif'=>$sts_aktif,
-                            )
-                        );
+                    array(
+                        'id' => $id,
+                        'kdcab' => $kdcab,
+                        'namacabang' => $namacabang,
+                        'alamat' => $alamat,
+                        'kepalacabang' => $kepalacabang,
+                        'kabagjualan' => $kabagjualan,
+                        'admcabang' => $admcabang,
+                        'gudang' => $gudang,
+                        'kota' => $kota,
+                        'no_so' => $no_so,
+                        'no_suratjalan' => $no_suratjalan,
+                        'no_invoice' => $no_invoice,
+                        'no_picking_list' => $no_picking_list,
+                        'no_pr' => $no_pr,
+                        'no_po' => $no_po,
+                        'no_receive' => $no_receive,
+                        'th_picking_list' => $th_picking_list,
+                        'biaya_logistik_lokal' => $biaya_logistik_lokal,
+                        'sts_aktif' => $sts_aktif,
+                    )
+                );
 
                 //Update data
-                $result = $this->Cabang_model->update_batch($data,'id');
+                $result = $this->Cabang_model->update_batch($data, 'id');
 
-                $keterangan     = "SUKSES, Edit data Cabang ".$id.", atas Nama : ".$namacabang;
+                $keterangan     = "SUKSES, Edit data Cabang " . $id . ", atas Nama : " . $namacabang;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = $kdcab;
                 $jumlah         = 1;
                 $sql            = $this->db->last_query();
-
-            }
-            else
-            {
+            } else {
                 $result = FALSE;
 
-                $keterangan     = "GAGAL, Edit data Cabang ".$id.", atas Nama : ".$namacabang;
+                $keterangan     = "GAGAL, Edit data Cabang " . $id . ", atas Nama : " . $namacabang;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = $kdcab;
@@ -149,40 +146,37 @@ class Cabang extends Admin_Controller {
             }
 
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-
-        }
-        else //Add New
+        } else //Add New
         {
             $this->auth->restrict($this->addPermission);
 
             $data = array(
-                        'id'=>$id,
-                        'kdcab'=>$kdcab,
-                        'namacabang'=>$namacabang,
-                        'alamat'=>$alamat,
-                        'kepalacabang'=>$kepalacabang,
-                        'kabagjualan'=>$kabagjualan,
-                        'admcabang'=>$admcabang,
-                        'gudang'=>$gudang,
-                        'kota'=>$kota,
-                        'no_so'=>$no_so,
-                        'no_suratjalan'=>$no_suratjalan,
-                        'no_invoice'=>$no_invoice,
-                        'no_picking_list'=>$no_picking_list,
-                        'no_pr'=>$no_pr,
-                        'no_po'=>$no_po,
-                        'no_receive'=>$no_receive,
-                        'th_picking_list'=>$th_picking_list,
-                        'biaya_logistik_lokal'=>$biaya_logistik_lokal,
-                        'sts_aktif'=>$sts_aktif,
-                        );
+                'id' => $id,
+                'kdcab' => $kdcab,
+                'namacabang' => $namacabang,
+                'alamat' => $alamat,
+                'kepalacabang' => $kepalacabang,
+                'kabagjualan' => $kabagjualan,
+                'admcabang' => $admcabang,
+                'gudang' => $gudang,
+                'kota' => $kota,
+                'no_so' => $no_so,
+                'no_suratjalan' => $no_suratjalan,
+                'no_invoice' => $no_invoice,
+                'no_picking_list' => $no_picking_list,
+                'no_pr' => $no_pr,
+                'no_po' => $no_po,
+                'no_receive' => $no_receive,
+                'th_picking_list' => $th_picking_list,
+                'biaya_logistik_lokal' => $biaya_logistik_lokal,
+                'sts_aktif' => $sts_aktif,
+            );
 
             //Add Data
             $id = $this->Cabang_model->insert($data);
 
-            if(is_numeric($id))
-            {
-                $keterangan     = "SUKSES, tambah data Cabang ".$id.", atas Nama : ".$namacabang;
+            if (is_numeric($id)) {
+                $keterangan     = "SUKSES, tambah data Cabang " . $id . ", atas Nama : " . $namacabang;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -190,10 +184,8 @@ class Cabang extends Admin_Controller {
                 $sql            = $this->db->last_query();
 
                 $result         = TRUE;
-            }
-            else
-            {
-                $keterangan     = "GAGAL, tambah data Cabang ".$id.", atas Nama : ".$namacabang;
+            } else {
+                $keterangan     = "GAGAL, tambah data Cabang " . $id . ", atas Nama : " . $namacabang;
                 $status         = 0;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -203,12 +195,11 @@ class Cabang extends Admin_Controller {
             }
             //Save Log
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-
         }
 
         $param = array(
-                'save' => $result
-                );
+            'save' => $result
+        );
 
         echo json_encode($param);
     }
@@ -218,44 +209,41 @@ class Cabang extends Admin_Controller {
         $this->auth->restrict($this->deletePermission);
         $id = $this->uri->segment(3);
 
-        if($id!=''){
+        if ($id != '') {
 
             $result = $this->Cabang_model->delete($id);
 
-            $keterangan     = "SUKSES, Delete data Cabang ".$id;
+            $keterangan     = "SUKSES, Delete data Cabang " . $id;
             $status         = 1;
             $nm_hak_akses   = $this->addPermission;
             $kode_universal = $id;
             $jumlah         = 1;
             $sql            = $this->db->last_query();
-
-        }
-        else
-        {
+        } else {
             $result = 0;
-            $keterangan     = "GAGAL, Delete data Cabang ".$id;
+            $keterangan     = "GAGAL, Delete data Cabang " . $id;
             $status         = 0;
             $nm_hak_akses   = $this->addPermission;
             $kode_universal = $id;
             $jumlah         = 1;
             $sql            = $this->db->last_query();
-
         }
 
         //Save Log
-            simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+        simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
 
         $param = array(
-                'delete' => $result,
-                'idx'=>$id
-                );
+            'delete' => $result,
+            'idx' => $id
+        );
 
         echo json_encode($param);
     }
 
-    function print_request($id){
+    function print_request($id)
+    {
         $id_customer = $id;
-        $mpdf=new mPDF('','','','','','','','','','');
+        $mpdf = new mPDF('', '', '', '', '', '', '', '', '', '');
         $mpdf->SetImportUse();
         $mpdf->RestartDocTemplate();
 
@@ -263,8 +251,8 @@ class Cabang extends Admin_Controller {
         $cust_setpen    =  $this->Penagihan_model->tampil_tagih($id_customer)->result();
         $cust_setpem    =  $this->Pembayaran_model->tampil_bayar($id_customer)->result();
         $cust_pic       =  $this->Pic_model->tampil_pic($id_customer)->result();
-        $cust_data      =  $this->Customer_model->find_data('customer',$id_customer,'id_customer');
-        $inisial        =  $this->Customer_model->find_data('data_reff',$id_customer,'id_customer');
+        $cust_data      =  $this->Customer_model->find_data('customer', $id_customer, 'id_customer');
+        $inisial        =  $this->Customer_model->find_data('data_reff', $id_customer, 'id_customer');
 
 
         $this->template->set('cust_data', $cust_data);
@@ -273,7 +261,7 @@ class Cabang extends Admin_Controller {
         $this->template->set('cust_setpen', $cust_setpen);
         $this->template->set('cust_setpem', $cust_setpem);
         $this->template->set('cust_pic', $cust_pic);
-        $show = $this->template->load_view('print_data',$data);
+        $show = $this->template->load_view('print_data', $data);
 
         $this->mpdf->WriteHTML($show);
         $this->mpdf->Output();
@@ -298,7 +286,7 @@ class Cabang extends Admin_Controller {
         customer.referensi,
         customer.website,
         customer.foto
-        ")->order_by('customer','ASC')->find_all();
+        ")->order_by('customer', 'ASC')->find_all();
 
         $objPHPExcel    = new PHPExcel();
         $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(5);
@@ -318,7 +306,7 @@ class Cabang extends Admin_Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(17);
         $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(17);
         //$objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setWidth(17);
-       //// $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(17);
+        //// $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(17);
 
         $objPHPExcel->getActiveSheet()->getStyle(1)->getFont()->setBold(true);
         $objPHPExcel->getActiveSheet()->getStyle(2)->getFont()->setBold(true);
@@ -336,8 +324,8 @@ class Cabang extends Admin_Controller {
             )
         );
         $objPHPExcel->getActiveSheet()->getStyle("A1:P2")
-                ->applyFromArray($header)
-                ->getFont()->setSize(14);
+            ->applyFromArray($header)
+            ->getFont()->setSize(14);
         $objPHPExcel->getActiveSheet()->mergeCells('A1:P2');
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('A1', 'Daftar Mitra')
@@ -357,32 +345,32 @@ class Cabang extends Admin_Controller {
             ->setCellValue('N3', 'Email')
             ->setCellValue('O3', 'No Polisi')
             ->setCellValue('P3', 'Status');
-            //->setCellValue('Q3', 'Hutang');
-            //->setCellValue('R3', 'Hutang');
+        //->setCellValue('Q3', 'Hutang');
+        //->setCellValue('R3', 'Hutang');
 
         $ex = $objPHPExcel->setActiveSheetIndex(0);
         $no = 1;
         $counter = 4;
         foreach ($data as $row):
-            $tanggallahir = date('d-m-Y',strtotime($row->tanggallahir));
-            $ex->setCellValue('A'.$counter, $no++);
-            $ex->setCellValue('B'.$counter, strtoupper($row->nama_mitra));
-            $ex->setCellValue('C'.$counter, $row->nim);
-            $ex->setCellValue('D'.$counter, $row->tempatlahir);
-            $ex->setCellValue('E'.$counter, $tanggallahir);
-            $ex->setCellValue('F'.$counter, $row->warganegara);
-            $ex->setCellValue('G'.$counter, $row->jeniskelamin);
-            $ex->setCellValue('H'.$counter, $row->jeniskagamaelamin);
-            $ex->setCellValue('I'.$counter, $row->alamataktif);
-            $ex->setCellValue('J'.$counter, $row->nohp);
-            $ex->setCellValue('K'.$counter, $row->norekeningbank);
-            $ex->setCellValue('L'.$counter, $row->namabank);
-            $ex->setCellValue('M'.$counter, $row->noktp);
-            $ex->setCellValue('N'.$counter, $row->email);
-            $ex->setCellValue('O'.$counter, $row->nopolisi);
-            $ex->setCellValue('P'.$counter, $row->status_aktif);
+            $tanggallahir = date('d-m-Y', strtotime($row->tanggallahir));
+            $ex->setCellValue('A' . $counter, $no++);
+            $ex->setCellValue('B' . $counter, strtoupper($row->nama_mitra));
+            $ex->setCellValue('C' . $counter, $row->nim);
+            $ex->setCellValue('D' . $counter, $row->tempatlahir);
+            $ex->setCellValue('E' . $counter, $tanggallahir);
+            $ex->setCellValue('F' . $counter, $row->warganegara);
+            $ex->setCellValue('G' . $counter, $row->jeniskelamin);
+            $ex->setCellValue('H' . $counter, $row->jeniskagamaelamin);
+            $ex->setCellValue('I' . $counter, $row->alamataktif);
+            $ex->setCellValue('J' . $counter, $row->nohp);
+            $ex->setCellValue('K' . $counter, $row->norekeningbank);
+            $ex->setCellValue('L' . $counter, $row->namabank);
+            $ex->setCellValue('M' . $counter, $row->noktp);
+            $ex->setCellValue('N' . $counter, $row->email);
+            $ex->setCellValue('O' . $counter, $row->nopolisi);
+            $ex->setCellValue('P' . $counter, $row->status_aktif);
 
-            $counter = $counter+1;
+            $counter = $counter + 1;
         endforeach;
 
         $objPHPExcel->getProperties()->setCreator("Yunaz Fandy")
@@ -394,17 +382,14 @@ class Cabang extends Admin_Controller {
             ->setCategory("PHPExcel");
         $objPHPExcel->getActiveSheet()->setTitle('Data Mitra');
 
-        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        header('Last-Modified:'. gmdate("D, d M Y H:i:s").'GMT');
+        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Xlsx');
+        header('Last-Modified:' . gmdate("D, d M Y H:i:s") . 'GMT');
         header('Chace-Control: no-store, no-cache, must-revalation');
         header('Chace-Control: post-check=0, pre-check=0', FALSE);
         header('Pragma: no-cache');
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="ExportDataMitra'. date('Ymd') .'.xlsx"');
+        header('Content-Disposition: attachment;filename="ExportDataMitra' . date('Ymd') . '.xlsx"');
 
         $objWriter->save('php://output');
-
     }
 }
-
-?>

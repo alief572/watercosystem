@@ -26,7 +26,8 @@ class Product extends Admin_Controller
 
         $this->load->library(array('Mpdf'));
         $this->load->model(array(
-            'Product/Product_model', 'Aktifitas/aktifitas_model',
+            'Product/Product_model',
+            'Aktifitas/aktifitas_model',
         ));
 
         date_default_timezone_set('Asia/Bangkok');
@@ -58,9 +59,9 @@ class Product extends Admin_Controller
     {
         $this->auth->restrict($this->viewPermission);
         $this->template->title('Add New Product');
-		$data['kategori'] = $this->db->query('SELECT * FROM kategori')->result();
+        $data['kategori'] = $this->db->query('SELECT * FROM kategori')->result();
         $this->template->page_icon('fa fa-pencil');
-		$this->template->set($data);
+        $this->template->set($data);
         $this->template->render('form_add_product');
     }
 
@@ -213,54 +214,54 @@ class Product extends Admin_Controller
         $this->template->set('result', $data);
         $this->template->render('view-product');
     }
-	
-	// GET SUB CATEGORY
-	//--------------------------------------------------------------------
-	
-	public function getOpt(){
-      $id_selected     = ($this->input->post('id_selected'))?$this->input->post('id_selected'):'';
-      $column          = ($this->input->post('column'))?$this->input->post('column'):'';
-      $column_fill     = ($this->input->post('column_fill'))?$this->input->post('column_fill'):'';
-      $idkey           = ($this->input->post('key'))?$this->input->post('key'):'';
-      $column_name     = ($this->input->post('column_name'))?$this->input->post('column_name'):'';
-      $table_name      = ($this->input->post('table_name'))?$this->input->post('table_name'):'';
-      $act             = ($this->input->post('act'))?$this->input->post('act'):'';
 
-      $where_col = $column." = '".$column_fill."'";
-      $queryTable = "Select * FROM $table_name WHERE 1=1";
-      if (!empty($column_fill)) {
-        $queryTable .= " AND ".$where_col;
-      }
-	  
-      $getTable = $this->db->query($queryTable)->result_array();
-      if ($act == 'free') {
+    // GET SUB CATEGORY
+    //--------------------------------------------------------------------
 
-        if (count($getTable) == 0) {
-          $queryTable = "Select * FROM $table_name WHERE 1=1 AND ".$column." IS NULL OR ".$column." = ''";
-          $getTable = $this->db->query($queryTable)->result_array();
+    public function getOpt()
+    {
+        $id_selected     = ($this->input->post('id_selected')) ? $this->input->post('id_selected') : '';
+        $column          = ($this->input->post('column')) ? $this->input->post('column') : '';
+        $column_fill     = ($this->input->post('column_fill')) ? $this->input->post('column_fill') : '';
+        $idkey           = ($this->input->post('key')) ? $this->input->post('key') : '';
+        $column_name     = ($this->input->post('column_name')) ? $this->input->post('column_name') : '';
+        $table_name      = ($this->input->post('table_name')) ? $this->input->post('table_name') : '';
+        $act             = ($this->input->post('act')) ? $this->input->post('act') : '';
+
+        $where_col = $column . " = '" . $column_fill . "'";
+        $queryTable = "Select * FROM $table_name WHERE 1=1";
+        if (!empty($column_fill)) {
+            $queryTable .= " AND " . $where_col;
         }
 
-      }
-      $html = '<option value="">Choose An Option</option>';
-      if ($id_selected == 'multiple') {
-        $html = '';
-      }
-      foreach ($getTable as $key => $vc) {
-        $id_key = $vc[$idkey];//${'vc'.$key};
-        $name = $vc[$column_name];//${'vc'.$column_name};
-        if (!empty($id_selected)) {
-          if ($id_key == $id_selected) {
-            $active = 'selected';
-          }else {
-            $active = '';
-          }
+        $getTable = $this->db->query($queryTable)->result_array();
+        if ($act == 'free') {
+
+            if (count($getTable) == 0) {
+                $queryTable = "Select * FROM $table_name WHERE 1=1 AND " . $column . " IS NULL OR " . $column . " = ''";
+                $getTable = $this->db->query($queryTable)->result_array();
+            }
         }
-        $html .= '<option value="'.$id_key.'" '.$active.'>'.$name.'</option>';
-      }
-      $Arr_Kembali	= array(
-        'html'		=>$html
-      );
-      echo json_encode($Arr_Kembali);
+        $html = '<option value="">Choose An Option</option>';
+        if ($id_selected == 'multiple') {
+            $html = '';
+        }
+        foreach ($getTable as $key => $vc) {
+            $id_key = $vc[$idkey]; //${'vc'.$key};
+            $name = $vc[$column_name]; //${'vc'.$column_name};
+            if (!empty($id_selected)) {
+                if ($id_key == $id_selected) {
+                    $active = 'selected';
+                } else {
+                    $active = '';
+                }
+            }
+            $html .= '<option value="' . $id_key . '" ' . $active . '>' . $name . '</option>';
+        }
+        $Arr_Kembali    = array(
+            'html'        => $html
+        );
+        echo json_encode($Arr_Kembali);
     }
 
 
@@ -487,7 +488,7 @@ class Product extends Admin_Controller
             ->setCategory('PHPExcel');
         $objPHPExcel->getActiveSheet()->setTitle('Rekap Data Produk');
         ob_end_clean();
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Xls');
         header('Last-Modified:' . gmdate('D, d M Y H:i:s') . 'GMT');
         header('Chace-Control: no-store, no-cache, must-revalation');
         header('Chace-Control: post-check=0, pre-check=0', false);

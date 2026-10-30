@@ -2,8 +2,9 @@
 if (!defined('BASEPATH')) {
 	exit('No direct script access allowed');
 }
-// Require composer autoload
-require_once 'vendor/autoload.php';
+// Composer autoload sudah diaktifkan global via config.php (composer_autoload).
+// Baris di bawah dipertahankan sebagai fallback dengan path absolut yang benar.
+require_once FCPATH . 'vendor/autoload.php';
 
 /*
  * @author Syamsudin

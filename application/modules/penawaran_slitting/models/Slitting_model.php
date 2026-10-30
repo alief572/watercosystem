@@ -160,7 +160,7 @@ class Slitting_model extends BF_Model
 		$this->db->select('a.*, b.name_customer as name_customer');
 		$this->db->from('tr_penawaran_slitting a');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
-		$this->db->order_by('a.id_slitting', DESC);
+		$this->db->order_by('a.id_slitting', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

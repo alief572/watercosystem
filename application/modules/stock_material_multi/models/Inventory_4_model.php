@@ -258,7 +258,7 @@ class Inventory_4_model extends BF_Model
 	  $where = "a.id_category3='$id'";   
 	  $this->db->where($where);
 	  }
-	  	  $this->db->order_by('a.created_on', DESC);
+	  	  $this->db->order_by('a.created_on', 'DESC');
 		  $query = $this->db->get();	
 		  return $query->result();
 	  }

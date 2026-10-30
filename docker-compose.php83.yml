@@ -1,0 +1,39 @@
+# Overlay pengujian PHP 8.3 (Fase 0 upgrade).
+# File ini TIDAK auto-loaded oleh `docker compose` (sengaja, bukan nama override default),
+# jadi alur 5.6 yang biasa tidak terganggu. Pakai secara eksplisit:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.php83.yml up -d web83
+#   akses: http://localhost:8083
+#   stop : docker compose -f docker-compose.yml -f docker-compose.php83.yml down
+#
+# Service `web83` berjalan berdampingan dengan `web` (PHP 5.6) & memakai DB `db` yang sama.
+#
+# CATATAN PENTING: env DB_* wajib diisi. Fallback DB_HOST di config adalah
+# IP production (206.84.97.106) — tanpa env ini container bisa nyasar ke DB production.
+services:
+  web83:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.php83
+    container_name: waterco_web83
+    restart: unless-stopped
+    ports:
+      - "${WEB83_PORT:-8083}:80"
+    volumes:
+      - ./:/var/www/html
+      - ./php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - TZ=Asia/Jakarta
+      - CI_ENV=development
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USER:-alief}
+      - DB_PASS=${MYSQL_PASSWORD:-sdk*^HkfJKjkefJFJLEJLE}
+      - DB_NAME=${MYSQL_DATABASE:-waterco_demo}
+      - DB_CHARSET=utf8mb4
+      - DB_COLLAT=utf8mb4_unicode_ci
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - waterco_net

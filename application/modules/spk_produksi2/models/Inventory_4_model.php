@@ -103,7 +103,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->from('dt_inquery_transaksi a');
 		$this->db->join('ms_inventory_category3 b','b.id_category3=a.id_category3');
 		$this->db->join('ms_inventory_category2 c','c.id_category2=b.id_category2');
-		$this->db->order_by('a.id_dt_inquery', DESC);
+		$this->db->order_by('a.id_dt_inquery', 'DESC');
 		$this->db->where('a.no_inquery',$id_crcl);
 		$query = $this->db->get();	
 		return $query->result();
@@ -144,7 +144,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->select('a.*');
 		$this->db->from('tr_spk_produksi a');
 		$this->db->where('a.sts_over',NULL);
-		$this->db->order_by('a.id_spkproduksi', DESC);
+		$this->db->order_by('a.id_spkproduksi', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -153,7 +153,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->select('a.*');
 		$this->db->from('tr_spk_produksi a');
 		$this->db->where('a.sts_over','1');
-		$this->db->order_by('a.id_spkproduksi', DESC);
+		$this->db->order_by('a.id_spkproduksi', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

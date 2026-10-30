@@ -207,7 +207,7 @@ $blnthn = date('Y-m');
     // $where2 = "a.status !='0'";
     // $this->db->where($where);
     //$this->db->where($where2);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -221,7 +221,7 @@ $blnthn = date('Y-m');
     $this->db->join('ms_top d','d.id_top=a.top');
     $where = "a.approval_finance is null";  
     $this->db->where($where);   
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -286,7 +286,7 @@ $blnthn = date('Y-m');
     }
     $where2 = "a.status_planning ='1'";
     $this->db->where($where2);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -301,7 +301,7 @@ $blnthn = date('Y-m');
     $where2 = "a.status ='0'";
     // $this->db->where($where);
     $this->db->where($where2);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -312,7 +312,7 @@ $blnthn = date('Y-m');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
     $where = "a.status='1'";
     $this->db->where($where);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -323,7 +323,7 @@ $blnthn = date('Y-m');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
     $where = "a.status='6'";
     $this->db->where($where);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -334,7 +334,7 @@ $blnthn = date('Y-m');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
     $where = "a.status='7'";
     $this->db->where($where);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -344,7 +344,7 @@ $blnthn = date('Y-m');
 		$this->db->select('a.*, b.name_customer as name_customer');
 		$this->db->from('tr_penawaran_history a');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
-   	$this->db->order_by('a.no_penawaran', DESC);
+   	$this->db->order_by('a.no_penawaran', 'DESC');
 		$query1 = $this->db->get();	
 
     $this->db->select('a.*, b.name_customer as name_customer');
@@ -352,7 +352,7 @@ $blnthn = date('Y-m');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
     $where = "a.status_so='1'";
     $this->db->where($where);
-   	$this->db->order_by('a.no_penawaran', DESC);
+   	$this->db->order_by('a.no_penawaran', 'DESC');
 		$query2 = $this->db->get();	
 
     $query3= $this->db->query($query1 . ' UNION ' . $query2);
@@ -370,7 +370,7 @@ $blnthn = date('Y-m');
     $where2 = "a.revisi='$rev'";
     $this->db->where($where);
     $this->db->where($where2);
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}
@@ -418,7 +418,7 @@ public function cariPlanning($id=null)
     $this->db->join('ms_top d','d.id_top=a.top');
     $where2 = "a.status_planning ='1'";  
     $this->db->where($where2);
-		$this->db->order_by('a.no_planning', DESC);
+		$this->db->order_by('a.no_planning', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

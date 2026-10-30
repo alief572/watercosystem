@@ -101,9 +101,19 @@ class Report_progress_so extends Admin_Controller
             $col_dir = isset($order_input[0]['dir']) && strtolower($order_input[0]['dir']) === 'desc' ? 'desc' : 'asc';
 
             $col_map1 = array(
-                1 => 'no_so', 2 => 'tanggal_so', 3 => 'customer', 4 => 'sales', 5 => 'deskripsi',
-                6 => 'value_so', 7 => 'invoice', 8 => 'outstanding_so', 9 => 'payment', 10 => 'outstanding_piutang',
-                11 => 'persen_tertagih', 12 => 'persen_terbayar', 13 => 'status'
+                1 => 'no_so',
+                2 => 'tanggal_so',
+                3 => 'customer',
+                4 => 'sales',
+                5 => 'deskripsi',
+                6 => 'value_so',
+                7 => 'invoice',
+                8 => 'outstanding_so',
+                9 => 'payment',
+                10 => 'outstanding_piutang',
+                11 => 'persen_tertagih',
+                12 => 'persen_terbayar',
+                13 => 'status'
             );
 
             if (isset($col_map1[$col_idx])) {
@@ -253,9 +263,18 @@ class Report_progress_so extends Admin_Controller
             $col_dir = isset($order_input[0]['dir']) && strtolower($order_input[0]['dir']) === 'desc' ? 'desc' : 'asc';
 
             $col_map2 = array(
-                1 => 'no_so', 2 => 'barang', 3 => 'qty', 4 => 'tanggal_so', 5 => 'qty_kirim',
-                6 => 'outstanding', 7 => 'persen_terkirim', 8 => 'status_kirim', 9 => 'tanggal_do',
-                10 => 'no_do', 11 => 'nama_customer', 12 => 'account_handler'
+                1 => 'no_so',
+                2 => 'barang',
+                3 => 'qty',
+                4 => 'tanggal_so',
+                5 => 'qty_kirim',
+                6 => 'outstanding',
+                7 => 'persen_terkirim',
+                8 => 'status_kirim',
+                9 => 'tanggal_do',
+                10 => 'no_do',
+                11 => 'nama_customer',
+                12 => 'account_handler'
             );
 
             if (isset($col_map2[$col_idx])) {
@@ -381,7 +400,7 @@ class Report_progress_so extends Admin_Controller
         header('Cache-Control: max-age=0');
         header('Pragma: public');
 
-        $writer = PHPExcel_IOFactory::createWriter($book, 'Excel2007');
+        $writer = PHPExcel_IOFactory::createWriter($book, 'Xlsx');
         $writer->save('php://output');
         exit;
     }

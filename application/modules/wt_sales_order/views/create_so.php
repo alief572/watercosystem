@@ -10,6 +10,7 @@
 <div class="box box-primary">
     <div class="box-body">
 		<form id="data-form" method="post">
+            <input type="hidden" name="booking_request_key" value="<?= bin2hex(random_bytes(16)) ?>">
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 			<div class="row">

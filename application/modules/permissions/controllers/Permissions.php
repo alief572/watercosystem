@@ -7,7 +7,8 @@
  * This is controller for Permissions
  */
 
-class Permissions extends Admin_Controller {
+class Permissions extends Admin_Controller
+{
 
     //Permission 
     protected $viewPermission   = "Permissions.View";
@@ -19,9 +20,10 @@ class Permissions extends Admin_Controller {
     {
         parent::__construct();
 
-        $this->load->model(array('Permissions/Permissions_model',
-                                 'Aktifitas/aktifitas_model'
-                                ));
+        $this->load->model(array(
+            'Permissions/Permissions_model',
+            'Aktifitas/aktifitas_model'
+        ));
         $this->template->title('Manage Data Permissions');
         $this->template->page_icon('fa fa-table');
 
@@ -32,7 +34,7 @@ class Permissions extends Admin_Controller {
     {
         $this->auth->restrict($this->viewPermission);
 
-        $data = $this->Permissions_model->where()->order_by('id_permission','ASC')->find_all();
+        $data = $this->Permissions_model->where()->order_by('id_permission', 'ASC')->find_all();
 
         $this->template->set('results', $data);
         $this->template->title('Permissions');
@@ -43,15 +45,15 @@ class Permissions extends Admin_Controller {
     public function create()
     {
         $this->auth->restrict($this->addPermission);
-        $datmenu    	 = $this->Permissions_model->pilih_menu_permission();
-		$datgroupmenu    = $this->Permissions_model->pilih_menu_group();
-		$permission      = $this->Permissions_model->pilih_permission();
-		$parent_id       = $this->Permissions_model->pilih_parent();
+        $datmenu         = $this->Permissions_model->pilih_menu_permission();
+        $datgroupmenu    = $this->Permissions_model->pilih_menu_group();
+        $permission      = $this->Permissions_model->pilih_permission();
+        $parent_id       = $this->Permissions_model->pilih_parent();
 
-        $this->template->set('datmenu',$datmenu);
-		$this->template->set('datgroupmenu',$datgroupmenu);
-		$this->template->set('permission',$permission);
-		$this->template->set('parent',$parent_id);
+        $this->template->set('datmenu', $datmenu);
+        $this->template->set('datgroupmenu', $datgroupmenu);
+        $this->template->set('permission', $permission);
+        $this->template->set('parent', $parent_id);
         $this->template->title('Input Master Permissions');
         $this->template->render('permissions_form');
     }
@@ -63,71 +65,64 @@ class Permissions extends Admin_Controller {
 
         $id = $this->uri->segment(3);
         $data  = $this->Permissions_model->find_by(array('id_permission' => $id));
-        if(!$data)
-        {
+        if (!$data) {
             $this->template->set_message("Invalid ID", 'error');
             redirect('Permissions');
         }
 
-        $datmenu    	 = $this->Permissions_model->pilih_menu_permission();
-		$datgroupmenu    = $this->Permissions_model->pilih_menu_group();
-		$permission      = $this->Permissions_model->pilih_permission();
-		$parent_id       = $this->Permissions_model->pilih_parent();
+        $datmenu         = $this->Permissions_model->pilih_menu_permission();
+        $datgroupmenu    = $this->Permissions_model->pilih_menu_group();
+        $permission      = $this->Permissions_model->pilih_permission();
+        $parent_id       = $this->Permissions_model->pilih_parent();
 
-        $this->template->set('datmenu',$datmenu);
-		$this->template->set('datgroupmenu',$datgroupmenu);
-		$this->template->set('permission',$permission);
-		$this->template->set('parent',$parent_id);
-		$this->template->set('data', $data);
+        $this->template->set('datmenu', $datmenu);
+        $this->template->set('datgroupmenu', $datgroupmenu);
+        $this->template->set('permission', $permission);
+        $this->template->set('parent', $parent_id);
+        $this->template->set('data', $data);
         $this->template->title('Edit Master Permission');
         $this->template->render('permissions_form');
-
-       
     }
 
     //Save customer ajax
-    public function save_data_permissions(){
-		
-		//echo"<pre>";print_r($this->input->post());exit;
+    public function save_data_permissions()
+    {
+
+        //echo"<pre>";print_r($this->input->post());exit;
 
         $type           = $this->input->post("type");
         $id             = $this->input->post("id_permission");
-		$nama           = $this->input->post("nm_permission");    
-		$ket            = $this->input->post("ket");
-        $namapermission = $nama.'.'.$ket;  
-               
-		
-        if($type=="edit")
-        {
+        $nama           = $this->input->post("nm_permission");
+        $ket            = $this->input->post("ket");
+        $namapermission = $nama . '.' . $ket;
+
+
+        if ($type == "edit") {
             $this->auth->restrict($this->managePermission);
 
-            if($id!="")
-            {
+            if ($id != "") {
                 $data = array(
-                            array(
-                                'id_permission'=>$id,
-                                'nm_permission'=>$namapermission,
-								'nm_menu'=>$nama,
-                                'ket'=>$ket,
-                                )
-                        );
+                    array(
+                        'id_permission' => $id,
+                        'nm_permission' => $namapermission,
+                        'nm_menu' => $nama,
+                        'ket' => $ket,
+                    )
+                );
 
                 //Update data
-                $result = $this->Permissions_model->update_batch($data,'id_permission');
+                $result = $this->Permissions_model->update_batch($data, 'id_permission');
 
-                $keterangan     = "SUKSES, Edit data Permissions ".$id.", atas Nama : ".$nama;
+                $keterangan     = "SUKSES, Edit data Permissions " . $id . ", atas Nama : " . $nama;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = $id;
                 $jumlah         = 1;
                 $sql            = $this->db->last_query();
-
-            }
-            else
-            {
+            } else {
                 $result = FALSE;
 
-                $keterangan     = "GAGAL, Edit data Permissions ".$id.", atas Nama : ".$nama;
+                $keterangan     = "GAGAL, Edit data Permissions " . $id . ", atas Nama : " . $nama;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = $kdcab;
@@ -136,25 +131,22 @@ class Permissions extends Admin_Controller {
             }
 
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-
-        }
-        else //Add New
+        } else //Add New
         {
             $this->auth->restrict($this->addPermission);
 
             $data = $data = array(
-                                'id_permission'=>$id,
-                                'nm_permission'=>$namapermission,
-								'nm_menu'=>$nama,
-                                'ket'=>$ket,
-								);
+                'id_permission' => $id,
+                'nm_permission' => $namapermission,
+                'nm_menu' => $nama,
+                'ket' => $ket,
+            );
 
             //Add Data
             $id = $this->Permissions_model->insert($data);
 
-            if(is_numeric($id))
-            {
-                $keterangan     = "SUKSES, tambah data Permissions ".$id.", atas Nama : ".$nama;
+            if (is_numeric($id)) {
+                $keterangan     = "SUKSES, tambah data Permissions " . $id . ", atas Nama : " . $nama;
                 $status         = 1;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -162,10 +154,8 @@ class Permissions extends Admin_Controller {
                 $sql            = $this->db->last_query();
 
                 $result         = TRUE;
-            }
-            else
-            {
-                $keterangan     = "GAGAL, tambah data Permissions ".$id.", atas Nama : ".$nama;
+            } else {
+                $keterangan     = "GAGAL, tambah data Permissions " . $id . ", atas Nama : " . $nama;
                 $status         = 0;
                 $nm_hak_akses   = $this->addPermission;
                 $kode_universal = 'NewData';
@@ -175,12 +165,11 @@ class Permissions extends Admin_Controller {
             }
             //Save Log
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-
         }
 
         $param = array(
-                'save' => $result
-                );
+            'save' => $result
+        );
 
         echo json_encode($param);
     }
@@ -190,44 +179,41 @@ class Permissions extends Admin_Controller {
         $this->auth->restrict($this->deletePermission);
         $id = $this->uri->segment(3);
 
-        if($id!=''){
+        if ($id != '') {
 
             $result = $this->Permissions_model->delete($id);
 
-            $keterangan     = "SUKSES, Delete data Permissions ".$id;
+            $keterangan     = "SUKSES, Delete data Permissions " . $id;
             $status         = 1;
             $nm_hak_akses   = $this->addPermission;
             $kode_universal = $id;
             $jumlah         = 1;
             $sql            = $this->db->last_query();
-
-        }
-        else
-        {
+        } else {
             $result = 0;
-            $keterangan     = "GAGAL, Delete data Permissions ".$id;
+            $keterangan     = "GAGAL, Delete data Permissions " . $id;
             $status         = 0;
             $nm_hak_akses   = $this->addPermission;
             $kode_universal = $id;
             $jumlah         = 1;
             $sql            = $this->db->last_query();
-
         }
 
         //Save Log
-            simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
+        simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
 
         $param = array(
-                'delete' => $result,
-                'idx'=>$id
-                );
+            'delete' => $result,
+            'idx' => $id
+        );
 
         echo json_encode($param);
     }
 
-    function print_request($id){
+    function print_request($id)
+    {
         $id_customer = $id;
-        $mpdf=new mPDF('','','','','','','','','','');
+        $mpdf = new mPDF('', '', '', '', '', '', '', '', '', '');
         $mpdf->SetImportUse();
         $mpdf->RestartDocTemplate();
 
@@ -235,9 +221,9 @@ class Permissions extends Admin_Controller {
         $cust_setpen    =  $this->Penagihan_model->tampil_tagih($id_customer)->result();
         $cust_setpem    =  $this->Pembayaran_model->tampil_bayar($id_customer)->result();
         $cust_pic       =  $this->Pic_model->tampil_pic($id_customer)->result();
-        $cust_data      =  $this->Customer_model->find_data('customer',$id_customer,'id_customer');
-        $inisial        =  $this->Customer_model->find_data('data_reff',$id_customer,'id_customer');
-        
+        $cust_data      =  $this->Customer_model->find_data('customer', $id_customer, 'id_customer');
+        $inisial        =  $this->Customer_model->find_data('data_reff', $id_customer, 'id_customer');
+
 
         $this->template->set('cust_data', $cust_data);
         $this->template->set('inisial', $inisial);
@@ -245,9 +231,9 @@ class Permissions extends Admin_Controller {
         $this->template->set('cust_setpen', $cust_setpen);
         $this->template->set('cust_setpem', $cust_setpem);
         $this->template->set('cust_pic', $cust_pic);
-        $show = $this->template->load_view('print_data',$data);
+        $show = $this->template->load_view('print_data', $data);
 
-        $this->mpdf->WriteHTML($show);        
+        $this->mpdf->WriteHTML($show);
         $this->mpdf->Output();
     }
 
@@ -270,7 +256,7 @@ class Permissions extends Admin_Controller {
         customer.referensi,
         customer.website,
         customer.foto
-        ")->order_by('customer','ASC')->find_all();
+        ")->order_by('customer', 'ASC')->find_all();
 
         $objPHPExcel    = new PHPExcel();
         $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(5);
@@ -290,12 +276,12 @@ class Permissions extends Admin_Controller {
         $objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(17);
         $objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(17);
         //$objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setWidth(17);
-       //// $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(17);
-        
+        //// $objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(17);
+
         $objPHPExcel->getActiveSheet()->getStyle(1)->getFont()->setBold(true);
         $objPHPExcel->getActiveSheet()->getStyle(2)->getFont()->setBold(true);
         $objPHPExcel->getActiveSheet()->getStyle(3)->getFont()->setBold(true);
-        
+
         $header = array(
             'alignment' => array(
                 'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
@@ -308,8 +294,8 @@ class Permissions extends Admin_Controller {
             )
         );
         $objPHPExcel->getActiveSheet()->getStyle("A1:P2")
-                ->applyFromArray($header)
-                ->getFont()->setSize(14);
+            ->applyFromArray($header)
+            ->getFont()->setSize(14);
         $objPHPExcel->getActiveSheet()->mergeCells('A1:P2');
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('A1', 'Daftar Mitra')
@@ -329,34 +315,34 @@ class Permissions extends Admin_Controller {
             ->setCellValue('N3', 'Email')
             ->setCellValue('O3', 'No Polisi')
             ->setCellValue('P3', 'Status');
-            //->setCellValue('Q3', 'Hutang');
-            //->setCellValue('R3', 'Hutang');
-        
+        //->setCellValue('Q3', 'Hutang');
+        //->setCellValue('R3', 'Hutang');
+
         $ex = $objPHPExcel->setActiveSheetIndex(0);
         $no = 1;
         $counter = 4;
         foreach ($data as $row):
-            $tanggallahir = date('d-m-Y',strtotime($row->tanggallahir));            
-            $ex->setCellValue('A'.$counter, $no++);
-            $ex->setCellValue('B'.$counter, strtoupper($row->nama_mitra));
-            $ex->setCellValue('C'.$counter, $row->nim);
-            $ex->setCellValue('D'.$counter, $row->tempatlahir);
-            $ex->setCellValue('E'.$counter, $tanggallahir);
-            $ex->setCellValue('F'.$counter, $row->warganegara);
-            $ex->setCellValue('G'.$counter, $row->jeniskelamin);
-            $ex->setCellValue('H'.$counter, $row->jeniskagamaelamin);
-            $ex->setCellValue('I'.$counter, $row->alamataktif);
-            $ex->setCellValue('J'.$counter, $row->nohp);
-            $ex->setCellValue('K'.$counter, $row->norekeningbank);
-            $ex->setCellValue('L'.$counter, $row->namabank);
-            $ex->setCellValue('M'.$counter, $row->noktp);
-            $ex->setCellValue('N'.$counter, $row->email);
-            $ex->setCellValue('O'.$counter, $row->nopolisi);
-            $ex->setCellValue('P'.$counter, $row->status_aktif);
-            
-            $counter = $counter+1;
+            $tanggallahir = date('d-m-Y', strtotime($row->tanggallahir));
+            $ex->setCellValue('A' . $counter, $no++);
+            $ex->setCellValue('B' . $counter, strtoupper($row->nama_mitra));
+            $ex->setCellValue('C' . $counter, $row->nim);
+            $ex->setCellValue('D' . $counter, $row->tempatlahir);
+            $ex->setCellValue('E' . $counter, $tanggallahir);
+            $ex->setCellValue('F' . $counter, $row->warganegara);
+            $ex->setCellValue('G' . $counter, $row->jeniskelamin);
+            $ex->setCellValue('H' . $counter, $row->jeniskagamaelamin);
+            $ex->setCellValue('I' . $counter, $row->alamataktif);
+            $ex->setCellValue('J' . $counter, $row->nohp);
+            $ex->setCellValue('K' . $counter, $row->norekeningbank);
+            $ex->setCellValue('L' . $counter, $row->namabank);
+            $ex->setCellValue('M' . $counter, $row->noktp);
+            $ex->setCellValue('N' . $counter, $row->email);
+            $ex->setCellValue('O' . $counter, $row->nopolisi);
+            $ex->setCellValue('P' . $counter, $row->status_aktif);
+
+            $counter = $counter + 1;
         endforeach;
-        
+
         $objPHPExcel->getProperties()->setCreator("Yunaz Fandy")
             ->setLastModifiedBy("Yunaz Fandy")
             ->setTitle("Export Daftar Mitra")
@@ -365,18 +351,15 @@ class Permissions extends Admin_Controller {
             ->setKeywords("office 2007 openxml php")
             ->setCategory("PHPExcel");
         $objPHPExcel->getActiveSheet()->setTitle('Data Mitra');
-        
-        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        header('Last-Modified:'. gmdate("D, d M Y H:i:s").'GMT');
+
+        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Xlsx');
+        header('Last-Modified:' . gmdate("D, d M Y H:i:s") . 'GMT');
         header('Chace-Control: no-store, no-cache, must-revalation');
         header('Chace-Control: post-check=0, pre-check=0', FALSE);
         header('Pragma: no-cache');
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="ExportDataMitra'. date('Ymd') .'.xlsx"');
-        
+        header('Content-Disposition: attachment;filename="ExportDataMitra' . date('Ymd') . '.xlsx"');
+
         $objWriter->save('php://output');
- 
     }
 }
-
-?>

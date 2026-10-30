@@ -1,0 +1,37 @@
+# Overlay pengujian PHP 8.5 (Fase 0 upgrade).
+# File ini TIDAK auto-loaded oleh `docker compose` (sengaja, bukan nama override default),
+# jadi container web yang sedang berjalan tidak terganggu. Pakai secara eksplisit:
+#
+#   docker compose -f docker-compose.yml -f docker-compose.php85.yml up -d web85
+#   akses: http://localhost:8085
+#   stop : docker compose -f docker-compose.yml -f docker-compose.php85.yml down web85
+#
+# Service `web85` berjalan berdampingan dengan `web` & memakai DB `db` (waterco_db) yang sama.
+services:
+  web85:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.php85
+    image: watercosystem-web85
+    container_name: waterco_web85
+    restart: unless-stopped
+    ports:
+      - "${WEB85_PORT:-8085}:80"
+    volumes:
+      - ./:/var/www/html
+      - ./php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - TZ=Asia/Jakarta
+      - CI_ENV=development
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=${MYSQL_USER:-alief}
+      - DB_PASS=${MYSQL_PASSWORD:-sdk*^HkfJKjkefJFJLEJLE}
+      - DB_NAME=${MYSQL_DATABASE:-waterco_demo}
+      - DB_CHARSET=utf8mb4
+      - DB_COLLAT=utf8mb4_unicode_ci
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - waterco_net

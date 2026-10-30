@@ -130,7 +130,13 @@ class Warehouse extends Admin_Controller
 	
 	public function saveAddMaterial(){
 		$this->auth->restrict($this->addPermission);
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () {
+		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
+        $balance = Stock_booking_rules::reconcile($post['qty'] ?? null, $post['qty_booking'] ?? 0);
+        if ($balance['qty_book'] !== 0) { throw new DomainException('Booking stok awal harus melalui detail SO.'); }
+        $post['qty_available'] = $balance['qty_free'];
 		$gudang	  	= $post['id_gudang'];
 		$id	  		= $post['inventory_3'];
 		$this->db->trans_begin();
@@ -211,6 +217,8 @@ class Warehouse extends Admin_Controller
 		
   		echo json_encode($status);
 	
+
+		});
 	}
 
 }

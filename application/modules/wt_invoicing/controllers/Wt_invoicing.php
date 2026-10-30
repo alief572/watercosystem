@@ -2327,8 +2327,8 @@ class Wt_invoicing extends Admin_Controller
 			ob_end_clean();
 		}
 
-		require_once APPPATH . 'libraries/PHPExcel.php';
-		PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);
+		$this->load->library('Phpexcel_compat'); // alias PHPExcel_* -> PhpSpreadsheet
+		// setZipClass(PCLZIP) dihapus: PhpSpreadsheet mengelola ZIP internal, PCLZIP tidak ada.
 		$objPHPExcel = new PHPExcel();
 
 		$data = $this->Wt_invoicing_model->get_export_coretax_data($invoices);
@@ -2549,7 +2549,7 @@ class Wt_invoicing extends Admin_Controller
 		header('Content-Disposition: attachment;filename="' . $filename . '"');
 		header('Cache-Control: max-age=0');
 
-		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Xlsx');
 		$objWriter->save('php://output');
 		exit;
 	}

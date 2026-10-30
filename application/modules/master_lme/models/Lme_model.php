@@ -103,7 +103,7 @@ class Lme_model extends BF_Model
 		$this->db->select('a.*, b.nm_lengkap as nm_lengkap');
 		$this->db->from('ms_history_lme a');
 		$this->db->join('users b','b.id_user=a.created_by');
-		$this->db->order_by('a.tanggal_update', DESC);
+		$this->db->order_by('a.tanggal_update', 'DESC');
 		$query = $this->db->get();		
 		return $query->result();
 	}

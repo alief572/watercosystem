@@ -676,7 +676,7 @@ class Master_customer extends Admin_Controller
             ->setCategory("PHPExcel");
         $objPHPExcel->getActiveSheet()->setTitle('Rekap Data Customer');
         ob_clean();
-        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter  = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Xls');
         header('Last-Modified:' . gmdate("D, d M Y H:i:s") . 'GMT');
         header('Chace-Control: no-store, no-cache, must-revalation');
         header('Chace-Control: post-check=0, pre-check=0', FALSE);

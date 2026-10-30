@@ -106,7 +106,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
 		$this->db->join('tr_spk_marketing c','a.no_penawaran=c.no_penawaran','left');
 		$this->db->group_by('a.no_penawaran');
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

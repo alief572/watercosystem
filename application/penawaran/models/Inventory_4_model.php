@@ -104,7 +104,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->select('a.*, b.name_customer as name_customer');
 		$this->db->from('tr_penawaran a');
 		$this->db->join('master_customers b','b.id_customer=a.id_customer');
-		$this->db->order_by('a.no_penawaran', DESC);
+		$this->db->order_by('a.no_penawaran', 'DESC');
 		$query = $this->db->get();	
 		return $query->result();
 	}

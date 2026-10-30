@@ -140,7 +140,7 @@ class Wt_penawaran_model extends BF_Model
     $where2 = "a.status<>'7'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'DESC');
     $query = $this->db->get();
     return $query->result();
   }
@@ -151,7 +151,7 @@ class Wt_penawaran_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $where = "a.status='1'";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'DESC');
     $query = $this->db->get();
     return $query->result();
   }
@@ -164,7 +164,7 @@ class Wt_penawaran_model extends BF_Model
     $where2 = "a.status_so='0'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'DESC');
     $query = $this->db->get();
     return $query->result();
   }
@@ -175,7 +175,7 @@ class Wt_penawaran_model extends BF_Model
     $this->db->join('master_customers b', 'b.id_customer=a.id_customer');
     $where = "a.status='7'";
     $this->db->where($where);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'DESC');
     $query = $this->db->get();
     return $query->result();
   }
@@ -207,7 +207,7 @@ class Wt_penawaran_model extends BF_Model
     $where2 = "a.revisi='$rev'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'DESC');
     $query = $this->db->get();
     return $query->result();
   }
@@ -232,7 +232,7 @@ class Wt_penawaran_model extends BF_Model
     $where2 = "a.revisi='$rev'";
     $this->db->where($where);
     $this->db->where($where2);
-    $this->db->order_by('a.no_penawaran', DESC);
+    $this->db->order_by('a.no_penawaran', 'DESC');
     $query = $this->db->get();
     return $query->result();
   }

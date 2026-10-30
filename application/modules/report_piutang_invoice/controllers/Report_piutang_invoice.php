@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Report_piutang_invoice extends Admin_Controller
 {
@@ -43,7 +43,8 @@ class Report_piutang_invoice extends Admin_Controller
     {
         $filters = $this->filters();
         $data = array(
-            'filters' => $filters, 'customers' => $this->report_model->customers(),
+            'filters' => $filters,
+            'customers' => $this->report_model->customers(),
             'default_date' => (new DateTime('now', new DateTimeZone('Asia/Jakarta')))->format('Y-m-d')
         );
         $this->template->title('Report Piutang per Invoice');
@@ -103,9 +104,11 @@ class Report_piutang_invoice extends Admin_Controller
         }
         $rules = array();
         foreach (array_slice($order === null ? array() : $order, 0, 6) as $rule) {
-            if (!is_array($rule) || !isset($rule['column'], $rule['dir']) || !is_string($rule['column'])
+            if (
+                !is_array($rule) || !isset($rule['column'], $rule['dir']) || !is_string($rule['column'])
                 || !ctype_digit($rule['column']) || !isset($columns[(int) $rule['column']])
-                || !in_array($rule['dir'], array('asc', 'desc'), true)) {
+                || !in_array($rule['dir'], array('asc', 'desc'), true)
+            ) {
                 show_error('Urutan tabel tidak valid.', 400);
             }
             $rules[] = array('field' => $columns[(int) $rule['column']], 'direction' => $rule['dir']);
@@ -126,10 +129,14 @@ class Report_piutang_invoice extends Admin_Controller
             });
         }
         $this->json_response(array(
-            'draw' => $draw, 'recordsTotal' => $report['invoice_count'], 'recordsFiltered' => $report['invoice_count'],
+            'draw' => $draw,
+            'recordsTotal' => $report['invoice_count'],
+            'recordsFiltered' => $report['invoice_count'],
             'data' => array_slice($report['invoices'], $start, $length),
-            'total_piutang' => $report['total_piutang'], 'invoice_count' => $report['invoice_count'],
-            'verification' => $report['verification'], 'verification_invoice_count' => $report['verification_invoice_count'],
+            'total_piutang' => $report['total_piutang'],
+            'invoice_count' => $report['invoice_count'],
+            'verification' => $report['verification'],
+            'verification_invoice_count' => $report['verification_invoice_count'],
             'tanggal' => $filters['tanggal']
         ));
     }
@@ -138,13 +145,13 @@ class Report_piutang_invoice extends Admin_Controller
     {
         $filters = $this->filters();
         $report = $this->report_model->dataset($filters);
-        $this->load->library('PHPExcel');
+        $this->load->library('Phpexcel_compat'); // alias PHPExcel_* -> PhpSpreadsheet
         $this->load->library('report_piutang_invoice/Piutang_invoice_workbook');
         $book = $this->piutang_invoice_workbook->build($report, $filters);
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="Report_Piutang_per_Invoice_' . $filters['tanggal'] . '.xlsx"');
         header('Cache-Control: no-store');
-        PHPExcel_IOFactory::createWriter($book, 'Excel2007')->save('php://output');
+        PHPExcel_IOFactory::createWriter($book, 'Xlsx')->save('php://output');
         $book->disconnectWorksheets();
     }
 }
