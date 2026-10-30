@@ -14,7 +14,7 @@ Sistem ini menjamin pengerjaan bersifat deterministik dan context-independent.
 | **Fase 2** | Upgrade Composer (`phpoffice/phpspreadsheet` major, `mpdf` ^8.3) & Fix Shims | `[x] LULUS` | `f9cbcc2` | 2026-10-31 |
 | **Fase 3** | Patch Bedah Core CI3 (`system/`), HMVC MX & Strict Deprecation Mode | `[x] LULUS` | `b62f460` | 2026-10-31 |
 | **Fase 4** | Audit & Perbaikan 54 Modul Aktif di PHP 8.5 (Batch 4A–4D) | `[x] LULUS` | `536760a` | 2026-10-31 |
-| **Fase 5** | Regresi E2E, Promosi Docker Default PHP 8.5 & Panduan Rilis Apache | `[x] LULUS` | `pending` | 2026-10-31 |
+| **Fase 5** | Regresi E2E, Promosi Docker Default PHP 8.5 & Panduan Rilis Apache | `[x] LULUS` | `5a0f833` | 2026-10-31 |
 
 ---
 
