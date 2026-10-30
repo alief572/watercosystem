@@ -12,7 +12,7 @@ Sistem ini menjamin pengerjaan bersifat deterministik dan context-independent.
 | **Fase 0** | Isolasi Branch `upgrade/php85`, Docker PHP 8.5 (`8085`), & Infrastruktur Checkpoint | `[x] LULUS` | `6d31140` | 2026-10-30 |
 | **Fase 1** | Audit Database `menus` & Matriks 54 Modul Aktif | `[x] LULUS` | `32c8b7b` | 2026-10-30 |
 | **Fase 2** | Upgrade Composer (`phpoffice/phpspreadsheet` major, `mpdf` ^8.3) & Fix Shims | `[x] LULUS` | `f9cbcc2` | 2026-10-31 |
-| **Fase 3** | Patch Bedah Core CI3 (`system/`), HMVC MX & Strict Deprecation Mode | `[ ] Belum Mulai` | - | - |
+| **Fase 3** | Patch Bedah Core CI3 (`system/`), HMVC MX & Strict Deprecation Mode | `[x] LULUS` | `136e49d` | 2026-10-31 |
 | **Fase 4** | Audit & Perbaikan 54 Modul Aktif di PHP 8.5 (Batch 4A–4D) | `[ ] Belum Mulai` | - | - |
 | **Fase 5** | Regresi E2E, Promosi Docker Default PHP 8.5 & Panduan Rilis Apache | `[ ] Belum Mulai` | - | - |
 
