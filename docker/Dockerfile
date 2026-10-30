@@ -1,4 +1,4 @@
-FROM php:8.3-apache
+FROM php:8.5-apache
 
 # System libraries needed for gd, zip, intl
 RUN apt-get update \
@@ -11,6 +11,7 @@ RUN apt-get update \
         libonig-dev \
         zip \
         unzip \
+        git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" gd mysqli pdo_mysql zip intl mbstring \
     && apt-get clean \
