@@ -389,7 +389,12 @@ class CI_Session {
 	 */
 	protected function _configure_sid_length()
 	{
-		if (PHP_VERSION_ID < 70100)
+		if (PHP_VERSION_ID >= 80400)
+		{
+			$bits_per_character = (int) (ini_get('session.sid_bits_per_character') ?: 4);
+			$sid_length         = (int) (ini_get('session.sid_length') ?: 32);
+		}
+		elseif (PHP_VERSION_ID < 70100)
 		{
 			$hash_function = ini_get('session.hash_function');
 			if (ctype_digit($hash_function))

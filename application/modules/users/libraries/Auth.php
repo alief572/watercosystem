@@ -2,6 +2,7 @@
 /**
  * This library for authentication user
  */
+#[\AllowDynamicProperties]
 class Auth
 {
     protected $ci;

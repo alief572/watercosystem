@@ -63,6 +63,7 @@ class Report_fake_output
     public function set_header($header) { return $this; }
     public function set_output($json) { $this->json = json_decode($json, true); return $this; }
 }
+#[\AllowDynamicProperties]
 class Admin_Controller
 {
     public function __construct()

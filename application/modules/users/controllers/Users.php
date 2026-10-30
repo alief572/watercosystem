@@ -16,6 +16,8 @@ class Users extends Front_Controller
      * 
      */
 
+    public $site_key;
+    public $secret_key;
     protected $sitekey;
     protected $secretkey;
 

@@ -51,6 +51,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author		EllisLab Dev Team
  * @link		https://codeigniter.com/userguide3/database/
  */
+#[\AllowDynamicProperties]
 class CI_DB_mysqli_driver extends CI_DB {
 
 	/**
@@ -241,9 +242,26 @@ class CI_DB_mysqli_driver extends CI_DB {
 	 */
 	public function reconnect()
 	{
-		if ($this->conn_id !== FALSE && $this->conn_id->ping() === FALSE)
+		if ($this->conn_id !== FALSE)
 		{
-			$this->conn_id = FALSE;
+			if (PHP_VERSION_ID >= 80400)
+			{
+				try
+				{
+					if (@$this->conn_id->query('SELECT 1') === FALSE)
+					{
+						$this->conn_id = FALSE;
+					}
+				}
+				catch (\Throwable $e)
+				{
+					$this->conn_id = FALSE;
+				}
+			}
+			elseif (@$this->conn_id->ping() === FALSE)
+			{
+				$this->conn_id = FALSE;
+			}
 		}
 	}
 
