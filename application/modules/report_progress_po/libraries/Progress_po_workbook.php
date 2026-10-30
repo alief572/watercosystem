@@ -7,6 +7,7 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
+#[\AllowDynamicProperties]
 class Progress_po_workbook
 {
     private function row($sheet, $row, $values)

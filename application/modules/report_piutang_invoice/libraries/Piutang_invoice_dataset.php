@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /** Pure report calculation, shared by the HTML page and workbook. */
+#[\AllowDynamicProperties]
 class Piutang_invoice_dataset
 {
     public static function valid_date($value)

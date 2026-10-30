@@ -1194,7 +1194,7 @@ class Expense extends Admin_Controller
 	}
 
 	// transport fin approve
-	public function transport_req_approve($id='',$status){
+	public function transport_req_approve($id='', $status=null){
 		$result=false;
         if($id!="") {
 			$data = array(

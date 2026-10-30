@@ -4,6 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
+#[\AllowDynamicProperties]
 class Piutang_invoice_workbook
 {
     private function text($sheet, $cell, $value)
@@ -72,9 +73,9 @@ class Piutang_invoice_workbook
             $vSheet->fromArray(array('Customer', 'Sisa Piutang Rekap', 'Sisa Piutang Invoice'), null, 'A4');
             $vRow = 5;
             foreach ($verification as $v) {
-                $this->text($vSheet, 'A' . $vRow, $v['customer']);
-                $vSheet->setCellValue('B' . $vRow, $v['piutang_rekap']);
-                $vSheet->setCellValue('C' . $vRow, $v['piutang_invoice']);
+                $this->text($vSheet, 'A' . $vRow, $v['customer'] ?? '');
+                $vSheet->setCellValue('B' . $vRow, $v['piutang_rekap'] ?? 0);
+                $vSheet->setCellValue('C' . $vRow, $v['piutang_invoice'] ?? 0);
                 $vRow++;
             }
             $vSheet->getStyle('A4:C4')->getFont()->setBold(true);

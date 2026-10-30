@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+#[\AllowDynamicProperties]
 class Progress_so_workbook
 {
     private function text($sheet, $cell, $value)

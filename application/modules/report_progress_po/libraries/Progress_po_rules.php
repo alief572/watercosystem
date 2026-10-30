@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+#[\AllowDynamicProperties]
 class Progress_po_rules
 {
     const LABELS = array('belum' => 'Belum Datang', 'parsial' => 'Sebagian Diterima',
