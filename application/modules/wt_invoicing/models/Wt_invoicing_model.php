@@ -321,25 +321,25 @@ class Wt_invoicing_model extends BF_Model
 
       $option = '';
       if (has_permission($this->managePermission) && $item->no_proforma_invoice != '') {
-        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_invoicing/PrintProformaInvoice/' . $item->id_invoice) . '" target="_blank" title="Cetak Proforma Invoice" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+        $option .= '<a class="btn btn-primary btn-sm" href="' . base_url('/wt_invoicing/PrintProformaInvoice/' . $item->id_invoice) . '" target="_blank" title="Cetak Proforma Invoice"><i class="fa fa-print"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->no_invoice == '') {
-        $option .= '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_invoicing/createDealInvoice/' . $item->id_invoice) . '" target="_blank" title="Create Invoice" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-plus"></i></a>';
+        $option .= '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_invoicing/createDealInvoice/' . $item->id_invoice) . '" target="_blank" title="Create Invoice"><i class="fa fa-plus"></i></a>';
       }
 
       if (has_permission($this->managePermission) && $item->no_invoice != '') {
-        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_invoicing/print_invoice/' . $item->no_invoice) . '" target="_blank" title="Cetak Invoice" data-no_inquiry="' . $item->no_inquiry . '"><i class="fa fa-print"></i></a>';
+        $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_invoicing/print_invoice/' . $item->no_invoice) . '" target="_blank" title="Cetak Invoice"><i class="fa fa-print"></i></a>';
       }
 
       $noso =  $item->no_so;
-      $so = $this->db->query("SELECT no_surat FROM tr_sales_order WHERE no_so ='$noso' ")->row();
+      $so = $this->db->query('SELECT no_surat FROM tr_sales_order WHERE no_so = ?', [$noso])->row();
 
 
       $hasil[] = [
         'no' => $no,
         'no_invoice' => $item->no_surat,
-        'no_so' => $so->no_surat,
+        'no_so' => $so->no_surat ?? '',
         'nama_customer' => $item->name_customer,
         'marketing' => $item->nama_sales,
         'top' => $item->nama_top,
