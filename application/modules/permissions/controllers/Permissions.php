@@ -213,6 +213,7 @@ class Permissions extends Admin_Controller
     function print_request($id)
     {
         $id_customer = $id;
+        $this->load->library('Mpdf');
         $mpdf = new mPDF('', '', '', '', '', '', '', '', '', '');
         $mpdf->SetImportUse();
         $mpdf->RestartDocTemplate();
