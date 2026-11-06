@@ -2174,6 +2174,7 @@ class Wt_invoicing extends Admin_Controller
 		      <table border="0px" cellspacing="0" width="100%" valign="top">
 				<tr>
 					<td align="left"width="50%" valign="top" >
+						<img src="' . FCPATH . 'assets/images/logo_waterco.png" alt="" height="100" width="250">
 					</td>
 					  <td align="right" valign="top" width="50%">
 						<br>
