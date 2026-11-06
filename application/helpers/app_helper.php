@@ -412,7 +412,7 @@ if (!function_exists('separator')) {
 if (!function_exists('ynz_terbilang_format')) {
     function ynz_terbilang_format($x)
     {
-        $x = abs($x);
+        $x = (int) abs($x);
         $angka = array('', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas');
         $temp = '';
         if ($x < 12) {
@@ -420,21 +420,21 @@ if (!function_exists('ynz_terbilang_format')) {
         } elseif ($x < 20) {
             $temp = ynz_terbilang_format($x - 10).' belas';
         } elseif ($x < 100) {
-            $temp = ynz_terbilang_format($x / 10).' puluh'.ynz_terbilang_format($x % 10);
+            $temp = ynz_terbilang_format(intdiv($x, 10)).' puluh'.ynz_terbilang_format($x % 10);
         } elseif ($x < 200) {
             $temp = ' seratus'.ynz_terbilang_format($x - 100);
         } elseif ($x < 1000) {
-            $temp = ynz_terbilang_format($x / 100).' ratus'.ynz_terbilang_format($x % 100);
+            $temp = ynz_terbilang_format(intdiv($x, 100)).' ratus'.ynz_terbilang_format($x % 100);
         } elseif ($x < 2000) {
             $temp = ' seribu'.ynz_terbilang_format($x - 1000);
         } elseif ($x < 1000000) {
-            $temp = ynz_terbilang_format($x / 1000).' ribu'.ynz_terbilang_format($x % 1000);
+            $temp = ynz_terbilang_format(intdiv($x, 1000)).' ribu'.ynz_terbilang_format($x % 1000);
         } elseif ($x < 1000000000) {
-            $temp = ynz_terbilang_format($x / 1000000).' juta'.ynz_terbilang_format($x % 1000000);
+            $temp = ynz_terbilang_format(intdiv($x, 1000000)).' juta'.ynz_terbilang_format($x % 1000000);
         } elseif ($x < 1000000000000) {
-            $temp = ynz_terbilang_format($x / 1000000000).' milyar'.ynz_terbilang_format(fmod($x, 1000000000));
+            $temp = ynz_terbilang_format(intdiv($x, 1000000000)).' milyar'.ynz_terbilang_format($x % 1000000000);
         } elseif ($x < 1000000000000000) {
-            $temp = ynz_terbilang_format($x / 1000000000000).' trilyun'.ynz_terbilang_format(fmod($x, 1000000000000));
+            $temp = ynz_terbilang_format(intdiv($x, 1000000000000)).' trilyun'.ynz_terbilang_format($x % 1000000000000);
         }
 
         return $temp;
