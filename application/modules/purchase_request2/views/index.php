@@ -50,12 +50,12 @@ thead input {
 			<td><?= $record->no_surat ?></td>
 			<td><?= $record->tanggal ?></td>
 			<td><?= $record->requestor ?></td>
-			<? if($record->status == '1'){
+			<?php  if($record->status == '1'){
 				echo"<td>Waiting</td>";
 			}else{
 				echo"<td>Approved</td>";
 			}?>
-			<? if($record->status == '1'){
+			<?php  if($record->status == '1'){
 			echo"
 			<td style='padding-left:20px'>
 				<a class='btn btn-primary btn-sm view' href='javascript:void(0)' title='View' data-no_pr='$record->no_pr'><i class='fa fa-eye'></i>

@@ -83,7 +83,7 @@
 						<tr><td>Customer</td><td>:</td><td><?= $header->name_customer ?></td></tr>
 						<tr><td>Address</td><td>:</td><td><?= $header->address_office ?></td></tr>
 						<tr><td>Phone</td><td>:</td><td><?= $header->telephone ?></td></tr>
-						<tr><td>FAX</td><td>:</td><td><?if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
+						<tr><td>FAX</td><td>:</td><td><?php if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
 						<tr><td>U.P</td><td>:</td><td><?= $header->pic_customer ?></td></tr>
 					</table>
 					<center>
@@ -93,7 +93,7 @@
 			</center>
 			</td>
 		</tr>
-		<tr><?if($header->mata_uang=='USD'){?>
+		<tr><?php if($header->mata_uang=='USD'){?>
 			<td colspan='2' >
 			<table class='col-sm-12' border='1'>
 			<tr>

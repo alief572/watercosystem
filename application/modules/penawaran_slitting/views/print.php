@@ -84,7 +84,7 @@
 			<th width='50' align='center'>Jumlah Pisau</th>
 			<th width='70' align='center'>Harga Penawaran</th>
 			</tr>
-			<?	foreach($detail as $detail){?>
+			<?php 	foreach($detail as $detail){?>
 						<tr>
 			<th width='80' align='center'><?= $detail->nama_material ?></th>
 			<th width='50' align='center'><?= $detail->berat ?></th>
@@ -99,7 +99,7 @@
 			<th width='50' align='center'><?= $detail->jmlpisau ?></th>
 			<th width='70' align='center'><?= number_format($detail->hargadeal) ?></th>
 			</tr>
-			<?}?>
+			<?php }?>
 						<tr>
 			<th colspan='11' align='left'>Total Harga</th>
 			<th width='70' align='center'><?= number_format($header->total_harga_penawaran) ?></th>

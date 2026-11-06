@@ -49,7 +49,7 @@ thead input {
 			<td><?= $record->no_surat ?></td>
 			<td><?= date('d-M-Y', strtotime($record->tanggal)) ?></td>
 			<td><?= $record->namesup ?></td>
-			<? if($record->status == '1'){
+			<?php  if($record->status == '1'){
 				echo"<td><span class='badge bg-blue'>Waiting</span></td>";
 			}elseif($record->status == '2'){
 				echo"<td><span class='badge bg-green'>Approved</span></td>";

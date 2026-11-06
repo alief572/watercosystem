@@ -72,7 +72,7 @@
 	<tr><td width='70' align="left">Country</td><td width='10' align="left">:</td><td width='300' align="left"><?= $cou ?></td></tr>
 	<tr><td width='70' align="left">PIC</td><td width='10' align="left">:</td><td width='300' align="left"><?= $namapic ?></td></tr>
 	<tr><td width='70' align="left">Phone</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->telephone ?></td></tr>
-	<tr><td width='70' align="left">FAX</td><td width='10' align="left">:</td><td width='300' align="left"><?if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
+	<tr><td width='70' align="left">FAX</td><td width='10' align="left">:</td><td width='300' align="left"><?php if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
 	</table>
 	</td>
 </tr>

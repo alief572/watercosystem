@@ -59,7 +59,7 @@
 
 	</thead>    
 	<tbody>
-			<?	
+			<?php 	
                $n0 =0;
                foreach($detail as $detail){
 			   $kode = $this->db->query("SELECT kode_barang FROM ms_inventory_category3 WHERE id_category3='$detail->id_category3'")->row();
@@ -75,7 +75,7 @@
 			<td align="left"></td>
 			<td align="left"></td>
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
             
 

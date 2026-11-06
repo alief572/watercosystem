@@ -150,7 +150,7 @@
 
 		</thead>
 		<tbody>
-			<? foreach ($detail as $detail) {
+			<?php  foreach ($detail as $detail) {
 				if ($header->order_status == 'stk') {
 					$sts = 'Ready';
 				} else {
@@ -166,7 +166,7 @@
 					<td align="center" width="60"><?= $sts ?></td>
 					<td align="right" width="80"><?= number_format($detail->total_harga) ?></td>
 				</tr>
-			<? } ?>
+			<?php  } ?>
 		</tbody>
 		<tfoot>
 			<tr>

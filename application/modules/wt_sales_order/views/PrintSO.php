@@ -138,7 +138,7 @@
 
 		</thead>
 		<tbody>
-			<? $no = 0;
+			<?php  $no = 0;
 			foreach ($detail as $detail) {
 
 				$kode = $this->db->query("SELECT kode_barang FROM ms_inventory_category3 WHERE id_category3='$detail->id_category3'")->row();
@@ -158,7 +158,7 @@
 					<td align="center"><?= number_format($detail->diskon, 2) ?></td>
 					<td align="center"><?= number_format($detail->qty_so) ?> &nbsp;Unit</td>
 				</tr>
-			<? } ?>
+			<?php  } ?>
 		</tbody>
 
 	</table>

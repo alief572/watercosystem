@@ -134,7 +134,7 @@ $tgl=$header->tgl_do;
 
 	</thead>    
 	<tbody>
-			<?	
+			<?php 	
                $n0 =0;
                foreach($detail as $detail){
 				$no++;
@@ -146,7 +146,7 @@ $tgl=$header->tgl_do;
 			<td align="left"><?= $detail->serial_number ?></td>
 			<td align="left"><?= $detail->kartu_garansi ?></td>
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
             
 

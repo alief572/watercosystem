@@ -152,7 +152,7 @@ $dp2 =$this->db->query("SELECT * FROM wt_plan_tagih WHERE no_so='$header->no_so'
 			<td align="right"><?= number_format($detail->freight_cost) ?></td>
 			<td align="right"><?= number_format($detail->total_harga) ?></td>
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
 	<tfoot>
 	        

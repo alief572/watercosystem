@@ -143,7 +143,7 @@ thead input {
 										</table>
 									</td>
 									<td><?= $record->nama_material ?></td>
-									<td><?if($record->status_approve == '1'){
+									<td><?php if($record->status_approve == '1'){
 										echo"Menunggu";
 									}elseif($record->status_approve == '2'){
 										echo"Diturunkan";

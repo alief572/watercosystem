@@ -60,7 +60,7 @@
 	<tr><td width='70' align="left">Customer</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->name_customer ?></td></tr>
 	<tr><td width='70' align="left">Address</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->address_office ?></td></tr>
 	<tr><td width='70' align="left">Phone</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->telephone ?></td></tr>
-	<tr><td width='70' align="left">FAX</td><td width='10' align="left">:</td><td width='300' align="left"><?if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
+	<tr><td width='70' align="left">FAX</td><td width='10' align="left">:</td><td width='300' align="left"><?php if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
 	<tr><td width='70' align="left">U.P</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->pic_customer ?></td></tr>
 	</table>
 	</td>
@@ -89,7 +89,7 @@
 			<th width="60" align="center">USD</th>
 			<th width="60" align="center">IDR</th>
 			</tr>
-			<?	foreach($detail as $detail){?>
+			<?php 	foreach($detail as $detail){?>
 			<tr>
 			<td align="center" ><?= $detail->bentuk_material ?></td>
 			<td align="center"><?= $detail->lotno ?></td>
@@ -102,7 +102,7 @@
 			<td width="60" align="center">Rp <?= number_format($detail->harga_penawaran) ?></td>
 			<td width="60" align="center"><?= $detail->keterangan ?></td>
 			</tr>
-			<?}?>
+			<?php }?>
 			<tr>
 			<td align="center">Note</td>
 			<td width="645" colspan='9'><textarea id="note" name="note" class='form-control col-md-12' rows="4" cols="2000"><?= $header->note ?></textarea></td>
@@ -126,7 +126,7 @@
 			<th width="60" align="center">Thickness</th>
 			<th width="60" align="center">Width</th>
 			</tr>
-			<?	foreach($detail as $detail){?>
+			<?php 	foreach($detail as $detail){?>
 			<tr>
 			<td align="center"><?= $detail->bentuk_material ?></td>
 			<td align="center"><?= $detail->lotno ?></td>
@@ -138,7 +138,7 @@
 			<td align="center">Rp <?= number_format($detail->harga_penawaran,2) ?></td>
 			<td align="center"><?= $detail->keterangan ?></td>
 			</tr>
-			<?}?>
+			<?php }?>
 			<tr>
 			<td align="center">Note</td>
 			<td width="645" colspan='9'><textarea id="note" name="note" class='form-control col-md-12' readonly rows="4" cols="2000"><?= $header->note ?></textarea></td>

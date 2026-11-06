@@ -100,7 +100,7 @@ $top =$this->db->query("SELECT * FROM ms_top WHERE id_top='$header->top'")->row(
 
 	</thead>    
 	<tbody>
-			<?	$no=0; foreach($detail as $detail){
+			<?php 	$no=0; foreach($detail as $detail){
 			
 			   $no++;
 			?>
@@ -109,7 +109,7 @@ $top =$this->db->query("SELECT * FROM ms_top WHERE id_top='$header->top'")->row(
 			<td align="left">&nbsp;<?= $detail->keterangan ?></td>
 			<td align="center"><?= number_format($detail->tagihan) ?></td>		
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
 			
 	</table>

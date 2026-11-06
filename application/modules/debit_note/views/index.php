@@ -55,12 +55,12 @@ thead input {
 			<td><?= $record->tanggal ?></td>
 			<td><?= $record->nm_customer ?></td>
 			<td><?= number_format($record->total_tagihan) ?></td>
-			<? if($record->status == '1'){
+			<?php  if($record->status == '1'){
 				echo"<td>Waiting</td>";
 			}else{
 				echo"<td>Approved</td>";
 			}?>
-			<? if($record->status == '1'){
+			<?php  if($record->status == '1'){
 			echo"
 			<td style='padding-left:20px'>
 				<a class='btn btn-success btn-sm' href='$ling' title='View' ><i class='fa fa-eye'></i></a>

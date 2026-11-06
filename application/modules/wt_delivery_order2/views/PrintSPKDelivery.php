@@ -58,7 +58,7 @@
 
 	</thead>    
 	<tbody>
-			<?	
+			<?php 	
                $n0 =0;
                foreach($detail as $detail){
 				$no++;
@@ -71,7 +71,7 @@
 			<td align="left"></td>
 			<td align="left"></td>
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
             
 

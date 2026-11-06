@@ -105,7 +105,7 @@ $sales =$this->db->query("SELECT * FROM ms_karyawan WHERE id_karyawan='$header->
 
 	</thead>    
 	<tbody>
-			<?	foreach($detail as $detail){
+			<?php 	foreach($detail as $detail){
 				if($header->order_status=='stk')
 				{
 					$sts ='Ready';
@@ -122,7 +122,7 @@ $sales =$this->db->query("SELECT * FROM ms_karyawan WHERE id_karyawan='$header->
 			<td align="center" width="60"><?= $sts ?></td>
 			<td align="right" width="100"><?= number_format($detail->total_harga,2) ?></td>
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
 	<tfoot>
 			<tr>

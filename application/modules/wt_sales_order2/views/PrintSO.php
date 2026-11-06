@@ -122,7 +122,7 @@ $top =$this->db->query("SELECT * FROM ms_top WHERE id_top='$header->top'")->row(
 
 	</thead>    
 	<tbody>
-			<?	$no=0; foreach($detail as $detail){
+			<?php 	$no=0; foreach($detail as $detail){
 				
 				$no++;
 				
@@ -140,7 +140,7 @@ $top =$this->db->query("SELECT * FROM ms_top WHERE id_top='$header->top'")->row(
 			<td align="center"><?= number_format($detail->diskon,2) ?></td>
 			<td align="center"><?= number_format($detail->qty_so) ?> &nbsp;Unit</td>			
 			</tr>
-			<?}?>
+			<?php }?>
 	</tbody>
 			
 	</table>

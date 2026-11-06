@@ -42,7 +42,7 @@
 	<tr><td width='70' align="left">Supplier</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->name_suplier ?></td></tr>
 	<tr><td width='70' align="left">Address</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->address_office ?></td></tr>
 	<tr><td width='70' align="left">Phone</td><td width='10' align="left">:</td><td width='300' align="left"><?= $header->telephone ?></td></tr>
-	<tr><td width='70' align="left">FAX</td><td width='10' align="left">:</td><td width='300' align="left"><?if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
+	<tr><td width='70' align="left">FAX</td><td width='10' align="left">:</td><td width='300' align="left"><?php if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
 	</table>
 	</td>
 </tr>
