@@ -165,7 +165,7 @@
 					<td align="right"><?= number_format($detail->freight_cost) ?></td>
 					<td align="right"><?= number_format($detail->total_harga) ?></td>
 				</tr>
-			<? } ?>
+			<?php } ?>
 		</tbody>
 		<tfoot>
 

@@ -147,7 +147,7 @@ $top =$this->db->query("SELECT * FROM ms_top WHERE id_top='$header->top'")->row(
 			<td align="right"><?= number_format($detail->nilai_diskon) ?></td>
 			<td align="right"><?= number_format($detail->total_harga) ?></td>
 			</tr>
-			<?}?>
+			<?php } ?>
 	</tbody>
 	<tfoot>
 	        

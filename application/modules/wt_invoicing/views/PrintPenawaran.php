@@ -95,7 +95,7 @@ $customer =$this->db->query("SELECT * FROM master_customers WHERE id_customer='$
 
 	</thead>    
 	<tbody>
-			<?	foreach($detail as $detail){
+			<?php foreach($detail as $detail){
 				if($header->order_status=='stk')
 				{
 					$sts ='Ready';
@@ -112,7 +112,7 @@ $customer =$this->db->query("SELECT * FROM master_customers WHERE id_customer='$
 			<td align="center"><?= $sts ?></td>
 			<td align="right"><?= number_format($detail->total_harga,2) ?></td>
 			</tr>
-			<?}?>
+			<?php } ?>
 	</tbody>
 	<tfoot>
 			<tr>
