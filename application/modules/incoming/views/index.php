@@ -17,7 +17,7 @@ thead input {
 	<div class="box-header">
 		<span class="pull-left">
 			<?php if($ENABLE_ADD) : ?>
-				<a class="btn btn-success btn-sm" href="<?= base_url('/incoming/add/'.$record->no_penawaran) ?>" title="Add" ><i class="fa fa-plus"></i>&nbsp;Create</a>
+				<a class="btn btn-success btn-sm" href="<?= base_url('/incoming/add') ?>" title="Add" ><i class="fa fa-plus"></i>&nbsp;Create</a>
 			<?php endif; ?>
 		</span>
 	</div>
@@ -53,7 +53,7 @@ thead input {
 			<td><?= $record->id_incoming ?></td>
 			<td><?= strtoupper($record->name_suplier) ?></td>
 			<td align='center'><?= date('d-M-Y', strtotime($record->tanggal)) ?></td>
-			<td><?= $record->status ?></td>
+			<td><?= $record->status ?? '-' ?></td>
 			<td><?= strtoupper($record->pic) ?></td>
 			<td><?= $record->keterangan ?></td>
 			<td><?= strtoupper($record->matauang) ?></td>
