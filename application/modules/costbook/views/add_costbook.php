@@ -36,7 +36,7 @@ thead input {
 							  <label for="">Nilai Costbooks</label>
 							</div>
 							 <div class="col-md-6">
-							  <input type="text" class="form-control" id="costbook" required name="costbook" placeholder="Costbook" value="<?=$costbook->nilai_costbook?>">
+							  <input type="text" class="form-control" id="costbook" required name="costbook" placeholder="Costbook" value="">
 							</div>
 							<div class="col-md-3">
 							<button type="submit" class="btn btn-primary" name="save" id="save"><i class="fa fa-save"></i> Save</button>
