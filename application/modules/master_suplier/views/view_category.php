@@ -1,8 +1,8 @@
  <?php
-    $ENABLE_ADD     = has_permission('master_suplier.Add');
-    $ENABLE_MANAGE  = has_permission('master_suplier.Manage');
-    $ENABLE_VIEW    = has_permission('master_suplier.View');
-    $ENABLE_DELETE  = has_permission('master_suplier.Delete');
+    $ENABLE_ADD     = has_permission('Master_Supplier.Add');
+    $ENABLE_MANAGE  = has_permission('Master_Supplier.Manage');
+    $ENABLE_VIEW    = has_permission('Master_Supplier.View');
+    $ENABLE_DELETE  = has_permission('Master_Supplier.Delete');
 foreach ($results['category'] as $category){
 }	
 ?>
@@ -18,7 +18,7 @@ foreach ($results['category'] as $category){
 									    <label for="customer">ID Kategori Suplier</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="" value="<?= $category->id_category_supplier ?>" readonly required name="id_category_supplier" placeholder="Id Category Suplier">
+											<input type="text" class="form-control" id="" value="<?= html_escape($category->id_category_supplier) ?>" readonly required name="id_category_supplier" placeholder="Id Category Suplier">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -26,7 +26,7 @@ foreach ($results['category'] as $category){
 									    <label for="customer">Kategori Suplier</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="" readonly value="<?= $category->name_category_supplier ?>" required name="name_category_supplier" placeholder="Category Supliery">
+											<input type="text" class="form-control" id="" readonly value="<?= html_escape($category->name_category_supplier) ?>" required name="name_category_supplier" placeholder="Category Supliery">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -34,7 +34,7 @@ foreach ($results['category'] as $category){
 									    <label hidden for="customer">Kode Kategori Suplier</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="" readonly value="<?= $category->supplier_code ?>" required name="supplier_code" placeholder="Category Suplier Code">
+											<input type="text" class="form-control" id="" readonly value="<?= html_escape($category->supplier_code) ?>" name="supplier_code" placeholder="Category Suplier Code">
 									    </div>
 										</div>
 										</div>
@@ -68,7 +68,6 @@ foreach ($results['category'] as $category){
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
 	
 	$(document).ready(function(){
-		 var data_pay	        = <?php echo json_encode($results['supplier']);?>;	
 		 
 				  ///INPUT PERKIRAAN KIRIM
 			

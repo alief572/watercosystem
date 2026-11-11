@@ -25,7 +25,7 @@ thead input {
     <div class="tab-pane active" id="Local">
       <div class="box box-primary">
         	<div class="box-header">
-			<?php if($ENABLE_VIEW) : ?>
+			<?php if($ENABLE_ADD) : ?>
 				<a class="btn btn-success btn-sm add_local" href="javascript:void(0)" title="Add"><i class="fa fa-plus">&nbsp;</i>Tambah Data</a>
 			<?php endif; ?>
 		<span class="pull-right"></span>
@@ -39,9 +39,7 @@ thead input {
 			<th>Kategori Supplier</th>
 			<th>Nama Suplier</th>
 			<th>Status</th>
-			<?php if($ENABLE_MANAGE) : ?>
 			<th width="13%">Action</th>
-			<?php endif; ?>
 		</tr>
 		</thead>
 
@@ -52,9 +50,9 @@ thead input {
 			$numb=0; foreach($results['lokal'] AS $lokal){ $numb++; ?>
 		<tr>
 		    <td><?= $numb; ?></td>
-			<td hidden><?= $lokal->id_suplier?></td>
-			<td><?= $lokal->name_category_supplier ?></td>
-			<td><?= $lokal->name_suplier ?></td>
+			<td hidden><?= html_escape($lokal->id_suplier) ?></td>
+			<td><?= html_escape($lokal->name_category_supplier) ?></td>
+			<td><?= html_escape($lokal->name_suplier) ?></td>
 
 			<td>
 				<?php if($lokal->activation == 'aktif'){ ?>
@@ -65,17 +63,17 @@ thead input {
 			</td>
 			<td style="padding-left:20px">
 			<?php if($ENABLE_VIEW) : ?>
-				<a class="btn btn-primary btn-sm view_local" href="javascript:void(0)" title="View" data-id_suplier="<?=$lokal->id_suplier?>"><i class="fa fa-eye"></i>
+				<a class="btn btn-primary btn-sm view_local" href="javascript:void(0)" title="View" data-id_suplier="<?= html_escape($lokal->id_suplier) ?>"><i class="fa fa-eye"></i>
 				</a>
 			<?php endif; ?>
 
 			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-success btn-sm edit_local" href="javascript:void(0)" title="Edit" data-id_suplier="<?=$lokal->id_suplier?>"><i class="fa fa-edit"></i>
+				<a class="btn btn-success btn-sm edit_local" href="javascript:void(0)" title="Edit" data-id_suplier="<?= html_escape($lokal->id_suplier) ?>"><i class="fa fa-edit"></i>
 				</a>
 			<?php endif; ?>
 
 			<?php if($ENABLE_DELETE) : ?>
-				<a class="btn btn-danger btn-sm delete_local" href="javascript:void(0)" title="Delete" data-id_suplier="<?=$lokal->id_suplier?>"><i class="fa fa-trash"></i>
+				<a class="btn btn-danger btn-sm delete_local" href="javascript:void(0)" title="Delete" data-id_suplier="<?= html_escape($lokal->id_suplier) ?>"><i class="fa fa-trash"></i>
 				</a>
 			<?php endif; ?>
 			</td>
@@ -90,7 +88,7 @@ thead input {
 	    <div class="tab-pane " id="International">
       <div class="box box-primary">
                 	<div class="box-header">
-			<?php if($ENABLE_VIEW) : ?>
+			<?php if($ENABLE_ADD) : ?>
 				<a class="btn btn-success btn-sm add_international" href="javascript:void(0)" title="Add"><i class="fa fa-plus">&nbsp;</i>Tambah Data</a>
 			<?php endif; ?>
 		<span class="pull-right"></span>
@@ -105,9 +103,7 @@ thead input {
 			<th>Nama Supplier</th>
 			<th>Negara</th>
 			<th>Status</th>
-			<?php if($ENABLE_MANAGE) : ?>
 			<th width="13%">Action</th>
-			<?php endif; ?>
 		</tr>
 		</thead>
 
@@ -118,10 +114,10 @@ thead input {
 			$numb=0; foreach($results['international'] AS $international){ $numb++; ?>
 		<tr>
 		    <td><?= $numb; ?></td>
-			<td hidden><?= $international->id_suplier?></td>
-			<td><?= $international->name_category_supplier ?></td>
-			<td><?= $international->name_suplier ?></td>
-			<td><?= $international->nm_negara ?></td>
+			<td hidden><?= html_escape($international->id_suplier) ?></td>
+			<td><?= html_escape($international->name_category_supplier) ?></td>
+			<td><?= html_escape($international->name_suplier) ?></td>
+			<td><?= html_escape($international->nm_negara) ?></td>
 
 			<td>
 				<?php if($international->activation == 'aktif'){ ?>
@@ -132,17 +128,17 @@ thead input {
 			</td>
 			<td style="padding-left:20px">
 			<?php if($ENABLE_VIEW) : ?>
-				<a class="btn btn-primary btn-sm view_international" href="javascript:void(0)" title="View" data-id_suplier="<?=$international->id_suplier?>"><i class="fa fa-eye"></i>
+				<a class="btn btn-primary btn-sm view_international" href="javascript:void(0)" title="View" data-id_suplier="<?= html_escape($international->id_suplier) ?>"><i class="fa fa-eye"></i>
 				</a>
 			<?php endif; ?>
 
 			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-success btn-sm edit_international" href="javascript:void(0)" title="Edit" data-id_suplier="<?=$international->id_suplier?>"><i class="fa fa-edit"></i>
+				<a class="btn btn-success btn-sm edit_international" href="javascript:void(0)" title="Edit" data-id_suplier="<?= html_escape($international->id_suplier) ?>"><i class="fa fa-edit"></i>
 				</a>
 			<?php endif; ?>
 
 			<?php if($ENABLE_DELETE) : ?>
-				<a class="btn btn-danger btn-sm delete_international" href="javascript:void(0)" title="Delete" data-id_suplier="<?=$international->id_suplier?>"><i class="fa fa-trash"></i>
+				<a class="btn btn-danger btn-sm delete_international" href="javascript:void(0)" title="Delete" data-id_suplier="<?= html_escape($international->id_suplier) ?>"><i class="fa fa-trash"></i>
 				</a>
 			<?php endif; ?>
 			</td>
@@ -157,7 +153,7 @@ thead input {
     <div class="tab-pane" id="Supplier_category">
       <div class="box box-primary">
                 	<div class="box-header">
-			<?php if($ENABLE_VIEW) : ?>
+			<?php if($ENABLE_ADD) : ?>
 				<a class="btn btn-success btn-sm add_category" href="javascript:void(0)" title="Add"><i class="fa fa-plus">&nbsp;</i>Add</a>
 			<?php endif; ?>
 		<span class="pull-right"></span>
@@ -171,9 +167,7 @@ thead input {
 			<th hidden>Kode Kategori</th>
 			<th>Nama Kategori</th>
 			<th>Status</th>
-			<?php if($ENABLE_MANAGE) : ?>
 			<th width="13%">Aksi</th>
-			<?php endif; ?>
 		</tr>
 		</thead>
 
@@ -184,9 +178,9 @@ thead input {
 			$numb3=0; foreach($results['category'] as $category){ $numb3++; ?>
 		<tr>
 		    <td><?= $numb3; ?></td>
-			<td hidden><?= $category->id_category_supplier?></td>
-			<td hidden><?= $category->supplier_code ?></td>
-			<td><?= $category->name_category_supplier ?></td>
+			<td hidden><?= html_escape($category->id_category_supplier) ?></td>
+			<td hidden><?= html_escape($category->supplier_code) ?></td>
+			<td><?= html_escape($category->name_category_supplier) ?></td>
 
 			<td>
 				<?php if($category->activation == 'active'){ ?>
@@ -197,17 +191,17 @@ thead input {
 			</td>
 			<td style="padding-left:20px">
 			<?php if($ENABLE_VIEW) : ?>
-				<a class="btn btn-primary btn-sm view_category" href="javascript:void(0)" title="View" data-id_category_supplier="<?=$category->id_category_supplier?>"><i class="fa fa-eye"></i>
+				<a class="btn btn-primary btn-sm view_category" href="javascript:void(0)" title="View" data-id_category_supplier="<?= html_escape($category->id_category_supplier) ?>"><i class="fa fa-eye"></i>
 				</a>
 			<?php endif; ?>
 
 			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-success btn-sm edit_category" href="javascript:void(0)" title="Edit" data-id_category_supplier="<?=$category->id_category_supplier?>"><i class="fa fa-edit"></i>
+				<a class="btn btn-success btn-sm edit_category" href="javascript:void(0)" title="Edit" data-id_category_supplier="<?= html_escape($category->id_category_supplier) ?>"><i class="fa fa-edit"></i>
 				</a>
 			<?php endif; ?>
 
 			<?php if($ENABLE_DELETE) : ?>
-				<a class="btn btn-danger btn-sm delete_category" href="javascript:void(0)" title="Delete" data-id_category_supplier="<?=$category->id_category_supplier?>"><i class="fa fa-trash"></i>
+				<a class="btn btn-danger btn-sm delete_category" href="javascript:void(0)" title="Delete" data-id_category_supplier="<?= html_escape($category->id_category_supplier) ?>"><i class="fa fa-trash"></i>
 				</a>
 			<?php endif; ?>
 			</td>

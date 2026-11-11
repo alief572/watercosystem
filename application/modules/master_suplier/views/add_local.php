@@ -1,8 +1,8 @@
 <?php
-    $ENABLE_ADD     = has_permission('master_suplier.Add');
-    $ENABLE_MANAGE  = has_permission('master_suplier.Manage');
-    $ENABLE_VIEW    = has_permission('master_suplier.View');
-    $ENABLE_DELETE  = has_permission('master_suplier.Delete');
+    $ENABLE_ADD     = has_permission('Master_Supplier.Add');
+    $ENABLE_MANAGE  = has_permission('Master_Supplier.Manage');
+    $ENABLE_VIEW    = has_permission('Master_Supplier.View');
+    $ENABLE_DELETE  = has_permission('Master_Supplier.Delete');
 ?>
  <div class="box box-primary">
     <div class="box-body">
@@ -29,7 +29,7 @@
 											  <select id="id_category_supplier" name="id_category_supplier" class="form-control select" required>
 												<option value="">--pilih--</option>
 												<?php foreach ($results['category'] as $category){?>
-												<option value="<?= $category->id_category_supplier?>"><?= ucfirst(strtolower($category->name_category_supplier))?></option>
+												<option value="<?= html_escape($category->id_category_supplier) ?>"><?= html_escape(ucfirst(strtolower((string) $category->name_category_supplier))) ?></option>
 												<?php } ?>
 											  </select>
 									</div>
@@ -94,7 +94,7 @@
 											  <select id="id_prov" name="id_prov" class="form-control select" onchange="get_kota()" required>
 												<option value="">--Pilih--</option>
 												<?php foreach ($results['prof'] as $prof){?>
-												<option value="<?= $prof->id_prov?>"><?= ucfirst(strtolower($prof->nama))?></option>
+												<option value="<?= html_escape($prof->id_prov) ?>"><?= html_escape(ucfirst(strtolower((string) $prof->nama))) ?></option>
 												<?php } ?>
 											  </select>
 											</div>
@@ -319,7 +319,6 @@
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
 	
 	$(document).ready(function(){
-		 var data_pay	        = <?php echo json_encode($results['supplier']);?>;	
 		 
 				  ///INPUT PERKIRAAN KIRIM
 			

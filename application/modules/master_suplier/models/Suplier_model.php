@@ -69,7 +69,7 @@ class Suplier_model extends BF_Model
       $query = $this->db->query("SELECT MAX(id_suplier) as max_id FROM master_supplier where suplier_location = 'local'");
       $row = $query->row_array();
       $thn = date('y');
-      $max_id = $row['max_id'];
+      $max_id = $row['max_id'] ?? '';
       $max_id1 =(int) substr($max_id,4,5);
       $counter = $max_id1 +1;
       $idcust = "LS".$thn.str_pad($counter, 5, "0", STR_PAD_LEFT);
@@ -80,7 +80,7 @@ class Suplier_model extends BF_Model
       $query = $this->db->query("SELECT MAX(id_category_supplier) as max_id FROM child_supplier_category");
       $row = $query->row_array();
       $thn = date('y');
-      $max_id = $row['max_id'];
+      $max_id = $row['max_id'] ?? '';
       $max_id1 =(int) substr($max_id,4,5);
       $counter = $max_id1 +1;
       $idcust = "CS".$thn.str_pad($counter, 5, "0", STR_PAD_LEFT);
@@ -91,7 +91,7 @@ class Suplier_model extends BF_Model
       $query = $this->db->query("SELECT MAX(id_suplier) as max_id FROM master_supplier where suplier_location = 'international' ");
       $row = $query->row_array();
       $thn = date('y');
-      $max_id = $row['max_id'];
+      $max_id = $row['max_id'] ?? '';
       $max_id1 =(int) substr($max_id,4,5);
       $counter = $max_id1 +1;
       $idcust = "IS".$thn.str_pad($counter, 5, "0", STR_PAD_LEFT);
@@ -99,7 +99,7 @@ class Suplier_model extends BF_Model
 	}
 
  	public function get_data($table,$where_field='',$where_value=''){
-		if($where_field !='' && $where_value!=''){
+		if($where_field !== '' && $where_value !== ''){
 			$query = $this->db->get_where($table, array($where_field=>$where_value));
 		}else{
 			$query = $this->db->get($table);
@@ -112,7 +112,7 @@ class Suplier_model extends BF_Model
 		$search = "suplier_location='local' and deleted='0'";
 		$this->db->select('a.*, b.name_category_supplier as name_category_supplier');
 		$this->db->from('master_supplier a');
-		$this->db->join('child_supplier_category b','b.id_category_supplier=a.id_category_supplier');
+		$this->db->join('child_supplier_category b','b.id_category_supplier=a.id_category_supplier', 'left');
 		$this->db->where($search);
 		$query = $this->db->get();		
 		return $query->result();
@@ -122,8 +122,8 @@ class Suplier_model extends BF_Model
 		$search = "suplier_location='international' and deleted='0'";
 		$this->db->select('a.*, b.name_category_supplier as name_category_supplier, c.nm_negara as nm_negara ');
 		$this->db->from('master_supplier a');
-		$this->db->join('child_supplier_category b','b.id_category_supplier=a.id_category_supplier');
-		$this->db->join('negara c','c.id_negara=a.id_negara');
+		$this->db->join('child_supplier_category b','b.id_category_supplier=a.id_category_supplier', 'left');
+		$this->db->join('negara c','c.id_negara=a.id_negara', 'left');
 		$this->db->where($search);
 		$query = $this->db->get();		
 		return $query->result();
@@ -138,10 +138,9 @@ class Suplier_model extends BF_Model
 		return $query->result();
 	}
 	public function getDimensi($id){
-		$search = "deleted='0' and id_bentuk='$id'";
 		$this->db->select('*');
 		$this->db->from('ms_dimensi');
-		$this->db->where($search);
+		$this->db->where(array('deleted' => '0', 'id_bentuk' => $id));
 		$query = $this->db->get();		
 		return $query->result();
 	}

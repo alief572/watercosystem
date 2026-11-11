@@ -26,7 +26,7 @@
 									    <label for="customer">Kode Kategori Suplier</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="" required name="supplier_code" placeholder="Category Suplier Code">
+											<input type="text" class="form-control" id="" name="supplier_code" placeholder="Category Suplier Code">
 									    </div>
 										</div>
 										</div>
@@ -60,7 +60,6 @@
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
 	
 	$(document).ready(function(){
-		 var data_pay	        = <?php echo json_encode($results['supplier']);?>;	
 		 
 				  ///INPUT PERKIRAAN KIRIM
 			

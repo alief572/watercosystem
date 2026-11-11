@@ -1,8 +1,8 @@
 <?php
-    $ENABLE_ADD     = has_permission('master_suplier.Add');
-    $ENABLE_MANAGE  = has_permission('master_suplier.Manage');
-    $ENABLE_VIEW    = has_permission('master_suplier.View');
-    $ENABLE_DELETE  = has_permission('master_suplier.Delete');
+    $ENABLE_ADD     = has_permission('Master_Supplier.Add');
+    $ENABLE_MANAGE  = has_permission('Master_Supplier.Manage');
+    $ENABLE_VIEW    = has_permission('Master_Supplier.View');
+    $ENABLE_DELETE  = has_permission('Master_Supplier.Delete');
 	foreach ($results['sup'] as $sup){
 }	
 ?>
@@ -20,7 +20,7 @@
 									    <label for="id_supplier">Id Supplier</label>
 									</div>
 									<div class="col-md-6">
-											<input type="text" class="form-control" id="id_suplier" value='<?= $sup->id_suplier ?>' required name="id_suplier" readonly placeholder="Id Suplier">
+											<input type="text" class="form-control" id="id_suplier" value='<?= html_escape($sup->id_suplier) ?>' required name="id_suplier" readonly placeholder="Id Suplier">
 									</div>
 								</div>
 								<div class="form-group row">
@@ -33,7 +33,7 @@
 												<?php foreach ($results['category'] as $category){
 												$select = $sup->id_category_supplier == $category->id_category_supplier ? 'selected' : '';
 												?>
-												<option value="<?= $category->id_category_supplier?>" <?= $select ?>><?= $category->name_category_supplier?></option>
+												<option value="<?= html_escape($category->id_category_supplier) ?>" <?= $select ?>><?= html_escape($category->name_category_supplier) ?></option>
 												<?php } ?>
 											  </select>
 									</div>
@@ -43,7 +43,7 @@
 									    <label for="customer">Nama Supplier</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="name_suplier" value='<?= $sup->name_suplier ?>' required name="name_suplier" placeholder="Nama Suplier">
+											<input type="text" class="form-control" id="name_suplier" value='<?= html_escape($sup->name_suplier) ?>' required name="name_suplier" placeholder="Nama Suplier">
 									</div>
 								</div>
 										
@@ -52,7 +52,7 @@
 									    <label for="customer">Telephone</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="telephone" value='<?= $sup->telephone ?>' required name="telephone" placeholder="Nomor Telephone">
+											<input type="text" class="form-control" id="telephone" value='<?= html_escape($sup->telephone) ?>' required name="telephone" placeholder="Nomor Telephone">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -60,7 +60,7 @@
 									    <label for="customer"></label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="telephone_2" value='<?= $sup->telephone_2 ?>' name="telephone_2" placeholder="Nomor Telephone">
+											<input type="text" class="form-control" id="telephone_2" value='<?= html_escape($sup->telephone_2) ?>' name="telephone_2" placeholder="Nomor Telephone">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -68,7 +68,7 @@
 									    <label for="customer">Fax</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="fax" value='<?= $sup->fax ?>' required name="fax" placeholder="Nomor Fax">
+											<input type="text" class="form-control" id="fax" value='<?= html_escape($sup->fax) ?>' required name="fax" placeholder="Nomor Fax">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -76,7 +76,7 @@
 									    <label for="customer">Email</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="email" required name="email" value='<?= $sup->email ?>' placeholder="email@domain.adress">
+											<input type="text" class="form-control" id="email" required name="email" value='<?= html_escape($sup->email) ?>' placeholder="email@domain.adress">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -84,7 +84,7 @@
 									    <label for="customer">Tanggal Mulai</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="date" class="form-control" id="start_date" required value='<?= $sup->start_date ?>' name="start_date" placeholder="Tanggal Mulai">
+											<input type="date" class="form-control" id="start_date" required value='<?= html_escape($sup->start_date) ?>' name="start_date" placeholder="Tanggal Mulai">
 									    </div>
 										</div>
 						</div>
@@ -99,7 +99,7 @@
 												<?php foreach ($results['negara'] as $negara){
 												$select = $sup->id_negara == $negara->id_negara ? 'selected' : '';
 												?>
-												<option value="<?= $negara->id_negara?>" <?= $select ?>><?= $negara->nm_negara?></option>
+												<option value="<?= html_escape($negara->id_negara) ?>" <?= $select ?>><?= html_escape($negara->nm_negara) ?></option>
 												<?php } ?>
 											  </select>
 											</div>
@@ -110,7 +110,7 @@
 											 <label for="id_category_supplier">Profinsi</label>
 											</div>
 											<div class="col-md-6">
-											  <input type="text" class="form-control" id="international_prov" value="<?= $sup->international_prov?>" required name="international_prov" placeholder="Profinsi">
+											  <input type="text" class="form-control" id="international_prov" value="<?= html_escape($sup->international_prov) ?>" required name="international_prov" placeholder="Profinsi">
 											</div>
 										</div>
 										
@@ -119,7 +119,7 @@
 											 <label for="id_category_supplier">Kota</label>
 											</div>
 											<div class="col-md-6">
-											   <input type="text" class="form-control" id="international_kota" value="<?= $sup->international_kota?>" required name="international_kota" placeholder="Kota">
+											   <input type="text" class="form-control" id="international_kota" value="<?= html_escape($sup->international_kota) ?>" required name="international_kota" placeholder="Kota">
 											</div>
 										</div>
 										
@@ -128,7 +128,7 @@
 									    <label for="customer">Alamat</label>
 									    </div>
 									    <div class="col-md-6">
-										<textarea type="text" name="address_office" id="address_office" class="form-control input-sm required w70" placeholder="Alamat"><?= $sup->address_office ?></textarea>
+										<textarea type="text" name="address_office" id="address_office" class="form-control input-sm required w70" placeholder="Alamat"><?= html_escape($sup->address_office) ?></textarea>
 									    </div>
 										</div>
 										
@@ -137,7 +137,7 @@
 									    <label for="customer">Kode Pos</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="zip_code" required name="zip_code" value='<?= $sup->zip_code ?>' placeholder="Kode Pos">
+											<input type="text" class="form-control" id="zip_code" required name="zip_code" value='<?= html_escape($sup->zip_code) ?>' placeholder="Kode Pos">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -145,7 +145,7 @@
 									    <label for="customer">Longtitude</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="longitude" required name="longitude" value='<?= $sup->longitude ?>' placeholder="Longtitude">
+											<input type="text" class="form-control" id="longitude" required name="longitude" value='<?= html_escape($sup->longitude) ?>' placeholder="Longtitude">
 									    </div>
 										</div>
 										<div class="form-group row">
@@ -153,7 +153,7 @@
 									    <label for="customer">Latitude</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="latitude" required name="latitude" value='<?= $sup->latitude ?>' placeholder="Latitude">
+											<input type="text" class="form-control" id="latitude" required name="latitude" value='<?= html_escape($sup->latitude) ?>' placeholder="Latitude">
 									    </div>
 										</div>
 							<div class="form-group row">
@@ -183,7 +183,7 @@
 									    <label for="customer">MOQ</label>
 									    </div>
 									    <div class="col-md-6">
-											<input type="text" class="form-control" id="moq" required value='<?= $sup->moq ?>' readonly name="moq" placeholder="MOQ Suplier ">
+											<input type="text" class="form-control" id="moq" required value='<?= html_escape($sup->moq) ?>' readonly name="moq" placeholder="MOQ Suplier ">
 									    </div>
 										</div>
 						</div>
@@ -212,6 +212,7 @@
 												<?php
 											$loop = 0;
 											foreach ($results['pic'] as $pic){
+                                                $pic = (object) html_escape((array) $pic);
 											$loop++;
 												echo"<tr id='tr_".$loop."'>";
 			echo"<td align='left'><input type='text' class='form-control input-sm' name='data1[".$loop."][name_pic]' value='$pic->name_pic' id='data1_".$loop."_name_pic' label=/FALSE' div='FALSE'></td>";
@@ -237,7 +238,7 @@
 									    <label for="id_supplier">Nama Bank</label>
 									    </div>
 									    <div class="col-md-9">
-											<input type="text" class="form-control" value='<?= $sup->name_bank ?>' id="name_bank" required name="name_bank" placeholder="Nama Bank">
+											<input type="text" class="form-control" value='<?= html_escape($sup->name_bank) ?>' id="name_bank" required name="name_bank" placeholder="Nama Bank">
 									    </div>
 									</div>
 										
@@ -246,7 +247,7 @@
 											 <label for="id_category_supplier">Nomor Akun</label>
 											</div>
 											<div class="col-md-9">
-												<input type="text" class="form-control" id="no_rekening" value='<?= $sup->no_rekening ?>' required name="no_rekening" placeholder="No Rekening">
+												<input type="text" class="form-control" id="no_rekening" value='<?= html_escape($sup->no_rekening) ?>' required name="no_rekening" placeholder="No Rekening">
 											</div>
 										</div>
 										
@@ -255,7 +256,7 @@
 									    <label for="customer">Nama Akun</label>
 									    </div>
 									    <div class="col-md-9">
-											<input type="text" class="form-control" id="nama_rekening" required value='<?= $sup->nama_rekening ?>' name="nama_rekening" placeholder="Nama Rekening">
+											<input type="text" class="form-control" id="nama_rekening" required value='<?= html_escape($sup->nama_rekening) ?>' name="nama_rekening" placeholder="Nama Rekening">
 									    </div>
 										</div>
 										
@@ -264,7 +265,7 @@
 									    <label for="customer">Alamat Bank</label>
 									    </div>
 									    <div class="col-md-9">
-										<textarea type="text" name="alamat_bank" id="alamat_bank" class="form-control input-sm required w70"  placeholder="Alamat_Bank"><?= $sup->alamat_bank ?></textarea>
+										<textarea type="text" name="alamat_bank" id="alamat_bank" class="form-control input-sm required w70"  placeholder="Alamat_Bank"><?= html_escape($sup->alamat_bank) ?></textarea>
 									    </div>
 										</div>
 										
@@ -273,7 +274,7 @@
 									    <label for="customer">Swift Code</label>
 									    </div>
 									    <div class="col-md-9">
-											<input type="text" class="form-control" id="swift_code" required name="swift_code" value='<?= $sup->swift_code ?>' placeholder="Swift Code">
+											<input type="text" class="form-control" id="swift_code" required name="swift_code" value='<?= html_escape($sup->swift_code) ?>' placeholder="Swift Code">
 									    </div>
 										</div>
 							</div>
@@ -352,7 +353,6 @@
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
 	
 	$(document).ready(function(){
-		 var data_pay	        = <?php echo json_encode($results['supplier']);?>;	
 		 
 				  ///INPUT PERKIRAAN KIRIM
 			
