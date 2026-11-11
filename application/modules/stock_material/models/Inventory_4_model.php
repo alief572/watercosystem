@@ -268,8 +268,7 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 
 		if ($id != null) {
-			$where = "a.id_category3='$id'";
-			$this->db->where($where);
+			$this->db->where('a.id_category3', $id);
 		}
 		$this->db->order_by('a.created_on', 'DESC');
 		$query = $this->db->get();
@@ -298,9 +297,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->from('kartu_stok a');
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 
-		if ($produk != null) {
-			$where = "a.id_category3='" . $produk . "'";
-			$this->db->where($where);
+		if ($produk !== null && $produk !== '') {
+			$this->db->where('a.id_category3', $produk);
 		}
 
 		if (!empty($search)) {
@@ -312,8 +310,8 @@ class Inventory_4_model extends BF_Model
 			$this->db->or_like('b.nama', $search['value'], 'both');
 			$this->db->group_end();
 		}
+		// id_kartu_stok = PK unik; order_by created_on tidak berpengaruh, hanya memaksa filesort.
 		$this->db->order_by('a.id_kartu_stok', 'desc');
-		$this->db->order_by('a.created_on', 'desc');
 
 		$totalFiltered = $this->db->count_all_results('', false);
 

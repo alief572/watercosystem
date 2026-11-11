@@ -993,7 +993,7 @@ class Stock_material extends Admin_Controller
 		$this->template->page_icon('fa fa-users');
 		// $customer = $this->Inventory_4_model->get_data('ms_inventory_category3');
 
-		$this->db->select('a.id_category3, a.nama');
+		$this->db->select('a.id_category3, a.nama, a.kode_barang');
 		$this->db->from('ms_inventory_category3 a');
 		$this->db->where('a.deleted', '0');
 		$get_inventory3 = $this->db->get()->result();
@@ -1073,17 +1073,8 @@ class Stock_material extends Admin_Controller
 
 	public function GudangRawMaterialBackdate()
 	{
-		$id_gudang = '1';
 		$this->auth->restrict($this->viewPermission);
-		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$gudang = $this->Inventory_4_model->PerGudang($id_gudang);
-		$jumlah = $this->Inventory_4_model->SumPerGudang($id_gudang);
-		$data = [
-			'gudang' => $gudang,
-			'jumlah' => $jumlah,
-		];
-		$this->template->set('results', $data);
 		$this->template->title('Stock Gudang I Back Date');
 		$this->template->render('gudang_raw_material_backdate');
 		// $this->template->render('gudang');

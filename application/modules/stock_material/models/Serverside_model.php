@@ -498,72 +498,55 @@ class Serverside_model extends BF_Model
 	public function queryDataJSON_GRW2($tanggal, $gudang, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
 	{
 
-		$where_kategori = "";
+		// Tanggal kosong -> snapshot terbaru, bukan semua snapshot.
+		if (empty($tanggal)) {
+			$max = $this->db->query("SELECT DATE(MAX(tgl)) AS tgl FROM stock_material_backup WHERE aktif='Y' AND id_gudang = ?", [(string) $gudang])->row();
+			$tanggal = $max ? $max->tgl : null;
+		}
+		if (empty($tanggal)) {
+			$tanggal = date('Y-m-d');
+		}
+
+		$like  = '%' . $this->db->escape_like_str($like_value) . '%';
+		$where = " WHERE a.aktif='Y' AND a.tgl >= ? AND a.tgl < DATE_ADD(?, INTERVAL 1 DAY) ";
+		$binds = [$tanggal, $tanggal];
 		if (!empty($gudang)) {
-			$where_kategori = " AND a.id_gudang = '" . $gudang . "' ";
+			$where .= " AND a.id_gudang = ? ";
+			$binds[] = $gudang;
 		}
-		$where_tanggal = "";
-		if (!empty($tanggal)) {
-			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal . "%' ";
-		}
+		$where .= " AND (b.nama_gudang LIKE ? OR c.nama LIKE ? OR a.id_category3 LIKE ?) ";
+		array_push($binds, $like, $like, $like);
+
+		$from = " FROM stock_material_backup a
+                    JOIN ms_gudang b ON b.id_gudang = a.id_gudang
+                    JOIN ms_inventory_category3 c ON a.id_category3 = c.id_category3
+                    JOIN ms_inventory_type d ON c.id_type = d.id_type ";
+
+		// Satu query untuk total baris + total qty (sebelumnya 3 query penuh).
+		$agg = $this->db->query("SELECT COUNT(*) AS jml, SUM(a.qty) AS weight " . $from . $where, $binds)->row();
+		$data['totalData']     = (int) $agg->jml;
+		$data['totalAset']     = $agg->weight ?: 0;
+		$data['totalFiltered'] = (int) $agg->jml;
+
+		$columns_order_by = array(
+			0 => 'a.id_stock'
+		);
+		$order_col = $columns_order_by[$column_order] ?? 'a.id_stock';
+		$order_dir = (strtolower($column_dir) === 'desc') ? 'DESC' : 'ASC';
 
 		$sql = "SELECT
-                    a.*, 
+                    a.*,
                     b.nama_gudang as nama_gudang,
-					c. nama as nama_material,
-					c. kode_barang,
-					c. kode_mas
-                FROM
-                    stock_material_backup a
-                    JOIN ms_gudang b ON b.id_gudang =a.id_gudang
-                    JOIN ms_inventory_category3 c ON a.id_category3 =c.id_category3
-                    JOIN ms_inventory_type d ON c.id_type=d.id_type
-                    JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
-                    JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
-                WHERE 1=1
-                    " . $where_kategori . " AND a.aktif='Y' " . $where_tanggal . "
-                    AND (
-                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                    )
-                ";
-		// echo $sql; exit;
+                    c.nama as nama_material,
+                    c.kode_barang,
+                    c.kode_mas "
+			. $from . $where
+			. " ORDER BY d.nama, " . $order_col . " " . $order_dir
+			. " LIMIT ?, ?";
+		$binds[] = (int) $limit_start;
+		$binds[] = (int) $limit_length;
 
-		$Query_Sum	= "SELECT
-                            SUM(a.qty) AS weight
-                        FROM
-                            stock_material_backup a
-                            JOIN ms_gudang b ON b.id_gudang =a.id_gudang
-                            JOIN ms_inventory_category3 c ON a.id_category3 =c.id_category3
-                            JOIN ms_inventory_type d ON c.id_type=d.id_type
-                            JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
-                            JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
-                        WHERE 1=1
-                            " . $where_kategori . " AND a.aktif='Y' " . $where_tanggal . "
-                            AND (
-                                b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                                OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-								OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                            )
-                        ";
-		$Total_Aset	= 0;
-		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
-		if ($Hasil_SUM) {
-			$Total_Aset		= $Hasil_SUM[0]['weight'];
-		}
-		$data['totalData'] 	= $this->db->query($sql)->num_rows();
-		$data['totalAset'] 	= $Total_Aset;
-		$data['totalFiltered'] = $this->db->query($sql)->num_rows();
-		$columns_order_by = array(
-			0 => 'id_stock'
-
-		);
-
-		$sql .= " ORDER BY d.nama,  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
-		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
-
-		$data['query'] = $this->db->query($sql);
+		$data['query'] = $this->db->query($sql, $binds);
 		return $data;
 	}
 

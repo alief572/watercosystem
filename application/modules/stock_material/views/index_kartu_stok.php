@@ -27,7 +27,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 					$cus = $vc->nama;
 				}
 			?>
-				<option value="<?php echo $vc->id_category3; ?>" <?php echo set_select('nm_customer', $vc->id_customer, isset($data->nama) && $data->id_category3 == $vc->id_customer) ?> <?php echo $selected ?>>
+				<option value="<?php echo $vc->id_category3; ?>" <?php echo $selected ?>>
 					<?php echo $vc->id_category3 . ' , ' . $vc->nama . ' | ' . $vc->kode_barang ?>
 				</option>
 			<?php } ?>
