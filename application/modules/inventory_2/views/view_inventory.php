@@ -21,7 +21,7 @@ foreach ($results['inven'] as $inven){
 											  <select id="inventory_1"  name="inventory_1"  class="form-control select" required>
 						<option value="">-- Inventory --</option>
 						<?php foreach ($results['lvl1'] as $lvl1){
-						$select = $inven->id_category1 == $lvl1->id_type ? 'selected' : '';
+						$select = $inven->id_type == $lvl1->id_type ? 'selected' : '';
 						?>
 						<option value="<?= $lvl1->id_type?>" <?= $select ?>><?= $lvl1->nama?></option>
 						<?php } ?>
@@ -100,7 +100,6 @@ foreach ($results['inven'] as $inven){
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
 	
 	$(document).ready(function(){
-		 var data_pay	        = <?php echo json_encode($results['supplier']);?>;	
 		 
 				  ///INPUT PERKIRAAN KIRIM
 			

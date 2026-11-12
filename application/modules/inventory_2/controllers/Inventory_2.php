@@ -39,10 +39,55 @@ class Inventory_2 extends Admin_Controller
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
 		$deleted = '0';
-        $data = $this->Inventory_2_model->get_data_category1();
-        $this->template->set('results', $data);
         $this->template->title('Product');
         $this->template->render('index');
+    }
+
+    public function get_data_json()
+    {
+        $this->auth->restrict($this->viewPermission);
+        $post = $this->input->post();
+
+        $result = $this->Inventory_2_model->get_datatable(
+            (int) $post['start'],
+            (int) $post['length'],
+            isset($post['search']['value']) ? $post['search']['value'] : '',
+            isset($post['order'][0]) ? $post['order'][0] : array()
+        );
+
+        $can_view   = has_permission('Inventory_2.View');
+        $can_manage = has_permission('Inventory_2.Manage');
+        $can_delete = has_permission('Inventory_2.Delete');
+
+        $no = (int) $post['start'];
+        $rows = array();
+        foreach ($result['data'] as $r) {
+            $no++;
+            $id = html_escape($r->id_category1);
+            $status = $r->aktif == 'aktif'
+                ? '<label class="label label-success">Aktif</label>'
+                : '<label class="label label-danger">Non Aktif</label>';
+            $row = array($no, $id, html_escape($r->nama_type), html_escape($r->nama), $status);
+            if ($can_manage) {
+                $btn = '';
+                if ($can_view) {
+                    $btn .= '<a class="btn btn-primary btn-sm view" href="javascript:void(0)" title="View" data-id_inventory2="' . $id . '"><i class="fa fa-eye"></i></a> ';
+                }
+                $btn .= '<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory2="' . $id . '"><i class="fa fa-edit"></i></a> ';
+                if ($can_delete) {
+                    $btn .= '<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id_inventory2="' . $id . '"><i class="fa fa-trash"></i></a>';
+                }
+                $row[] = $btn;
+            }
+            $rows[] = $row;
+        }
+
+        echo json_encode(array(
+            'draw'            => (int) $post['draw'],
+            'recordsTotal'    => $result['total'],
+            'recordsFiltered' => $result['filtered'],
+            'data'            => $rows,
+        ));
     }
 	public function editInventory($id){
 		$this->auth->restrict($this->viewPermission);
@@ -165,8 +210,8 @@ class Inventory_2 extends Admin_Controller
 		        
                 $header1 =  array(
 							'id_category1'	 	=> $code,
-							'id_type'		    => $h1[inventory_1],
-							'nama'		        => $h1[nm_inventory],
+							'id_type'		    => $h1['inventory_1'],
+							'nama'		        => $h1['nm_inventory'],
 							'aktif'				=> 'aktif',
 							'created_on'		=> date('Y-m-d H:i:s'),
 							'created_by'		=> $this->auth->user_id(),
@@ -186,7 +231,7 @@ class Inventory_2 extends Admin_Controller
 		       	       
               $data1 =  array(
 			                    'id_category1'=>$code, 
-								'name_compotition'=>$d1[name_compotition],
+								'name_compotition'=>$d1['name_compotition'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $session['id_user'], 
@@ -225,8 +270,8 @@ class Inventory_2 extends Admin_Controller
 		$numb1++;	
 		        $produk = $_POST['hd1']['1']['id_inventory'];
                 $header1 =  array(
-							'id_type'		    => $h1[inventory_1],
-							'nama'		        => $h1[nm_inventory],
+							'id_type'		    => $h1['inventory_1'],
+							'nama'		        => $h1['nm_inventory'],
 							'modified_on'		=> date('Y-m-d H:i:s'),
 							'modified_by'		=> $this->auth->user_id(),
 							'deleted'			=> '0' 
@@ -243,7 +288,7 @@ class Inventory_2 extends Admin_Controller
 		      $code = $_POST['hd1']['1']['id_inventory'];    
               $data1 =  array(
 			                    'id_category1'=>$code, 
-								'name_compotition'=>$d1[name_compotition],
+								'name_compotition'=>$d1['name_compotition'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $session['id_user'], 
@@ -253,12 +298,12 @@ class Inventory_2 extends Admin_Controller
 		    }		
 		}
 		$numb3 =0;
-		foreach($_POST['data2'] as $d2){
+		foreach(($_POST['data2'] ?? array()) as $d2){
 		$numb3++;	
 		
 		      $info = $d2['id_compotition'];    
               $data2 =  array(
-								'name_compotition'=>$d2[name_compotition],
+								'name_compotition'=>$d2['name_compotition'],
 								'deleted' =>'0',
 							    'modified_on' => date('Y-m-d H:i:s'),
 								'modified_by' => $session['id_user'], 

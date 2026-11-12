@@ -96,6 +96,46 @@ class Inventory_2_model extends BF_Model
 		$query = $this->db->get();		
 		return $query->result();
 	}
+	private function _category1_base($search = '')
+	{
+		$this->db->from('ms_inventory_category1 a');
+		$this->db->join('ms_inventory_type b', 'b.id_type=a.id_type');
+		$this->db->where('a.deleted', '0');
+		if ($search !== '') {
+			$this->db->group_start()
+				->like('a.id_category1', $search)
+				->or_like('b.nama', $search)
+				->or_like('a.nama', $search)
+				->group_end();
+		}
+	}
+
+	public function get_datatable($start, $length, $search, $order)
+	{
+		$cols = array(1 => 'a.id_category1', 2 => 'b.nama', 3 => 'a.nama', 4 => 'a.aktif');
+
+		$this->_category1_base();
+		$total = $this->db->count_all_results();
+
+		$this->_category1_base($search);
+		$filtered = $this->db->count_all_results();
+
+		$this->db->select('a.id_category1, a.nama, a.aktif, b.nama as nama_type');
+		$this->_category1_base($search);
+		$col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'a.id_category1';
+		$dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+		$this->db->order_by($col, $dir);
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+
+		return array(
+			'total'    => $total,
+			'filtered' => $filtered,
+			'data'     => $this->db->get()->result(),
+		);
+	}
+
 	public function getKomposisi($id){
 		$search = "deleted='0' and id_category1='$id'";
 		$this->db->select('*');

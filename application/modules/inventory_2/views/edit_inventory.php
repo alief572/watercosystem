@@ -51,7 +51,7 @@ foreach ($results['inven'] as $inven){
 										echo form_button(array('type'=>'button','class'=>'btn btn-md btn-success','value'=>'back','content'=>'Add','id'=>'add-payment'));
 									?>
 									</div>
-									< hidden table class='table table-bordered table-striped'>
+									<table class='table table-bordered table-striped'>
 										<thead>
 											<tr class='bg-blue'>
 												<td align='center' hidden><b>Id Compotition</b></td>	
@@ -73,7 +73,7 @@ foreach ($results['inven'] as $inven){
 					<input type="text" class="form-control input-sm" name="data2['<?= $numb ?>'][name_compotition]" value="<?= $komposisi->name_compotition ?>"  id="data1_'<?= $numb ?>'_name_compotition" label="FALSE" div="FALSE">
 												</td>
 												<td align="center">
-					<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id_compotition="<?=$komposisi->id_compotition?>"><i class="fa fa-trash"></i>
+					<a class="btn btn-danger btn-sm delete-komposisi" href="javascript:void(0)" title="Delete" data-id_compotition="<?=$komposisi->id_compotition?>"><i class="fa fa-trash"></i>
 				</a>
 												</td>
 											</tr>
@@ -115,7 +115,6 @@ foreach ($results['inven'] as $inven){
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
 	
 	$(document).ready(function(){
-		 var data_pay	        = <?php echo json_encode($results['supplier']);?>;	
 		 
 				  ///INPUT PERKIRAAN KIRIM
 			
@@ -186,7 +185,8 @@ foreach ($results['inven'] as $inven){
 			});
 		});
 			
-	$(document).on('click', '.delete', function(e){
+	$(document).on('click', '.delete-komposisi', function(e){
+			var $row = $(this).closest('tr');
 		e.preventDefault()
 		var id = $(this).data('id_compotition');
 		// alert(id);
@@ -208,7 +208,8 @@ foreach ($results['inven'] as $inven){
 			  data:{'id':id},
 			  success:function(result){
 				  if(result.status == '1'){
-					  swal("Sukses", "Data Inventory berhasil dihapus", "success");
+					  $row.remove();
+						  swal("Sukses", "Data Inventory berhasil dihapus", "success");
 					return false;
 				  } else {
 					swal({
