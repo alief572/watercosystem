@@ -14,8 +14,9 @@ thead input {
 <link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css')?>">
 
 <div class="box">
-	<!-- /.box-header -->
-	<!-- /.box-header -->
+	<div class="box-header">
+		<a class="btn btn-success btn-sm" id="btn_excel" href="<?= base_url('wt_invoicing/export_monitoring') ?>"><i class="fa fa-file-excel-o"></i> Excel</a>
+	</div>
 	<div class="box-body">
 		<table id="example2" class="table table-bordered table-striped">
 		<thead>
@@ -38,61 +39,7 @@ thead input {
 		</tr>
 		</thead>
 
-		<tbody>
-		<?php if(empty($results)){
-
-		}else{
-					
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-
-				$tgl_terima = (!empty($record->tgl_invoice))?date('d-F-Y', strtotime($record->tgl_invoice)):'-';
-				$tgl_janji = (!empty($record->tgl_janji_bayar))?date('d-F-Y', strtotime($record->tgl_janji_bayar)):date('d-F-Y', strtotime($record->jatuh_tempo));
-	
-				
-				$tgl1 = strtotime($tgl_terima); 
-				$tgl2 = strtotime(date('Y-m-d')); 
-	
-				$jarak = $tgl2 - $tgl1;
-				if($tgl1 !=''){
-				$umur = $jarak / 60 / 60 / 24;	
-				}else {
-				$umur = 0;
-				}
-
-			?> 
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->no_surat ?></td>
-			<td><?= strtoupper($record->name_customer) ?></td>
-            <td><?= $record->nama_sales ?></td>
-			<td><?= $record->nama_top ?></td>
-			<td><?= $record->payment ?></td>
-            <td><?= number_format($record->nilai_invoice) ?></td>
-			<td><?= number_format($record->total_bayar_idr)?></td>
-			<td><?= number_format($record->nilai_invoice - $record->total_bayar_idr)?></td>
-			<td><?= date('d-F-Y', strtotime($record->tgl_invoice)) ?></td>
-			<td><?= $tgl_janji ?></td>
-			<td><?= $umur.' Hari'?></td>
-			
-            <td>
-			<?php if($ENABLE_VIEW)  : ?>
-			<a class="btn btn-primary btn-sm history" href="#" title="Riwayat Follow UP" data-no_invoice="<?=$record->no_invoice?>"><i class="fa fa-history"></i>
-			</a> 
-			<?php endif; ?>
-			<?php if($ENABLE_MANAGE)  : ?>
-			<a class="btn btn-success btn-sm" href="<?= base_url('/wt_invoicing/FollowUp/'.$record->no_invoice) ?>" title="Follow UP" data-no_inquiry="<?=$record->no_inquiry?>"><i class="fa fa-check"></i>
-			</a> 
-			<?php endif; ?>
-			<?php if($ENABLE_MANAGE)  : ?>
-			<a class="btn btn-warning btn-sm tutup" href="#" title="Close Invoice" data-no_invoice="<?=$record->no_invoice?>"><i class="fa fa-close"></i>
-			</a> 
-			<?php endif; ?>
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -163,25 +110,35 @@ thead input {
 <script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js')?>"></script>
 
 
-<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
-
 <!-- page script -->
 <script type="text/javascript">
 
-	  $(document).ready(function() {
-            $('#example2').DataTable( {
-	        orderCellsTop: true,
-	        fixedHeader: true,
+	$(document).ready(function() {
+		var columns = [
+			{ data: 'no' }, { data: 'no_surat' }, { data: 'customer' }, { data: 'marketing' },
+			{ data: 'top' }, { data: 'payment' },
+			{ data: 'nilai', className: 'text-right' }, { data: 'bayar', className: 'text-right' }, { data: 'sisa', className: 'text-right' },
+			{ data: 'tgl_invoice' }, { data: 'janji' }, { data: 'umur' }
+		];
+		var noSort = [0];
+		<?php if ($ENABLE_MANAGE) : ?>
+		columns.push({ data: 'action' });
+		noSort.push(12);
+		<?php endif; ?>
+		var tbl = $('#example2').DataTable({
+			processing: true,
+			serverSide: true,
 			scrollX: true,
-            dom: 'Blfrtip',
-			buttons: [
-				{
-                extend: 'excel',
-            }],			
-	        } );
-        } );
+			order: [],
+			ajax: { url: siteurl + 'wt_invoicing/get_data_monitoring', type: 'POST' },
+			columns: columns,
+			columnDefs: [{ orderable: false, targets: noSort }]
+		});
+		// Excel mengikuti kata kunci search yang sedang aktif.
+		$('#btn_excel').on('click', function() {
+			this.href = siteurl + 'wt_invoicing/export_monitoring?search=' + encodeURIComponent(tbl.search());
+		});
+	});
 		
 		
 	$(document).on('click', '.history', function(e){

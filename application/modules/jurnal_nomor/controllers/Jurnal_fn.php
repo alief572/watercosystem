@@ -39,38 +39,36 @@ class Jurnal_fn extends CI_Controller
         $kodejurnal = $this->uri->segment(5);
         $ket = $this->uri->segment(6);
 
-        $invoicing      = $this->db->query("SELECT a.*, b.name_customer FROM tr_invoice a         
-        INNER JOIN master_customers b ON a.id_customer = b.id_customer WHERE no_invoice='$id'")->row();
-
+        $invoicing = $this->db->query(
+            "SELECT a.*, b.name_customer FROM tr_invoice a
+             INNER JOIN master_customers b ON a.id_customer = b.id_customer WHERE a.no_invoice = ?",
+            [$id]
+        )->row();
+        if (!$invoicing) {
+            echo "<div class='alert alert-danger'>Invoice tidak ditemukan atau customer-nya tidak ada.</div>";
+            return;
+        }
 
         $nama   = $invoicing->name_customer;
         $nomor  = $invoicing->no_surat;
 
-
-        $Tgl_Invoice = $invoicing->tgl_invoice;
         $no_request = $id;
-        $tgl_voucher = $Tgl_Invoice;
+        $tgl_voucher = $invoicing->tgl_invoice;
 
         $Keterangan_INV            = 'Invoicing ' . ($nama) . ' No ' . ($nomor);
 
         #AMBIL TEMPLATE JURNAL DAN SIMPAN KE TEMPORARY
 
         $datajurnal       = $this->Acc_model->GetTemplateJurnal($kodejurnal);
-        foreach ($datajurnal as $record) {
+        $det_Jurnaltes    = [];
+        $nilaibayar       = 0;
+        foreach ((array) $datajurnal as $record) {
             $nokir  = $record->no_perkiraan;
             $tabel  = $record->menu;
             $posisi = $record->posisi;
             $field  = $record->field;
-            // if ($field == 'jumlah_bank'){
-            // 	$nokir = $kd_bank;
-            // } else{
-            // 	$nokir  = $record->no_perkiraan;
-            // }
-            $no_voucher = $id;
-            $param  = 'no_invoice';
-            $value_param  = $id;
-            $val = $this->Acc_model->GetData($tabel, $field, $param, $value_param);
-            $nilaibayar = round($val[0]->$field);
+            $val = $this->Acc_model->GetData($tabel, $field, 'no_invoice', $id);
+            $nilaibayar = $val ? round($val[0]->$field) : 0;
 
             if ($posisi == 'D') {
                 $det_Jurnaltes[]  = array(
@@ -105,8 +103,9 @@ class Jurnal_fn extends CI_Controller
         $this->db->where('jenis_jurnal', $ket);
         $this->db->delete('jurnal');
 
-        $this->db->insert_batch('jurnal', $det_Jurnaltes);
-
+        if (!empty($det_Jurnaltes)) {
+            $this->db->insert_batch('jurnal', $det_Jurnaltes);
+        }
 
         $noreff     = $id;
         $tipe        = 'jv';
@@ -126,144 +125,119 @@ class Jurnal_fn extends CI_Controller
 
     public function save_jurnal_invoicing()
     {
+        $this->auth->restrict('Invoicing.Manage');
 
-        $post        = $this->input->post();
-        $session = $this->session->userdata('app_session');
-        $data_session    = $this->session->userdata;
-
-        $tgl_inv  = $this->input->post('tgl_jurnal[0]');
+        $tgl_inv     = $this->input->post('tgl_jurnal[0]');
         $keterangan  = $this->input->post('keterangan[0]');
-        $type        = $this->input->post('type[0]');
         $reff        = $this->input->post('reff[0]');
-        $no_req      = $this->input->post('no_request[0]');
-        $total       = round($this->input->post('total'));
-        $jenis       = $this->input->post('jenis');
-        $tipe_jurnal       = $this->input->post('tipe');
-        $jenis_jurnal       = $this->input->post('jenis_jurnal');
+        $total       = round((float) $this->input->post('total'));
 
-        $total_po           = $this->input->post('total_po');
-        $id_vendor          = $this->input->post('vendor_id');
-        $nama_vendor        = $this->input->post('vendor_nm');
+        $types       = (array) $this->input->post('type');
+        $tgl_list    = (array) $this->input->post('tgl_jurnal');
+        $coa_list    = (array) $this->input->post('no_coa');
+        $ket_list    = (array) $this->input->post('keterangan');
+        $reff_list   = (array) $this->input->post('reff');
+        $jj_list     = (array) $this->input->post('jenisjurnal');
+        $debet_list  = (array) $this->input->post('debet');
+        $kredit_list = (array) $this->input->post('kredit');
+
+        if (empty($reff) || empty($types) || empty($tgl_inv)) {
+            echo json_encode(['save' => 0, 'msg' => 'Data jurnal tidak lengkap.']);
+            return;
+        }
 
         $this->db->trans_begin();
 
-        $Nomor_JV                = $this->Jurnal_model->get_Nomor_Jurnal_Sales('101', $tgl_inv);
-
-
-        $Bln             = substr($tgl_inv, 5, 2);
-        $Thn             = substr($tgl_inv, 0, 4);
-
-
-        $dataJVhead = array(
-            'nomor'             => $Nomor_JV,
-            'tgl'                 => $tgl_inv,
-            'jml'                => $total,
-            'koreksi_no'        => '-',
-            'kdcab'                => '101',
-            'jenis'                => 'JV',
-            'keterangan'         => $keterangan,
-            'bulan'                => $Bln,
-            'tahun'                => $Thn,
-            'user_id'            => $this->auth->user_id(),
-            'memo'                => '',
-            'tgl_jvkoreksi'        => $tgl_inv,
-            'ho_valid'            => ''
-        );
-
-
-        $this->db->insert(DBACC . '.javh', $dataJVhead);
-
-
-
-        for ($i = 0; $i < count($this->input->post('type')); $i++) {
-            $tipe = $this->input->post('type')[$i];
-            $perkiraan = $this->input->post('no_coa')[$i];
-            $noreff = $this->input->post('reff')[$i];
-            $jenisjurnal = $this->input->post('jenisjurnal')[$i];
-
-            $datadetail = array(
-                'tipe'            => $this->input->post('type')[$i],
-                'nomor'           => $Nomor_JV,
-                'tanggal'         => $this->input->post('tgl_jurnal')[$i],
-                'no_perkiraan'    => $this->input->post('no_coa')[$i],
-                'keterangan'      => $this->input->post('keterangan')[$i],
-                'no_reff'           => $this->input->post('reff')[$i],
-                'debet'            => round($this->input->post('debet')[$i]),
-                'kredit'          => round($this->input->post('kredit')[$i])
-            );
-            $this->db->insert(DBACC . '.jurnal', $datadetail);
-
-            $jurnal_posting     = "UPDATE jurnal SET stspos=1 WHERE tipe = '$tipe'
-			AND  jenis_jurnal = '$jenisjurnal' AND no_reff  = '$noreff' ";
-            $this->db->query($jurnal_posting);
+        // Kunci baris invoice lalu cek belum dijurnal (anti jurnal ganda).
+        $inv = $this->db->query("SELECT a.status_jurnal, a.id_customer, a.no_surat, a.grand_total, b.name_customer
+            FROM tr_invoice a INNER JOIN master_customers b ON a.id_customer = b.id_customer
+            WHERE a.no_invoice = ? FOR UPDATE", [$reff])->row();
+        if (!$inv) {
+            $this->db->trans_rollback();
+            echo json_encode(['save' => 0, 'msg' => 'Invoice tidak ditemukan atau customer-nya tidak ada.']);
+            return;
+        }
+        if ($inv->status_jurnal !== 'OPN') {
+            $this->db->trans_rollback();
+            echo json_encode(['save' => 0, 'msg' => 'Jurnal invoice ini sudah pernah disimpan.']);
+            return;
         }
 
-        $Qry_Update_Cabang_acc     = "UPDATE " . DBACC . ".pastibisa_tb_cabang SET nomorJC=nomorJC + 1 WHERE nocab='101'";
-        $this->db->query($Qry_Update_Cabang_acc);
+        $Nomor_JV = $this->Jurnal_model->get_Nomor_Jurnal_Sales('101', $tgl_inv);
 
-        $jurnal_inv     = "UPDATE tr_invoice SET status_jurnal='CLS' WHERE no_invoice = '$reff' ";
-        $this->db->query($jurnal_inv);
+        $this->db->insert(DBACC . '.javh', [
+            'nomor'         => $Nomor_JV,
+            'tgl'           => $tgl_inv,
+            'jml'           => $total,
+            'koreksi_no'    => '-',
+            'kdcab'         => '101',
+            'jenis'         => 'JV',
+            'keterangan'    => $keterangan,
+            'bulan'         => substr($tgl_inv, 5, 2),
+            'tahun'         => substr($tgl_inv, 0, 4),
+            'user_id'       => $this->auth->user_id(),
+            'memo'          => '',
+            'tgl_jvkoreksi' => $tgl_inv,
+            'ho_valid'      => '',
+        ]);
 
+        foreach ($types as $i => $tipe) {
+            $noreff      = $reff_list[$i] ?? $reff;
+            $jenisjurnal = $jj_list[$i] ?? '';
 
-        $invoicing      = $this->db->query("SELECT a.*, b.name_customer FROM tr_invoice a         
-        INNER JOIN master_customers b ON a.id_customer = b.id_customer WHERE no_invoice='$reff'")->row();
+            $this->db->insert(DBACC . '.jurnal', [
+                'tipe'         => $tipe,
+                'nomor'        => $Nomor_JV,
+                'tanggal'      => $tgl_list[$i] ?? $tgl_inv,
+                'no_perkiraan' => $coa_list[$i] ?? '',
+                'keterangan'   => $ket_list[$i] ?? '',
+                'no_reff'      => $noreff,
+                'debet'        => round((float) ($debet_list[$i] ?? 0)),
+                'kredit'       => round((float) ($kredit_list[$i] ?? 0)),
+            ]);
 
-        $id_cust   = $invoicing->id_customer;
-        $nama   = $invoicing->name_customer;
-        $No_Inv  = $invoicing->no_surat;
-        $dpp  = $invoicing->grand_total;
+            $this->db->query(
+                "UPDATE jurnal SET stspos=1 WHERE tipe = ? AND jenis_jurnal = ? AND no_reff = ?",
+                [$tipe, $jenisjurnal, $noreff]
+            );
+        }
 
+        $this->db->query("UPDATE " . DBACC . ".pastibisa_tb_cabang SET nomorJC=nomorJC + 1 WHERE nocab='101'");
+        $this->db->query("UPDATE tr_invoice SET status_jurnal='CLS' WHERE no_invoice = ?", [$reff]);
 
-        $datapiutang = array(
-            'tipe'            => 'JV',
-            'nomor'            => $Nomor_JV,
-            'tanggal'        => $tgl_inv,
+        $this->db->insert('tr_kartu_piutang', [
+            'tipe'          => 'JV',
+            'nomor'         => $Nomor_JV,
+            'tanggal'       => $tgl_inv,
             'no_perkiraan'  => '1104-01-01',
             'keterangan'    => $keterangan,
-            'no_reff'       => $No_Inv,
+            'no_reff'       => $inv->no_surat,
             'debet'         => $total,
-            'kredit'         =>  0,
-            'id_supplier'     => $id_cust,
-            'nama_supplier'   => $nama,
+            'kredit'        => 0,
+            'id_supplier'   => $inv->id_customer,
+            'nama_supplier' => $inv->name_customer,
+        ]);
 
-        );
-        $this->db->insert('tr_kartu_piutang', $datapiutang);
-
-        $datapiutang2 = array(
-            'tipe'            => 'JV',
-            'nomor'            => $Nomor_JV,
-            'tanggal'        => $tgl_inv,
+        $this->db->insert('tr_kartu_piutang', [
+            'tipe'          => 'JV',
+            'nomor'         => $Nomor_JV,
+            'tanggal'       => $tgl_inv,
             'no_perkiraan'  => '2101-03-01',
             'keterangan'    => $keterangan,
-            'no_reff'       => $No_Inv,
+            'no_reff'       => $inv->no_surat,
             'debet'         => 0,
-            'kredit'         =>  $dpp,
-            'id_supplier'     => $id_cust,
-            'nama_supplier'   => $nama,
-
-        );
-        $this->db->insert('tr_kartu_piutang', $datapiutang2);
-
-
+            'kredit'        => $inv->grand_total,
+            'id_supplier'   => $inv->id_customer,
+            'nama_supplier' => $inv->name_customer,
+        ]);
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
-
-            $param = array(
-                'save' => 0,
-                'msg' => "GAGAL, simpan data..!!!",
-
-            );
-        } else {
-            $this->db->trans_commit();
-
-            $param = array(
-                'save' => 1,
-                'msg' => "SUKSES, simpan data..!!!",
-
-            );
+            echo json_encode(['save' => 0, 'msg' => 'GAGAL, simpan data..!!!']);
+            return;
         }
-        echo json_encode($param);
+        $this->db->trans_commit();
+        echo json_encode(['save' => 1, 'msg' => 'SUKSES, simpan data..!!!']);
     }
 
     function jurnal_penerimaan()

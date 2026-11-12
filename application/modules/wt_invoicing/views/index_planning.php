@@ -23,7 +23,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_plan_tagih" class="table table-bordered table-striped" width="100%">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -45,68 +45,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 				</tr>
 			</thead>
 
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-
-
-						if ($record->status == 0) {
-							$Status = "<span class='badge bg-grey'>Draft</span>";
-						} elseif ($record->status == 1) {
-
-							$Status = "<span class='badge bg-green'>Deal</span>";
-						} elseif ($record->status == 2) {
-							$Status = "<span class='badge bg-green'>Approved</span>";
-						} elseif ($record->status == 3) {
-							$Status = "<span class='badge bg-blue'>Dicetak</span>";
-						} elseif ($record->status == 4) {
-							$Status = "<span class='badge bg-green'>Terkirim</span>";
-						} elseif ($record->status == 5) {
-							$Status = "<span class='badge bg-red'>Not Approved</span>";
-						} elseif ($record->status == 6) {
-							$Status = "<span class='badge bg-green'>SO</span>";
-						} elseif ($record->status == 7) {
-							$Status = "<span class='badge bg-red'>Loss</span>";
-						}
-				?>
-
-						<?php if ($record->status <> '6' or $record->status <> '7') { ?>
-							<tr>
-								<td><?= $numb; ?></td>
-								<td><?= $record->no_surat ?></td>
-								<td><?= strtoupper($record->name_customer) ?></td>
-								<td><?= $record->nama_sales ?></td>
-								<td><?= date('d-F-Y', strtotime($record->tgl_so)) ?></td>
-								<td><?= date('d-F-Y', strtotime($record->tgl_create_inv)) ?></td>
-								<td align='right'><?= number_format($record->grand_total, 2) ?></td>
-								<td><?= $record->persentase ?></td>
-								<td align='right'><?= number_format($record->nilai_tagih, 2) ?></td>
-								<td><?= $record->nama_top ?></td>
-								<td><?= $record->payment ?></td>
-								<td><?= $record->ket_tagih ?></td>
-								<td><?php if ($record->upload_po <> null) : ?>
-										<a class="btn btn-primary btn-sm" target="_blank" href="<?= '.' . $record->upload_po ?>" title="View PO"><i class="fa fa-eye"></i>
-										</a>
-									<?php endif; ?>
-								</td>
-
-								<td style="padding-left:20px">
-									<?php if ($ENABLE_MANAGE && $record->status_invoice == '0') : ?>
-
-										<a class="btn btn-success btn-sm" href="<?= base_url('/wt_invoicing/createInvoice/' . $record->id_plan_tagih) ?>" title="Create Invoice" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-check">&nbsp;Create Invoice</i>
-										</a>
-									<?php endif; ?>
-
-
-							</tr>
-				<?php 	 }
-					}
-				}  ?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -178,6 +117,29 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 
 <!-- page script -->
 <script type="text/javascript">
+	$(function() {
+		var columns = [
+			{ data: 'no' }, { data: 'no_so' }, { data: 'customer' }, { data: 'marketing' },
+			{ data: 'tgl_so' }, { data: 'tgl_inv' }, { data: 'nilai_so', className: 'text-right' },
+			{ data: 'persentase' }, { data: 'nilai_tagih', className: 'text-right' }, { data: 'top' },
+			{ data: 'payment' }, { data: 'keterangan' }, { data: 'po' }
+		];
+		var noSort = [0, 12];
+		<?php if ($ENABLE_MANAGE) : ?>
+		columns.push({ data: 'action' });
+		noSort.push(13);
+		<?php endif; ?>
+		$('#tbl_plan_tagih').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: { url: siteurl + 'wt_invoicing/get_data_plan_tagih', type: 'POST' },
+			columns: columns,
+			columnDefs: [{ orderable: false, targets: noSort }]
+		});
+	});
+
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");

@@ -127,10 +127,10 @@
 			        <div class='col-md-8' id="">
 					    <select id="order_sts" name="order_sts" class="form-control select" required disabled>
 							<option value="">--Pilih--</option>
-                           <?php if($hd->order_status==stk){ ?>
+                           <?php if($hd->order_status=='stk'){ ?>
 						    <option value="stk" selected>Stock</option>
                             <option value="ind" >Indent</option>
-                            <?php } else if($hd->order_status==ind){?>
+                            <?php } else if($hd->order_status=='ind'){?>
                             <option value="stk" >Stock</option>
                             <option value="ind" selected>Indent</option>
                             <?php } ?>
@@ -234,6 +234,11 @@
 									<tbody id="list_spk">
                                     <?php 
 									$loop = 0;
+									$diskon = 0;
+									$totalharga = 0;
+									$tagih = 0;
+									$totalinv = 0;
+									$deleted = '0';
 									foreach ($results['detail'] as $dt_spk){
 										
 										$loop++; 

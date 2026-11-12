@@ -22,7 +22,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_jurnal_invoicing" class="table table-bordered table-striped" width="100%">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -39,52 +39,7 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 				</tr>
 			</thead>
 
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-						if ($record->status == 0) {
-							$Status = "<span class='badge bg-grey'>Draft</span>";
-						} elseif ($record->status == 1) {
-
-							$Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
-						} elseif ($record->status == 2) {
-							$Status = "<span class='badge bg-green'>Approved</span>";
-						} elseif ($record->status == 3) {
-							$Status = "<span class='badge bg-blue'>Print</span>";
-						} elseif ($record->status == 4) {
-							$Status = "<span class='badge bg-green'>Send</span>";
-						} elseif ($record->status == 5) {
-							$Status = "<span class='badge bg-red'>Not Approved</span>";
-						} elseif ($record->status == 6) {
-							$Status = "<span class='badge bg-green'>SO</span>";
-						} elseif ($record->status == 7) {
-							$Status = "<span class='badge bg-red'>Loss</span>";
-						}
-				?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->no_surat ?></td>
-							<td><?= strtoupper($record->name_customer) ?></td>
-							<td><?= $record->nama_sales ?></td>
-							<td><?= $record->nama_top ?></td>
-							<td><?= $record->payment ?></td>
-							<td><?= number_format($record->nilai_invoice) ?></td>
-							<td><?= date('d-F-Y', strtotime($record->tgl_invoice)) ?></td>
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_MANAGE) : ?>
-									<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="<?= $record->no_invoice ?>"><i class="fa fa-check"></i>
-									</a>
-								<?php endif; ?>
-
-						</tr>
-				<?php 	 }
-				}
-				?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -156,6 +111,32 @@ $ENABLE_DELETE  = has_permission('Invoicing.Delete');
 
 <!-- page script -->
 <script type="text/javascript">
+	$(function() {
+		var columns = [
+			{ data: 'no' }, { data: 'no_surat' }, { data: 'customer' }, { data: 'marketing' },
+			{ data: 'top' }, { data: 'payment' }, { data: 'nilai', className: 'text-right' }, { data: 'tgl_invoice' }
+		];
+		var noSort = [0];
+		<?php if ($ENABLE_MANAGE) : ?>
+		columns.push({ data: 'action' });
+		noSort.push(8);
+		<?php endif; ?>
+		$('#tbl_jurnal_invoicing').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: { url: siteurl + 'wt_invoicing/get_data_jurnal_invoicing', type: 'POST' },
+			columns: columns,
+			columnDefs: [{ orderable: false, targets: noSort }]
+		});
+
+		// Setelah modal jurnal ditutup, muat ulang tabel supaya invoice yang sudah dijurnal hilang.
+		$('#dialog-popup').on('hidden.bs.modal', function() {
+			$('#tbl_jurnal_invoicing').DataTable().ajax.reload(null, false);
+		});
+	});
+
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");

@@ -183,20 +183,117 @@ class Wt_invoicing_model extends BF_Model
     return $query->result();
   }
 
-  public function cariPlantagih()
+  /**
+   * DataTable serverside untuk index Planning Tagih (wt_invoicing/plan_tagih).
+   * $can_manage: tampilkan tombol Create Invoice (izin Invoicing.Manage).
+   */
+  public function get_data_plan_tagih($can_manage)
   {
-    $this->db->select('a.*,a.keterangan as ket_tagih,b.*, c.name_customer as name_customer, d.nama_top');
-    $this->db->from('wt_plan_tagih a');
-    $this->db->join('tr_sales_order b', 'b.no_so=a.no_so');
-    $this->db->join('master_customers c', 'c.id_customer=b.id_customer');
-    $this->db->join('ms_top d', 'd.id_top=a.id_top');
-    $where = "a.status_invoice <>'1'";
-    // $where2 = "a.status<>'7'";
-    $this->db->where($where);
-    // $this->db->where($where2);
-    // $this->db->order_by('a.no_penawaran', 'DESC');
-    $query = $this->db->get();
-    return $query->result();
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('wt_plan_tagih a');
+      $this->db->join('tr_sales_order b', 'b.no_so = a.no_so');
+      $this->db->join('master_customers c', 'c.id_customer = b.id_customer');
+      $this->db->join('ms_top d', 'd.id_top = a.id_top');
+      $this->db->where("a.status_invoice <> '1'");
+      if ($with_search && $keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('b.no_surat', $keyword, 'both');
+        $this->db->or_like('c.name_customer', $keyword, 'both');
+        $this->db->or_like('b.nama_sales', $keyword, 'both');
+        $this->db->or_like('d.nama_top', $keyword, 'both');
+        $this->db->or_like('a.payment', $keyword, 'both');
+        $this->db->or_like('a.keterangan', $keyword, 'both');
+        $this->db->group_end();
+      }
+    };
+
+    // Total pakai join yang sama (inner join), supaya cocok dengan baris yang tampil.
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'b.no_surat',
+      2 => 'c.name_customer',
+      3 => 'b.nama_sales',
+      4 => 'b.tgl_so',
+      5 => 'a.tgl_create_inv',
+      6 => 'b.grand_total',
+      7 => 'a.persentase',
+      8 => 'a.nilai_tagih',
+      9 => 'd.nama_top',
+      10 => 'a.payment',
+      11 => 'a.keterangan',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->db->select('a.id_plan_tagih, a.tgl_create_inv, a.persentase, a.nilai_tagih, a.payment, a.keterangan AS ket_tagih, a.status_invoice, b.no_surat, b.tgl_so, b.nama_sales, b.grand_total, b.upload_po, c.name_customer, d.nama_top');
+    $base(true);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir);
+      $this->db->order_by('a.id_plan_tagih', 'DESC');
+    } else {
+      $this->db->order_by('a.tgl_create_inv', 'DESC');
+      $this->db->order_by('a.id_plan_tagih', 'DESC');
+    }
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $r) {
+      $no++;
+
+      $po = '';
+      if ($r->upload_po !== null && $r->upload_po !== '') {
+        $po = '<a class="btn btn-primary btn-sm" target="_blank" href="' . htmlspecialchars('.' . $r->upload_po, ENT_QUOTES) . '" title="View PO"><i class="fa fa-eye"></i></a>';
+      }
+
+      $action = '';
+      if ($can_manage && $r->status_invoice == '0') {
+        $action = '<a class="btn btn-success btn-sm" href="' . base_url('wt_invoicing/createInvoice/' . rawurlencode((string) $r->id_plan_tagih)) . '" title="Create Invoice"><i class="fa fa-check">&nbsp;Create Invoice</i></a>';
+      }
+
+      $hasil[] = [
+        'no' => $no,
+        'no_so' => htmlspecialchars((string) $r->no_surat),
+        'customer' => htmlspecialchars(strtoupper((string) $r->name_customer)),
+        'marketing' => htmlspecialchars((string) $r->nama_sales),
+        'tgl_so' => $r->tgl_so ? date('d-F-Y', strtotime($r->tgl_so)) : '',
+        'tgl_inv' => $r->tgl_create_inv ? date('d-F-Y', strtotime($r->tgl_create_inv)) : '',
+        'nilai_so' => number_format((float) $r->grand_total, 2),
+        'persentase' => htmlspecialchars((string) $r->persentase),
+        'nilai_tagih' => number_format((float) $r->nilai_tagih, 2),
+        'top' => htmlspecialchars((string) $r->nama_top),
+        'payment' => htmlspecialchars((string) $r->payment),
+        'keterangan' => htmlspecialchars((string) $r->ket_tagih),
+        'po' => $po,
+        'action' => $action,
+      ];
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
   }
 
   public function CariInvoice()
@@ -215,6 +312,143 @@ class Wt_invoicing_model extends BF_Model
     return $query->result();
   }
 
+  /** Query dasar Monitoring Invoice: piutang aktif (sama dengan CariInvoiceDeal). */
+  private function _monitoring_base($keyword)
+  {
+    $this->db->from('tr_invoice a');
+    $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+    $this->db->join('ms_top c', 'c.id_top = a.top');
+    $this->db->where("a.no_invoice != ''");
+    $this->db->where("a.status_close = '0'");
+    $this->db->where('a.deleted_by IS NULL');
+    if ($keyword !== '') {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $keyword, 'both');
+      $this->db->or_like('b.name_customer', $keyword, 'both');
+      $this->db->or_like('a.nama_sales', $keyword, 'both');
+      $this->db->or_like('c.nama_top', $keyword, 'both');
+      $this->db->or_like('a.payment', $keyword, 'both');
+      $this->db->group_end();
+    }
+  }
+
+  private function _monitoring_select()
+  {
+    $this->db->select('a.no_invoice, a.no_surat, a.nama_sales, a.payment, a.nilai_invoice, a.total_bayar_idr, a.tgl_invoice, a.tgl_janji_bayar, a.jatuh_tempo, b.name_customer, c.nama_top');
+  }
+
+  /** Nilai tampil satu baris Monitoring Invoice (tanpa kolom no dan action). */
+  private function _monitoring_row($r)
+  {
+    $janji = !empty($r->tgl_janji_bayar) ? $r->tgl_janji_bayar : $r->jatuh_tempo;
+    $umur = !empty($r->tgl_invoice) ? (int) floor((strtotime(date('Y-m-d')) - strtotime($r->tgl_invoice)) / 86400) : 0;
+    $nilai = (float) $r->nilai_invoice;
+    $bayar = (float) $r->total_bayar_idr;
+    return [
+      'no_surat' => (string) $r->no_surat,
+      'customer' => strtoupper((string) $r->name_customer),
+      'marketing' => (string) $r->nama_sales,
+      'top' => (string) $r->nama_top,
+      'payment' => (string) $r->payment,
+      'nilai' => number_format($nilai),
+      'bayar' => number_format($bayar),
+      'sisa' => number_format($nilai - $bayar),
+      'tgl_invoice' => !empty($r->tgl_invoice) ? date('d-F-Y', strtotime($r->tgl_invoice)) : '-',
+      'janji' => !empty($janji) ? date('d-F-Y', strtotime($janji)) : '-',
+      'umur' => $umur . ' Hari',
+    ];
+  }
+
+  /** DataTable serverside untuk index Monitoring Invoice. */
+  public function get_data_monitoring($can_view, $can_manage)
+  {
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $this->_monitoring_base('');
+    $recordsTotal = $this->db->count_all_results();
+    if ($keyword !== '') {
+      $this->_monitoring_base($keyword);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'a.no_surat',
+      2 => 'b.name_customer',
+      3 => 'a.nama_sales',
+      4 => 'c.nama_top',
+      5 => 'a.payment',
+      6 => 'a.nilai_invoice',
+      7 => 'a.total_bayar_idr',
+      8 => '(a.nilai_invoice - a.total_bayar_idr)',
+      9 => 'a.tgl_invoice',
+      10 => 'COALESCE(a.tgl_janji_bayar, a.jatuh_tempo)',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->_monitoring_select();
+    $this->_monitoring_base($keyword);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir, false);
+    } elseif ($col === 11) {
+      // Umur piutang makin besar = tgl_invoice makin lama.
+      $this->db->order_by('a.tgl_invoice', $dir === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      $this->db->order_by('a.no_invoice', 'DESC');
+    }
+    $this->db->order_by('a.id', 'DESC');
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $r) {
+      $no++;
+      $v = array_map('htmlspecialchars', $this->_monitoring_row($r));
+      $id = htmlspecialchars((string) $r->no_invoice, ENT_QUOTES);
+
+      $action = '';
+      if ($can_view) {
+        $action .= '<a class="btn btn-primary btn-sm history" href="#" title="Riwayat Follow UP" data-no_invoice="' . $id . '"><i class="fa fa-history"></i></a> ';
+      }
+      if ($can_manage) {
+        $action .= '<a class="btn btn-success btn-sm" href="' . base_url('wt_invoicing/FollowUp/' . rawurlencode((string) $r->no_invoice)) . '" title="Follow UP"><i class="fa fa-check"></i></a> ';
+        $action .= '<a class="btn btn-warning btn-sm tutup" href="#" title="Close Invoice" data-no_invoice="' . $id . '"><i class="fa fa-close"></i></a>';
+      }
+
+      $hasil[] = ['no' => $no] + $v + ['action' => $action];
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
+  }
+
+  /** Semua baris Monitoring Invoice (sesuai search) untuk ekspor Excel. */
+  public function export_data_monitoring($keyword)
+  {
+    $this->_monitoring_select();
+    $this->_monitoring_base(trim((string) $keyword));
+    $this->db->order_by('a.no_invoice', 'DESC');
+    $out = [];
+    foreach ($this->db->get()->result() as $r) {
+      $out[] = $this->_monitoring_row($r);
+    }
+    return $out;
+  }
+
   public function CariInvoiceDeal()
   {
     $this->db->select('a.*, b.name_customer as name_customer, c.nama_top');
@@ -230,6 +464,129 @@ class Wt_invoicing_model extends BF_Model
     $query = $this->db->get();
     return $query->result();
   }
+  /** Query dasar Close Invoice: invoice yang sudah ditutup (sama dengan CariInvoiceClose). */
+  private function _close_base($keyword)
+  {
+    $this->db->from('tr_invoice a');
+    $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+    $this->db->join('ms_top c', 'c.id_top = a.top');
+    $this->db->where("a.no_invoice != ''");
+    $this->db->where("a.status_close = '1'");
+    if ($keyword !== '') {
+      $this->db->group_start();
+      $this->db->like('a.no_surat', $keyword, 'both');
+      $this->db->or_like('b.name_customer', $keyword, 'both');
+      $this->db->or_like('a.nama_sales', $keyword, 'both');
+      $this->db->or_like('c.nama_top', $keyword, 'both');
+      $this->db->or_like('a.payment', $keyword, 'both');
+      $this->db->group_end();
+    }
+  }
+
+  private function _close_select()
+  {
+    $this->db->select('a.no_surat, a.nama_sales, a.payment, a.nilai_invoice, a.total_bayar_idr, a.tgl_invoice, a.tgl_terima, a.tgl_janji_bayar, b.name_customer, c.nama_top');
+  }
+
+  /** Nilai tampil satu baris Close Invoice. Umur = hari sejak tgl_terima (kosong bila belum diterima). */
+  private function _close_row($r)
+  {
+    $umur = !empty($r->tgl_terima) ? (int) floor((strtotime(date('Y-m-d')) - strtotime($r->tgl_terima)) / 86400) : '-';
+    $nilai = (float) $r->nilai_invoice;
+    $bayar = (float) $r->total_bayar_idr;
+    return [
+      'no_surat' => (string) $r->no_surat,
+      'customer' => strtoupper((string) $r->name_customer),
+      'marketing' => (string) $r->nama_sales,
+      'top' => (string) $r->nama_top,
+      'payment' => (string) $r->payment,
+      'nilai' => number_format($nilai),
+      'bayar' => number_format($bayar),
+      'sisa' => number_format($nilai - $bayar),
+      'tgl_invoice' => !empty($r->tgl_invoice) ? date('d-F-Y', strtotime($r->tgl_invoice)) : '-',
+      'janji' => !empty($r->tgl_janji_bayar) ? date('d-m-Y', strtotime($r->tgl_janji_bayar)) : '-',
+      'umur' => (string) $umur,
+    ];
+  }
+
+  /** DataTable serverside untuk index Close Invoice. */
+  public function get_data_close()
+  {
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $this->_close_base('');
+    $recordsTotal = $this->db->count_all_results();
+    if ($keyword !== '') {
+      $this->_close_base($keyword);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'a.no_surat',
+      2 => 'b.name_customer',
+      3 => 'a.nama_sales',
+      4 => 'c.nama_top',
+      5 => 'a.payment',
+      6 => 'a.nilai_invoice',
+      7 => 'a.total_bayar_idr',
+      8 => '(a.nilai_invoice - a.total_bayar_idr)',
+      9 => 'a.tgl_invoice',
+      10 => 'a.tgl_janji_bayar',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->_close_select();
+    $this->_close_base($keyword);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir, false);
+    } elseif ($col === 11) {
+      // Umur makin besar = tgl_terima makin lama.
+      $this->db->order_by('a.tgl_terima', $dir === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      $this->db->order_by('a.no_invoice', 'DESC');
+    }
+    $this->db->order_by('a.id', 'DESC');
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $r) {
+      $no++;
+      $hasil[] = ['no' => $no] + array_map('htmlspecialchars', $this->_close_row($r));
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
+  }
+
+  /** Semua baris Close Invoice (sesuai search) untuk ekspor Excel. */
+  public function export_data_close($keyword)
+  {
+    $this->_close_select();
+    $this->_close_base(trim((string) $keyword));
+    $this->db->order_by('a.no_invoice', 'DESC');
+    $out = [];
+    foreach ($this->db->get()->result() as $r) {
+      $out[] = $this->_close_row($r);
+    }
+    return $out;
+  }
+
   public function CariInvoiceClose()
   {
     $this->db->select('a.*, b.name_customer as name_customer, c.nama_top');
@@ -254,6 +611,95 @@ class Wt_invoicing_model extends BF_Model
     $this->db->where($where);
     $query = $this->db->get();
     return $query->result();
+  }
+
+  /** DataTable serverside untuk index Jurnal Invoicing: invoice yang belum dijurnal (status_jurnal OPN). */
+  public function get_data_jurnal_invoicing($can_manage)
+  {
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('tr_invoice a');
+      $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+      $this->db->join('ms_top c', 'c.id_top = a.top');
+      $this->db->where('a.status_jurnal', 'OPN');
+      if ($with_search && $keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('a.no_surat', $keyword, 'both');
+        $this->db->or_like('b.name_customer', $keyword, 'both');
+        $this->db->or_like('a.nama_sales', $keyword, 'both');
+        $this->db->or_like('c.nama_top', $keyword, 'both');
+        $this->db->or_like('a.payment', $keyword, 'both');
+        $this->db->group_end();
+      }
+    };
+
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'a.no_surat',
+      2 => 'b.name_customer',
+      3 => 'a.nama_sales',
+      4 => 'c.nama_top',
+      5 => 'a.payment',
+      6 => 'a.nilai_invoice',
+      7 => 'a.tgl_invoice',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->db->select('a.no_invoice, a.no_surat, a.nama_sales, a.payment, a.nilai_invoice, a.tgl_invoice, b.name_customer, c.nama_top');
+    $base(true);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir);
+    } else {
+      $this->db->order_by('a.no_invoice', 'DESC');
+    }
+    $this->db->order_by('a.id', 'DESC');
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $r) {
+      $no++;
+      $action = '';
+      if ($can_manage) {
+        $action = '<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="' . htmlspecialchars((string) $r->no_invoice, ENT_QUOTES) . '"><i class="fa fa-check"></i></a>';
+      }
+      $hasil[] = [
+        'no' => $no,
+        'no_surat' => htmlspecialchars((string) $r->no_surat),
+        'customer' => htmlspecialchars(strtoupper((string) $r->name_customer)),
+        'marketing' => htmlspecialchars((string) $r->nama_sales),
+        'top' => htmlspecialchars((string) $r->nama_top),
+        'payment' => htmlspecialchars((string) $r->payment),
+        'nilai' => number_format((float) $r->nilai_invoice),
+        'tgl_invoice' => !empty($r->tgl_invoice) ? date('d-F-Y', strtotime($r->tgl_invoice)) : '-',
+        'action' => $action,
+      ];
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
   }
 
   public function CariInvoiceJurnal()
