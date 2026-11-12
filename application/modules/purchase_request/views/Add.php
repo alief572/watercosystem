@@ -4,7 +4,7 @@
 
  <div class="box box-primary">
     <div class="box-body">
-		<form id="data-form" method="post">
+		<form id="data-form" method="post" novalidate>
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2"> 
 			<div class="row">
@@ -94,12 +94,14 @@
 	//$('#input-kendaraan').hide();
 	var base_url			= '<?php echo base_url(); ?>';
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
+	var prSaving = false;
 	$(document).ready(function(){	
 			var max_fields2      = 10; //maximum input boxes allowed
 			var wrapper2         = $(".input_fields_wrap2"); //Fields wrapper
 			var add_button2      = $(".add_field_button2"); //Add button ID			
 	$('#simpan-com').click(function(e){
 			e.preventDefault();
+			if (prSaving) return;
 			var deskripsi	= $('#deskripsi').val();
 			var image	= $('#image').val();
 			var idtype	= $('#inventory_1').val();
@@ -126,9 +128,16 @@
 				},
 				function(isConfirm) {
 				  if (isConfirm) {
+						if (prSaving) return;
+						prSaving = true;
+						$('#simpan-com').prop('disabled', true);
+						var saved = false;
 						var formData 	=new FormData($('#data-form')[0]);
 						var baseurl=siteurl+'purchase_request/SaveNew';
 						$.ajax({
+							complete: function() {
+								if (!saved) { prSaving = false; $('#simpan-com').prop('disabled', false); }
+							},
 							url			: baseurl,
 							type		: "POST",
 							data		: formData,
@@ -137,7 +146,8 @@
 							processData	: false, 
 							contentType	: false,				
 							success		: function(data){								
-								if(data.status == 1){											
+								if(data.status == 1){
+									saved = true;
 									swal({
 										  title	: "Save Success!",
 										  text	: data.pesan,
@@ -251,6 +261,7 @@ $('#tbh_ata').on( 'click', function () {
     //         }
     //     });
     // }
+	$('#data-form').on('submit', function(e) { e.preventDefault(); $('#simpan-com').trigger('click'); });
 		function HitungTweight(id){
         var dt_qty=$("#dt_qty_"+id).val();
 		 var dt_weight=$("#dt_weight_"+id).val();

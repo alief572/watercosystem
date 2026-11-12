@@ -72,8 +72,10 @@ class Purchase_request extends Admin_Controller
 		$this->template->page_icon('fa fa-pencil');
 		$aktif = 'active';
 		$deleted = '0';
-		$head = $this->db->query("SELECT * FROM tr_purchase_request  WHERE no_pr = '$id' ")->result();
-		$detail = $this->db->query("SELECT * FROM dt_trans_pr  WHERE no_pr = '$id' ")->result();
+		$head = $this->db->query('SELECT * FROM tr_purchase_request WHERE no_pr = ?', array($id))->result();
+        if (!$head) { show_404(); return; }
+        if ((string) $head[0]->status !== '1') { show_error('Hanya PR Waiting yang dapat diedit.', 409); return; }
+		$detail = $this->db->query('SELECT * FROM dt_trans_pr WHERE no_pr = ? ORDER BY id_dt_pr', array($id))->result();
 		$customers = $this->Pr_model->get_data('master_customers','deleted',$deleted);
 		$karyawan = $this->Pr_model->get_data('ms_karyawan','deleted',$deleted);
 		$mata_uang = $this->Pr_model->get_data('mata_uang','deleted'.$deleted);
@@ -199,10 +201,13 @@ class Purchase_request extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-pencil');
-		$header = $this->db->query("SELECT * FROM tr_purchase_request WHERE no_pr = '$id' ")->result();
-		$detail = $this->db->query("SELECT a.*,b.nama  FROM dt_trans_pr a
-		  inner join  ms_inventory_category3 b ON a.idmaterial = b.id_category3
-		  WHERE a.no_pr = '$id' ")->result();
+		$header = $this->db->query('SELECT * FROM tr_purchase_request WHERE no_pr = ?', array($id))->result();
+        if (!$header) { show_404(); return; }
+		$detail = $this->db->query('SELECT a.*, COALESCE(b.nama, a.nama_material) AS nama,
+            COALESCE(s.name_suplier, a.suplier) AS name_suplier FROM dt_trans_pr a
+            LEFT JOIN ms_inventory_category3 b ON a.idmaterial = b.id_category3
+            LEFT JOIN master_supplier s ON a.suplier = s.id_suplier
+            WHERE a.no_pr = ? ORDER BY a.id_dt_pr', array($id))->result();
 		$data = [
 			'header' => $header,
 			'detail' => $detail,
@@ -261,68 +266,78 @@ class Purchase_request extends Admin_Controller
 
     }
 
-function AddMaterial()
+    public function AddMaterial()
     {
-		$loop=$_GET['jumlah']+1;
-		$material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a")->result();
-		echo "
-		<tr id='tr_$loop'>
-		<td><select class='form-control select2' id='dt_idmaterial_$loop' name='dt[$loop][idmaterial]'	onchange ='CariProperties($loop)'>
-		<option value=''>Pilih</option>";
-		foreach ($material as $material){
-			
-			echo"<option value='$material->id_category3'>$material->nama|$material->kode_barang</option>";
-			
-		};
-		echo"</select></td>
-		<td hidden id='bentuk_".$loop."'><input readonly type='text' class='form-control autoNumeric text-right' id='dt_bentuk_$loop' required name='dt[$loop][bentuk]' ></td>
-		<td id='idbentuk_".$loop."' hidden><input readonly type='number' class='form-control' id='dt_idbentuk_$loop' required name='dt[$loop][idbentuk]' ></td>
-		<td id='kodeproduk_".$loop."'><input readonly type='text' class='form-control' id='dt_kodeproduk_$loop' required name='dt[$loop][kodeproduk]' ></td>
-		
-		<td hidden><input type='text' class='form-control autoNumeric text-right' id='dt_odameter_$loop' 			required name='dt[$loop][odameter]' 	></td>
-		<td><input type='number' class='form-control' id='dt_qty_$loop' 			required name='dt[$loop][qty]' ></td>
-		<td hidden><input type='number' class='form-control maskMoney' id='dt_weight_$loop' 			required name='dt[$loop][weight]' 	onkeyup='HitungTweight(".$loop.")'></td>
-		<td id='HasilTwight_".$loop."' hidden><input type='text' class='form-control autoNumeric text-right' id='dt_totalweight_$loop' 	required name='dt[$loop][totalweight]' ></td>
-		<td hidden><input type='text' class='form-control text-right autoNumeric' id='dt_width_$loop' 	required name='dt[$loop][width]' ></td>
-		<td hidden><input type='text' class='form-control text-right autoNumeric' id='dt_length_$loop' 	required name='dt[$loop][length]' ></td>
-		<td id='supplier_".$loop."'><select class='form-control select3' id='dt_suplier_$loop' name='dt[$loop][suplier]'>
-		<option value=''>Empty</option></select></td>
-		<td><input type='text' class='form-control datepicker' readonly id='dt_tanggal_$loop' 	required name='dt[$loop][tanggal]' 	></td>
-		<td><input type='text' class='form-control' id='dt_keterangan_$loop' 	required name='dt[$loop][keterangan]' 	></td>
-		<td><button type='button' class='btn btn-sm btn-danger' title='Hapus Data' data-role='qtip' onClick='return HapusItem($loop);'><i class='fa fa-close'></i></button></td>
-		</tr>
-		";
-	}
-function CariBentuk()
+        $row = $this->prFragmentRow('jumlah');
+        if ($row === null) return;
+        $loop = $row + 1;
+        $planning = $this->input->get('planning') === '1';
+        $shapeHidden = $planning ? '' : 'hidden';
+        $qtyHidden = $planning ? 'hidden' : '';
+        $codeHidden = $planning ? 'hidden' : '';
+        $material = $this->db->query('SELECT * FROM ms_inventory_category3')->result();
+        echo "<tr id='tr_$loop'><td><select class='form-control select2' id='dt_idmaterial_$loop' name='dt[$loop][idmaterial]' onchange='CariProperties($loop)'><option value=''>Pilih</option>";
+        foreach ($material as $item) {
+            echo "<option value='" . html_escape((string) $item->id_category3) . "'>" . html_escape($item->nama . '|' . $item->kode_barang) . '</option>';
+        }
+        echo "</select></td>
+            <td $shapeHidden id='bentuk_$loop'><input readonly type='text' class='form-control' id='dt_bentuk_$loop' name='dt[$loop][bentuk]'></td>
+            <td hidden id='idbentuk_$loop'><input readonly type='text' class='form-control' id='dt_idbentuk_$loop' name='dt[$loop][idbentuk]'></td>
+            <td $codeHidden id='kodeproduk_$loop'><input readonly type='text' class='form-control' id='dt_kodeproduk_$loop' name='dt[$loop][kodeproduk]'></td>
+            <td $shapeHidden><select class='form-control select2' id='dt_idameter_$loop' name='dt[$loop][idameter]'>";
+        if (!$planning) echo "<option value='0'>Pilih</option>";
+        foreach (array(200, 250, 300, 400, 500) as $diameter) echo "<option value='$diameter'>$diameter</option>";
+        echo "</select></td>
+            <td $shapeHidden><input type='text' class='form-control autoNumeric' id='dt_odameter_$loop' name='dt[$loop][odameter]'></td>
+            <td $qtyHidden><input type='number' class='form-control' id='dt_qty_$loop' name='dt[$loop][qty]' onkeyup='HitungTweight($loop)'></td>
+            <td hidden><input type='number' class='form-control' id='dt_weight_$loop' name='dt[$loop][weight]' onkeyup='HitungTweight($loop)'></td>
+            <td $shapeHidden id='HasilTwight_$loop'><input type='text' class='form-control autoNumeric' id='dt_totalweight_$loop' name='dt[$loop][totalweight]'></td>
+            <td $shapeHidden><input type='text' class='form-control autoNumeric' id='dt_width_$loop' name='dt[$loop][width]'></td>
+            <td hidden><input type='text' class='form-control autoNumeric' id='dt_length_$loop' name='dt[$loop][length]'></td>
+            <td id='supplier_$loop'><select class='form-control select2' id='dt_suplier_$loop' name='dt[$loop][suplier]'><option value=''>Pilih</option></select></td>
+            <td><input type='text' class='form-control datepicker' readonly id='dt_tanggal_$loop' name='dt[$loop][tanggal]'></td>
+            <td><input type='text' class='form-control' id='dt_keterangan_$loop' name='dt[$loop][keterangan]'></td>
+            <td><button type='button' class='btn btn-sm btn-danger' title='Hapus Data' onclick='HapusItem($loop)'><i class='fa fa-close'></i></button></td></tr>";
+    }
+    private function prFragmentRow($key = 'id')
     {
-        $id_category3=$_GET['idmaterial'];
-		$loop=$_GET['id'];
-		$kategory3	= $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 = '$id_category3' ")->result();
-		$id_bentuk = $kategory3[0]->id_bentuk;
-		$bentukquery	= $this->db->query("SELECT * FROM ms_bentuk WHERE id_bentuk = '$id_bentuk' ")->result();
-		$bentuk_material = $bentukquery[0]->nm_bentuk;
-		echo "<input readonly type='text' class='form-control' value='".$bentuk_material."' id='dt_bentuk_".$loop."' required name='dt[".$loop."][bentuk]' >";
-	}
-function CariIdBentuk()
+        $row = filter_var($this->input->get($key), FILTER_VALIDATE_INT, array('options' => array('min_range' => 0, 'max_range' => 1000000)));
+        if ($row === false) { $this->output->set_status_header(422); return null; }
+        return $row;
+    }
+
+    private function prMaterialInput($field, $name)
     {
-        $id_category3=$_GET['idmaterial'];
-		$loop=$_GET['id'];
-		$kategory3	= $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 = '$id_category3' ")->result();
-		$id_bentuk = $kategory3[0]->id_bentuk;
-		echo "<input readonly type='text' class='form-control' value='".$id_bentuk."' id='dt_idbentuk_".$loop."' required name='dt[".$loop."][idbentuk]' >";
-	}
-function CariSupplier()
+        $loop = $this->prFragmentRow();
+        $id = $this->input->get('idmaterial');
+        if ($loop === null || !is_string($id)) return;
+        $material = $this->db->query('SELECT a.*, b.nm_bentuk FROM ms_inventory_category3 a
+            LEFT JOIN ms_bentuk b ON a.id_bentuk = b.id_bentuk WHERE a.id_category3 = ?', array($id))->row();
+        $value = html_escape((string) ($material->$field ?? ''));
+        echo "<input readonly type='text' class='form-control' value='$value' id='dt_{$name}_$loop' name='dt[$loop][$name]'>";
+    }
+
+    public function CariBentuk()
     {
-        $id_category3=$_GET['idmaterial'];
-		$loop=$_GET['id'];
-		$supplier	= $this->db->query("SELECT a.* FROM  master_supplier a")->result();
-		echo "<select class='form-control select2' id='dt_suplier_".$loop."' name='dt[".$loop."][suplier]'>
-		<option value=''>Pilih</option>";
-		foreach($supplier as $supplier){
-			echo"<option value='".$supplier->id_suplier ."'>".$supplier->name_suplier ."</option>";
-		}
-		echo"</select>";
-	}
+        $this->prMaterialInput('nm_bentuk', 'bentuk');
+    }
+
+    public function CariIdBentuk()
+    {
+        $this->prMaterialInput('id_bentuk', 'idbentuk');
+    }
+
+    public function CariSupplier()
+    {
+        $loop = $this->prFragmentRow();
+        if ($loop === null) return;
+        $suppliers = $this->db->query('SELECT * FROM master_supplier')->result();
+        echo "<select class='form-control select2' id='dt_suplier_$loop' name='dt[$loop][suplier]'><option value=''>Pilih</option>";
+        foreach ($suppliers as $supplier) {
+            echo "<option value='" . html_escape((string) $supplier->id_suplier) . "'>" . html_escape((string) $supplier->name_suplier) . '</option>';
+        }
+        echo '</select>';
+    }
 function getemail()
     {
         $id_customer=$_GET['id_customer'];
@@ -330,14 +345,19 @@ function getemail()
 		$thickness = $kategory3[0]->email;
 		echo "<input type='email' class='form-control' id='email_customer' value='$thickness' required name='email_customer' >";
 	}
-function HitungTwight()
+    public function HitungTwight()
     {
-        $loop=$_GET['id'];
-		$dt_qty=$_GET['dt_qty'];
-		$dt_weight=$_GET['dt_weight'];
-		$totalweight=$dt_qty*$dt_weight;
-		echo "<input type='number' value='".$totalweight."' class='form-control' id='dt_totalweight_$loop' 	required name='dt[$loop][totalweight]' >";
-	}
+        $loop = $this->prFragmentRow();
+        if ($loop === null) return;
+        try {
+            $row = array('qty' => $this->input->get('dt_qty') ?? '', 'weight' => $this->input->get('dt_weight') ?? '');
+            $total = (float) $this->prNumber($row, 'qty') * (float) $this->prNumber($row, 'weight');
+            if (!is_finite($total)) throw new DomainException('Total weight tidak valid.');
+            echo "<input type='number' value='$total' class='form-control' id='dt_totalweight_$loop' name='dt[$loop][totalweight]'>";
+        } catch (DomainException $error) {
+            $this->output->set_status_header(422);
+        }
+    }
 function getsales()
     {
         $id_customer=$_GET['id_customer'];
@@ -387,14 +407,10 @@ function hitung_komisi()
 		echo "<input type='text' class='form-control' value='$hasil' id='harga_penawaran'  required name='harga_penawaran' placeholder='Bentuk Material'>";
 	}
 
-function CariKodeproduk()
+    public function CariKodeproduk()
     {
-        $id_category3=$_GET['idmaterial'];
-		$loop=$_GET['id'];
-		$kategory3	= $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 = '$id_category3' ")->result();
-		$id_bentuk = $kategory3[0]->kode_barang;
-		echo "<input readonly type='text' class='form-control' value='".$id_bentuk."' id='dt_kodeproduk_".$loop."' required name='dt[".$loop."][kodeproduk]' >";
-	}
+        $this->prMaterialInput('kode_barang', 'kodeproduk');
+    }
 function carimsprofit()
     {
         $density=$_GET['density'];
@@ -453,32 +469,35 @@ function cari_inven1()
   		echo json_encode($status);
 	}
 
-	public function Approved(){
-		$this->auth->restrict($this->deletePermission);
-		$id = $this->input->post('id');
-		$data = [
-			'status' 		=> '2',
-		];
-
-		$this->db->trans_begin();
-		$this->db->where('no_pr',$id)->update("tr_purchase_request",$data);
-
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Approve P.R. Thanks ...',
-			  'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Approve P.R. Thanks ...',
-			  'status'	=> 1
-			);
-		}
-
-  		echo json_encode($status);
-	}
+    public function Approved()
+    {
+        $this->auth->restrict($this->deletePermission);
+        $debug = $this->db->db_debug;
+        $this->db->db_debug = false;
+        $transaction = false;
+        try {
+            $post = $this->input->post();
+            if (!is_array($post)) throw new DomainException('Data approval tidak valid.');
+            $id = $this->prField($post, 'id', true);
+            if (!$this->db->trans_begin()) throw new RuntimeException('Cannot start approval transaction');
+            $transaction = true;
+            $header = $this->prQuery('SELECT * FROM tr_purchase_request WHERE no_pr = ? FOR UPDATE', array($id))->row();
+            if (!$header) throw new DomainException('PR tidak ditemukan.');
+            if (!in_array((string) $header->status, array('1', '2'), true)) throw new DomainException('Status PR tidak dapat diapprove.');
+            if ((string) $header->status === '1' && !$this->db->where('no_pr', $id)->update('tr_purchase_request', array('status' => '2'))) {
+                throw new RuntimeException('Cannot approve PR');
+            }
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) throw new RuntimeException('Cannot commit approval');
+            $transaction = false;
+            $this->prReply(1, 'PR berhasil diapprove.');
+        } catch (Throwable $error) {
+            if ($transaction) $this->db->trans_rollback();
+            if (!($error instanceof DomainException)) log_message('error', 'PR approval failed: ' . $error->getMessage());
+            $this->prReply(0, $error instanceof DomainException ? $error->getMessage() : 'PR gagal diapprove. Silakan coba lagi.');
+        } finally {
+            $this->db->db_debug = $debug;
+        }
+    }
 		function get_inven2()
     {
         $inventory_1=$_GET['inventory_1'];
@@ -588,193 +607,155 @@ function cari_inven1()
     }
 
 
-	public function SaveNew()
+    public function SaveNew()
+    {
+        $this->savePr(false);
+    }
+
+    public function SaveEdit()
+    {
+        $this->savePr(true);
+    }
+
+    private function prField($row, $key, $required = false)
+    {
+        $value = $row[$key] ?? '';
+        if (!is_scalar($value) || is_bool($value)) throw new DomainException('Format ' . $key . ' tidak valid.');
+        $value = trim((string) $value);
+        if ($required && $value === '') throw new DomainException($key . ' tidak boleh kosong.');
+        return $value;
+    }
+
+    private function prNumber($row, $field)
+    {
+        $value = $this->prField($row, $field);
+        if ($value !== '' && (!preg_match('/^(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?$/D', $value) || !is_finite((float) str_replace(',', '', $value)))) {
+            throw new DomainException('Nilai ' . $field . ' tidak valid.');
+        }
+        return $value === '' ? '0' : str_replace(',', '', $value);
+    }
+
+    private function prDate($value, $required = false)
+    {
+        if ($value === '' && !$required) return '';
+        $date = DateTime::createFromFormat('!Y-m-d', $value);
+        if (!$date || $date->format('Y-m-d') !== $value) throw new DomainException('Tanggal tidak valid. Gunakan yyyy-mm-dd.');
+        return $value;
+    }
+
+    private function prQuery($sql, $binds = array())
+    {
+        $result = $this->db->query($sql, $binds);
+        if ($result === false) throw new RuntimeException('PR database query failed');
+        return $result;
+    }
+
+    private function prReply($status, $message, $code = null)
+    {
+        $result = array('status' => $status, 'pesan' => $message);
+        if ($code !== null) $result['code'] = $code;
+        $this->output->set_content_type('application/json');
+        echo json_encode($result);
+    }
+
+    private function savePr($edit)
     {
         $this->auth->restrict($this->addPermission);
-		$post = $this->input->post();
-			
-		$tgl  = $post['tanggal'];
-		
-		$code = $this->Pr_model->generate_code($tgl);
-		$no_surat = $this->Pr_model->BuatNomor($tgl);
-		$this->db->trans_begin();
-		$data = [
-							'no_pr'				=> $code,
-							'no_surat'			=> $no_surat,
-							'tanggal'			=> $post['tanggal'],
-							'requestor'			=> $post['requestor'],
-							'status'			=> '1',
-							'created_on'		=> date('Y-m-d H:i:s'),
-							'created_by'		=> $this->auth->user_id()
-                            ];
-            //Add Data
-               $this->db->insert('tr_purchase_request',$data);
-			 
-		$numb1 =0;
-		foreach($_POST['dt'] as $used){
-		$numb1++;
-
-		$idmat  = $used[idmaterial];
-		$materials = $this->db->query("SELECT a.* FROM ms_inventory_category3 a WHERE a.id_category3 ='$idmat' ")->row();
-
-
-		            $dt =  array(
-							'no_pr'					=> $code,
-							'id_dt_pr'				=> $code.'-'.$numb1,
-							'idameter'			=> $used[idameter],
-							'odameter'			=> str_replace(',','',$used[odameter]),
-							'idmaterial'			=> $used[idmaterial],
-							'nama_material'			=> $materials->nama,
-							'bentuk'				=> $used[bentuk],
-							'id_bentuk'				=> $used[idbentuk],
-							'qty'			=> $used[qty],
-							'weight'			=> $used[weight],
-							'totalweight'			=> str_replace(',','',$used[totalweight]),
-							'width'			=> str_replace(',','',$used[width]),
-							'length'			=> str_replace(',','',$used[length]),
-							'suplier'			=> $used[suplier],
-							'tanggal'			=> $used[tanggal],
-							'keterangan'			=> $used[keterangan],
-							'kode_barang'			=> $used[kodeproduk],
-                            );
-                    $this->db->insert('dt_trans_pr',$dt);
-			
-		    }
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'code' => $code,
-			  'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Save Item. invenThanks ...',
-			  'code' => $code,
-			  'status'	=> 1
-			);
-		}
-
-  		echo json_encode($status);
-
+        $code = '';
+        $transaction = false;
+        $locked = false;
+        $debug = $this->db->db_debug;
+        $this->db->db_debug = false;
+        try {
+            $post = $this->input->post();
+            if (!is_array($post)) throw new DomainException('Data PR tidak valid.');
+            $date = $this->prDate($this->prField($post, 'tanggal', true), true);
+            $requestor = $this->prField($post, 'requestor', true);
+            if (empty($post['dt']) || !is_array($post['dt'])) throw new DomainException('Detail PR tidak boleh kosong.');
+            if (!$edit) {
+                // ponytail: covers this module only; other PR writers must adopt the same lock.
+                $lock = $this->prQuery("SELECT GET_LOCK('purchase_request_numbering', 5) AS acquired")->row();
+                if (!$lock || (int) $lock->acquired !== 1) throw new DomainException('Nomor PR sedang dipakai. Silakan coba lagi.');
+                $locked = true;
+            }
+            if (!$this->db->trans_begin()) throw new RuntimeException('Cannot start PR transaction');
+            $transaction = true;
+            $existing = array();
+            $nextDetail = 0;
+            if ($edit) {
+                $code = $this->prField($post, 'no_pr', true);
+                $header = $this->prQuery('SELECT * FROM tr_purchase_request WHERE no_pr = ? FOR UPDATE', array($code))->row();
+                if (!$header) throw new DomainException('PR tidak ditemukan.');
+                if ((string) $header->status !== '1') throw new DomainException('Hanya PR Waiting yang dapat diedit.');
+                foreach ($this->prQuery('SELECT * FROM dt_trans_pr WHERE no_pr = ?', array($code))->result() as $detail) {
+                    $existing[$detail->id_dt_pr] = true;
+                    $nextDetail = max($nextDetail, (int) substr($detail->id_dt_pr, strlen($code) + 1));
+                }
+            }
+            $details = array();
+            $usedIds = array();
+            foreach ($post['dt'] as $row) {
+                if (!is_array($row)) throw new DomainException('Format detail PR tidak valid.');
+                $materialId = $this->prField($row, 'idmaterial', true);
+                $material = $this->prQuery('SELECT * FROM ms_inventory_category3 WHERE id_category3 = ?', array($materialId))->row();
+                if (!$material) throw new DomainException('Material PR tidak ditemukan.');
+                $supplier = $this->prField($row, 'suplier');
+                if ($supplier !== '' && !$this->prQuery('SELECT id_suplier FROM master_supplier WHERE id_suplier = ?', array($supplier))->row()) {
+                    throw new DomainException('Supplier PR tidak ditemukan.');
+                }
+                $detail = array('idmaterial' => $materialId, 'nama_material' => $material->nama,
+                    'kode_barang' => $material->kode_barang, 'id_bentuk' => $material->id_bentuk,
+                    'bentuk' => $this->prField($row, 'bentuk'), 'suplier' => $supplier,
+                    'tanggal' => $this->prDate($this->prField($row, 'tanggal', true), true),
+                    'keterangan' => $this->prField($row, 'keterangan'));
+                foreach (array('idameter', 'odameter', 'qty', 'weight', 'totalweight', 'width', 'length') as $field) {
+                    $detail[$field] = $this->prNumber($row, $field);
+                }
+                $detailId = $this->prField($row, 'id_dt_pr');
+                if ($detailId !== '' && (!$edit || !isset($existing[$detailId]) || isset($usedIds[$detailId]))) {
+                    throw new DomainException('ID detail PR tidak valid.');
+                }
+                if ($detailId !== '') $usedIds[$detailId] = true;
+                $detail['id_dt_pr'] = $detailId;
+                $details[] = $detail;
+            }
+            if ($edit) {
+                if (!$this->db->where('no_pr', $code)->update('tr_purchase_request', array('tanggal' => $date, 'requestor' => $requestor))) {
+                    throw new RuntimeException('Cannot update PR');
+                }
+                if (!$this->db->delete('dt_trans_pr', array('no_pr' => $code))) throw new RuntimeException('Cannot replace PR details');
+            } else {
+                $code = $this->Pr_model->generate_code($date);
+                $letter = $this->Pr_model->BuatNomor($date);
+                if (!$this->db->insert('tr_purchase_request', array('no_pr' => $code, 'no_surat' => $letter,
+                    'tanggal' => $date, 'requestor' => $requestor, 'status' => '1',
+                    'created_on' => date('Y-m-d H:i:s'), 'created_by' => $this->auth->user_id()))) {
+                    throw new RuntimeException('Cannot create PR');
+                }
+            }
+            foreach ($details as $detail) {
+                $detail['no_pr'] = $code;
+                if ($detail['id_dt_pr'] === '') $detail['id_dt_pr'] = $code . '-' . (++$nextDetail);
+                if (!$this->db->insert('dt_trans_pr', $detail)) throw new RuntimeException('Cannot save PR detail');
+            }
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) throw new RuntimeException('Cannot commit PR');
+            $transaction = false;
+            $this->prReply(1, 'PR berhasil disimpan.', $code);
+        } catch (Throwable $error) {
+            if ($transaction) $this->db->trans_rollback();
+            if (!($error instanceof DomainException)) log_message('error', 'PR save failed: ' . $error->getMessage());
+            $this->prReply(0, $error instanceof DomainException ? $error->getMessage() : 'PR gagal disimpan. Silakan coba lagi.', $code);
+        } finally {
+            try {
+                if ($locked) $this->db->query("SELECT RELEASE_LOCK('purchase_request_numbering') AS released");
+            } catch (Throwable $error) {
+                log_message('error', 'Cannot release PR number lock: ' . $error->getMessage());
+            } finally {
+                $this->db->db_debug = $debug;
+            }
+        }
     }
-	public function SaveEdit()
-    {
-        $this->auth->restrict($this->addPermission); 
-		$post = $this->input->post();
-		
-		// print_r($post);
-		// exit;
-		
-		$code = $post['no_pr'];
-		$no_surat = $post['no_surat'];
-		$this->db->trans_begin();
-		$data = [
-							'no_pr'				=> $code,
-							'no_surat'			=> $no_surat,
-							'tanggal'			=> $post['tanggal'],
-							'requestor'			=> $post['requestor'],
-							'status'			=> '1',
-							'created_on'		=> date('Y-m-d H:i:s'),
-							'created_by'		=> $this->auth->user_id()
-                            ];
-            //Add Data
-			$this->db->where('no_pr',$code)->update("tr_purchase_request",$data);
-			$this->db->delete('dt_trans_pr', array('no_pr' => $code));
-			 
-		$numb1 =0; 
-		foreach($_POST['dt'] as $used){
-		$numb1++;
-		
-		$materials = $this->db->query("SELECT a.*, b.nama as alloy, c.nm_bentuk as bentuk FROM ms_inventory_category3 as a INNER JOIN ms_inventory_category2 as b ON a.id_category2 = b.id_category2 INNER JOIN ms_bentuk as c ON a.id_bentuk = c.id_bentuk WHERE a.id_category3 = '".$used[idmaterial]."' AND a.deleted = '0'  ")->result();
-		foreach ($materials as $material){
-		if($material->id_bentuk == 'B2000001' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '22' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-			$nama_material="$material->bentuk $material->alloy $material->nama $material->hardness $thickness";
-		}elseif($material->id_bentuk == 'B2000002' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '25' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-			$nama_material="$material->bentuk $material->alloy $material->nama $material->hardness $thickness";
-		}elseif($material->id_bentuk == 'B2000003' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '30' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-			$nama_material="$material->bentuk $material->alloy $material->nama $material->hardness $thickness";
-		}elseif($material->id_bentuk == 'B2000004' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '8' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		$dimensi2 = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '9' ")->result();
-		$thickness2 = $dimensi[0]->nilai_dimensi;
-			$nama_material="$material->bentuk $material->alloy $material->nama $material->hardness $thickness x $thickness";
-		}elseif($material->id_bentuk == 'B2000005' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '11' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-			$nama_material="$material->bentuk $material->alloy $material->nama $material->hardness $thickness";
-		}elseif($material->id_bentuk == 'B2000006' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '13' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-			$nama_material="$material->bentuk $material->alloy $material->nama $material->hardness $thickness";
-		}elseif($material->id_bentuk == 'B2000007' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '15' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		$dimensi2 = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '16' ")->result();
-		$thickness2 = $dimensi[0]->nilai_dimensi;
-			$nama_material= "$material->bentuk $material->alloy $material->nama $material->hardness $thickness $thickness2";
-		}elseif($material->id_bentuk == 'B2000009' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '19' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-			$nama_material= "$material->bentuk $material->alloy $material->nama $material->hardness $thickness";
-		};
-		};
-		
-		
-			$idmat  = $used[idmaterial];
-		    $matrial = $this->db->query("SELECT a.* FROM ms_inventory_category3 a WHERE a.id_category3 ='$idmat' ")->row();
-		
-                $dt =  array(
-							'no_pr'					=> $code,
-							'id_dt_pr'				=> $code.'-'.$numb1,
-							'idmaterial'			=> $used[idmaterial],
-							'nama_material'			=> $matrial->nama,
-							'bentuk'				=> $used[bentuk],
-							'id_bentuk'				=> $used[idbentuk],
-							'idameter'				=> $used[idameter],
-							'odameter'				=> str_replace(',','',$used[odameter]),
-							
-							
-							'qty'				=> $used[qty],
-							'weight'			=> $used[weight],
-							'totalweight'		=> str_replace(',','',$used[totalweight]),
-							'width'			=> str_replace(',','',$used[width]),
-							'length'			=> str_replace(',','',$used[length]),
-							'suplier'			=> $used[suplier],
-							'tanggal'			=> $used[tanggal],
-							'keterangan'		=> $used[keterangan],							
-							'kode_barang'		=> $matrial->kode_barang,
-                            );
-                    $this->db->insert('dt_trans_pr',$dt);
-			
-		    }
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'code' => $code,
-			  'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Save Item. invenThanks ...',
-			  'code' => $code,
-			  'status'	=> 1
-			);
-		}
 
-  		echo json_encode($status);
-
-    }
 		public function SaveEditHeader()
     {
         $this->auth->restrict($this->addPermission);

@@ -2,6 +2,7 @@
 	$tanggal = date('Y-m-d');
 		foreach ($results['header'] as $header){
 	}	
+	$header = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $header);
 ?>
 
  <div class="box box-primary">
@@ -63,13 +64,13 @@
 			</tr>
 			</thead>
 			<tbody id="data_request">
-				<?php foreach ($results['detail'] as $detail){ 
-			$suplier = $this->db->query("SELECT * FROM master_supplier WHERE id_suplier = '".$detail->suplier ."' ")->result();
+				<?php foreach ($results['detail'] as $detail){
+			$detail = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $detail);
 			echo"
 			<tr>
 			<td>".$detail->nama ."</td>
 			<td>".$detail->qty ."</td>
-			<td>".$suplier[0]->name_suplier ."</td>
+			<td>".$detail->name_suplier ."</td>
 			<td>".$detail->tanggal ."</td>
 			<td>".$detail->keterangan ."</td>
 			</tr>

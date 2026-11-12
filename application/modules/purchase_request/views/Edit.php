@@ -2,11 +2,12 @@
 	$tanggal = date('Y-m-d');
 foreach ($results['head'] as $head){
 }	
+$head = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $head);
 ?>
 
  <div class="box box-primary">
     <div class="box-body">
-		<form id="data-form" method="post">
+		<form id="data-form" method="post" novalidate>
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 			<div class="row"> 
@@ -72,14 +73,16 @@ foreach ($results['head'] as $head){
 			<?php
 			$loop=0;
 			foreach ($results['detail'] as $detail){
+				$detail = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $detail);
 				$loop++;
 				$material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a ")->result();
 		$suppliers = $this->db->query("SELECT a.* FROM  master_supplier as a")->result();
 		echo "
 		<tr id='tr_$loop'>
-		<td><select class='form-control select2' id='dt_idmaterial_$loop' name='dt[$loop][idmaterial]'	onchange ='CariProperties($loop)'>
+		<td><input type='hidden' name='dt[$loop][id_dt_pr]' value='$detail->id_dt_pr'><select class='form-control select2' id='dt_idmaterial_$loop' name='dt[$loop][idmaterial]'	onchange ='CariProperties($loop)'>
 		<option value=''>--Pilih--</option>";
 		foreach ($material as $material){
+		$material = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $material);
 		
 		$selected = ($detail->idmaterial == $material->id_category3)?'selected':'';	
 		echo"<option value='$material->id_category3' $selected>$material->nama</option>";
@@ -88,51 +91,13 @@ foreach ($results['head'] as $head){
 		echo"</select></td>
 		<td id='kodeproduk_".$loop."'><input value='".$detail->kode_barang ."'   readonly type='text' class='form-control' id='dt_kodeproduk_$loop' required name='dt[$loop][kodeproduk]' ></td>
 		<td id='bentuk_".$loop."' hidden><input readonly value='".$detail->bentuk ."' type='text' class='form-control' id='dt_bentuk_$loop' required name='dt[$loop][bentuk]' ></td>
-		<td id='idbentuk_".$loop."' hidden><input value='".$detail->id_bentuk ."'   readonly type='number' class='form-control' id='dt_idbentuk_$loop' required name='dt[$loop][idbentuk]' ></td>
+		<td id='idbentuk_".$loop."' hidden><input value='".$detail->id_bentuk ."'   readonly type='text' class='form-control' id='dt_idbentuk_$loop' required name='dt[$loop][idbentuk]' ></td>
 		<td hidden>
 		<select class='form-control select2' id='dt_idameter_$loop' name='dt[$loop][idameter]'>";
-		if($detail->id_bentuk == 200){
-		echo"<option value=''>Pilih</option>
-		<option value='200'>200</option>
-		<option value='250' selected>250</option>
-		<option value='300'>300</option>
-		<option value='400'>400</option>
-		<option value='500'>500</option>";
-		}elseif($detail->id_bentuk == 250){
-		echo"<option value=''>Pilih</option>
-		<option value='200'>200</option>
-		<option value='250' selected>250</option>
-		<option value='300'>300</option>
-		<option value='400'>400</option>
-		<option value='500'>500</option>";}
-		elseif($detail->id_bentuk == 300){
-		echo"<option value=''>Pilih</option>
-		<option value='200'>200</option>
-		<option value='250'>250</option>
-		<option value='300' selected>300</option>
-		<option value='400'>400</option>
-		<option value='500'>500</option>";
-		}elseif($detail->id_bentuk == 400){
-		echo"<option value=''>Pilih</option>
-		<option value='200'>200</option>
-		<option value='250'>250</option>
-		<option value='300'>300</option>
-		<option value='400' selected>400</option>
-		<option value='500'>500</option>";
-		}elseif($detail->id_bentuk == 500){
-		echo"<option value=''>Pilih</option>
-		<option value='200'>200</option>
-		<option value='250'>250</option>
-		<option value='300'>300</option>
-		<option value='400'>400</option>
-		<option value='500' selected>500</option>";
-		}else{
-		echo"<option value=''>Pilih</option>
-		<option value='200'>200</option>
-		<option value='250'>250</option>
-		<option value='300'>300</option>
-		<option value='400'>400</option>
-		<option value='500'>500</option>";}
+		foreach (array_unique(array_merge(array($detail->idameter), array(200, 250, 300, 400, 500))) as $diameter) {
+			$selected = (string) $diameter === (string) $detail->idameter ? 'selected' : '';
+			echo "<option value='$diameter' $selected>$diameter</option>";
+		}
 		echo"</select>
 		</td>
 		<td hidden><input type='text' class='form-control autoNumeric text-right' value='".$detail->odameter ."' id='dt_odameter_$loop' 			required name='dt[$loop][odameter]' 	></td>
@@ -144,6 +109,7 @@ foreach ($results['head'] as $head){
 		<td id='supplier_".$loop."'><select class='form-control select2' id='dt_suplier_$loop'  name='dt[$loop][suplier]'>
 		<option value=''>--Pilih--</option>";
 				foreach ($suppliers as $suppliers){
+					$suppliers = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $suppliers);
 					$selectedsup = ($suppliers->id_suplier == $detail->suplier)?'selected':'';	
 					echo"<option value='".$suppliers->id_suplier ."' ".$selectedsup.">".$suppliers->name_suplier ."</option>";
 				};
@@ -182,6 +148,9 @@ foreach ($results['head'] as $head){
 	//$('#input-kendaraan').hide();
 	var base_url			= '<?php echo base_url(); ?>';
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
+	var prSaving = false;
+	var nextMaterialRow = 0;
+	$('#data_request > tr').each(function() { nextMaterialRow = Math.max(nextMaterialRow, parseInt(this.id.slice(3), 10) || 0); });
 	$(document).ready(function(){	
 		var max_fields2      = 10; //maximum input boxes allowed
 		var wrapper2         = $(".input_fields_wrap2"); //Fields wrapper
@@ -197,6 +166,7 @@ foreach ($results['head'] as $head){
 
 	$('#simpan-com').click(function(e){
 			e.preventDefault();
+			if (prSaving) return;
 			var deskripsi	= $('#deskripsi').val();
 			var image	= $('#image').val();
 			var idtype	= $('#inventory_1').val();
@@ -215,9 +185,16 @@ foreach ($results['head'] as $head){
 				},
 				function(isConfirm) {
 				  if (isConfirm) {
+						if (prSaving) return;
+						prSaving = true;
+						$('#simpan-com').prop('disabled', true);
+						var saved = false;
 						var formData 	=new FormData($('#data-form')[0]);
 						var baseurl=siteurl+'purchase_request/SaveEdit';
 						$.ajax({
+							complete: function() {
+								if (!saved) { prSaving = false; $('#simpan-com').prop('disabled', false); }
+							},
 							url			: baseurl,
 							type		: "POST",
 							data		: formData,
@@ -226,7 +203,8 @@ foreach ($results['head'] as $head){
 							processData	: false, 
 							contentType	: false,				
 							success		: function(data){								
-								if(data.status == 1){											
+								if(data.status == 1){
+									saved = true;
 									swal({
 										  title	: "Save Success!",
 										  text	: data.pesan,
@@ -285,7 +263,7 @@ foreach ($results['head'] as $head){
 		
 });
 	function addmaterial(){ 
-		var jumlah	=$('#data_request').find('tr').length;
+		var jumlah = nextMaterialRow++;
 		$.ajax({
             type:"GET",
             url:siteurl+'purchase_request/AddMaterial',
@@ -302,6 +280,7 @@ foreach ($results['head'] as $head){
             }
         });
     }
+	$('#data-form').on('submit', function(e) { e.preventDefault(); $('#simpan-com').trigger('click'); });
 		function HitungTweight(id){
         var dt_qty=$("#dt_qty_"+id).val();
 		 var dt_weight=$("#dt_weight_"+id).val();

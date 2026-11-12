@@ -17,7 +17,7 @@ thead input {
 	<div class="box-header">
 		<span class="pull-left">
 			<?php if($ENABLE_ADD) : ?>
-				<a class="btn btn-success btn-sm" href="<?= base_url('/purchase_request/add/'.$record->no_penawaran) ?>" title="Add" ><i class="fa fa-plus"></i>&nbsp;Create</a>
+				<a class="btn btn-success btn-sm" href="<?= base_url('/purchase_request/add') ?>" title="Add" ><i class="fa fa-plus"></i>&nbsp;Create</a>
 			<?php endif; ?>
 		</span>
 	</div>
@@ -33,9 +33,7 @@ thead input {
 			<th>Tanggal PR</th>
 			<th>Requestor</th>
 			<th>Progress PR</th>
-			<?php if($ENABLE_MANAGE) : ?>
 			<th width="13%">Action</th>
-			<?php endif; ?>
 		</tr>
 		</thead>
 
@@ -44,7 +42,8 @@ thead input {
 		}else{
 			
 			$numb=0; foreach($results AS $record){ $numb++;
-			$ling = base_url('/purchase_request/edit/'.$record->no_pr);
+			$ling = html_escape(base_url('/purchase_request/edit/'.rawurlencode($record->no_pr)));
+			$record = (object) array_map(function ($value) { return html_escape((string) $value); }, (array) $record);
 			?>
 		<tr>
 		    <td><?= $numb; ?></td>

@@ -1,12 +1,13 @@
 <?php
 	$tanggal = date('Y-m-d');
 	$id 	= $this->uri->segment(3);
-	$list	= $this->db->query("SELECT * FROM dt_spkmarketing WHERE id_dt_spkmarketing = '$id' ")->result();
+	$list	= $this->db->query('SELECT * FROM dt_spkmarketing WHERE id_dt_spkmarketing = ?', array($id))->result();
+	if (!$list) { show_404(); return; }
 ?>
 
  <div class="box box-primary">
     <div class="box-body">
-		<form id="data-form" method="post">
+		<form id="data-form" method="post" novalidate>
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 			<div class="row">
@@ -61,13 +62,13 @@
 			<tr class='bg-blue'>
 				<th>Material</th>
 				<th width='8%'>Bentuk</th>
+				<th hidden>ID Bentuk</th>
 				<th width='8%'>ID</th>
 				<th width='8%'>OD</th>
 				<th hidden>Qty (Unit)</th>
 				<th hidden>Weight (Unit)</th>
 				<th width='8%'>Total Weight</th>
 				<th width='8%'>Width</th>
-				<th hidden>Width</th>
 				<th hidden>Length</th>
 				<th width='15%'>Supplier</th>
 				<th width='10%'>Tanggal Dibutuhkan</th>
@@ -80,52 +81,25 @@
 			foreach($list as $list){
 			 $loop++;
 			$material = $this->db->query("SELECT a.*, b.nama as alloy, c.nm_bentuk as bentuk FROM ms_inventory_category3 as a INNER JOIN ms_inventory_category2 as b ON a.id_category2 = b.id_category2 INNER JOIN ms_bentuk as c ON a.id_bentuk = c.id_bentuk WHERE a.deleted = '0'  ")->result();
-			$mat = $this->db->query("SELECT a.*, b.nm_bentuk as nama_bentuk FROM  ms_inventory_category3 as a inner join ms_bentuk as b on a.id_bentuk = b.id_bentuk WHERE id_category3 = '$list->id_material' ")->result();
-			$bentuk= $mat[0]->nama_bentuk;
-			$id_bentuk= $mat[0]->id_bentuk;;
+			$mat = $this->db->query('SELECT a.*, b.nm_bentuk as nama_bentuk FROM ms_inventory_category3 a LEFT JOIN ms_bentuk b ON a.id_bentuk = b.id_bentuk WHERE a.id_category3 = ?', array($list->id_material))->row();
+			$bentuk = html_escape((string) ($mat->nama_bentuk ?? ''));
+			$id_bentuk = html_escape((string) ($mat->id_bentuk ?? ''));
 		echo "
 		<tr id='tr_$loop'>
 		<td><select class='form-control select2' id='dt_idmaterial_$loop' name='dt[$loop][idmaterial]'	onchange ='CariProperties($loop)'>
 		<option value=''>--Pilih--</option>";
 		foreach ($material as $material){
 		$select = $list->id_material == $material->id_category3 ? 'selected' : '';
-		if($material->id_bentuk == 'B2000001' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '22' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness</option>";
-		}elseif($material->id_bentuk == 'B2000002' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '25' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness</option>";
-		}elseif($material->id_bentuk == 'B2000003' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '30' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness</option>";
-		}elseif($material->id_bentuk == 'B2000004' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '8' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		$dimensi2 = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '9' ")->result();
-		$thickness2 = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness x $thickness</option>";
-		}elseif($material->id_bentuk == 'B2000005' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '11' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness</option>";
-		}elseif($material->id_bentuk == 'B2000006' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '13' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness</option>";
-		}elseif($material->id_bentuk == 'B2000007' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '15' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		$dimensi2 = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '16' ")->result();
-		$thickness2 = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness $thickness2</option>";
-		}elseif($material->id_bentuk == 'B2000009' ){
-		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '19' ")->result();
-		$thickness = $dimensi[0]->nilai_dimensi;
-		echo"<option $select value='$material->id_category3'>$material->bentuk $material->alloy $material->nama $material->hardness $thickness</option>";
-		};
+		$shapeDimensions = array('B2000001'=>array(22), 'B2000002'=>array(25), 'B2000003'=>array(30),
+			'B2000004'=>array(8,9), 'B2000005'=>array(11), 'B2000006'=>array(13), 'B2000007'=>array(8,9), 'B2000009'=>array(19));
+		$dimensions = array();
+		foreach ($shapeDimensions[$material->id_bentuk] ?? array() as $dimensionId) {
+			$dimension = $this->db->query('SELECT nilai_dimensi FROM child_inven_dimensi WHERE id_category3 = ? AND id_dimensi = ?', array($material->id_category3, $dimensionId))->row();
+			$dimensions[] = $dimension->nilai_dimensi ?? '';
+		}
+		$separator = $material->id_bentuk === 'B2000004' ? ' x ' : ' ';
+		$label = trim($material->bentuk . ' ' . $material->alloy . ' ' . $material->nama . ' ' . $material->hardness . ' ' . implode($separator, $dimensions));
+		echo "<option $select value='" . html_escape((string) $material->id_category3) . "'>" . html_escape($label) . '</option>';
 		};
 		echo"</select></td>
 		<td id='bentuk_".$loop."'><input readonly type='text' value='".$bentuk."' class='form-control' id='dt_bentuk_$loop' required name='dt[$loop][bentuk]' ></td>
@@ -147,9 +121,10 @@
 		<td hidden><input type='number' class='form-control' id='dt_length_$loop' 	required name='dt[$loop][length]' ></td>
 				<td id='supplier_".$loop."'><select class='form-control select2' id='dt_suplier_$loop' name='dt[$loop][suplier]'>
 		<option value=''>Pilih</option>";
-		$supplier	= $this->db->query("SELECT a.*, b.name_suplier as supname FROM child_inven_suplier as a INNER JOIN master_supplier as b on a.id_suplier = b.id_suplier WHERE a.id_category3 = '".$list->id_material."' ")->result();
-			foreach ($supplier as $supplier){};
-					echo"<option value='".$supplier->id_suplier ."'>".$supplier->supname ."</option>";
+		$supplier = $this->db->query('SELECT a.*, b.name_suplier AS supname FROM child_inven_suplier a INNER JOIN master_supplier b ON a.id_suplier = b.id_suplier WHERE a.id_category3 = ?', array($list->id_material))->result();
+			foreach ($supplier as $supplier) {
+				echo "<option value='" . html_escape((string) $supplier->id_suplier) . "'>" . html_escape((string) $supplier->supname) . '</option>';
+			}
 		echo"</select></td>
 		<td><input type='text' class='form-control datepicker' readonly id='dt_tanggal_$loop' 	required name='dt[$loop][tanggal]' 	></td>
 		<td><input type='text' class='form-control' id='dt_keterangan_$loop' 	required name='dt[$loop][keterangan]' 	></td>
@@ -184,6 +159,9 @@
 	//$('#input-kendaraan').hide();
 	var base_url			= '<?php echo base_url(); ?>';
 	var active_controller	= '<?php echo($this->uri->segment(1)); ?>';
+	var prSaving = false;
+	var nextMaterialRow = 0;
+	$('#data_request > tr').each(function() { nextMaterialRow = Math.max(nextMaterialRow, parseInt(this.id.slice(3), 10) || 0); });
 	$(document).ready(function(){	
 			var max_fields2      = 10; //maximum input boxes allowed
 			var wrapper2         = $(".input_fields_wrap2"); //Fields wrapper
@@ -198,6 +176,7 @@
 				});	
 	$('#simpan-com').click(function(e){
 			e.preventDefault();
+			if (prSaving) return;
 			var deskripsi	= $('#deskripsi').val();
 			var image	= $('#image').val();
 			var idtype	= $('#inventory_1').val();
@@ -216,9 +195,16 @@
 				},
 				function(isConfirm) {
 				  if (isConfirm) {
+						if (prSaving) return;
+						prSaving = true;
+						$('#simpan-com').prop('disabled', true);
+						var saved = false;
 						var formData 	=new FormData($('#data-form')[0]);
 						var baseurl=siteurl+'purchase_request/SaveNew';
 						$.ajax({
+							complete: function() {
+								if (!saved) { prSaving = false; $('#simpan-com').prop('disabled', false); }
+							},
 							url			: baseurl,
 							type		: "POST",
 							data		: formData,
@@ -227,7 +213,8 @@
 							processData	: false, 
 							contentType	: false,				
 							success		: function(data){								
-								if(data.status == 1){											
+								if(data.status == 1){
+									saved = true;
 									swal({
 										  title	: "Save Success!",
 										  text	: data.pesan,
@@ -286,11 +273,11 @@
 		
 });
 	function addmaterial(){ 
-		var jumlah	=$('#data_request').find('tr').length;
+		var jumlah = nextMaterialRow++;
 		$.ajax({
             type:"GET",
             url:siteurl+'purchase_request/AddMaterial',
-            data:"jumlah="+jumlah,
+            data:"jumlah="+jumlah+"&planning=1",
             success:function(html){
                $("#data_request").append(html);
 			   $('.select2').select2();
@@ -303,6 +290,7 @@
             }
         });
     }
+	$('#data-form').on('submit', function(e) { e.preventDefault(); $('#simpan-com').trigger('click'); });
 		function HitungTweight(id){
         var dt_qty=$("#dt_qty_"+id).val();
 		 var dt_weight=$("#dt_weight_"+id).val();

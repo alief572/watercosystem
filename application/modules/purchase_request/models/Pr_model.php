@@ -64,25 +64,24 @@ class Pr_model extends BF_Model
     }
 		
     function generate_code($tgl) {
-      $query = $this->db->query("SELECT MAX(no_pr) as max_id FROM tr_purchase_request");
+      $query = $this->db->query("SELECT MAX(CAST(SUBSTRING(no_pr, 4) AS UNSIGNED)) as max_id FROM tr_purchase_request WHERE no_pr REGEXP '^P[0-9]{7}$'");
+      if ($query === false) throw new RuntimeException('Cannot read PR counter');
       $row = $query->row_array();
       $thn = date('y',strtotime($tgl));
-      $max_id = $row['max_id'];
-      $max_id1 =(int) substr($max_id,3,5);
-      $counter = $max_id1 +1;
+      $counter = (int) $row['max_id'] + 1;
+      if ($counter > 99999) throw new DomainException('Kapasitas nomor PR sudah habis.');
       $idcust = "P".$thn.str_pad($counter, 5, "0", STR_PAD_LEFT);
       return $idcust;
 	}
 	function BuatNomor($tgl) {
 	$bulan = date('m',strtotime($tgl));
 	$tahun = date('Y',strtotime($tgl));
-		$blnthn = date('Y-m',strtotime($tgl));
-      $query = $this->db->query("SELECT MAX(no_surat) as max_id FROM tr_purchase_request WHERE month(tanggal)='$bulan' and Year(tanggal)='$tahun'");
+      $prefix = 'PR'.$tahun.$bulan.'-';
+      $query = $this->db->query("SELECT MAX(CAST(SUBSTRING(no_surat, 10) AS UNSIGNED)) as max_id FROM tr_purchase_request WHERE LEFT(no_surat, 9) = ? AND no_surat REGEXP '^PR[0-9]{6}-[0-9]{4}$'", array($prefix));
+      if ($query === false) throw new RuntimeException('Cannot read PR letter counter');
       $row = $query->row_array();
-      $thn = date('T');
-      $max_id = $row['max_id'];
-      $max_id1 =(int) substr($max_id,9,4);
-      $counter = $max_id1 +1;
+      $counter = (int) $row['max_id'] + 1;
+      if ($counter > 9999) throw new DomainException('Kapasitas nomor surat PR bulan ini sudah habis.');
       $idcust = "PR".$tahun.$bulan."-".sprintf("%04s",$counter);
       return $idcust;
 	}
