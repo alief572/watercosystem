@@ -160,6 +160,56 @@ class Inventory_4_model extends BF_Model
 		return $query->result();
 	}
 
+	private function _category3_base($search = '')
+	{
+		$this->db->from('ms_inventory_category3 a');
+		$this->db->join('ms_inventory_type b', 'b.id_type=a.id_type', 'left');
+		$this->db->join('ms_inventory_category1 c', 'c.id_category1=a.id_category1', 'left');
+		$this->db->join('ms_inventory_category2 d', 'd.id_category2=a.id_category2', 'left');
+		$this->db->where('a.deleted', '0');
+		if ($search !== '') {
+			$this->db->group_start()
+				->like('a.id_category3', $search)
+				->or_like('b.nama', $search)
+				->or_like('c.nama', $search)
+				->or_like('d.nama', $search)
+				->or_like('a.nama', $search)
+				->or_like('a.kode_barang', $search)
+				->or_like('a.kode_mas', $search)
+				->group_end();
+		}
+	}
+
+	public function get_datatable_category3($start, $length, $search, $order)
+	{
+		$cols = array(
+			1 => 'a.id_category3', 2 => 'b.nama', 3 => 'c.nama', 4 => 'd.nama',
+			5 => 'a.nama', 6 => 'a.kode_barang', 7 => 'a.kode_mas', 8 => 'a.aktif',
+		);
+
+		$this->_category3_base();
+		$total = $this->db->count_all_results();
+
+		$this->_category3_base($search);
+		$filtered = $this->db->count_all_results();
+
+		$this->db->select('a.id, a.id_category3, a.nama, a.kode_barang, a.kode_mas, a.aktif,
+			b.nama as nama_type, c.nama as nama_category1, d.nama as nama_category2');
+		$this->_category3_base($search);
+		$col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'a.id_category3';
+		$dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+		$this->db->order_by($col, $dir);
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+
+		return array(
+			'total'    => $total,
+			'filtered' => $filtered,
+			'data'     => $this->db->get()->result(),
+		);
+	}
+
 	public function dimensy($id)
 	{
 		$search = "a.id_category3='$id'";

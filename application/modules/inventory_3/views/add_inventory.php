@@ -61,12 +61,6 @@ thead input {
 			</form>
         </div>
 
-<!-- Modal Bidus-->
-<script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js')?>"></script>
-<script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js')?>"></script>
-<script src="<?= base_url('assets/plugins/sweetalert/dist/sweetalert.js')?>"></script>
-<!-- End Modal Bidus-->
-
 <script type="text/javascript">
 
   $(document).ready(function() {

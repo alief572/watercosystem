@@ -24,7 +24,7 @@ $id_bentuk = $this->uri->segment(3);
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_inventory_4" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th width="5">#</th>
@@ -41,48 +41,7 @@ $id_bentuk = $this->uri->segment(3);
 					<?php endif; ?>
 				</tr>
 			</thead>
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++; ?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->id_category3 ?></td>
-							<td><?= $record->nama_type ?></td>
-							<td><?= $record->nama_category1 ?></td>
-							<td><?= $record->nama_category2 ?></td>
-							<td><?= $record->nama ?></td>
-							<td><?= $record->kode_barang ?></td>
-							<td><?= $record->kode_mas ?></td>
-							<td>
-								<?php if ($record->aktif == 'aktif') { ?>
-									<label class="label label-success">Aktif</label>
-								<?php } else { ?>
-									<label class="label label-danger">Non Aktif</label>
-								<?php } ?>
-							</td>
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_VIEW) : ?>
-									<a class="btn btn-primary btn-sm view" href="javascript:void(0)" title="View" data-id_inventory3="<?= $record->id ?>"><i class="fa fa-eye"></i>
-									</a>
-								<?php endif; ?>
-								<?php if ($ENABLE_MANAGE) : ?>
-									<a class="btn btn-warning btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory3="<?= $record->id ?>"><i class="fa fa-edit"></i>
-									</a>
-								<?php endif; ?>
-
-								<?php if ($ENABLE_DELETE) : ?>
-									<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id_inventory3="<?= $record->id ?>"><i class="fa fa-trash"></i>
-									</a>
-								<?php endif; ?>
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 
 	</div>
@@ -260,11 +219,18 @@ $id_bentuk = $this->uri->segment(3);
 		$("#form-area").hide();
 	});
 	$(function() {
-		// var table = $('#example1').DataTable( {
-		// orderCellsTop: true,
-		// fixedHeader: true,
-		// buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
-		// } );
+		$('#tbl_inventory_4').DataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: siteurl + 'inventory_4/get_data_json',
+				type: 'POST'
+			},
+			columnDefs: [{
+				orderable: false,
+				targets: [0<?= $ENABLE_MANAGE ? ', 9' : '' ?>]
+			}]
+		});
 		$("#form-area").hide();
 	});
 	$(function() {

@@ -5,16 +5,17 @@ $ENABLE_VIEW    = has_permission('Level_4.View');
 $ENABLE_DELETE  = has_permission('Level_4.Delete');
 $id='';
 $id_category3='';
+$inven = (object) array('id_type'=>'','id_category1'=>'','id_category2'=>'','maker'=>'','nama'=>'','kode_barang'=>'','kode_mas'=>'','aktif'=>'');
 if(!empty($results['inven'])){
 	
 	foreach ($results['inven'] as $inven){
-		if ($inven->alloy !=''){
+		if (!empty($inven->alloy)){
 			$all =$inven->alloy;
 		}
 		else {
-			$all =$results['alloy'];
+			$all = $results['alloy'] ?? '';
 		}
-		if ($inven->spek !=''){
+		if (!empty($inven->spek)){
 			$spesifikasi =$inven->spek;
 		}
 		else {

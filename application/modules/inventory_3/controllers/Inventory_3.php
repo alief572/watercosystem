@@ -39,10 +39,55 @@ class Inventory_3 extends Admin_Controller
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
 		$deleted = '0';
-        $data = $this->Inventory_3_model->get_data_category2();
-        $this->template->set('results', $data);
         $this->template->title('Product');
         $this->template->render('index');
+    }
+
+    public function get_data_json()
+    {
+        $this->auth->restrict($this->viewPermission);
+        $post = $this->input->post();
+
+        $result = $this->Inventory_3_model->get_datatable(
+            (int) $post['start'],
+            (int) $post['length'],
+            isset($post['search']['value']) ? $post['search']['value'] : '',
+            isset($post['order'][0]) ? $post['order'][0] : array()
+        );
+
+        $can_view   = has_permission('Inventory_3.View');
+        $can_manage = has_permission('Inventory_3.Manage');
+        $can_delete = has_permission('Inventory_3.Delete');
+
+        $no = (int) $post['start'];
+        $rows = array();
+        foreach ($result['data'] as $r) {
+            $no++;
+            $id = html_escape($r->id_category2);
+            $status = $r->aktif == 'aktif'
+                ? '<label class="label label-success">Aktif</label>'
+                : '<label class="label label-danger">Non Aktif</label>';
+            $row = array($no, $id, html_escape($r->nama_type), html_escape($r->nama_category1), html_escape($r->nama), $status);
+            if ($can_manage) {
+                $btn = '';
+                if ($can_view) {
+                    $btn .= '<a class="btn btn-primary btn-sm view" href="javascript:void(0)" title="View" data-id_inventory3="' . $id . '"><i class="fa fa-eye"></i></a> ';
+                }
+                $btn .= '<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory3="' . $id . '"><i class="fa fa-edit"></i></a> ';
+                if ($can_delete) {
+                    $btn .= '<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id_inventory3="' . $id . '"><i class="fa fa-trash"></i></a>';
+                }
+                $row[] = $btn;
+            }
+            $rows[] = $row;
+        }
+
+        echo json_encode(array(
+            'draw'            => (int) $post['draw'],
+            'recordsTotal'    => $result['total'],
+            'recordsFiltered' => $result['filtered'],
+            'data'            => $rows,
+        ));
     }
 	public function editInventory($id){
 		$this->auth->restrict($this->viewPermission);
@@ -50,7 +95,7 @@ class Inventory_3 extends Admin_Controller
 		$this->template->page_icon('fa fa-edit');
 		$inven = $this->db->get_where('ms_inventory_category2',array('id_category2' => $id))->result();
 		$lvl1 = $this->Inventory_3_model->get_data('ms_inventory_type');
-		$lvl2 = $this->Inventory_3_model->get_data('ms_inventory_category1');
+		$lvl2 = empty($inven) ? array() : $this->Inventory_3_model->level_2($inven[0]->id_type);
 		$data = [
 			'inven' => $inven,
 			'lvl1' => $lvl1,
@@ -64,15 +109,12 @@ class Inventory_3 extends Admin_Controller
 	public function viewInventory(){
 		$this->auth->restrict($this->viewPermission);
 		$id 	= $this->input->post('id');
-		$cust 	= $this->Inventory_3_model->getById($id);
-			// echo "<pre>";
-			// print_r($cust);
-			// echo "<pre>";
+		$cust 	= $this->Inventory_3_model->getview($id);
         $this->template->set('result', $cust);
 		$this->template->render('view_inventory');
 	}
 	public function saveEditInventory(){
-		$this->auth->restrict($this->editPermission);
+		$this->auth->restrict($this->managePermission);
 		$post = $this->input->post();
 		// print_r($post);
 		// exit();

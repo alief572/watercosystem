@@ -108,14 +108,56 @@ class Inventory_3_model extends BF_Model
        return $this->db->get_where('ms_inventory_category1',array('id_category1' => $id))->row_array();
     }
 	
-	public function get_data_category2(){
+	private function _category2_base($search = '')
+	{
+		$this->db->from('ms_inventory_category2 a');
+		$this->db->join('ms_inventory_type b', 'b.id_type=a.id_type');
+		$this->db->join('ms_inventory_category1 c', 'c.id_category1=a.id_category1');
+		$this->db->where('a.deleted', 0);
+		if ($search !== '') {
+			$this->db->group_start()
+				->like('a.id_category2', $search)
+				->or_like('b.nama', $search)
+				->or_like('c.nama', $search)
+				->or_like('a.nama', $search)
+				->group_end();
+		}
+	}
+
+	public function get_datatable($start, $length, $search, $order)
+	{
+		$cols = array(1 => 'a.id_category2', 2 => 'b.nama', 3 => 'c.nama', 4 => 'a.nama', 5 => 'a.aktif');
+
+		$this->_category2_base();
+		$total = $this->db->count_all_results();
+
+		$this->_category2_base($search);
+		$filtered = $this->db->count_all_results();
+
+		$this->db->select('a.id_category2, a.nama, a.aktif, b.nama as nama_type, c.nama as nama_category1');
+		$this->_category2_base($search);
+		$col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'a.id_category2';
+		$dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+		$this->db->order_by($col, $dir);
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+
+		return array(
+			'total'    => $total,
+			'filtered' => $filtered,
+			'data'     => $this->db->get()->result(),
+		);
+	}
+
+	public function getview($id)
+	{
 		$this->db->select('a.*, b.nama as nama_type, c.nama as nama_category1');
 		$this->db->from('ms_inventory_category2 a');
-		$this->db->join('ms_inventory_type b','b.id_type=a.id_type');
-		$this->db->join('ms_inventory_category1 c','c.id_category1 =a.id_category1');
-		$this->db->where('a.deleted',0);
-		$query = $this->db->get();		
-		return $query->result();
+		$this->db->join('ms_inventory_type b', 'b.id_type=a.id_type', 'left');
+		$this->db->join('ms_inventory_category1 c', 'c.id_category1=a.id_category1', 'left');
+		$this->db->where('a.id_category2', $id);
+		return $this->db->get()->row();
 	}
 
     

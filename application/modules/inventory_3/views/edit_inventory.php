@@ -94,10 +94,6 @@ thead input {
 	<!-- /.box-body -->
 </div>
 
-<!-- DataTables -->
-<script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js')?>"></script>
-<script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js')?>"></script>
-
 <!-- page script -->
 <script type="text/javascript">
 
@@ -105,29 +101,15 @@ thead input {
 		$('.select2').select2();
   	});
 	$("#inventory_1").change(function(){
-
-            // variabel dari nilai combo box kendaraan
-            var inventory_1 = $("#inventory_1").val();
-
-            // Menggunakan ajax untuk mengirim dan dan menerima data dari server
-            $.ajax({
-                url:siteurl+'inventory_3/get_inven2',
-                method : "POST",
-                data : {inventory_1:inventory_1},
-                async : false,
-                dataType : 'json',
-                success: function(data){
-                    var html = '';
-                    var i;
-
-                    for(i=0; i<data.length; i++){
-                        html += '<option value='+data[i].id_inventory2+'>'+data[i].nm_inventory2+'</option>';
-                    }
-                    $('#inventory_2').html(html);
-
-                }
-            });
-        });
+		$.ajax({
+			type: "GET",
+			url: siteurl+'inventory_3/get_inven2',
+			data: {inventory_1: $("#inventory_1").val()},
+			success: function(html){
+				$("#inventory_2").html(html);
+			}
+		});
+	});
 	
 	// ADD CUSTOMER 
 	

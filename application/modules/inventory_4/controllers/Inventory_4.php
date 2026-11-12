@@ -51,10 +51,65 @@ class Inventory_4 extends Admin_Controller
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
 		$deleted = '0';
-		$data = $this->Inventory_4_model->get_data_category3();
-		$this->template->set('results', $data);
 		$this->template->title('Produk');
 		$this->template->render('list');
+	}
+
+	public function get_data_json()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$post = $this->input->post();
+
+		$result = $this->Inventory_4_model->get_datatable_category3(
+			(int) $post['start'],
+			(int) $post['length'],
+			isset($post['search']['value']) ? $post['search']['value'] : '',
+			isset($post['order'][0]) ? $post['order'][0] : array()
+		);
+
+		$can_view   = has_permission('Level_4.View');
+		$can_manage = has_permission('Level_4.Manage');
+		$can_delete = has_permission('Level_4.Delete');
+
+		$no = (int) $post['start'];
+		$rows = array();
+		foreach ($result['data'] as $r) {
+			$no++;
+			$id = (int) $r->id;
+			$status = $r->aktif == 'aktif'
+				? '<label class="label label-success">Aktif</label>'
+				: '<label class="label label-danger">Non Aktif</label>';
+			$row = array(
+				$no,
+				html_escape($r->id_category3),
+				html_escape($r->nama_type),
+				html_escape($r->nama_category1),
+				html_escape($r->nama_category2),
+				html_escape($r->nama),
+				html_escape($r->kode_barang),
+				html_escape($r->kode_mas),
+				$status,
+			);
+			if ($can_manage) {
+				$btn = '';
+				if ($can_view) {
+					$btn .= '<a class="btn btn-primary btn-sm view" href="javascript:void(0)" title="View" data-id_inventory3="' . $id . '"><i class="fa fa-eye"></i></a> ';
+				}
+				$btn .= '<a class="btn btn-warning btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory3="' . $id . '"><i class="fa fa-edit"></i></a> ';
+				if ($can_delete) {
+					$btn .= '<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id_inventory3="' . $id . '"><i class="fa fa-trash"></i></a>';
+				}
+				$row[] = $btn;
+			}
+			$rows[] = $row;
+		}
+
+		echo json_encode(array(
+			'draw'            => (int) $post['draw'],
+			'recordsTotal'    => $result['total'],
+			'recordsFiltered' => $result['filtered'],
+			'data'            => $rows,
+		));
 	}
 	public function editInventory($id)
 	{
@@ -64,9 +119,13 @@ class Inventory_4 extends Admin_Controller
 		$deleted = '0';
 		$inven = $this->Inventory_4_model->getedit($id);
 
-		$all   = $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id='$id'")->row();
+		$id    = (int) $id;
+		$all   = $this->db->get_where('ms_inventory_category3', array('id' => $id))->row();
+		if (empty($all)) {
+			show_404();
+		}
 
-		$alloy = $this->db->query("SELECT nama FROM ms_inventory_category2 WHERE id_category2='$all->id_category2'")->row();
+		$alloy = $this->db->get_where('ms_inventory_category2', array('id_category2' => $all->id_category2))->row();
 		$komposisiold = $this->Inventory_4_model->get_data('child_inven_compotition', 'id_category3', $id);
 		$komposisi = $this->Inventory_4_model->kompos($id);
 		$dimensiold = $this->Inventory_4_model->get_data('child_inven_dimensi', 'id_category3', $id);
@@ -74,7 +133,7 @@ class Inventory_4 extends Admin_Controller
 		$supl = $this->Inventory_4_model->supl($id);
 		$inventory_1 = $this->Inventory_4_model->get_data('ms_inventory_type', 'deleted', $deleted);
 		$inventory_2 = $this->Inventory_4_model->get_data('ms_inventory_category1', 'id_type', $all->id_type);
-		$inventory_3 = $this->db->query("SELECT * FROM ms_inventory_category2 WHERE id_category1='$all->id_category1' AND id_type='$all->id_type'")->result();
+		$inventory_3 = $this->db->get_where('ms_inventory_category2', array('id_category1' => $all->id_category1, 'id_type' => $all->id_type))->result();
 		$maker = $this->Inventory_4_model->get_data('negara');
 		$id_bentuk = $this->Inventory_4_model->get_data('ms_bentuk');
 		$id_supplier = $this->Inventory_4_model->get_data('master_supplier');
@@ -93,7 +152,7 @@ class Inventory_4 extends Admin_Controller
 			'inven' => $inven,
 			'maker' => $maker,
 			'supl' => $supl,
-			'alloy' => $alloy->nama,
+			'alloy' => $alloy ? $alloy->nama : '',
 			'id_surface' => $id_surface,
 			'id_supplier' => $id_supplier,
 			'dt_suplier' => $dt_suplier
@@ -607,14 +666,12 @@ class Inventory_4 extends Admin_Controller
 			$this->db->trans_rollback();
 			$status	= array(
 				'pesan'		=> 'Gagal Save Product. Thanks ...',
-				'code' => $id_bentuk,
 				'status'	=> 0
 			);
 		} else {
 			$this->db->trans_commit();
 			$status	= array(
 				'pesan'		=> 'Success Save Product. Thanks ...',
-				'code' => $id_bentuk,
 				'status'	=> 1
 			);
 		}

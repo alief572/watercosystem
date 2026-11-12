@@ -104,7 +104,7 @@ class Ms_kurs extends Admin_Controller
 		$this->template->render('view_inventory');
 	}
 	public function saveEditKurs(){
-		$this->auth->restrict($this->editPermission);
+		$this->auth->restrict($this->managePermission);
 		$post = $this->input->post();
 		$this->db->trans_begin();
 		
