@@ -259,14 +259,12 @@ class Wt_revenue extends Admin_Controller
 			$this->db->trans_rollback();
 			$status	= array(
 				'pesan'		=> 'Gagal Save Item. Thanks ...',
-				'code' => $code,
 				'status'	=> 0
 			);
 		} else {
 			$this->db->trans_commit();
 			$status	= array(
 				'pesan'		=> 'Success Save Item. invenThanks ...',
-				'code' => $code,
 				'status'	=> 1
 			);
 		}
@@ -1402,8 +1400,8 @@ class Wt_revenue extends Admin_Controller
 			$invc =  implode($separator, $allinv);
 
 			$action = '';
-			if (has_permission($this->managePermission) && $item->no_invoice == '') {
-				$action = '<a class="btn btn-success btn-sm" href="' . base_url('/wt_revenue/createRevenue/' . $item->no_so) . '" target="_blank" title="Create Revenue" data-no_so="<?= $record->no_so ?>"><i class="fa fa-plus"></i></a>';
+			if (has_permission($this->managePermission)) {
+				$action = '<a class="btn btn-success btn-sm" href="' . base_url('/wt_revenue/createRevenue/' . rawurlencode((string) $item->no_so)) . '" target="_blank" title="Create Revenue" data-no_so="' . htmlspecialchars((string) $item->no_so, ENT_QUOTES) . '"><i class="fa fa-plus"></i></a>';
 			}
 
 			$hasil[] = [
