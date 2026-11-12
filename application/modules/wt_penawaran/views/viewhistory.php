@@ -125,10 +125,10 @@
 			        <div class='col-md-8' id="">
 					    <select id="order_sts" name="order_sts" class="form-control select" required>
 							<option value="">--Pilih--</option>
-                           <?php if($hd->order_status==stk){ ?>
+                           <?php if($hd->order_status== 'stk'){ ?>
 						    <option value="stk" selected>Stock</option>
                             <option value="ind" >Indent</option>
-                            <?php } else if($hd->order_status==ind){?>
+                            <?php } else if($hd->order_status== 'ind'){?>
                             <option value="stk" >Stock</option>
                             <option value="ind" selected>Indent</option>
                             <?php } ?>
@@ -167,7 +167,6 @@
                                     <?php $loop=0;
 									foreach ($results['detail'] as $dt_spk){$loop++; 
 
-                                        $customers = $this->Wt_penawaran_model->get_data('master_customers','deleted',$deleted);
 		                                $material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a ")->result();
                                         echo "
                                         <tr id='tr_$loop'>
@@ -186,7 +185,7 @@
                                             <td id='harga_satuan_$loop'><input type='text' value='".number_format($dt_spk->harga_satuan, 2)."' class='form-control input-sm' id='used_harga_satuan_$loop' required name='dt[$loop][harga_satuan]' readonly></td>
                                             <td id='stok_tersedia_$loop'><input type='text' value='$dt_spk->stok_tersedia' class='form-control input-sm' id='used_stok_tersedia_$loop' required name='dt[$loop][stok_tersedia]' onblur='HitungLoss($loop)'></td>
                                             <td id='potensial_loss_$loop'><input type='text' value='$dt_spk->potensial_loss' class='form-control input-sm' id='used_potensial_loss_$loop' required name='dt[$loop][potensial_loss]' readonly></td>
-											<td id='compare_diskon_$loop' hidden><input type='text' value='$dt_spk->diskon_compare' class='form-control'  id='used_compare_diskon_$loop' required name='dt[$loop][compare_diskon_]'></td>
+											<td id='compare_diskon_$loop' hidden><input type='text' value='$dt_spk->diskon_compare' class='form-control'  id='used_compare_diskon_$loop' required name='dt[$loop][compare_diskon]'></td>
                                             <td id='diskon_$loop'><input type='text' value='$dt_spk->diskon' class='form-control'  id='used_diskon_$loop' required name='dt[$loop][diskon]' onblur='HitungTotal($loop)'></td>
                                             <td id='nilai_diskon_$loop' hidden><input type='text' value='$dt_spk->nilai_diskon' class='form-control'  id='used_nilai_diskon_$loop' required name='dt[$loop][nilai_diskon]'></td>
                                             <td id='freight_cost_$loop'><input type='text' value='".number_format($dt_spk->freight_cost, 2)."' class='form-control input-sm' id='used_freight_cost_$loop' required name='dt[$loop][freight_cost]' onblur='Freight($loop)'></td>
@@ -244,6 +243,9 @@
 						    </div>
 					    </div>
 				    </div>
+					<center>
+						<a class="btn btn-danger btn-sm" href="<?= base_url('wt_penawaran/history') ?>" title="Kembali"><i class="fa fa-arrow-left"></i> Kembali</a>
+					</center>
 		</form>		  
 	</div>
 </div>	

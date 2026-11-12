@@ -50,7 +50,7 @@
                             <option value="">--Pilih--</option>
                              <?php foreach ($results['customers'] as $customers){
                              $select1 = $hd->id_customer == $customers->id_customer ? 'selected' : '';	?>
-                            <option value="<?= $customers->id_customer?>"<?= $select1 ?>><?= strtoupper(strtolower($customers->name_customer))?></option>
+                            <option value="<?= $customers->id_customer?>"<?= $select1 ?>><?= strtoupper(strtolower((string) $customers->name_customer))?></option>
                                 <?php } ?>
                         </select>
                     </div>
@@ -91,7 +91,7 @@
 				    </div>
 				    <div class='col-md-8' id="pic_slot" >
 					    <select id='pic_customer' name='pic_customer' class='form-control select' required>
-						    <option value="<?= $hd->pic_customer?>" selected><?= strtoupper(strtolower($hd->pic_customer))?></option>
+						    <option value="<?= $hd->pic_customer?>" selected><?= strtoupper(strtolower((string) $hd->pic_customer))?></option>
 					    </select>
 				    </div>
 			    </div>
@@ -109,7 +109,7 @@
                             <option value="">--Pilih--</option>
                                 <?php foreach ($results['top'] as $top){
                                 $select2 = $top->id_top == $hd->top ? 'selected' : '';	?>
-                            <option value="<?= $top->id_top?>" <?= $select2 ?>><?= strtoupper(strtolower($top->nama_top))?></option>
+                            <option value="<?= $top->id_top?>" <?= $select2 ?>><?= strtoupper(strtolower((string) $top->nama_top))?></option>
                                 <?php } ?>
                         </select>
                     </div>
@@ -123,10 +123,10 @@
 			        <div class='col-md-8' id="">
 					    <select id="order_sts" name="order_sts" class="form-control select" required>
 							<option value="">--Pilih--</option>
-                           <?php if($hd->order_status==stk){ ?>
+                           <?php if($hd->order_status== 'stk'){ ?>
 						    <option value="stk" selected>Stock</option>
                             <option value="ind" >Indent</option>
-                            <?php } else if($hd->order_status==ind){?>
+                            <?php } else if($hd->order_status== 'ind'){?>
                             <option value="stk" >Stock</option>
                             <option value="ind" selected>Indent</option>
                             <?php } ?>
@@ -211,7 +211,6 @@
                                     <?php $loop=0;
 									foreach ($results['detail'] as $dt_spk){$loop++; 
 
-                                        $customers = $this->Wt_penawaran_model->get_data('master_customers','deleted',$deleted);
 		                                $material = $this->db->query("SELECT a.* FROM ms_inventory_category3 as a ")->result();
                                         echo "
                                         <tr id='tr_$loop'>

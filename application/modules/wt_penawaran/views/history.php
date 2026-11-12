@@ -194,6 +194,7 @@ $ENABLE_DELETE  = has_permission('Penawaran.Delete');
 		var DataTables = $('#example5').dataTable({
 			processing: true,
 			serverSide: true,
+			order: [],
 			ajax: {
 				type: 'post',
 				url: siteurl + active_controller + 'get_history_penawaran',

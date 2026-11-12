@@ -284,6 +284,7 @@ class Wt_penawaran extends Admin_Controller
 
 
 		$numb1 = 0;
+		$dt = [];
 		foreach ($_POST['dt'] as $used) {
 			if (!empty($used['no_surat'])) {
 				$numb1++;
@@ -307,6 +308,11 @@ class Wt_penawaran extends Admin_Controller
 		}
 		//    print_r($dt);
 		//    exit();
+		if (empty($dt)) {
+			$this->db->trans_rollback();
+			echo json_encode(['pesan' => 'Detail produk tidak boleh kosong.', 'code' => $code, 'status' => 0]);
+			return;
+		}
 		$this->db->delete('tr_penawaran_detail', array('no_penawaran' => $code));
 		$this->db->insert_batch('tr_penawaran_detail', $dt);
 
@@ -335,16 +341,16 @@ class Wt_penawaran extends Admin_Controller
 	{
 		$id_customer = $_GET['id_customer'];
 		$kategory3	= $this->db->query("SELECT * FROM master_customers WHERE id_customer = '$id_customer' ")->result();
-		$thickness = $kategory3[0]->email;
+		$thickness = $kategory3[0]->email ?? '';
 		echo "<input type='email' class='form-control' id='email_customer' value='$thickness' required name='email_customer' >";
 	}
 	function getsales()
 	{
 		$id_customer = $_GET['id_customer'];
 		$kategory3	= $this->db->query("SELECT * FROM master_customers WHERE id_customer = '$id_customer' ")->result();
-		$id_karyawan = $kategory3[0]->id_karyawan;
+		$id_karyawan = $kategory3[0]->id_karyawan ?? '';
 		$karyawan	= $this->db->query("SELECT * FROM ms_karyawan WHERE id_karyawan = '$id_karyawan' ")->result();
-		$nama_karyawan = $karyawan[0]->nama_karyawan;
+		$nama_karyawan = $karyawan[0]->nama_karyawan ?? '';
 		echo "	<div class='col-md-8' >
 					<input type='text' class='form-control' id='nama_sales' value='$nama_karyawan' required name='nama_sales' readonly placeholder='Sales Marketing'>
 				</div>
@@ -369,7 +375,7 @@ class Wt_penawaran extends Admin_Controller
 		$loop = $_GET['id'];
 		$id_category3 = $_GET['id_category3'];
 		$material	= $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 = '$id_category3' ")->result();
-		$produk = $material[0]->nama;
+		$produk = $material[0]->nama ?? '';
 
 		echo "<input type='text' class='form-control input-sm' readonly id='used_nama_produk_$loop' required name='dt[$loop][nama_produk]' value='$produk'>";
 	}
@@ -379,7 +385,7 @@ class Wt_penawaran extends Admin_Controller
 		$loop = $_GET['id'];
 		$id_category3 = $_GET['id_category3'];
 		$material	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$id_category3' ")->result();
-		$produk = number_format($material[0]->harga_rupiah);
+		$produk = number_format($material[0]->harga_rupiah ?? 0);
 
 
 		echo "<input type='text' class='form-control input-sm' readonly id='used_harga_satuan_$loop' required name='dt[$loop][harga_satuan]' value='$produk'>";
@@ -391,9 +397,9 @@ class Wt_penawaran extends Admin_Controller
 		$id_category3 = $_GET['id_category3'];
 		$idtop       = $_GET['top'];
 		$material	= $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 = '$id_category3' ")->result();
-		$produk = $material[0]->id_type;
+		$produk = $material[0]->id_type ?? '';
 		$diskon	= $this->db->query("SELECT * FROM ms_diskon WHERE id_type = '$produk' AND id_top='$idtop' ")->result();
-		$diskonvalue = $diskon[0]->nilai_diskon;
+		$diskonvalue = $diskon[0]->nilai_diskon ?? 0;
 
 		echo "<input type='text' class='form-control input-sm' id='used_diskon_$loop' required name='dt[$loop][diskon]' value='$diskonvalue' onblur='HitungTotal($loop)'>";
 	}
@@ -404,9 +410,9 @@ class Wt_penawaran extends Admin_Controller
 		$id_category3 = $_GET['id_category3'];
 		$idtop       = $_GET['top'];
 		$material	= $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 = '$id_category3' ")->result();
-		$produk = $material[0]->id_type;
+		$produk = $material[0]->id_type ?? '';
 		$diskon	= $this->db->query("SELECT * FROM ms_diskon WHERE id_type = '$produk' AND id_top='$idtop' ")->result();
-		$diskonvalue2 = $diskon[0]->nilai_diskon;
+		$diskonvalue2 = $diskon[0]->nilai_diskon ?? 0;
 		echo "<input type='text' class='form-control'  id='used_compare_diskon_$loop' required name='dt[$loop][compare_diskon]' value='$diskonvalue2'>";
 	}
 
@@ -416,7 +422,7 @@ class Wt_penawaran extends Admin_Controller
 		$id_category3 = $_GET['id_category3'];
 		$idtop       = $_GET['top'];
 		$stok	= $this->db->query("SELECT * FROM stock_material WHERE id_category3 = '$id_category3' ")->result();
-		$stokfree = $stok[0]->qty_free;
+		$stokfree = $stok[0]->qty_free ?? 0;
 		echo "<input type='text' class='form-control input-sm' id='used_stok_tersedia_$loop' required name='dt[$loop][stok_tersedia]' onblur='HitungLoss($loop)' value='$stokfree' readonly>
 		";
 	}
@@ -644,6 +650,7 @@ class Wt_penawaran extends Admin_Controller
 
 
 		$numb1 = 0;
+		$dt = [];
 		foreach ($_POST['dt'] as $used) {
 			if (!empty($used['no_surat'])) {
 				$numb1++;
@@ -667,6 +674,11 @@ class Wt_penawaran extends Admin_Controller
 		}
 		//    print_r($dt);
 		//    exit();
+		if (empty($dt)) {
+			$this->db->trans_rollback();
+			echo json_encode(['pesan' => 'Detail produk tidak boleh kosong.', 'code' => $code, 'status' => 0]);
+			return;
+		}
 		$this->db->delete('tr_penawaran_detail', array('no_penawaran' => $code));
 		$this->db->insert_batch('tr_penawaran_detail', $dt);
 
@@ -856,6 +868,11 @@ class Wt_penawaran extends Admin_Controller
 
 
 		$rev = $select1->row();
+		if (!$rev) {
+			$this->db->trans_rollback();
+			echo json_encode(['pesan' => 'Penawaran tidak ditemukan.', 'code' => $code, 'status' => 0]);
+			return;
+		}
 		$norev = $rev->revisi + 1;
 		$data = [
 			'no_penawaran'			=> $code,
@@ -884,6 +901,7 @@ class Wt_penawaran extends Admin_Controller
 
 
 		$numb1 = 0;
+		$dt = [];
 		foreach ($_POST['dt'] as $used) {
 			if (!empty($used['no_surat'])) {
 				$numb1++;
@@ -908,6 +926,11 @@ class Wt_penawaran extends Admin_Controller
 		}
 		//    print_r($dt);
 		//    exit();
+		if (empty($dt)) {
+			$this->db->trans_rollback();
+			echo json_encode(['pesan' => 'Detail produk tidak boleh kosong.', 'code' => $code, 'status' => 0]);
+			return;
+		}
 		if ($select2->num_rows()) {
 			$insert2 = $this->db->insert_batch('tr_penawaran_detail_history', $select2->result_array());
 

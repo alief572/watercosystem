@@ -477,146 +477,73 @@ class Wt_penawaran_model extends BF_Model
 
   public function get_history_penawaran()
   {
-    $draw = $this->input->post('draw');
-    $length = $this->input->post('length');
-    $start = $this->input->post('start');
+    $draw = (int) $this->input->post('draw');
+    $length = (int) $this->input->post('length');
+    $start = max(0, (int) $this->input->post('start'));
     $search = $this->input->post('search');
 
+    $union = '
+      SELECT
+        a.no_surat, a.nama_sales, a.nilai_penawaran, a.tgl_penawaran, a.created_on,
+        a.revisi, a.no_penawaran, a.status, b.name_customer
+      FROM tr_penawaran_history a
+      JOIN master_customers b ON b.id_customer = a.id_customer
+
+      UNION ALL
+
+      SELECT
+        a.no_surat, a.nama_sales, a.nilai_penawaran, a.tgl_penawaran, a.created_on,
+        a.revisi, a.no_penawaran, a.status, b.name_customer
+      FROM tr_penawaran a
+      JOIN master_customers b ON b.id_customer = a.id_customer
+      WHERE a.status_so = 1 AND a.deleted_by IS NULL
+    ';
+
+    // Cari di: No. Penawaran, Customer, Marketing, Nilai, Tanggal (format DB dan format tampil d-F-Y)
     $where_search = '';
-    if (!empty($search['value'])) {
-      $where_search = '
-        AND (
-            z.no_surat LIKE "%' . $search['value'] . '%"
-            OR z.nama_sales LIKE "%' . $search['value'] . '%"
-            OR z.nilai_penawaran LIKE "%' . $search['value'] . '%"
-            OR z.tgl_penawaran LIKE "%' . $search['value'] . '%"
-            OR z.revisi LIKE "%' . $search['value'] . '%"
-            OR z.no_penawaran LIKE "%' . $search['value'] . '%"
-            OR z.name_customer LIKE "%' . $search['value'] . '%"
+    $keyword = trim($search['value'] ?? '');
+    if ($keyword !== '') {
+      $like = $this->db->escape_like_str($keyword);
+      $like_num = $this->db->escape_like_str(str_replace(',', '', $keyword));
+      $where_search = "
+        WHERE (
+          z.no_surat LIKE '%{$like}%'
+          OR z.name_customer LIKE '%{$like}%'
+          OR z.nama_sales LIKE '%{$like}%'
+          OR CAST(z.nilai_penawaran AS CHAR) LIKE '%{$like_num}%'
+          OR CAST(z.tgl_penawaran AS CHAR) LIKE '%{$like}%'
+          OR DATE_FORMAT(z.tgl_penawaran, '%d-%M-%Y') LIKE '%{$like}%'
         )
-      ';
+      ";
     }
 
-    $query = '
-      SELECT
-        z.no_surat, 
-        z.nama_sales, 
-        z.nilai_penawaran, 
-        z.tgl_penawaran, 
-        z.revisi,
-        z.no_penawaran,
-        z.status, 
-        z.name_customer
-      FROM
-        (
-          SELECT
-            a.no_surat as no_surat, 
-            a.nama_sales as nama_sales, 
-            a.nilai_penawaran as nilai_penawaran, 
-            a.tgl_penawaran as tgl_penawaran, 
-            a.revisi as revisi,
-            a.no_penawaran as no_penawaran,
-            a.status as status, 
-            b.name_customer as name_customer
-          FROM
-            tr_penawaran_history a
-            JOIN master_customers b ON b.id_customer = a.id_customer
-          
-          UNION ALL
+    $limit = $length > 0 ? ' LIMIT ' . $length . ' OFFSET ' . $start : '';
 
-          SELECT
-            a.no_surat as no_surat, 
-            a.nama_sales as nama_sales, 
-            a.nilai_penawaran as nilai_penawaran, 
-            a.tgl_penawaran as tgl_penawaran, 
-            a.revisi as revisi,
-            a.no_penawaran as no_penawaran,
-            a.status as status, 
-            b.name_customer as name_customer
-          FROM
-            tr_penawaran a
-            JOIN master_customers b ON b.id_customer = a.id_customer
-          WHERE
-            a.status_so = 1 AND
-            a.deleted_by IS NULL
-        ) z
-        WHERE
-          1 = 1
-          ' . $where_search . '
-        ORDER BY z.no_surat DESC
-        LIMIT ' . $length . ' OFFSET ' . $start . '
-    ';
-    $get_data = $this->db->query($query);
+    // Terbaru ke terlama
+    $get_data = $this->db->query(
+      "SELECT z.* FROM ({$union}) z {$where_search}
+       ORDER BY z.tgl_penawaran DESC, z.created_on DESC, z.revisi DESC" . $limit
+    );
+    $total = $this->db->query("SELECT COUNT(*) AS n FROM ({$union}) z")->row()->n;
+    $filtered = $where_search === ''
+      ? $total
+      : $this->db->query("SELECT COUNT(*) AS n FROM ({$union}) z {$where_search}")->row()->n;
 
-    $query_all = '
-      SELECT
-        z.no_surat, 
-        z.nama_sales, 
-        z.nilai_penawaran, 
-        z.tgl_penawaran, 
-        z.revisi,
-        z.no_penawaran,
-        z.status, 
-        z.name_customer
-      FROM
-        (
-          SELECT
-            a.no_surat as no_surat, 
-            a.nama_sales as nama_sales, 
-            a.nilai_penawaran as nilai_penawaran, 
-            a.tgl_penawaran as tgl_penawaran, 
-            a.revisi as revisi,
-            a.no_penawaran as no_penawaran,
-            a.status as status, 
-            b.name_customer as name_customer
-          FROM
-            tr_penawaran_history a
-            JOIN master_customers b ON b.id_customer = a.id_customer
-          
-          UNION ALL
+    $status_label = [
+      0 => "<span class='badge bg-grey'>Draft</span>",
+      1 => "<span class='badge bg-yellow'>Menunggu Approval</span>",
+      2 => "<span class='badge bg-green'>Approved</span>",
+      3 => "<span class='badge bg-blue'>Dicetak</span>",
+      4 => "<span class='badge bg-green'>Terkirim</span>",
+      5 => "<span class='badge bg-red'>Not Approved</span>",
+      6 => "<span class='badge bg-green'>SO</span>",
+      7 => "<span class='badge bg-red'>Loss</span>",
+    ];
 
-          SELECT
-            a.no_surat as no_surat, 
-            a.nama_sales as nama_sales, 
-            a.nilai_penawaran as nilai_penawaran, 
-            a.tgl_penawaran as tgl_penawaran, 
-            a.revisi as revisi,
-            a.no_penawaran as no_penawaran,
-            a.status as status, 
-            b.name_customer as name_customer
-          FROM
-            tr_penawaran a
-            JOIN master_customers b ON b.id_customer = a.id_customer
-          WHERE
-            a.status_so = 1
-        ) z
-        WHERE
-          1 = 1
-          ' . $where_search . '
-        ORDER BY z.no_surat DESC
-    ';
-    $get_data_all = $this->db->query($query_all);
-    $no = (0 + $start);
+    $hasil = [];
+    $no = $start;
     foreach ($get_data->result() as $item) {
-
-      if ($item->status == 0) {
-        $Status = "<span class='badge bg-grey'>Draft</span>";
-      } elseif ($item->status == 1) {
-
-        $Status = "<span class='badge bg-yellow'>Menunggu Approval</span>";
-      } elseif ($item->status == 2) {
-        $Status = "<span class='badge bg-green'>Approved</span>";
-      } elseif ($item->status == 3) {
-        $Status = "<span class='badge bg-blue'>Dicetak</span>";
-      } elseif ($item->status == 4) {
-        $Status = "<span class='badge bg-green'>Terkirim</span>";
-      } elseif ($item->status == 5) {
-        $Status = "<span class='badge bg-red'>Not Approved</span>";
-      } elseif ($item->status == 6) {
-        $Status = "<span class='badge bg-green'>SO</span>";
-      } elseif ($item->status == 7) {
-        $Status = "<span class='badge bg-red'>Loss</span>";
-      }
+      $no++;
 
       $option = '';
       if (has_permission($this->viewPermission) && $item->status != '6') {
@@ -627,27 +554,23 @@ class Wt_penawaran_model extends BF_Model
         $option .= '<a class="btn btn-success btn-sm" href="' . base_url('/wt_penawaran/viewhistoryso/' . $item->no_penawaran . "/" . $item->revisi) . '" title="view" data-no_inquiry=""><i class="fa fa-eye"></i></a>';
       }
 
-      if ($item->status != '6' || $item->status != '7') {
-        $no++;
-
-        $hasil[] = [
-          'no' => $no,
-          'no_penawaran' => $item->no_surat,
-          'nama_customer' => strtoupper($item->name_customer),
-          'marketing' => $item->nama_sales,
-          'nilai_penawaran' => number_format($item->nilai_penawaran),
-          'tanggal_penawaran' => date('d-F-Y', strtotime($item->tgl_penawaran)),
-          'revisi' => $item->revisi,
-          'status' => $Status,
-          'option' => $option
-        ];
-      }
+      $hasil[] = [
+        'no' => $no,
+        'no_penawaran' => $item->no_surat,
+        'nama_customer' => strtoupper($item->name_customer),
+        'marketing' => $item->nama_sales,
+        'nilai_penawaran' => number_format($item->nilai_penawaran),
+        'tanggal_penawaran' => date('d-F-Y', strtotime($item->tgl_penawaran)),
+        'revisi' => $item->revisi,
+        'status' => $status_label[(int) $item->status] ?? '',
+        'option' => $option
+      ];
     }
 
     echo json_encode([
-      'draw' => intval($draw),
-      'recordsTotal' => $get_data_all->num_rows(),
-      'recordsFiltered' => $get_data_all->num_rows(),
+      'draw' => $draw,
+      'recordsTotal' => (int) $total,
+      'recordsFiltered' => (int) $filtered,
       'data' => $hasil
     ]);
   }
