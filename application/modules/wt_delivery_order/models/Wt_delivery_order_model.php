@@ -634,8 +634,8 @@ class Wt_delivery_order_model extends BF_Model
       }
     };
 
-    $base(false);
-    $recordsTotal = $this->db->count_all_results();
+    // Total tanpa join: cukup hitung tabel utama.
+    $recordsTotal = $this->db->count_all('tr_delivery_order');
 
     if ($keyword !== '') {
       $base(true);

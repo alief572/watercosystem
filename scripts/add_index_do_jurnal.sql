@@ -6,3 +6,5 @@
 -- tabel terkunci sebentar saat index dibangun (~38 ribu baris, hitungan detik).
 ALTER TABLE tr_delivery_order ADD INDEX idx_created_on (created_on), ALGORITHM=INPLACE, LOCK=NONE;
 ALTER TABLE jurnal ADD INDEX idx_no_reff_jenis (no_reff, jenis_jurnal(50));
+-- Sort default index Jurnal Delivery (tgl_do DESC, created_on DESC, id DESC) tanpa filesort. id (PK) otomatis ikut di InnoDB.
+ALTER TABLE tr_delivery_order ADD INDEX idx_tgl_created (tgl_do, created_on), ALGORITHM=INPLACE, LOCK=NONE;
