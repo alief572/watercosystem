@@ -205,7 +205,9 @@ class Purchase_order extends Admin_Controller
 		$this->load->view('PrintHeader',$data);
 	}
 	public function PrintHeader($id){
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
         $this->auth->restrict($this->managePermission);
         $id = $this->uri->segment(3);
@@ -1362,7 +1364,9 @@ function cari_inven1()
 
     }
 	public function PrintH(){
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
         $this->auth->restrict($this->managePermission);
         $id = $this->uri->segment(3);
@@ -1381,7 +1385,9 @@ function cari_inven1()
 	}
 
 	public function PrintH2(){
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
         $this->auth->restrict($this->managePermission); 
         $id = $this->uri->segment(3);

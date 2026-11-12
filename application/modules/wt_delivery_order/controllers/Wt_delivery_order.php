@@ -430,7 +430,9 @@ class Wt_delivery_order extends Admin_Controller
 
 	public function printSPK($id)
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);

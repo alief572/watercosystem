@@ -1240,7 +1240,9 @@ class Wt_invoicing extends Admin_Controller
 
 	public function PrintInvoice($id)
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -1269,7 +1271,9 @@ class Wt_invoicing extends Admin_Controller
 
 	public function PrintPreviewInvoice()
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -1289,7 +1293,9 @@ class Wt_invoicing extends Admin_Controller
 
 	public function PrintProformaInvoice($id)
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);

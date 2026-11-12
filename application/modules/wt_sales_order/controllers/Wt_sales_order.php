@@ -716,7 +716,10 @@ class Wt_sales_order extends Admin_Controller
 
 	public function PrintSO($id)
 	{
-		ob_clean();
+		error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);

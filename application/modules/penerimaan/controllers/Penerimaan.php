@@ -1280,7 +1280,9 @@ class Penerimaan extends Admin_Controller
 
 	public function print_penerimaan()
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$kd_bayar = $this->uri->segment(3);

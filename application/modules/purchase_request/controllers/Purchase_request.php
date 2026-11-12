@@ -117,7 +117,9 @@ class Purchase_request extends Admin_Controller
 		$this->load->view('PrintHeader',$data);
 	}
 	public function PrintHeader($id){
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
         $this->auth->restrict($this->managePermission);
         $id = $this->uri->segment(3);

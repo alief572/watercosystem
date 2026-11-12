@@ -201,7 +201,9 @@ class Incoming extends Admin_Controller
 	}
 	public function PrintHeader($id)
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);
@@ -1450,7 +1452,9 @@ class Incoming extends Admin_Controller
 	}
 	public function PrintH()
 	{
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
 		$this->auth->restrict($this->managePermission);
 		$id = $this->uri->segment(3);

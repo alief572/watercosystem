@@ -445,7 +445,9 @@ class Stock_material_multi extends Admin_Controller
   		echo json_encode($status);
 	}
 	public function PrintHeader($kategori=null){
-		ob_clean();
+		if (ob_get_level() > 0) {
+			ob_clean();
+		}
 		ob_start();
         $this->auth->restrict($this->managePermission);
 		$where_kategori = "";
