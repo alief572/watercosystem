@@ -8,7 +8,7 @@ $ENABLE_DELETE  = has_permission('Penerimaan.Delete');
 <form action="#" method="POST" id="form_proses_bro" enctype="multipart/form-data">
 	<div class="box box-primary">
 		<div class="box-header">
-			<h3 class="box-title"><?php echo $title; ?></h3>
+			<h3 class="box-title">Indeks Of Receivable</h3>
 			<button class="btn btn-success" type="button" onclick="add_inv()">
 				<i class="fa fa-plus"></i>Buat Penerimaan
 			</button>
@@ -84,7 +84,6 @@ $ENABLE_DELETE  = has_permission('Penerimaan.Delete');
 						</thead>
 						<tbody>
 							<?php
-							$cust = $inv->nm_customer;
 							$invoice = $this->db->query("SELECT * FROM tr_unlocated_bank WHERE saldo !=0 ")->result();
 							if ($invoice) {
 								foreach ($invoice as $ks => $vs) {

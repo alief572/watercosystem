@@ -1,6 +1,9 @@
 <?php
-$inv          =  $this->db->query("SELECT * FROM tr_invoice WHERE no_invoice = '$no_inv' ")->row();
-$alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_customer = '$inv->id_customer'")->row();
+// Form dibuka tanpa invoice terpilih (invoice ditambah lewat tombol Add Invoice), jadi $inv boleh kosong.
+$inv = $this->db->query("SELECT * FROM tr_invoice WHERE no_invoice = ?", [(string) $no_inv])->row() ?: new stdClass();
+$alamat_cust = !empty($inv->id_customer)
+	? $this->db->query("SELECT * FROM master_customers WHERE id_customer = ?", [$inv->id_customer])->row()
+	: null;
 ?>
 <link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
 <form id="form-header-mutasi" method="post">
@@ -19,8 +22,8 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 									?>
 									<label for="tgl_bayar" class="col-sm-4 control-label">Tgl Bayar :</label>
 									<div class="col-sm-6">
-										<input type="hidden" name="no_invoice" id="no_invoice" value="<?php echo $inv->no_invoice ?>" class="form-control input-sm" readonly>
-										<input type="hidden" name="tgl_invoice" id="tgl_invoice" value="<?php echo $inv->tgl_invoice ?>" class="form-control input-sm" readonly>
+										<input type="hidden" name="no_invoice" id="no_invoice" value="<?php echo $inv->no_invoice ?? '' ?>" class="form-control input-sm" readonly>
+										<input type="hidden" name="tgl_invoice" id="tgl_invoice" value="<?php echo $inv->tgl_invoice ?? '' ?>" class="form-control input-sm" readonly>
 										<input type="date" name="tgl_bayar" id="tgl_bayar" class="form-control input-sm tanggal" value="<?php echo date('Y-m-d') ?>">
 									</div>
 								</div>
@@ -29,7 +32,7 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 								<div hidden class="form-group">
 									<label for="alamat" class="col-sm-4 control-label">Alamat Customer </font></label>
 									<div hidden class="col-sm-6">
-										<textarea name="alamatcustomer" class="form-control input-sm" id="alamat" height=100 readonly><?php echo $alamat_cust->alamat ?></textarea>
+										<textarea name="alamatcustomer" class="form-control input-sm" id="alamat" height=100 readonly><?php echo $alamat_cust->alamat ?? '' ?></textarea>
 									</div>
 								</div>
 							</div>
@@ -48,7 +51,7 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
                               <div class="col-sm-6">
                                     <select id="jenis_invoice" name="jenis_invoice" class="form-control input-sm" style="width: 100%;" tabindex="-1" required readonly>
                                     <?php
-									$jenis = $inv->jenis_invoice;
+									$jenis = $inv->jenis_invoice ?? '';
 									?>
 									<option value="TR-01" <?php echo ($jenis == 'TR-01') ? "selected" : "" ?>>Uang Muka</option>
 									<option value="TR-02"  <?php echo ($jenis == 'TR-02') ? "selected" : "" ?>>Progress</option>
@@ -88,8 +91,8 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 												<option value="<?php echo $cs->id_customer ?>"><?php echo $cs->nm_customer ?></option>
 											<?php } ?>
 										</select>
-										<input type="hidden" name="id_customer" id="id_customer" class="form-control input-sm" value="<?php echo $inv->id_customer ?>" readonly>
-										<input type="hidden" name="nm_customer" id="nm_customer" class="form-control input-sm" value="<?php echo $inv->nm_customer ?>" readonly>
+										<input type="hidden" name="id_customer" id="id_customer" class="form-control input-sm" value="<?php echo $inv->id_customer ?? '' ?>" readonly>
+										<input type="hidden" name="nm_customer" id="nm_customer" class="form-control input-sm" value="<?php echo $inv->nm_customer ?? '' ?>" readonly>
 									</div>
 								</div>
 							</div>
@@ -181,14 +184,14 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 						<div class="form-group ">
 							<label class="col-sm-4 control-label">Total Bayar Invoice</label>
 							<div class="col-sm-6">
-								<input type="text" name="total_invoice" class="form-control input-sm divide" id="total_invoice" value="<?= number_format($inv->sisa_invoice_idr) ?>" readonly tabindex="-1" onchange="cekall()">
+								<input type="text" name="total_invoice" class="form-control input-sm divide" id="total_invoice" value="<?= number_format((float) ($inv->sisa_invoice_idr ?? 0)) ?>" readonly tabindex="-1" onchange="cekall()">
 							</div>
 						</div>
 						<!--<div class="form-group ">
                             <label class="col-sm-4 control-label">Total Piutang </label>
                             <div class="col-sm-6">
                               <?php
-								$totpiutang = $inv->total_invoice - $inv->total_bayar;
+								$totpiutang = (float) ($inv->nilai_invoice ?? 0) - (float) ($inv->total_bayar_idr ?? 0);
 								?>
                               <input type="text" name="total_piutang" class="form-control input-sm" id="total_piutang" value="<?php echo  number_format($totpiutang, 2) ?>" readonly>
                             </div>
@@ -196,7 +199,7 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 						<div class="form-group ">
 							<label class="col-sm-4 control-label">Selisih</label>
 							<div class="col-sm-6">
-								<input type="text" name="selisih" class="form-control input-sm divide" id="selisih" value="<?= number_format($inv->selisih) ?>" readonly tabindex="-1">
+								<input type="text" name="selisih" class="form-control input-sm divide" id="selisih" value="<?= number_format((float) ($inv->selisih ?? 0)) ?>" readonly tabindex="-1">
 							</div>
 						</div>
 						<div class="form-group ">
@@ -284,8 +287,8 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 						</thead>
 						<tbody>
 							<?php
-							$cust = $inv->id_customer;
-							$invoice = $this->db->query("SELECT * FROM tr_invoice WHERE id_customer ='$cust'")->result();
+							$cust = $inv->id_customer ?? '';
+							$invoice = $cust === '' ? [] : $this->db->query("SELECT a.*, b.name_customer AS nm_customer FROM tr_invoice a JOIN master_customers b ON b.id_customer = a.id_customer WHERE a.id_customer = ?", [$cust])->result();
 							if ($invoice) {
 								foreach ($invoice as $ks => $vs) {
 							?>
@@ -302,7 +305,7 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 										</td>
 										<td>
 											<center>
-												<button id="btn-<?php echo $vs->no_invoice ?>" class="btn btn-warning btn-sm" type="button" onclick="startmutasi('<?php echo $vs->no_invoice ?>','<?php echo $vs->nm_customer ?>','<?php echo $vs->total_invoice_idr ?>','<?php echo $vs->sisa_invoice_idr ?>')">
+												<button id="btn-<?php echo $vs->no_invoice ?>" class="btn btn-warning btn-sm" type="button" onclick="startmutasi('<?php echo $vs->no_invoice ?>','<?php echo $vs->no_surat ?>','<?php echo addslashes($vs->nm_customer) ?>','<?php echo $vs->nilai_invoice ?>','<?php echo $vs->sisa_invoice_idr ?>')">
 													Pilih
 												</button>
 											</center>
@@ -343,7 +346,6 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 						</thead>
 						<tbody>
 							<?php
-							$cust = $inv->id_customer;
 							$invoice = $this->db->query("SELECT * FROM tr_unlocated_bank WHERE saldo > 0 ")->result();
 							if ($invoice) {
 								foreach ($invoice as $ks => $vs) {
@@ -648,21 +650,40 @@ $alamat_cust =  $this->db->query("SELECT * FROM master_customers WHERE id_custom
 					'</div></center></td>' +
 					'</tr>';
 				$("#tabel-detail-mutasi").append(html);
-				$("#btn-" + id).removeClass('btn-warning');
-				$("#btn-" + id).addClass('btn-danger');
-				$("#btn-" + id).attr('disabled', true);
-				$("#btn-" + id).text('Sudah');
 				sumchangebayar();
+				markTerpilih();
+			} else {
+				swal({
+					title: "Invoice sudah dipilih",
+					text: "Hapus dulu dari daftar jika ingin memilih ulang.",
+					type: "warning",
+					timer: 3000,
+					showConfirmButton: false
+				});
+				markTerpilih();
 			}
+		}
+
+		// Invoice dianggap terpilih selama barisnya masih ada di daftar; hapus baris = bisa dipilih lagi.
+		function terpilih(id) {
+			return $('#tabel-detail-mutasi input.kode-produk').filter(function() {
+				return $(this).val() === id;
+			}).length > 0;
+		}
+
+		// Sinkronkan status tombol Pilih di modal List Invoice dengan daftar invoice yang sudah dipilih.
+		function markTerpilih() {
+			$('.btn-pilih-inv').each(function() {
+				var b = $(this);
+				var on = terpilih(b.attr('data-id'));
+				b.toggleClass('btn-danger', on).toggleClass('btn-warning', !on).prop('disabled', on).text(on ? 'Sudah' : 'Pilih');
+			});
 		}
 
 		function deleterow(tr, id) {
 			$('#tr_' + tr).remove();
-			$("#btn-" + id).removeClass('btn-danger');
-			$("#btn-" + id).addClass('btn-warning');
-			$("#btn-" + id).attr('disabled', false);
-			$("#btn-" + id).text('Pilih');
 			sumchangebayar();
+			markTerpilih();
 		}
 
 		//ARWANT

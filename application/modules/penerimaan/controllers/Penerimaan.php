@@ -28,8 +28,6 @@ class Penerimaan extends Admin_Controller
 	public function index()
 	{
 		$this->template->page_icon('fa fa-list');
-		$data = $this->penerimaan_model->get_data_pn();
-		$this->template->set('results', $data);
 		$this->template->title('Indeks Of Receivable');
 		$this->template->render('list_payment');
 	}
@@ -939,13 +937,18 @@ class Penerimaan extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-pencil');
-		$invoice = $this->db->query("SELECT * FROM tr_invoice WHERE id_customer ='$customer' AND sisa_invoice_idr >'0' AND deleted_by IS NULL")->result();
 		$data = [
 			'detail' => $customer
 		];
 		$this->template->set('results', $data);
 		$this->template->title('List Invoice');
 		$this->template->render('invoice');
+	}
+
+	public function get_data_invoice_modal()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->penerimaan_model->get_data_invoice_modal($this->input->post('id_customer'));
 	}
 
 	public function TambahInvoice_np()

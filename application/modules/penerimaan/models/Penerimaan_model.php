@@ -16,7 +16,7 @@ class Penerimaan_model extends BF_Model
 	{
 
 		// $id    = $this->uri->segment(3);
-		$getInv = $this->db->query("SELECT * FROM tr_invoice WHERE no_invoice='$id'")->row();
+		$getInv = $this->db->query("SELECT * FROM tr_invoice WHERE no_invoice = ?", [(string) $id])->row();
 
 		$Cust = $this->db->query("SELECT a.id_customer,b.name_customer as nm_customer  FROM tr_invoice a
 											INNER JOIN master_customers b on a.id_customer=b.id_customer GROUP BY a.id_customer")->result();
@@ -92,6 +92,92 @@ class Penerimaan_model extends BF_Model
 	}
 
 	//SERVER SIDE
+	/** Query dasar modal List Invoice: invoice customer yang masih punya sisa. */
+	private function _invoice_modal_base($id_customer, $keyword)
+	{
+		$this->db->from('tr_invoice a');
+		$this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+		$this->db->where('a.id_customer', $id_customer);
+		$this->db->where('a.sisa_invoice_idr >', 0);
+		$this->db->where('a.deleted_by IS NULL');
+		if ($keyword !== '') {
+			$this->db->group_start();
+			$this->db->like('a.no_invoice', $keyword, 'both');
+			$this->db->or_like('a.no_surat', $keyword, 'both');
+			$this->db->or_like('b.name_customer', $keyword, 'both');
+			$this->db->group_end();
+		}
+	}
+
+	/** DataTable serverside untuk modal List Invoice (Add Invoice di form Penerimaan). */
+	public function get_data_invoice_modal($id_customer)
+	{
+		$draw = (int) $this->input->post('draw');
+		$start = max(0, (int) $this->input->post('start'));
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$keyword = trim((string) ($search['value'] ?? ''));
+		$id_customer = (string) $id_customer;
+
+		$this->_invoice_modal_base($id_customer, '');
+		$recordsTotal = $this->db->count_all_results();
+		if ($keyword !== '') {
+			$this->_invoice_modal_base($id_customer, $keyword);
+			$recordsFiltered = $this->db->count_all_results();
+		} else {
+			$recordsFiltered = $recordsTotal;
+		}
+
+		$columns = [
+			0 => 'a.no_invoice',
+			1 => 'a.no_surat',
+			2 => 'b.name_customer',
+			3 => 'a.nilai_invoice',
+			4 => 'a.sisa_invoice_idr',
+		];
+		$order = $this->input->post('order');
+		$col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+		$dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+		$this->db->select('a.no_invoice, a.no_surat, a.nilai_invoice, a.sisa_invoice_idr, a.printed_on, b.name_customer');
+		$this->_invoice_modal_base($id_customer, $keyword);
+		$this->db->order_by($columns[$col] ?? 'a.no_invoice', isset($columns[$col]) ? $dir : 'DESC');
+		$this->db->order_by('a.id', 'DESC');
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+		$rows = $this->db->get()->result();
+
+		$hasil = [];
+		foreach ($rows as $r) {
+			if (empty($r->printed_on)) {
+				$aksi = 'Belum cetak invoice';
+			} else {
+				$aksi = '<center><button type="button" class="btn btn-warning btn-sm btn-pilih-inv"'
+					. ' data-id="' . htmlspecialchars((string) $r->no_invoice, ENT_QUOTES) . '"'
+					. ' data-surat="' . htmlspecialchars((string) $r->no_surat, ENT_QUOTES) . '"'
+					. ' data-nm="' . htmlspecialchars((string) $r->name_customer, ENT_QUOTES) . '"'
+					. ' data-total="' . htmlspecialchars((string) $r->nilai_invoice, ENT_QUOTES) . '"'
+					. ' data-sisa="' . htmlspecialchars((string) $r->sisa_invoice_idr, ENT_QUOTES) . '">Pilih</button></center>';
+			}
+			$hasil[] = [
+				'code' => htmlspecialchars((string) $r->no_invoice),
+				'no_surat' => htmlspecialchars((string) $r->no_surat),
+				'customer' => '<center>' . htmlspecialchars((string) $r->name_customer) . '</center>',
+				'total' => '<center>' . number_format((float) $r->nilai_invoice) . '</center>',
+				'sisa' => '<center>' . number_format((float) $r->sisa_invoice_idr) . '</center>',
+				'aksi' => $aksi,
+			];
+		}
+
+		echo json_encode([
+			'draw' => $draw,
+			'recordsTotal' => (int) $recordsTotal,
+			'recordsFiltered' => (int) $recordsFiltered,
+			'data' => $hasil,
+		]);
+	}
+
 	public function get_data_json_inv()
 	{
 
