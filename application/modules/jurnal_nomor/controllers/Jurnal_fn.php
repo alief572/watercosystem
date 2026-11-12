@@ -1367,57 +1367,37 @@ class Jurnal_fn extends CI_Controller
 
     function jurnal_penerimaan_np()
     {
-        //JURNAL PENERIMAAN
+        //JURNAL PENERIMAAN NON PRODUK
         //TERJADI SAAT CREATE PENERIMAAN
 
         $id        = $this->uri->segment(4);
         $kodejurnal = $this->uri->segment(5);
         $ket = $this->uri->segment(6);
         $kd_bayar = $id;
-        // print_r($kd_bayar);
-        // exit;
-
         $no_request = $id;
-        $data_bayar =  $this->db->query("SELECT * FROM tr_invoice_np_payment WHERE kd_pembayaran = '$kd_bayar' ")->row();
-
-        $tgl_byr             = $data_bayar->tgl_pembayaran;
-        $kd_invoice        = $data_bayar->no_invoice;
-        $kd_bank             = $data_bayar->kd_bank;
-        $jenis_pph         = $data_bayar->jenis_pph;
-        $nama                = addslashes($data_bayar->nm_customer);
-        // print_r($nama);
-        // exit;
-        $jmlpph            = $data_bayar->biaya_pph_idr;
-
-        $id_cust =  $this->db->query("SELECT * FROM master_customers WHERE name_customer LIKE '%$nama%'")->row();
-
-        if (!empty($id_cust)) {
-            $idcust  = $id_cust->id_customer;
-        } else {
-            $idcust  = '-';
+        $data_bayar = $this->db->query("SELECT * FROM tr_invoice_np_payment WHERE kd_pembayaran = ?", [$kd_bayar])->row();
+        if (!$data_bayar) {
+            echo "<div class='alert alert-danger'>Penerimaan tidak ditemukan.</div>";
+            return;
         }
 
+        $tgl_byr             = $data_bayar->tgl_pembayaran;
+        $kd_bank             = $data_bayar->kd_bank;
+        $nama                = $data_bayar->nm_customer;
 
+        // id_customer di tabel NP kosong pada data lama, jadi customer dicari lewat nama.
+        $id_cust = $this->db->query("SELECT id_customer FROM master_customers WHERE name_customer LIKE ?", ['%' . $nama . '%'])->row();
+        $idcust = !empty($id_cust) ? $id_cust->id_customer : '-';
 
         $No_Inv  = $kd_bayar;
         $Tgl_Inv = $tgl_byr;
-        $Bln             = substr($Tgl_Inv, 6, 2);
-        $Thn             = substr($Tgl_Inv, 0, 4);
-        $bulan_bayar = date("n", strtotime($Tgl_Inv));
-        $tahun_bayar = date("Y", strtotime($Tgl_Inv));
         $keterangan_byr  = $data_bayar->keterangan;
         $jumlah_total    = round($data_bayar->jumlah_pembayaran_idr);
         $jumlah_terima   = round($data_bayar->jumlah_bank_idr);
         $biaya_admin     = round($data_bayar->biaya_admin_idr);
-        $biaya_lain     = round($data_bayar->biaya_pph_idr);
         $deposit         = round($data_bayar->tambah_lebih_bayar);
 
-
-        $jenis_reff      = $kd_bayar;
-        $no_reff         = $kd_bayar;
-
         $Keterangan_INV            = 'Penerimaan A/N ' . $nama . ' Kode Pembayaran. ' . $No_Inv . ',' . $keterangan_byr;
-
 
         $det_Jurnal                = array();
         $det_Jurnal[]            = array(
@@ -1435,6 +1415,7 @@ class Jurnal_fn extends CI_Controller
         );
 
         if ($biaya_admin != 0) {
+            // Pada jurnal NP biaya admin ada di sisi kredit (berbeda dari jurnal produk). Perilaku lama dipertahankan.
             $det_Jurnal[]            = array(
                 'nomor'         => '',
                 'tanggal'       => $Tgl_Inv,
@@ -1449,7 +1430,6 @@ class Jurnal_fn extends CI_Controller
 
             );
         }
-        $kd_deposit = '2101-07-01';
         if ($deposit != 0) {
             $det_Jurnal[]            = array(
                 'nomor'         => '',
@@ -1466,19 +1446,15 @@ class Jurnal_fn extends CI_Controller
             );
         }
 
-
-
-        $data_jurnal = $this->db->query("SELECT * FROM tr_invoice_np_payment_detail WHERE kd_pembayaran = '$kd_bayar' ")->result();
-
+        $data_jurnal = $this->db->query("SELECT * FROM tr_invoice_np_payment_detail WHERE kd_pembayaran = ?", [$kd_bayar])->result();
 
         foreach ($data_jurnal as $jr) {
             $jmlbayar   = $jr->total_bayar_idr;
             $invoice2    = $jr->no_invoice;
 
-            $surat  =  $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_invoice = '$invoice2'")->row();
+            $surat  = $this->db->query("SELECT no_invoice FROM tr_invoice_np_header WHERE id_invoice = ?", [$invoice2])->row();
 
-            $Keterangan_            = 'INVOICE A/N ' . $nama . ' INV NO. ' . $invoice2 . ', ' . $surat->no_invoice;
-
+            $Keterangan_            = 'INVOICE A/N ' . $nama . ' INV NO. ' . $invoice2 . ', ' . ($surat->no_invoice ?? '');
 
             $det_Jurnal[]              = array(
                 'nomor'         => '',
@@ -1494,20 +1470,15 @@ class Jurnal_fn extends CI_Controller
             );
         }
 
-
         $this->db->where('no_reff', $id);
         $this->db->where('jenis_jurnal', $ket);
         $this->db->delete('jurnal');
 
         $this->db->insert_batch('jurnal', $det_Jurnal);
 
-
         $noreff     = $id;
         $tipe        = 'BUM';
         $jenisjurnal = $ket;
-
-        //  print_r($noreff);
-        //  exit;
 
         $data['list_data']         = $this->Jurnal_model->get_detail_jurnal($noreff, $tipe, $jenisjurnal);
 
@@ -1521,5 +1492,134 @@ class Jurnal_fn extends CI_Controller
         $data['nama_vendor']    = $nama;
         $data['no_surat']        = $No_Inv;
         $this->load->view("v_detail_jurnal", $data);
+    }
+
+    public function save_jurnal_bum_np()
+    {
+        $this->auth->restrict('Penerimaan.Manage');
+        $session     = $this->session->userdata('app_session');
+
+        $tgl_inv     = $this->input->post('tgl_jurnal[0]');
+        $keterangan  = $this->input->post('keterangan[0]');
+        $reff        = $this->input->post('reff[0]');
+        $total       = round((float) $this->input->post('total'));
+        $id_vendor   = $this->input->post('vendor_id');
+        $nama_vendor = $this->input->post('vendor_nm');
+
+        $types       = (array) $this->input->post('type');
+        $tgl_list    = (array) $this->input->post('tgl_jurnal');
+        $coa_list    = (array) $this->input->post('no_coa');
+        $ket_list    = (array) $this->input->post('keterangan');
+        $reff_list   = (array) $this->input->post('reff');
+        $jj_list     = (array) $this->input->post('jenisjurnal');
+        $debet_list  = (array) $this->input->post('debet');
+        $kredit_list = (array) $this->input->post('kredit');
+
+        if (empty($reff) || empty($types) || empty($tgl_inv)) {
+            echo json_encode(['save' => 0, 'msg' => 'Data jurnal tidak lengkap.']);
+            return;
+        }
+
+        $this->db->trans_begin();
+
+        // Kunci baris penerimaan NP lalu cek belum dijurnal (anti jurnal ganda).
+        $pn = $this->db->query("SELECT status_jurnal FROM tr_invoice_np_payment WHERE kd_pembayaran = ? FOR UPDATE", [$reff])->row();
+        if (!$pn) {
+            $this->db->trans_rollback();
+            echo json_encode(['save' => 0, 'msg' => 'Penerimaan tidak ditemukan.']);
+            return;
+        }
+        if ($pn->status_jurnal !== '0') {
+            $this->db->trans_rollback();
+            echo json_encode(['save' => 0, 'msg' => 'Jurnal penerimaan ini sudah pernah disimpan.']);
+            return;
+        }
+        // Data lama: status_jurnal NP tidak pernah diubah, jadi jurnal BUM final yang tidak batal juga dianggap sudah dijurnal.
+        $sudah = $this->db->query(
+            "SELECT 1 AS ada FROM " . DBACC . ".jarh WHERE kd_pembayaran = ? AND COALESCE(batal, '0') <> '1' LIMIT 1",
+            [$reff]
+        )->row();
+        if ($sudah) {
+            $this->db->trans_rollback();
+            echo json_encode(['save' => 0, 'msg' => 'Penerimaan ini sudah punya jurnal BUM.']);
+            return;
+        }
+
+        ## NOMOR BUM ##
+        $Nomor_BUM = $this->Jurnal_model->get_Nomor_Jurnal_BUM('101', $tgl_inv);
+
+        $dataJARH = array(
+            'nomor'             => $Nomor_BUM,
+            'kd_pembayaran'     => $reff,
+            'tgl'               => $tgl_inv,
+            'jml'               => $total,
+            'kdcab'             => '101',
+            'jenis_reff'        => $reff,
+            'no_reff'           => $reff,
+            'customer'          => $nama_vendor,
+            'terima_dari'       => '-',
+            'jenis_ar'          => 'V',
+            'note'              => $keterangan,
+            'valid'             => $session['id_user'],
+            'tgl_valid'         => $tgl_inv,
+            'user_id'           => $session['id_user'],
+            'tgl_invoice'       => $tgl_inv,
+            'ho_valid'          => '',
+            'batal'             => '0'
+        );
+
+        foreach ($types as $i => $tipe) {
+            $perkiraan   = $coa_list[$i] ?? '';
+            $noreff      = $reff_list[$i] ?? $reff;
+            $jenisjurnal = $jj_list[$i] ?? '';
+            $tgl_baris   = $tgl_list[$i] ?? $tgl_inv;
+            $ket_baris   = $ket_list[$i] ?? '';
+            $debet       = round((float) ($debet_list[$i] ?? 0));
+            $kredit      = round((float) ($kredit_list[$i] ?? 0));
+
+            $this->db->insert(DBACC . '.jurnal', array(
+                'tipe'            => $tipe,
+                'nomor'           => $Nomor_BUM,
+                'tanggal'         => $tgl_baris,
+                'no_perkiraan'    => $perkiraan,
+                'keterangan'      => $ket_baris,
+                'no_reff'         => $noreff,
+                'debet'           => $debet,
+                'kredit'          => $kredit
+            ));
+
+            if ($perkiraan == '1104-01-01' || $perkiraan == '2101-08-01') {
+                $this->db->insert('tr_kartu_piutang', array(
+                    'tipe'            => 'BUM',
+                    'nomor'           => $Nomor_BUM,
+                    'tanggal'         => $tgl_baris,
+                    'no_perkiraan'    => $perkiraan,
+                    'keterangan'      => $ket_baris,
+                    'no_reff'         => $noreff,
+                    'debet'           => $debet,
+                    'kredit'          => $kredit,
+                    'id_supplier'     => $id_vendor,
+                    'nama_supplier'   => $nama_vendor,
+                ));
+            }
+
+            $this->db->query(
+                "UPDATE jurnal SET stspos=1 WHERE tipe = ? AND jenis_jurnal = ? AND no_reff = ?",
+                [$tipe, $jenisjurnal, $noreff]
+            );
+        }
+
+        ## INSERT JURNAL ##
+        $this->db->insert(DBACC . '.jarh', $dataJARH);
+        $this->db->query("UPDATE " . DBACC . ".pastibisa_tb_cabang SET nobum=nobum + 1 WHERE nocab='101'");
+        $this->db->query("UPDATE tr_invoice_np_payment SET status_jurnal='1' WHERE kd_pembayaran = ?", [$reff]);
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            echo json_encode(['save' => 0, 'msg' => 'GAGAL, simpan data..!!!']);
+            return;
+        }
+        $this->db->trans_commit();
+        echo json_encode(['save' => 1, 'msg' => 'SUKSES, simpan data..!!!']);
     }
 }

@@ -174,6 +174,8 @@ if ($data_perkiraan) {
 				var link = "jurnal_nomor/jurnal_fn/save_jurnal_invoicing";
 			} else if (jenis_jurnal == 'jurnalpenerimaan') {
 				var link = "jurnal_nomor/jurnal_fn/save_jurnal_bum";
+			} else if (jenis_jurnal == 'jurnalpenerimaannp') {
+				var link = "jurnal_nomor/jurnal_fn/save_jurnal_bum_np";
 			} else if (jenis_jurnal == 'jurnalrevenue') {
 				var link = "jurnal_nomor/jurnal_fn/save_jurnal_revenue";
 			} else if (jenis_jurnal == 'jurnalhutang') {
