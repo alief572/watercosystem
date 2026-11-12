@@ -1032,10 +1032,14 @@ class Penerimaan extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-list');
-		$data = $this->penerimaan_model->get_data_pn_jurnal();
-		$this->template->set('results', $data);
 		$this->template->title('Jurnal Penerimaan');
 		$this->template->render('index_jurnal_penerimaan');
+	}
+
+	public function get_data_jurnal_bum()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->penerimaan_model->get_data_pn_jurnal_serverside(has_permission('Penerimaan.Manage'));
 	}
 
 

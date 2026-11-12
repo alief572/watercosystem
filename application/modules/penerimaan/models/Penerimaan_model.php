@@ -538,6 +538,106 @@ class Penerimaan_model extends BF_Model
 		return $query->result();
 	}
 
+	/**
+	 * DataTable serverside untuk index Jurnal Penerimaan (jurnal_bum): penerimaan yang belum dijurnal.
+	 * invoiced/totalinvoiced setara view_tr_invoice_payment (detail JOIN tr_invoice), dihitung hanya untuk baris halaman.
+	 */
+	public function get_data_pn_jurnal_serverside($can_manage)
+	{
+		$draw = (int) $this->input->post('draw');
+		$start = max(0, (int) $this->input->post('start'));
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$keyword = trim((string) ($search['value'] ?? ''));
+
+		$base = function ($with_search) use ($keyword) {
+			$this->db->from('tr_invoice_payment a');
+			$this->db->where('a.status_jurnal', '0');
+			if ($with_search && $keyword !== '') {
+				$this->db->group_start();
+				$this->db->like('a.kd_pembayaran', $keyword, 'both');
+				$this->db->or_like('a.nm_customer', $keyword, 'both');
+				$this->db->or_like('a.keterangan', $keyword, 'both');
+				$this->db->group_end();
+			}
+		};
+
+		$base(false);
+		$recordsTotal = $this->db->count_all_results();
+		if ($keyword !== '') {
+			$base(true);
+			$recordsFiltered = $this->db->count_all_results();
+		} else {
+			$recordsFiltered = $recordsTotal;
+		}
+
+		$sub = "(SELECT %s FROM tr_invoice_payment_detail d JOIN tr_invoice i ON i.no_invoice = d.no_invoice WHERE d.kd_pembayaran = a.kd_pembayaran)";
+		$sub_invoiced = sprintf($sub, "GROUP_CONCAT(i.no_surat SEPARATOR ',')");
+		$sub_total = sprintf($sub, 'SUM(d.total_bayar_idr)');
+
+		$columns = [
+			1 => 'a.tgl_pembayaran',
+			2 => 'a.kd_pembayaran',
+			3 => 'a.nm_customer',
+			4 => 'a.keterangan',
+			5 => 'invoiced',
+			6 => 'totalinvoiced',
+			7 => 'a.biaya_pph_idr',
+			8 => 'a.biaya_admin_idr',
+			9 => 'a.tambah_lebih_bayar',
+			10 => 'a.jumlah_pembayaran_idr',
+		];
+		$order = $this->input->post('order');
+		$col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+		$dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+		$this->db->select('a.kd_pembayaran, a.tgl_pembayaran, a.nm_customer, a.keterangan, a.biaya_pph_idr, a.biaya_admin_idr, a.tambah_lebih_bayar, a.jumlah_pembayaran_idr');
+		$this->db->select($sub_invoiced . ' AS invoiced', false);
+		$this->db->select($sub_total . ' AS totalinvoiced', false);
+		$base(true);
+		if (isset($columns[$col])) {
+			$this->db->order_by($columns[$col], $dir, false);
+		} else {
+			$this->db->order_by('a.tgl_pembayaran', 'DESC');
+		}
+		$this->db->order_by('a.id', 'DESC');
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+		$rows = $this->db->get()->result();
+
+		$hasil = [];
+		$no = $start;
+		foreach ($rows as $r) {
+			$no++;
+			$action = '';
+			if ($can_manage) {
+				$action = '<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="' . htmlspecialchars((string) $r->kd_pembayaran, ENT_QUOTES) . '"><i class="fa fa-check"></i></a>';
+			}
+			$hasil[] = [
+				'no' => $no,
+				'tgl' => !empty($r->tgl_pembayaran) ? date('d-F-Y', strtotime($r->tgl_pembayaran)) : '-',
+				'kode' => htmlspecialchars((string) $r->kd_pembayaran),
+				'customer' => htmlspecialchars((string) $r->nm_customer),
+				'keterangan' => htmlspecialchars((string) $r->keterangan),
+				'invoice' => htmlspecialchars((string) $r->invoiced),
+				'total_invoice' => number_format((float) $r->totalinvoiced),
+				'pph' => number_format((float) $r->biaya_pph_idr),
+				'admin' => number_format((float) $r->biaya_admin_idr),
+				'lebih_bayar' => number_format((float) $r->tambah_lebih_bayar),
+				'total' => number_format((float) $r->jumlah_pembayaran_idr),
+				'action' => $action,
+			];
+		}
+
+		echo json_encode([
+			'draw' => $draw,
+			'recordsTotal' => (int) $recordsTotal,
+			'recordsFiltered' => (int) $recordsFiltered,
+			'data' => $hasil,
+		]);
+	}
+
 	public function get_data_pn_jurnal()
 	{
 

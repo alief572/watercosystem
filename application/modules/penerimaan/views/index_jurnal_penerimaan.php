@@ -20,7 +20,7 @@ width: 85%;
 
 <div class="box">
 		<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_jurnal_bum" class="table table-bordered table-striped" width="100%">
 		<thead>
 					<tr class='bg-blue'>
 						<th class="text-center" width='4%'>No</th>
@@ -37,38 +37,7 @@ width: 85%;
 						<th width='7%'>Option</th>
 					</tr>
 				</thead>
-				<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-
-				$tanggal = $record->tgl_pembayaran;
-			?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?=  date('d-F-Y', strtotime($record->tgl_pembayaran)) ?></td>
-			<td><?= $record->kd_pembayaran ?></td>			
-			<td><?= $record->nm_customer ?></td>
-			<td><?= $record->keterangan ?></td>
-			<td><?= $record->invoiced ?></td>
-			<td><?= number_format($record->totalinvoiced) ?></td>
-			<td><?= number_format($record->biaya_pph_idr) ?></td>
-			<td><?= number_format($record->biaya_admin_idr) ?></td>
-			<td><?= number_format($record->tambah_lebih_bayar) ?></td>
-			<td><?= number_format($record->jumlah_pembayaran_idr) ?></td>
-			
-         	<td style="padding-left:20px">
-             <?php if($ENABLE_MANAGE) : ?>
-			    <a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="<?=$record->kd_pembayaran?>"><i class="fa fa-check"></i>
-				</a>
-			<?php endif; ?>
-			</td>
-		</tr>
-		<?php 	 }
-				}
-			  ?>
-		</tbody>
+				<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -140,6 +109,29 @@ width: 85%;
 
 <!-- page script -->
 <script type="text/javascript">
+
+	$(function() {
+		// Header selalu punya 12 kolom (Option kosong bila tanpa izin Manage), jadi columns juga 12.
+		$('#tbl_jurnal_bum').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: { url: siteurl + 'penerimaan/get_data_jurnal_bum', type: 'POST' },
+			columns: [
+				{ data: 'no' }, { data: 'tgl' }, { data: 'kode' }, { data: 'customer' }, { data: 'keterangan' },
+				{ data: 'invoice' }, { data: 'total_invoice', className: 'text-right' }, { data: 'pph', className: 'text-right' },
+				{ data: 'admin', className: 'text-right' }, { data: 'lebih_bayar', className: 'text-right' },
+				{ data: 'total', className: 'text-right' }, { data: 'action' }
+			],
+			columnDefs: [{ orderable: false, targets: [0, 11] }]
+		});
+
+		// Setelah modal jurnal ditutup, muat ulang tabel supaya penerimaan yang sudah dijurnal hilang.
+		$('#dialog-popup').on('hidden.bs.modal', function() {
+			$('#tbl_jurnal_bum').DataTable().ajax.reload(null, false);
+		});
+	});
 
 	$(document).on('click', '.edit', function(e){
 		var id = $(this).data('no_penawaran');
