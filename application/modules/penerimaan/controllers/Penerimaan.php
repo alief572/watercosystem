@@ -35,10 +35,26 @@ class Penerimaan extends Admin_Controller
 	public function index_np()
 	{
 		$this->template->page_icon('fa fa-list');
-		$data = $this->penerimaan_model->get_data_pn_np();
-		$this->template->set('results', $data);
 		$this->template->title('Indeks Of Receivable');
 		$this->template->render('list_payment_np');
+	}
+
+	public function get_data_np()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->penerimaan_model->get_data_pn_np_serverside(has_permission('Penerimaan.Manage'));
+	}
+
+	public function get_data_invoice_np_modal()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->penerimaan_model->get_data_invoice_np_modal($this->input->post('id_customer'));
+	}
+
+	public function view_penerimaan_np()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->load->view('view_penerimaan_np', ['kodebayar' => (string) $this->uri->segment(3)]);
 	}
 
 	public function penerimaan_buktipotong($kd_bayar)
@@ -957,7 +973,6 @@ class Penerimaan extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-pencil');
-		$invoice = $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_customer ='$customer' AND sisa_invoice_idr >'0'")->result();
 		$data = [
 			'detail' => $customer
 		];
@@ -1279,10 +1294,14 @@ class Penerimaan extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-list');
-		$data = $this->penerimaan_model->get_data_pn_jurnal_np();
-		$this->template->set('results', $data);
 		$this->template->title('Jurnal Penerimaan');
 		$this->template->render('index_jurnal_penerimaan_np');
+	}
+
+	public function get_data_jurnal_bum_np()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->penerimaan_model->get_data_pn_jurnal_np_serverside(has_permission('Penerimaan.Manage'));
 	}
 
 	public function print_penerimaan()

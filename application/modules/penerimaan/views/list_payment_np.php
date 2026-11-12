@@ -7,7 +7,7 @@
 <form action="#" method="POST" id="form_proses_bro" enctype="multipart/form-data"> 
 	<div class="box box-primary">
 		<div class="box-header">
-			<h3 class="box-title"><?php echo $title;?></h3>
+			<h3 class="box-title">Indeks Of Receivable</h3>
 				<button class="btn btn-success" type="button" onclick="add_inv()">
 					<i class="fa fa-plus"></i>Buat Penerimaan Non Produk
 				</button>
@@ -19,7 +19,7 @@
 				</button>-->
 		</div>
 		<div class="box-body">
-			<table class="table table-bordered table-striped" id="example1" width='100%'> 
+			<table class="table table-bordered table-striped" id="tbl_penerimaan_np" width="100%">
 				<thead>
 					<tr class='bg-blue'>
 						<th class="text-center" width='4%'>No</th>
@@ -34,38 +34,7 @@
 						<th class="text-center" width='7%'>Option</th>
 					</tr>
 				</thead>
-				<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-
-				$tanggal = $record->tgl_pembayaran;
-				$coa = $record->kd_bank;
-				
-				$nmbank =$this->db->query("SELECT nama FROM gl_waterco_dev.coa_master WHERE no_perkiraan='$coa'")->row()
-			?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?=  date('d-F-Y', strtotime($record->tgl_pembayaran)) ?></td>
-			<td><?= $record->kd_pembayaran ?></td>			
-			<td><?= $record->nm_customer ?></td>
-			<td><?= $record->keterangan ?></td>
-			<td><?= $nmbank->nama ?></td>
-			<td align="right"><?= number_format($record->biaya_pph_idr) ?></td>
-			<td align="right"><?= number_format($record->biaya_admin_idr) ?></td>
-			<td align="right"><?= number_format($record->jumlah_pembayaran_idr) ?></td>
-         	<td style="padding-left:20px">
-			<?php if($ENABLE_MANAGE) : ?>
-				<button class='btn btn-sm btn-warning detail' title='View' data-id_bq='<?=$record->kd_pembayaran?>'><i class='fa fa-eye'></i></button>
-				
-			<?php endif; ?>
-			
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+				<tbody></tbody>
 			</table>
 		</div>
 		<!-- /.box-body -->
@@ -139,7 +108,20 @@
 <script>
 	$(document).ready(function(){
 		$('#spinnerx').hide();
-		DataTables();
+		// Header selalu 10 kolom (Option kosong bila tanpa izin Manage), jadi columns juga 10.
+		$('#tbl_penerimaan_np').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: { url: siteurl + 'penerimaan/get_data_np', type: 'POST' },
+			columns: [
+				{ data: 'no' }, { data: 'tgl' }, { data: 'kode' }, { data: 'customer' }, { data: 'keterangan' },
+				{ data: 'bank' }, { data: 'pph', className: 'text-right' }, { data: 'admin', className: 'text-right' },
+				{ data: 'total', className: 'text-right' }, { data: 'action', className: 'text-center' }
+			],
+			columnDefs: [{ orderable: false, targets: [0, 9] }]
+		});
 	});
 	$(document).on('click', '.buktip', function(e){
 		e.preventDefault();
@@ -169,7 +151,7 @@
 		$("#head_title").html("<b>VIEW PAYMENT ["+$(this).data('id_bq')+"]</b>");
 		$.ajax({
 			type:'POST',
-			url: base_url + active_controller+'view_penerimaan/'+$(this).data('id_bq'),
+			url: base_url + active_controller+'view_penerimaan_np/'+$(this).data('id_bq'),
 			success:function(data){
 				$("#ModalView").modal();
 				$("#view").html(data);

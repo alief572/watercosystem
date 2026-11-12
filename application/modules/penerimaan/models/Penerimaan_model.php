@@ -56,7 +56,7 @@ class Penerimaan_model extends BF_Model
 	{
 
 		// $id    = $this->uri->segment(3);
-		$getInv = $this->db->query("SELECT * FROM tr_invoice_np_header WHERE no_invoice='$id'")->row();
+		$getInv = $this->db->query("SELECT * FROM tr_invoice_np_header WHERE no_invoice = ?", [(string) $id])->row();
 
 		$Cust = $this->db->query("SELECT a.id_customer,b.name_customer as nm_customer  FROM tr_invoice_np_header a
 											INNER JOIN master_customers b on a.id_customer=b.id_customer GROUP BY a.id_customer")->result();
@@ -654,12 +654,274 @@ class Penerimaan_model extends BF_Model
 		return $query->result();
 	}
 
+	/** DataTable serverside untuk index Penerimaan Non Produk (index_np). Nama bank dihitung hanya untuk baris halaman. */
+	public function get_data_pn_np_serverside($can_manage)
+	{
+		$draw = (int) $this->input->post('draw');
+		$start = max(0, (int) $this->input->post('start'));
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$keyword = trim((string) ($search['value'] ?? ''));
+
+		$base = function ($with_search) use ($keyword) {
+			$this->db->from('tr_invoice_np_payment a');
+			if ($with_search && $keyword !== '') {
+				$this->db->group_start();
+				$this->db->like('a.kd_pembayaran', $keyword, 'both');
+				$this->db->or_like('a.nm_customer', $keyword, 'both');
+				$this->db->or_like('a.keterangan', $keyword, 'both');
+				$this->db->group_end();
+			}
+		};
+
+		$base(false);
+		$recordsTotal = $this->db->count_all_results();
+		if ($keyword !== '') {
+			$base(true);
+			$recordsFiltered = $this->db->count_all_results();
+		} else {
+			$recordsFiltered = $recordsTotal;
+		}
+
+		$columns = [
+			1 => 'a.tgl_pembayaran',
+			2 => 'a.kd_pembayaran',
+			3 => 'a.nm_customer',
+			4 => 'a.keterangan',
+			5 => 'nama_bank',
+			6 => 'a.biaya_pph_idr',
+			7 => 'a.biaya_admin_idr',
+			8 => 'a.jumlah_pembayaran_idr',
+		];
+		$order = $this->input->post('order');
+		$col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+		$dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+		$this->db->select('a.kd_pembayaran, a.tgl_pembayaran, a.nm_customer, a.keterangan, a.biaya_pph_idr, a.biaya_admin_idr, a.jumlah_pembayaran_idr');
+		$this->db->select('(SELECT c.nama FROM ' . DBACC . '.coa_master c WHERE c.no_perkiraan = a.kd_bank LIMIT 1) AS nama_bank', false);
+		$base(true);
+		if (isset($columns[$col])) {
+			$this->db->order_by($columns[$col], $dir, false);
+		} else {
+			$this->db->order_by('a.tgl_pembayaran', 'DESC');
+		}
+		$this->db->order_by('a.id', 'DESC');
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+		$rows = $this->db->get()->result();
+
+		$hasil = [];
+		$no = $start;
+		foreach ($rows as $r) {
+			$no++;
+			$action = '';
+			if ($can_manage) {
+				$action = '<button class="btn btn-sm btn-warning detail" title="View" data-id_bq="' . htmlspecialchars((string) $r->kd_pembayaran, ENT_QUOTES) . '"><i class="fa fa-eye"></i></button>';
+			}
+			$hasil[] = [
+				'no' => $no,
+				'tgl' => !empty($r->tgl_pembayaran) ? date('d-F-Y', strtotime($r->tgl_pembayaran)) : '-',
+				'kode' => htmlspecialchars((string) $r->kd_pembayaran),
+				'customer' => htmlspecialchars((string) $r->nm_customer),
+				'keterangan' => htmlspecialchars((string) $r->keterangan),
+				'bank' => htmlspecialchars((string) $r->nama_bank),
+				'pph' => number_format((float) $r->biaya_pph_idr),
+				'admin' => number_format((float) $r->biaya_admin_idr),
+				'total' => number_format((float) $r->jumlah_pembayaran_idr),
+				'action' => $action,
+			];
+		}
+
+		echo json_encode([
+			'draw' => $draw,
+			'recordsTotal' => (int) $recordsTotal,
+			'recordsFiltered' => (int) $recordsFiltered,
+			'data' => $hasil,
+		]);
+	}
+
+	/** DataTable serverside untuk modal List Invoice NP (Add Invoice di form Penerimaan Non Produk). */
+	public function get_data_invoice_np_modal($id_customer)
+	{
+		$draw = (int) $this->input->post('draw');
+		$start = max(0, (int) $this->input->post('start'));
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$keyword = trim((string) ($search['value'] ?? ''));
+		$id_customer = (string) $id_customer;
+
+		$base = function ($with_search) use ($id_customer, $keyword) {
+			$this->db->from('tr_invoice_np_header a');
+			$this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+			$this->db->where('a.id_customer', $id_customer);
+			$this->db->where('a.sisa_invoice_idr >', 0);
+			if ($with_search && $keyword !== '') {
+				$this->db->group_start();
+				$this->db->like('a.id_invoice', $keyword, 'both');
+				$this->db->or_like('a.no_invoice', $keyword, 'both');
+				$this->db->or_like('b.name_customer', $keyword, 'both');
+				$this->db->group_end();
+			}
+		};
+
+		$base(false);
+		$recordsTotal = $this->db->count_all_results();
+		if ($keyword !== '') {
+			$base(true);
+			$recordsFiltered = $this->db->count_all_results();
+		} else {
+			$recordsFiltered = $recordsTotal;
+		}
+
+		$columns = [
+			0 => 'a.id_invoice',
+			1 => 'a.no_invoice',
+			2 => 'b.name_customer',
+			3 => 'a.total_invoice_idr',
+			4 => 'a.sisa_invoice_idr',
+		];
+		$order = $this->input->post('order');
+		$col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+		$dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+		$this->db->select('a.id_invoice, a.no_invoice, a.total_invoice_idr, a.sisa_invoice_idr, a.printed_on, b.name_customer');
+		$base(true);
+		$this->db->order_by($columns[$col] ?? 'a.id_invoice', isset($columns[$col]) ? $dir : 'DESC');
+		$this->db->order_by('a.id_invoice', 'DESC');
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+		$rows = $this->db->get()->result();
+
+		$hasil = [];
+		foreach ($rows as $r) {
+			if (empty($r->printed_on)) {
+				$aksi = 'Belum cetak invoice';
+			} else {
+				$aksi = '<center><button type="button" class="btn btn-warning btn-sm btn-pilih-inv"'
+					. ' data-id="' . htmlspecialchars((string) $r->id_invoice, ENT_QUOTES) . '"'
+					. ' data-surat="' . htmlspecialchars((string) $r->no_invoice, ENT_QUOTES) . '"'
+					. ' data-nm="' . htmlspecialchars((string) $r->name_customer, ENT_QUOTES) . '"'
+					. ' data-total="' . htmlspecialchars((string) $r->total_invoice_idr, ENT_QUOTES) . '"'
+					. ' data-sisa="' . htmlspecialchars((string) $r->sisa_invoice_idr, ENT_QUOTES) . '">Pilih</button></center>';
+			}
+			$hasil[] = [
+				'code' => htmlspecialchars((string) $r->id_invoice),
+				'no_invoice' => htmlspecialchars((string) $r->no_invoice),
+				'customer' => '<center>' . htmlspecialchars((string) $r->name_customer) . '</center>',
+				'total' => '<center>' . number_format((float) $r->total_invoice_idr) . '</center>',
+				'sisa' => '<center>' . number_format((float) $r->sisa_invoice_idr) . '</center>',
+				'aksi' => $aksi,
+			];
+		}
+
+		echo json_encode([
+			'draw' => $draw,
+			'recordsTotal' => (int) $recordsTotal,
+			'recordsFiltered' => (int) $recordsFiltered,
+			'data' => $hasil,
+		]);
+	}
+
 	public function get_data_pn_np()
 	{
 
 		$query =  $this->db->query("SELECT a.* FROM tr_invoice_np_payment a");
 
 		return $query->result();
+	}
+
+	/**
+	 * DataTable serverside untuk index Jurnal Penerimaan NP (jurnal_bum_np).
+	 * status_jurnal NP tidak pernah diubah oleh kode lama, jadi "sudah dijurnal" ditentukan dari jurnal BUM final
+	 * (DBACC.jarh) yang tidak dibatalkan.
+	 */
+	public function get_data_pn_jurnal_np_serverside($can_manage)
+	{
+		$draw = (int) $this->input->post('draw');
+		$start = max(0, (int) $this->input->post('start'));
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$keyword = trim((string) ($search['value'] ?? ''));
+
+		$base = function ($with_search) use ($keyword) {
+			$this->db->from('tr_invoice_np_payment a');
+			$this->db->where('a.status_jurnal', '0');
+			$this->db->where("NOT EXISTS (SELECT 1 FROM " . DBACC . ".jarh j WHERE j.kd_pembayaran = a.kd_pembayaran AND COALESCE(j.batal, '0') <> '1')", null, false);
+			if ($with_search && $keyword !== '') {
+				$this->db->group_start();
+				$this->db->like('a.kd_pembayaran', $keyword, 'both');
+				$this->db->or_like('a.nm_customer', $keyword, 'both');
+				$this->db->or_like('a.keterangan', $keyword, 'both');
+				$this->db->group_end();
+			}
+		};
+
+		$base(false);
+		$recordsTotal = $this->db->count_all_results();
+		if ($keyword !== '') {
+			$base(true);
+			$recordsFiltered = $this->db->count_all_results();
+		} else {
+			$recordsFiltered = $recordsTotal;
+		}
+
+		$columns = [
+			1 => 'a.tgl_pembayaran',
+			2 => 'a.kd_pembayaran',
+			3 => 'a.nm_customer',
+			4 => 'a.keterangan',
+			5 => 'a.biaya_pph_idr',
+			6 => 'a.biaya_admin_idr',
+			7 => 'a.tambah_lebih_bayar',
+			8 => 'a.jumlah_pembayaran_idr',
+		];
+		$order = $this->input->post('order');
+		$col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+		$dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+		$this->db->select('a.kd_pembayaran, a.tgl_pembayaran, a.nm_customer, a.keterangan, a.biaya_pph_idr, a.biaya_admin_idr, a.tambah_lebih_bayar, a.jumlah_pembayaran_idr');
+		$base(true);
+		if (isset($columns[$col])) {
+			$this->db->order_by($columns[$col], $dir);
+		} else {
+			$this->db->order_by('a.tgl_pembayaran', 'DESC');
+		}
+		$this->db->order_by('a.id', 'DESC');
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+		$rows = $this->db->get()->result();
+
+		$hasil = [];
+		$no = $start;
+		foreach ($rows as $r) {
+			$no++;
+			$action = '';
+			if ($can_manage) {
+				$action = '<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="' . htmlspecialchars((string) $r->kd_pembayaran, ENT_QUOTES) . '"><i class="fa fa-check"></i></a>';
+			}
+			$hasil[] = [
+				'no' => $no,
+				'tgl' => !empty($r->tgl_pembayaran) ? date('d-F-Y', strtotime($r->tgl_pembayaran)) : '-',
+				'kode' => htmlspecialchars((string) $r->kd_pembayaran),
+				'customer' => htmlspecialchars((string) $r->nm_customer),
+				'keterangan' => htmlspecialchars((string) $r->keterangan),
+				'pph' => number_format((float) $r->biaya_pph_idr),
+				'admin' => number_format((float) $r->biaya_admin_idr),
+				'lebih_bayar' => number_format((float) $r->tambah_lebih_bayar),
+				'total' => number_format((float) $r->jumlah_pembayaran_idr),
+				'action' => $action,
+			];
+		}
+
+		echo json_encode([
+			'draw' => $draw,
+			'recordsTotal' => (int) $recordsTotal,
+			'recordsFiltered' => (int) $recordsFiltered,
+			'data' => $hasil,
+		]);
 	}
 
 	public function get_data_pn_jurnal_np()
