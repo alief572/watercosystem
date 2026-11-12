@@ -50,8 +50,8 @@ if (isset($results['data']->ppn_persen)) {
 					<select name="base_cur" id="base_cur" class="form-control" placeholder="Mata Uang" required>
 						<?php
 						foreach ($results['data_currency'] as $kurs) {
-							$sel = ($kurs->kode == $kurs_mata_uang) ? 'selected' : '';
-							echo "<option value='" . $kurs->kode . "' " . $sel . ">" . $kurs->kode . "</option>";
+							$sel = (strtolower($kurs->kode) == strtolower($results['data']->base_cur ?? 'idr')) ? 'selected' : '';
+							echo "<option value='" . $kurs->kode . "' " . $sel . ">" . strtoupper($kurs->kode) . "</option>";
 						}
 						?>
 					</select>
@@ -147,29 +147,29 @@ if (isset($results['data']->ppn_persen)) {
 							if (!empty($results['data_detail'])) {
 								foreach ($results['data_detail'] as $record) {
 							?>
-									<tr id='tr1_<?= $idd ?>' class='delAll'>
-										<td><input type="hidden" name="detail_id[]" id="raw_id_<?= $idd ?>" value="<?= $idd; ?>" class="dtlloop"><?= $idd; ?></td>
-										<td data-header="Keterangan"><textarea class="form-control input-sm" name="desc[]" id="desc_<?= $idd; ?>"><?= $record->desc; ?></textarea>
-											<?php
-											if ($jenis_invoice == '2') {
-												echo '<div>';
-												$atrreadonly = " readonly tabindex='-1' ";
-											} else {
-												echo '<div class="hidden">';
-											}
-											?>
-											<input type='text' name='kd_aset[]' id='kd_aset_<?= $idd; ?>' value='<?= $record->kd_aset; ?>' class="asetloop form-control" readonly tabindex='-1' placeholder="Kode Aset">
-											<input type='hidden' name='nilai_aset[]' id='nilai_aset_<?= $idd; ?>' value='<?= $record->nilai_aset; ?>'>
-											<input type='text' name='nama_aset[]' id='nama_aset_<?= $idd; ?>' value='<?= $record->nama_aset; ?>' placeholder='Nama Aset' class='form-control' readonly tabindex='-1'>
-											<button type='button' class='btn btn-success btn-xs stsview' title='Daftar Asset' onclick='list_asset(<?= $idd; ?>)'><i class='fa fa-plus'></i> Daftar Asset</button>
-				</div>
-				</td>
-				<td data-header="Qty"><input type="text" class="form-control divide input-sm" name="qty[]" id="qty_<?= $idd; ?>" value="<?= $record->qty; ?>" onblur="cektotal(<?= $idd; ?>)" size="15" style="width:60px;" <?= $atrreadonly ?>></td>
-				<td><input type="text" class="form-control input-sm" name="unit[]" id="unit_<?= $idd; ?>" value="<?= $record->unit; ?>"></td>
-				<td data-header="Unit Price"><input type="text" class="form-control divide input-sm" name="harga_satuan_usd[]" id="harga_satuan_usd_<?= $idd; ?>" value="<?= $record->harga_satuan_usd; ?>" onblur="cektotal(<?= $idd; ?>)"></td>
-				<td data-header="Total Price"><input type="text" class="form-control divide input-sm subtotal" name="harga_total_usd[]" id="harga_total_usd_<?= $idd; ?>" value="<?= $record->harga_total_usd; ?>" onblur="cektotal(<?= $idd; ?>)"></td>
-				<td scope="row" align='center'><button type='button' class='btn btn-danger btn-xs stsview' data-toggle='tooltip' onClick='delDetail(<?= $idd ?>)' title='Hapus data'><i class='fa fa-close'></i> Hapus</button></td>
-				</tr>
+										<tr id='tr1_<?= $idd ?>' class='delAll'>
+											<td data-header="#"><input type="hidden" name="detail[<?= $idd ?>][detail_id]" id="raw_id_<?= $idd ?>" value="<?= $idd; ?>" class="dtlloop"><?= $idd; ?></td>
+											<td data-header="Keterangan"><textarea class="form-control input-sm" name="detail[<?= $idd ?>][desc]" id="desc_<?= $idd; ?>"><?= htmlspecialchars((string) $record->desc); ?></textarea>
+												<?php
+												if ($jenis_invoice == '2') {
+													echo '<div>';
+													$atrreadonly = " readonly tabindex='-1' ";
+												} else {
+													echo '<div class="hidden">';
+												}
+												?>
+												<input type='text' name='detail[<?= $idd ?>][kd_asset]' id='kd_aset_<?= $idd; ?>' value='<?= htmlspecialchars((string) $record->kd_aset, ENT_QUOTES); ?>' class="asetloop form-control" readonly tabindex='-1' placeholder="Kode Aset">
+												<input type='hidden' name='detail[<?= $idd ?>][nilai_asset]' id='nilai_aset_<?= $idd; ?>' value='<?= $record->nilai_aset; ?>'>
+												<input type='text' name='detail[<?= $idd ?>][nama_asset]' id='nama_aset_<?= $idd; ?>' value='<?= htmlspecialchars((string) $record->nama_aset, ENT_QUOTES); ?>' placeholder='Nama Aset' class='form-control' readonly tabindex='-1'>
+												<button type='button' class='btn btn-success btn-xs stsview' title='Daftar Asset' onclick='list_asset(<?= $idd; ?>)'><i class='fa fa-plus'></i> Daftar Asset</button>
+												</div>
+											</td>
+											<td data-header="Qty"><input type="text" class="form-control divide input-sm" name="detail[<?= $idd ?>][qty]" id="qty_<?= $idd; ?>" value="<?= $record->qty; ?>" onblur="cektotal(<?= $idd; ?>)" size="15" style="width:60px;" <?= $atrreadonly ?>></td>
+											<td data-header="Satuan"><input type="text" class="form-control input-sm" name="detail[<?= $idd ?>][unit]" id="unit_<?= $idd; ?>" value="<?= htmlspecialchars((string) $record->unit, ENT_QUOTES); ?>"></td>
+											<td data-header="Unit Price"><input type="text" class="form-control divide input-sm" name="detail[<?= $idd ?>][harga_satuan_usd]" id="harga_satuan_usd_<?= $idd; ?>" value="<?= $record->harga_satuan_usd; ?>" onblur="cektotal(<?= $idd; ?>)"></td>
+											<td data-header="Total Price"><input type="text" class="form-control divide input-sm subtotal" name="detail[<?= $idd ?>][harga_total_usd]" id="harga_total_usd_<?= $idd; ?>" value="<?= $record->harga_total_usd; ?>" tabindex="-1" readonly></td>
+											<td scope="row" align='center'><button type='button' class='btn btn-danger btn-xs stsview' data-toggle='tooltip' onClick='delDetail(<?= $idd ?>)' title='Hapus data'><i class='fa fa-close'></i> Hapus</button></td>
+										</tr>
 		<?php
 									$total_dpp_usd = ($total_dpp_usd + $record->harga_total_usd);
 									$idd++;
@@ -226,29 +226,31 @@ if (isset($results['data']->ppn_persen)) {
 	$('.divide').divide();
 	var nomor = <?= $idd ?>;
 
+	// Nilai input bisa berformat ribuan ("1,000.50" dari plugin divide), buang koma sebelum hitung.
+	function num(v) {
+		var n = parseFloat(String(v === undefined ? '' : v).replace(/,/g, ''));
+		return isNaN(n) ? 0 : n;
+	}
+
 	function cektotal(id) {
 		if (id > 0) {
-			var sqty = $("#qty_" + id).val();
-			var pref = $("#harga_satuan_usd_" + id).val();
-			var subtotal = (parseFloat(sqty) * parseFloat(pref));
-			$("#harga_total_usd_" + id).val(subtotal);
+			$("#harga_total_usd_" + id).val(num($("#qty_" + id).val()) * num($("#harga_satuan_usd_" + id).val()));
 		}
 		var sum = 0;
-		var ppn_persen = $("#ppn_persen").val();
 		$('.subtotal').each(function() {
-			sum += Number($(this).val());
+			sum += num($(this).val());
 		});
+		var total_ppn_idr = Math.round(sum * num($("#ppn_persen").val())) / 100;
 		$("#total_dpp_usd").val(sum);
-		var total_ppn_idr = Math.floor(parseFloat(sum) * parseFloat(ppn_persen) / 100);
 		$("#total_ppn_idr").val(total_ppn_idr);
-		$("#total_invoice_usd").val((parseFloat(sum) + parseFloat(total_ppn_idr)));
+		$("#total_invoice_usd").val(sum + total_ppn_idr);
 	}
 
 	function add_detail() {
 		var jenis_invoice = $("#jenis_invoice").val();
 		var atrreadonly = "";
 		var Rows = "<tr id='tr1_" + nomor + "' class='delAll'>";
-		Rows += "<td data-header='#'><input type='hidden' name='detail[" + nomor + "][detail_id]' id='raw_id_" + nomor + "' value='" + nomor + "' class='dtlloop'>";
+		Rows += "<td data-header='#'><input type='hidden' name='detail[" + nomor + "][detail_id]' id='raw_id_" + nomor + "' value='" + nomor + "' class='dtlloop'>" + nomor + "</td>";
 		Rows += "<td data-header='Keterangan'>";
 		Rows += "<textarea class='form-control input-sm' name='detail[" + nomor + "][desc]' id='desc_" + nomor + "' rows=2/></textarea>";
 		if (jenis_invoice == '2') {
@@ -346,7 +348,7 @@ if (isset($results['data']->ppn_persen)) {
 								processData: false,
 								contentType: false,
 								success: function(msg) {
-									if (msg['save'] == '1') {
+									if (msg['save'] === true || msg['save'] == '1') {
 										swal({
 											title: "Sukses!",
 											text: "Data Berhasil Di Simpan",
@@ -358,7 +360,7 @@ if (isset($results['data']->ppn_persen)) {
 									} else {
 										swal({
 											title: "Gagal!",
-											text: "Data Gagal Di Simpan",
+											text: msg['pesan'] || "Data Gagal Di Simpan",
 											type: "error",
 											timer: 1500,
 											showConfirmButton: false
@@ -391,5 +393,5 @@ if (isset($results['data']->ppn_persen)) {
 		$('#tr1_' + row).remove();
 		cektotal(row);
 	}
-	<?php if ($results['tipe'] == 'view') echo '$("#frm_data :input").prop("disabled", true);'; ?>
-</script>
+	<?php if ($results['tipe'] == 'view') echo '$("#frm_data :input").prop("disabled", true); $("#simpan-bro, .stsview").hide();'; ?>
+</script>

@@ -28,193 +28,149 @@ class Invoice_np extends Admin_Controller
 	public function index()
 	{
 		$this->auth->restrict($this->viewPermission);
-		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Invoice_np_model->CariInvoice();
-		$this->template->set('results', $data);
 		$this->template->title('Invoice');
 		$this->template->render('index_invoice');
 
 		history('View Invoice Non Product');
 	}
 
-	public function server_side_data()
+	/**
+	 * Data DataTable serverside untuk index.
+	 */
+	public function get_data()
 	{
-		$controller	= 'invoice_np';
-		$Arr_Akses	= getAcccesmenu($controller);
-		$requestData	= $_REQUEST;
-		$fetch	= $this->query_data_json_invoicenp(
-			$requestData['search']['value'],
-			$requestData['order'][0]['column'],
-			$requestData['order'][0]['dir'],
-			$requestData['start'],
-			$requestData['length']
+		$this->auth->restrict($this->viewPermission);
+
+		$draw   = (int) $this->input->post('draw');
+		$start  = (int) $this->input->post('start');
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$order  = $this->input->post('order');
+
+		$result = $this->Invoice_np_model->get_invoice_json(
+			$search['value'] ?? '',
+			isset($order[0]['column']) ? (int) $order[0]['column'] : -1,
+			$order[0]['dir'] ?? 'desc',
+			$start,
+			$length
 		);
-		$totalData		= $fetch['totalData'];
-		$totalFiltered	= $fetch['totalFiltered'];
-		$query			= $fetch['query'];
 
-		$data	= array();
-		$urut1  = 1;
-		$urut2  = 0;
-		foreach ($query->result_array() as $row) {
-			$total_data     = $totalData;
-			$start_dari     = $requestData['start'];
-			$asc_desc       = $requestData['order'][0]['dir'];
-			if ($asc_desc == 'asc') {
-				$nomor = $urut1 + $start_dari;
-			}
-			if ($asc_desc == 'desc') {
-				$nomor = ($total_data - $start_dari) - $urut2;
-			}
+		$can_add    = has_permission($this->addPermission);
+		$can_manage = has_permission($this->managePermission);
+		$can_delete = has_permission($this->deletePermission);
 
-			$this->db->select('SUM(a.qty * a.harga_total_usd) as grand_total');
-			$this->db->from('tr_invoice_np_detail a');
-			$this->db->where('a.no_invoice', $row['no_invoice']);
-			$get_total = $this->db->get()->row();
+		$data = [];
+		$no   = $start;
+		foreach ($result['rows'] as $row) {
+			$no++;
+			$id = (int) $row->id_invoice;
 
-			$grand_total = (!empty($get_total->grand_total)) ? $get_total->grand_total : 0;
-
-			$printX = '';
-			$updX = '';
-			$ajukan = '';
-			$delX = '';
-			$nestedData 	= array();
-			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
-			$nestedData[]	= "<div>" . $row['no_invoice'] . "</div>";
-			$nestedData[]	= "<div>" . $row['tgl_invoice'] . "</div>";
-			$nestedData[]	= "<div>" . $row['no_faktur'] . "</div>";
-			$nestedData[]	= "<div>" . $row['keterangan'] . "</div>";
-			$nestedData[]	= "<div>" . $row['nm_customer'] . "</div>";
-			$nestedData[]	= "<div align='right'>" . $row['base_cur'] . " " . number_format($grand_total, 2) . "</div>";
-			//$class = Color_status($row['status']);
-			if ($row['status'] == '0') {
-				if ($Arr_Akses['update'] == '1') {
-					$updX	= "<button type='button' class='btn btn-sm btn-primary edited' title='Edit' data-iddata='" . $row['id_invoice'] . "'><i class='fa fa-edit'></i></button>";
-					$ajukan	= "<button type='button' class='btn btn-sm btn-info updated' title='Update' data-iddata='" . $row['id_invoice'] . "'><i class='fa fa-check'></i></button>";
+			$option = "<button type='button' data-iddata='" . $id . "' class='btn btn-sm btn-warning viewed' title='View'><i class='fa fa-eye'></i></button> ";
+			if ($row->status == '0') {
+				if ($can_add) {
+					$option .= "<button type='button' class='btn btn-sm btn-primary edited' title='Edit' data-iddata='" . $id . "'><i class='fa fa-edit'></i></button> ";
 				}
-				if ($Arr_Akses['delete'] == '1') {
-					$delX	= "<button type='button' class='btn btn-sm btn-danger deleted' title='Delete' data-iddata='" . $row['id_invoice'] . "'><i class='fa fa-close'></i></button>";
+				if ($can_manage) {
+					$option .= "<button type='button' class='btn btn-sm btn-info updated' title='Update' data-iddata='" . $id . "'><i class='fa fa-check'></i></button> ";
 				}
-			} else {
-				$printX	= "<a href='invoice_np/print_pdf/" . $row['id_invoice'] . "' class='btn btn-sm btn-success printed' title='Print' data-iddata='" . $row['id_invoice'] . "' target='_blank'><i class='fa fa-print'></i></a>";
+				if ($can_delete) {
+					$option .= "<button type='button' class='btn btn-sm btn-danger deleted' title='Delete' data-iddata='" . $id . "'><i class='fa fa-close'></i></button>";
+				}
+			} elseif ($can_manage) {
+				$option .= "<a href='" . site_url('invoice_np/print_pdf/' . $id) . "' class='btn btn-sm btn-success' title='Print' target='_blank'><i class='fa fa-print'></i></a>";
 			}
-			$nestedData[]	= "<div align='left'>
-									<button type='button' data-iddata='" . $row['id_invoice'] . "' class='btn btn-sm btn-warning viewed' title='View' data-role='qtip'><i class='fa fa-eye'></i></button>
-									" . $printX . "
-									" . $updX . "
-									" . $ajukan . "
-									" . $delX . "
-								</div>";
-			$data[] = $nestedData;
-			$urut1++;
-			$urut2++;
+
+			$data[] = [
+				'no'            => $no,
+				'no_invoice'    => htmlspecialchars((string) $row->no_invoice),
+				'tgl_invoice'   => $row->tgl_invoice ? date('d-F-Y', strtotime($row->tgl_invoice)) : '',
+				'no_faktur'     => htmlspecialchars((string) $row->no_faktur),
+				'keterangan'    => htmlspecialchars((string) $row->keterangan),
+				'nm_customer'   => htmlspecialchars((string) $row->nm_customer),
+				'total_invoice' => '<div align="right">' . strtoupper((string) $row->base_cur) . ' ' . number_format((float) $row->total_invoice_idr, 2) . '</div>',
+				'option'        => $option,
+			];
 		}
 
-		$json_data = array(
-			"draw"            	=> intval($requestData['draw']),
-			"recordsTotal"    	=> intval($totalData),
-			"recordsFiltered" 	=> intval($totalFiltered),
-			"data"            	=> $data
-		);
-		echo json_encode($json_data);
+		echo json_encode([
+			'draw'            => $draw,
+			'recordsTotal'    => (int) $result['total'],
+			'recordsFiltered' => (int) $result['filtered'],
+			'data'            => $data,
+		]);
 	}
 
-	public function query_data_json_invoicenp($like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	public function print_pdf($id)
 	{
+		$this->auth->restrict($this->managePermission);
+		$id = (int) $id;
+		// Notice/warning dari view/library tidak boleh bocor ke output PDF.
+		error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 
-		$where = "";
+		$gethd = $this->db->get_where('tr_invoice_np_header', ['id_invoice' => $id])->row();
+		if (!$gethd) {
+			show_404();
+		}
+		$getdtl   = $this->db->get_where('tr_invoice_np_detail', ['no_invoice' => $gethd->no_invoice])->result();
+		$customer = $this->db->get_where('master_customers', ['id_customer' => $gethd->id_customer])->row();
+		$pic      = $this->db->order_by('id_pic', 'ASC')->get_where('child_customer_pic', ['id_customer' => $gethd->id_customer])->row();
 
-		$sql = "
-			SELECT
-				(@row:=@row+1) AS nomor,
-				a.*
-			FROM
-				tr_invoice_np_header a,
-				(SELECT @row:=0) r
-		    WHERE 1=1 " . $where . " AND (
-				a.no_invoice LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-				OR a.nm_customer LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-				OR a.jenis_invoice LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-	        )
-		";
-		$data['totalData'] = $this->db->query($sql)->num_rows();
-		$data['totalFiltered'] = $this->db->query($sql)->num_rows();
-		$columns_order_by = array(
-			0 => 'id_invoice',
-			1 => 'no_invoice',
-			2 => 'nm_customer',
-			3 => 'jenis_invoice'
-		);
+		$data = [
+			'customer'     => $customer,
+			'pic_customer' => $pic,
+			'total'        => $gethd,
+			'results'      => $getdtl,
+			'user'         => $this->auth->user_name(),
+		];
+		$show = $this->load->view('print_invoice_idr', $data, TRUE);
 
-		$sql .= " ORDER BY " . $columns_order_by[$column_order] . " " . $column_dir . " ";
-		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
-
-		$data['query'] = $this->db->query($sql);
-		return $data;
-	}
-
-	function print_pdf($id)
-	{
-		$sroot 		= $_SERVER['DOCUMENT_ROOT'];
 		// mPDF 5.7 lama (MPDF57) fatal di PHP 8 -> pakai shim mPDF 8 via library.
 		$this->load->library('Mpdf');
-		$data_session	= $this->session->userdata;
-		$mpdf		= new mPDF('utf-8', 'A4');
+		$mpdf = new mPDF('utf-8', 'A4');
 		$mpdf->SetImportUse();
-		$gethd 		= $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_invoice='$id'")->row();
-		$getdtl		= $this->db->query("SELECT * FROM tr_invoice_np_detail WHERE no_invoice='$gethd->no_invoice'")->result();
-		$nomordoc	= $gethd->no_invoice;
-		$tgl       	= $gethd->tgl_invoice;
-		$Jml_Ttl   	= $gethd->total_invoice;
-		$Id_klien   = $gethd->id_customer;
-		$Nama_klien = $gethd->nm_customer;
-		$Bln 		= substr($tgl, 5, 2);
-		$Thn 		= substr($tgl, 0, 4);
-
-		$customer 	= $this->db->query("SELECT * FROM master_customers WHERE id_customer = '" . $gethd->id_customer . "'")->row();
-
-		$count 			= $this->db->query("SELECT COUNT(no_invoice) as total FROM tr_invoice_np_detail WHERE no_invoice ='" . $gethd->no_invoice . "'")->row();
-		$count1			= $count->total;
-
-		$total  		= $gethd;
-		$detail  		= $getdtl;
-
-		$data['customer']	= $customer;
-		$data['total'] 		= $total;
-		$data['results']  	= $detail;
-		$data['user'] 		= $data_session['ORI_User']['username'];
-
-		$show 		= $this->load->view('print_invoice_idr', $data, TRUE);
-
 		$mpdf->AddPageByArray([
-			'orientation' => 'P',
-			'margin-top' => 10,
+			'orientation'   => 'P',
+			'margin-top'    => 10,
 			'margin-bottom' => 15,
-			'margin-left' => 15,
-			'margin-right' => 15,
+			'margin-left'   => 15,
+			'margin-right'  => 15,
 			'margin-header' => 0,
 			'margin-footer' => 0,
 		]);
-		$mpdf->SetDefaultBodyCSS('background', "url('assets/images/kop-surat-opc.jpg')");
-		$mpdf->SetDefaultBodyCSS('background-image-resize', 5);
-		$mpdf->SetTitle($nomordoc);
+		$kop = FCPATH . 'assets/images/kop-surat-opc.jpg';
+		if (is_file($kop)) {
+			$mpdf->SetDefaultBodyCSS('background', "url('assets/images/kop-surat-opc.jpg')");
+			$mpdf->SetDefaultBodyCSS('background-image-resize', 5);
+		}
+		$mpdf->SetTitle($gethd->no_invoice);
 		$mpdf->WriteHTML($show);
-		$mpdf->Output("INVOICE " . date('dmYHis') . ".pdf", 'I');
+
+		while (ob_get_level() > 0) {
+			ob_end_clean();
+		}
+		$mpdf->Output('INVOICE ' . date('dmYHis') . '.pdf', 'I');
 	}
 
 	public function data_form($id = "", $tipe = "")
 	{
+		$id = (int) $id;
+		$this->auth->restrict($id > 0 ? $this->viewPermission : $this->addPermission);
+
 		$data_customer = $this->db->query("SELECT * FROM master_customers ORDER BY name_customer ASC ")->result();
 		$data_category = $this->db->query("SELECT * FROM ms_inv_category ORDER BY nama ASC ")->result();
 		$data_currency = $this->db->query("SELECT * FROM matauang ORDER BY kode ASC ")->result();
-		if ($id != "") {
-			$data	= $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_invoice='" . $id . "'")->row();
-			$data_detail	= $this->db->query("SELECT * FROM tr_invoice_np_detail WHERE no_invoice='" . $data->no_invoice . "'")->result();
-			if ($data->status > 0) $tipe = "view";
-		} else {
-			$data	= null;
-			$data_detail	= null;
+		$data        = null;
+		$data_detail = null;
+		if ($id > 0) {
+			$data = $this->db->get_where('tr_invoice_np_header', ['id_invoice' => $id])->row();
+			if (!$data) {
+				show_404();
+			}
+			$data_detail = $this->db->get_where('tr_invoice_np_detail', ['no_invoice' => $data->no_invoice])->result();
+			if ($data->status > 0) {
+				$tipe = "view";
+			}
 		}
 		$data = array(
 			'title'			=> 'Invoice Non Product',
@@ -226,8 +182,7 @@ class Invoice_np extends Admin_Controller
 			'data_detail'	=> $data_detail,
 			'tipe'			=> $tipe,
 		);
-		history('Create New Invoice NP');
-		// $this->load->view('Invoice_np/form',$data);
+		history($id > 0 ? 'Open Invoice NP ' . $id : 'Create New Invoice NP');
 
 		$this->template->set('results', $data);
 		$this->template->title('Invoice');
@@ -236,275 +191,159 @@ class Invoice_np extends Admin_Controller
 
 	public function save_data()
 	{
-		$post = $this->input->post();
-		$detail = $post['detail'];
+		$this->auth->restrict($this->addPermission);
 
-		$data_session	= $this->session->userdata;
-		$id_invoice		= $this->input->post("id_invoice");
-		$no_invoice		= $this->input->post("no_invoice");
-		if (empty($no_invoice)) {
-			$no_invoice = $this->Invoice_np_model->get_no_invoice();
+		$id_invoice = (int) $this->input->post('id_invoice');
+		$detail     = $this->input->post('detail');
+		$ppn_persen = (float) str_replace(',', '', (string) $this->input->post('ppn_persen'));
+		$pph_persen = (float) str_replace(',', '', (string) $this->input->post('pph_persen'));
+		$jenis_invoice = $this->input->post('jenis_invoice');
+
+		$clean = function ($v) {
+			return (float) str_replace(',', '', (string) $v);
+		};
+
+		// Susun detail dulu. Total dihitung dari qty * harga satuan, bukan dari input klien.
+		$rows = [];
+		$total_dpp = 0;
+		$dateTime  = date('Y-m-d H:i:s');
+		$userName  = $this->auth->user_id();
+		if (!empty($detail) && is_array($detail)) {
+			foreach ($detail as $val) {
+				$qty = $clean($val['qty'] ?? 0);
+				if ($qty <= 0) {
+					continue;
+				}
+				$harga = $clean($val['harga_satuan_usd'] ?? 0);
+				$total = round($qty * $harga, 2);
+				$rows[] = [
+					'jenis_invoice'    => $jenis_invoice,
+					'qty'              => $qty,
+					'harga_satuan_usd' => $harga,
+					'harga_total_usd'  => $total,
+					'desc'             => $val['desc'] ?? '',
+					'unit'             => $val['unit'] ?? '',
+					'nilai_aset'       => $clean($val['nilai_asset'] ?? 0),
+					'kd_aset'          => $val['kd_asset'] ?? '',
+					'nama_aset'        => $val['nama_asset'] ?? '',
+					'created_by'       => $userName,
+					'created_date'     => $dateTime,
+					'modified_by'      => $userName,
+					'modified_date'    => $dateTime,
+				];
+				$total_dpp += $total;
+			}
 		}
 
-		// print_r($no_invoice);
-		// exit;
+		if (empty($rows)) {
+			echo json_encode(['save' => false, 'id' => $id_invoice, 'pesan' => 'Detail harus diisi']);
+			return;
+		}
 
-		$no_invoice_old	= $this->input->post("no_invoice_old");
-		$tgl_invoice	= $this->input->post("tgl_invoice");
-		$id_customer	= $this->input->post("id_customer");
-		$nm_customer	= $this->input->post("nm_customer");
-		$base_cur		= $this->input->post("base_cur");
-		$ppn_persen		= $this->input->post("ppn_persen");
-		$pph_persen		= $this->input->post("pph_persen");
-		$jenis_invoice	= $this->input->post("jenis_invoice");
-		$keterangan		= $this->input->post("keterangan");
-		$no_faktur		= $this->input->post("no_faktur");
-		$no_pajak		= $this->input->post("no_pajak");
+		$total_ppn     = round($total_dpp * $ppn_persen / 100, 2);
+		$total_invoice = $total_dpp + $total_ppn;
 
-		$detail_id		= $this->input->post("detail_id");
-		$desc			= $this->input->post("desc");
-		$qty			= $this->input->post("qty");
-
-		// print_r($qty);
-		// exit;
-
-		$unit			= $this->input->post("unit");
-		$harga_satuan_usd = $this->input->post("harga_satuan_usd");
-		$harga_total_usd = $this->input->post("harga_total_usd");
-		$kd_aset		= $this->input->post("kd_aset");
-		$nilai_aset		= $this->input->post("nilai_aset");
-		$nama_aset		= $this->input->post("nama_aset");
-
-		$dateTime = date('Y-m-d H:i:s');
-		$UserName =  $this->auth->user_id();
-		$total_dpp_usd = 0;
-		$total_ppn_idr = 0;
-		$total_invoice_usd = 0;
+		$header = [
+			'tgl_invoice'       => $this->input->post('tgl_invoice'),
+			'id_customer'       => $this->input->post('id_customer'),
+			'nm_customer'       => $this->input->post('nm_customer'),
+			'base_cur'          => $this->input->post('base_cur'),
+			'total_dpp_usd'     => $total_dpp,
+			'total_dpp_rp'      => $total_dpp,
+			'total_ppn_idr'     => $total_ppn,
+			'total_invoice_usd' => $total_invoice,
+			'total_invoice_idr' => $total_invoice,
+			'ppn_persen'        => $ppn_persen,
+			'pph_persen'        => $pph_persen,
+			'jenis_invoice'     => $jenis_invoice,
+			'no_faktur'         => $this->input->post('no_faktur'),
+			'no_pajak'          => $this->input->post('no_pajak'),
+			'keterangan'        => $this->input->post('keterangan'),
+			'sisa_invoice_idr'  => $total_invoice,
+			'sisa_invoice'      => $total_invoice,
+			'printed_on'        => '1',
+		];
 
 		$this->db->trans_begin();
-		if ($id_invoice !== "") {
-
-			$this->All_model->dataDelete('tr_invoice_np_detail', array('no_invoice' => $no_invoice_old));
-
-			if (!empty($detail)) {
-				foreach ($detail as $keys => $val) {
-					if (str_replace(',', '', $val['qty']) > 0) {
-						$data_detail =  array(
-							'no_invoice' => $no_invoice,
-							'jenis_invoice' => $jenis_invoice,
-							'qty' => str_replace(',', '', $val['qty']),
-							'harga_satuan_usd' => str_replace(',', '', $val['harga_satuan_usd']),
-							'harga_total_usd' => str_replace(',', '', $val['harga_total_usd']),
-							'desc' => $val['desc'],
-							'unit' => $val['unit'],
-							'nilai_aset' => $val['nilai_aset'],
-							'kd_aset' => $val['kd_asset'],
-							'nama_aset' => $val['nama_aset'],
-							'created_by' => $UserName,
-							'created_date' => $dateTime,
-							'modified_by' => $UserName,
-							'modified_date' => $dateTime
-						);
-						$this->All_model->dataSave('tr_invoice_np_detail', $data_detail);
-						$total_dpp_usd += ($total_dpp_usd + str_replace(',', '', $val['harga_satuan_usd']));
-					}
-				}
-				if ($ppn_persen <> 0) $total_ppn_idr = ($total_dpp_usd * $ppn_persen / 100);
-				$total_invoice_usd = ($total_dpp_usd + $total_ppn_idr);
-			}
-
-			// if (!empty($detail_id)) {
-			// 	foreach ($detail_id as $keys => $val) {
-			// 		if ($qty[$keys] > 0) {
-			// 			$data_detail =  array(
-			// 				'no_invoice' => $no_invoice,
-			// 				'jenis_invoice' => $jenis_invoice,
-			// 				'qty' => $qty[$keys],
-			// 				'harga_satuan_usd' => $harga_satuan_usd[$keys],
-			// 				'harga_total_usd' => ($harga_total_usd[$keys]),
-			// 				'desc' => $desc[$keys],
-			// 				'unit' => $unit[$keys],
-			// 				'nilai_aset' => $nilai_aset[$keys],
-			// 				'kd_aset' => $kd_aset[$keys],
-			// 				'nama_aset' => $nama_aset[$keys],
-			// 				'created_by' => $UserName,
-			// 				'created_date' => $dateTime,
-			// 				'modified_by' => $UserName,
-			// 				'modified_date' => $dateTime
-			// 			);
-			// 			$this->All_model->dataSave('tr_invoice_np_detail', $data_detail);
-			// 			$total_dpp_usd = ($total_dpp_usd + $harga_total_usd[$keys]);
-			// 		}
-			// 	}
-			// 	if ($ppn_persen <> 0) $total_ppn_idr = ($total_dpp_usd * $ppn_persen / 100);
-			// 	$total_invoice_usd = ($total_dpp_usd + $total_ppn_idr);
-			// }
-			$data =  array(
-				'no_invoice' => $no_invoice,
-				'id_customer' => $id_customer,
-				'nm_customer' => $nm_customer,
-				'tgl_invoice' => $tgl_invoice,
-				'base_cur' => $base_cur,
-				'total_dpp_usd' => $total_dpp_usd,
-				'total_dpp_rp' => $total_dpp_usd,
-				'total_ppn_idr' => $total_ppn_idr,
-				'total_invoice_usd' => $total_invoice_usd,
-				'total_invoice_idr' => $total_invoice_usd,
-				'ppn_persen' => $ppn_persen,
-				'ppn_persen' => $ppn_persen,
-				'pph_persen' => $pph_persen,
-				'jenis_invoice' => $jenis_invoice,
-				'no_faktur' => $no_faktur,
-				'no_pajak' => $no_pajak,
-				'keterangan' => $keterangan,
-				'modified_by' => $UserName,
-				'modified_date' => $dateTime,
-				'sisa_invoice_idr' => $total_invoice_usd,
-				'sisa_invoice' => $total_invoice_usd,
-				'printed_on' => '1'
-			);
-			$result = $this->All_model->dataUpdate('tr_invoice_np_header', $data, array('id_invoice' => $id_invoice));
-
-			$keterangan     = "SUKSES, Edit data " . $id_invoice;
-			$status         = 1;
-			$nm_hak_akses   = "";
-			$kode_universal = $id_invoice;
-			$jumlah = 1;
-			$sql            = $this->db->last_query();
-			if ($this->db->trans_status() === FALSE) {
+		if ($id_invoice > 0) {
+			$old = $this->db->get_where('tr_invoice_np_header', ['id_invoice' => $id_invoice])->row();
+			if (!$old || $old->status != '0') {
 				$this->db->trans_rollback();
-			} else {
-				$this->db->trans_commit();
+				echo json_encode(['save' => false, 'id' => $id_invoice, 'pesan' => 'Invoice tidak ditemukan atau sudah diproses']);
+				return;
 			}
+			$no_invoice = $old->no_invoice;
+			$header['no_invoice']    = $no_invoice;
+			$header['modified_by']   = $userName;
+			$header['modified_date'] = $dateTime;
+			$this->db->where('id_invoice', $id_invoice)->update('tr_invoice_np_header', $header);
+			$this->db->delete('tr_invoice_np_detail', ['no_invoice' => $no_invoice]);
 		} else {
-			//			$no_doc=$this->All_model->GetAutoGenerate('format_invoice_np');			
-			$no_doc = $no_invoice;
-			if (!empty($detail)) {
-				foreach ($detail as $keys => $val) {
-					if (str_replace(',', '', $val['qty']) > 0) {
-						$data_detail =  array(
-							'no_invoice' => $no_invoice,
-							'jenis_invoice' => $jenis_invoice,
-							'qty' => str_replace(',', '', $val['qty']),
-							'harga_satuan_usd' => str_replace(',', '', $val['harga_satuan_usd']),
-							'harga_total_usd' => str_replace(',', '', $val['harga_total_usd']),
-							'desc' => $val['desc'],
-							'unit' => $val['unit'],
-							'nilai_aset' => (isset($val['nilai_aset'])) ? $val['nilai_aset'] : 0,
-							'kd_aset' => (isset($val['kd_asset'])) ? $val['kd_asset'] : '',
-							'nama_aset' => (isset($val['nama_aset'])) ? $val['nama_aset'] : '',
-							'created_by' => $UserName,
-							'created_date' => $dateTime,
-							'modified_by' => $UserName,
-							'modified_date' => $dateTime
-						);
-						$this->All_model->dataSave('tr_invoice_np_detail', $data_detail);
-						$total_dpp_usd = ($total_dpp_usd + str_replace(',', '', $val['harga_satuan_usd']));
-					}
-				}
-				if ($ppn_persen <> 0) $total_ppn_idr = ($total_dpp_usd * $ppn_persen / 100);
-				$total_invoice_usd = ($total_dpp_usd + $total_ppn_idr);
-			}
-			// if (!empty($detail_id)) {
-			// 	foreach ($detail_id as $keys => $val) {
-			// 		$no_doc			= $no_doc;
-			// 		if ($qty[$keys] > 0) {
-			// 			$data_detail =  array(
-			// 				'no_invoice' => $no_doc,
-			// 				'jenis_invoice' => $jenis_invoice,
-			// 				'qty' => $qty[$keys],
-			// 				'harga_satuan_usd' => $harga_satuan_usd[$keys],
-			// 				'harga_total_usd' => ($harga_total_usd[$keys]),
-			// 				'desc' => $desc[$keys],
-			// 				'unit' => $unit[$keys],
-			// 				'nilai_aset' => $nilai_aset[$keys],
-			// 				'kd_aset' => $kd_aset[$keys],
-			// 				'nama_aset' => $nama_aset[$keys],
-			// 				'created_by' => $UserName,
-			// 				'created_date' => $dateTime,
-			// 				'modified_by' => $UserName,
-			// 				'modified_date' => $dateTime
-			// 			);
-			// 			$total_dpp_usd = ($total_dpp_usd + $harga_total_usd[$keys]);
-			// 			$this->All_model->dataSave('tr_invoice_np_detail', $data_detail);
-			// 		}
-			// 	}
-			// 	if ($ppn_persen <> 0) $total_ppn_idr = ($total_dpp_usd * $ppn_persen / 100);
-			// 	$total_invoice_usd = ($total_dpp_usd + $total_ppn_idr);
-			// }
-			$data =  array(
-				'status' => '0',
-				'no_invoice' => $no_doc,
-				'tgl_invoice' => $tgl_invoice,
-				'id_customer' => $id_customer,
-				'nm_customer' => $nm_customer,
-				'base_cur' => $base_cur,
-				'total_dpp_usd' => $total_dpp_usd,
-				'total_dpp_rp' => $total_dpp_usd,
-				'total_ppn_idr' => $total_ppn_idr,
-				'total_invoice_usd' => $total_invoice_usd,
-				'total_invoice_idr' => $total_invoice_usd,
-				'ppn_persen' => $ppn_persen,
-				'ppn_persen' => $ppn_persen,
-				'pph_persen' => $pph_persen,
-				'jenis_invoice' => $jenis_invoice,
-				'no_faktur' => $no_faktur,
-				'no_pajak' => $no_pajak,
-				'keterangan' => $keterangan,
-				'created_by' => $UserName,
-				'created_date' => $dateTime,
-				'sisa_invoice_idr' => $total_invoice_usd,
-				'sisa_invoice' => $total_invoice_usd,
-				'printed_on' => '1'
-			);
-			$id_invoice = $this->All_model->dataSave('tr_invoice_np_header', $data);
-			if (is_numeric($id_invoice)) {
-				$result	= TRUE;
-			} else {
-				$result = FALSE;
-			}
-			if ($this->db->trans_status() === FALSE) {
-				$this->db->trans_rollback();
-			} else {
-				$this->db->trans_commit();
-			}
+			$no_invoice = $this->Invoice_np_model->get_no_invoice();
+			$header['status']       = '0';
+			$header['no_invoice']   = $no_invoice;
+			$header['created_by']   = $userName;
+			$header['created_date'] = $dateTime;
+			$this->db->insert('tr_invoice_np_header', $header);
+			$id_invoice = $this->db->insert_id();
 		}
-		$param = array(
-			'save' => $result,
-			'id' => $id_invoice
-		);
-		echo json_encode($param);
+		foreach ($rows as &$r) {
+			$r['no_invoice'] = $no_invoice;
+		}
+		unset($r);
+		$this->db->insert_batch('tr_invoice_np_detail', $rows);
+
+		if ($this->db->trans_status() === FALSE) {
+			$this->db->trans_rollback();
+			echo json_encode(['save' => false, 'id' => $id_invoice, 'pesan' => 'Gagal menyimpan']);
+			return;
+		}
+		$this->db->trans_commit();
+		echo json_encode(['save' => true, 'id' => $id_invoice]);
 	}
 
 	public function delete_data($iddata)
 	{
-		$this->db->trans_begin();
-		if ($iddata != "") {
-			$data	= $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_invoice='" . $iddata . "'")->row();
-			$this->db->where('id_invoice', $iddata);
-			$this->db->delete('tr_invoice_np_header');
-			$this->db->where('no_invoice', $data->no_invoice);
-			$this->db->delete('tr_invoice_np_detail');
-			$this->db->trans_complete();
+		$this->auth->restrict($this->deletePermission);
+		$iddata = (int) $iddata;
+
+		$data = $this->db->get_where('tr_invoice_np_header', ['id_invoice' => $iddata])->row();
+		if (!$data) {
+			echo json_encode(['pesan' => 'Data tidak ditemukan', 'status' => 0]);
+			return;
 		}
+		if ($data->status != '0') {
+			echo json_encode(['pesan' => 'Invoice sudah diproses, tidak bisa dihapus', 'status' => 0]);
+			return;
+		}
+
+		$this->db->trans_begin();
+		$this->db->delete('tr_invoice_np_detail', ['no_invoice' => $data->no_invoice]);
+		$this->db->delete('tr_invoice_np_header', ['id_invoice' => $iddata]);
 		if ($this->db->trans_status() === FALSE) {
 			$this->db->trans_rollback();
-			$Arr_Kembali    = array(
-				'pesan'        => 'Failed. Please try again later ...',
-				'status'    => 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$Arr_Kembali    = array(
-				'pesan'        => 'Success Delete. Thanks ...',
-				'status'    => 1
-			);
+			echo json_encode(['pesan' => 'Failed. Please try again later ...', 'status' => 0]);
+			return;
 		}
-		echo json_encode($Arr_Kembali);
+		$this->db->trans_commit();
+		echo json_encode(['pesan' => 'Success Delete. Thanks ...', 'status' => 1]);
 	}
 
 	public function update_data($iddata)
 	{
+		$this->auth->restrict($this->managePermission);
+
+		// ponytail: posting jurnal akuntansi (get_generate_jurnal, DB 'accounting', ms_kurs lama, template JV055)
+		// belum tersedia di build PHP 8 ini. Ditolak jelas daripada fatal / jurnal salah posting.
+		// Upgrade: perbaiki jalur jurnal memakai DBACC dan ms_kurs.nilai_kurs, lalu hapus guard ini.
+		if (!function_exists('get_generate_jurnal')) {
+			echo json_encode([
+				'pesan'  => 'Posting jurnal belum tersedia (fungsi get_generate_jurnal tidak ditemukan). Data tidak diubah.',
+				'status' => 0,
+			]);
+			return;
+		}
+
 		$this->db->trans_begin();
 		$data_session	= $this->session->userdata;
 		$dtinv 			= $this->db->query("SELECT * FROM tr_invoice_np_header WHERE id_invoice='" . $iddata . "'")->row();
@@ -559,7 +398,7 @@ class Invoice_np extends Admin_Controller
 			'keterangan' 		=> $Keterangan_INV,
 			'bulan'				=> $Bln,
 			'tahun'				=> $Thn,
-			'user_id'			=> $data_session['ORI_User']['username'],
+			'user_id'			=> $this->auth->user_name(),
 			'memo'			    => $nomordoc,
 			'tgl_jvkoreksi'	    => $tgl,
 			'ho_valid'			=> ''
@@ -662,7 +501,7 @@ class Invoice_np extends Admin_Controller
 					}
 				}
 				// update aset status
-				$this->db->query("update asset set deleted='Y',deleted_by='" . $data_session['ORI_User']['username'] . "',deleted_date=now() where kd_asset='" . $dataset->kd_aset . "'");
+				$this->db->query("update asset set deleted='Y',deleted_by='" . $this->auth->user_name() . "',deleted_date=now() where kd_asset='" . $dataset->kd_aset . "'");
 			}
 		} else {
 			foreach ($datajurnal1 as $rec) {

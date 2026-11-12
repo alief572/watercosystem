@@ -1,12 +1,10 @@
 <?php
 date_default_timezone_set("Asia/Bangkok");
-$tglprint2 = date("d-m-Y");
-$date = tgl_indo($total->tgl_invoice); //date('d-m-Y');
-$invoice  = $total->no_invoice;
-$so  = $total->so_number;
-$total2  = $total->total_invoice;
-$nm_customer  = $total->nm_customer;
-
+$invoice     = $total->no_invoice;
+$nm_customer = $total->nm_customer;
+$e = function ($v) {
+	return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+};
 ?>
 <!DOCTYPE html>
 <html>
@@ -14,25 +12,18 @@ $nm_customer  = $total->nm_customer;
 <head>
 	<title></title>
 	<style>
-		@font-face {
-			font-family: kitfont;
-			src: url('1979 Dot Matrix Regular.TTF');
-		}
-
 		html {
 			margin: 0;
 			padding: 0;
 			font-size: 11px;
-			< !--font-weignt: bold;
-			-->color: #000;
+			color: #000;
 		}
 
 		body {
 			width: 100%;
 			font-family: "Times New Roman", Times, serif;
 			font-size: 11px;
-			< !--font-weignt: bold;
-			-->margin: 0;
+			margin: 0;
 			padding: 0;
 		}
 
@@ -100,11 +91,11 @@ $nm_customer  = $total->nm_customer;
 					</tr>
 					<tr>
 						<td>Reff PO No.</td>
-						<td>: <?= $total->keterangan ?></td>
+						<td>: <?= $e($total->keterangan) ?></td>
 					</tr>
 					<tr>
 						<td>Tax No.</td>
-						<td>: <?= $total->no_pajak ?></td>
+						<td>: <?= $e($total->no_pajak) ?></td>
 					</tr>
 				</table>
 			</td>
@@ -112,11 +103,11 @@ $nm_customer  = $total->nm_customer;
 		<tr>
 			<td>
 				BILL TO :<br />
-				<?= $nm_customer ?><br />
-				<?= $customer->alamat ?><br />
-				Phone : <?= $customer->telpon ?><br />
-				Fax : <?= $customer->fax ?><br />
-				Attn. : <?= $pic_customer->nm_pic ?><br />
+				<?= $e($nm_customer) ?><br />
+				<?= $e($customer->address_office ?? "") ?><br />
+				Phone : <?= $e($customer->telephone ?? "") ?><br />
+				Fax : <?= $e($customer->fax ?? "") ?><br />
+				Attn. : <?= $e($pic_customer->name_pic ?? "") ?><br />
 			</td>
 			<td width="20%">
 			</td>
@@ -136,52 +127,31 @@ $nm_customer  = $total->nm_customer;
 		</thead>
 		<tbody>
 			<?php
-			$grand_total = 0;
-			if (! empty($results)) {
-				$no = 1;
-				$page = 1;
-				foreach ($results as $data) {
-					echo "<tr>";
-					echo "<td align='center' valign='top'>" . $no . "</td>";
-					echo "<td valign='top'>" . $data->desc . "</td>";
-					echo "<td valign='top' align='center'>" . ($data->qty) . " " . ($data->unit) . "</td>";
-					echo "<td valign='top' align='center' style='border-color: black white black black;'>IDR</td>";
-					echo "<td valign='top' align='right' style='border-color: black black black white;'>" . number_format($data->harga_satuan_usd, 2) . "</td>";
-					echo "<td valign='top' align='center' style='border-color: black white black black;'>IDR</td>";
-					echo "<td valign='top' align='right' style='border-color: black black black white;'>" . number_format($data->harga_total_usd, 2) . "</td>";
-					echo "</tr>";
-					$no++;
-				}
-
-				$grand_total += ($data->qty * $data->harga_satuan_usd);
+			$no = 1;
+			foreach ((array) $results as $data) {
+				echo "<tr>";
+				echo "<td align='center' valign='top'>" . $no . "</td>";
+				echo "<td valign='top'>" . nl2br($e($data->desc)) . "</td>";
+				echo "<td valign='top' align='center'>" . $e(rtrim(rtrim(number_format((float) $data->qty, 2, '.', ''), '0'), '.')) . " " . $e($data->unit) . "</td>";
+				echo "<td valign='top' align='center' style='border-color: black white black black;'>IDR</td>";
+				echo "<td valign='top' align='right' style='border-color: black black black white;'>" . number_format((float) $data->harga_satuan_usd, 2) . "</td>";
+				echo "<td valign='top' align='center' style='border-color: black white black black;'>IDR</td>";
+				echo "<td valign='top' align='right' style='border-color: black black black white;'>" . number_format((float) $data->harga_total_usd, 2) . "</td>";
+				echo "</tr>";
+				$no++;
 			}
 
+			// Total diambil dari header (sudah dihitung saat simpan), bukan dari baris terakhir.
+			$has_ppn = $total->ppn_persen > 0;
 			echo "<tr>";
 			echo "<td colspan='2'></td>";
-			echo "<td colspan='3' align=center>";
-			if ($total->ppn_persen > 0) {
-				echo 'VAT<br>';
-			}
-			if ($total->total_invoice_usd > 0) {
-				echo 'TOTAL AMOUNT<br>';
-			}
-			echo "</td>";
-			echo "<td align='center' style='border-color: black white black black;'>";
-			if ($total->ppn_persen > 0) {
-				echo 'IDR<br>';
-			}
-			if ($total->total_invoice_usd > 0) {
-				echo 'IDR<br>';
-			}
-			echo "</td>";
+			echo "<td colspan='3' align='center'>" . ($has_ppn ? 'VAT<br>' : '') . "TOTAL AMOUNT</td>";
+			echo "<td align='center' style='border-color: black white black black;'>" . ($has_ppn ? 'IDR<br>' : '') . "IDR</td>";
 			echo "<td align='right' style='border-color: black black black white;'>";
-			if ($total->ppn_persen > 0) {
-				echo number_format($total->total_ppn_idr, 2) . '<br>';
+			if ($has_ppn) {
+				echo number_format((float) $total->total_ppn_idr, 2) . '<br>';
 			}
-			// if ($total->total_invoice_usd > 0) {
-			// 	echo number_format($total->total_invoice_usd, 2) . '<br>';
-			// }
-			echo number_format($grand_total, 2) . '<br>';
+			echo number_format((float) $total->total_invoice_idr, 2);
 			echo "</td>";
 			echo "</tr>";
 			?>
@@ -232,4 +202,4 @@ $nm_customer  = $total->nm_customer;
 
 </body>
 
-</html>
+</html>

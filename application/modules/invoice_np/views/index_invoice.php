@@ -1,268 +1,150 @@
 <?php
-$ENABLE_ADD     = has_permission('Invoicing.Add');
-$ENABLE_MANAGE  = has_permission('Invoicing.Manage');
-$ENABLE_VIEW    = has_permission('Invoicing.View');
-$ENABLE_DELETE  = has_permission('Invoicing.Delete');
-
+$ENABLE_ADD    = has_permission('Penjualan_Non_Product.Add');
+$ENABLE_MANAGE = has_permission('Penjualan_Non_Product.Manage');
 ?>
-<style type="text/css">
-	thead input {
-		width: 100%;
-	}
-</style>
-<div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
 <link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
 
 <div class="box">
-	<div class="box-tool">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="dropdown">
-					<a class="btn btn-success" href="<?= base_url("invoice_np/data_form") ?>">
-						<i class="fa fa-plus">&nbsp;</i> New Invoice Non Product
-					</a>
-				</div>
-			</div>
+	<?php if ($ENABLE_ADD) : ?>
+		<div class="box-header">
+			<a class="btn btn-success" href="<?= site_url('invoice_np/data_form') ?>">
+				<i class="fa fa-plus">&nbsp;</i> New Invoice Non Product
+			</a>
 		</div>
-	</div>
-	<!-- /.box-header -->
+	<?php endif; ?>
 	<div class="box-body">
-		<table class="table table-bordered table-striped example1" id="example1" width='100%'>
+		<table class="table table-bordered table-striped" id="tbl_invoice_np" width="100%">
 			<thead>
-				<tr class='bg-blue'>
-					<th class="text-center" width='4%'>#</th>
-					<th class="text-center" width='8%'>No Invoice</th>
-					<th class="text-center" width='8%'>Tgl Invoice</th>
-					<th class="text-center" width='8%'>No Faktur</th>
+				<tr class="bg-blue">
+					<th class="text-center" width="4%">#</th>
+					<th class="text-center" width="12%">No Invoice</th>
+					<th class="text-center" width="9%">Tgl Invoice</th>
+					<th class="text-center" width="9%">No Faktur</th>
 					<th class="text-center">Keterangan</th>
 					<th class="text-center">Customer</th>
-					<th class="text-center" width='12%'>Total Invoice</th>
-					<th class="text-center no-sort" width='16%'>Option</th>
+					<th class="text-center" width="12%">Total Invoice</th>
+					<th class="text-center" width="14%">Option</th>
 				</tr>
 			</thead>
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-
-						$this->db->select('SUM(a.qty * a.harga_satuan_usd) as grand_total');
-						$this->db->from('tr_invoice_np_detail a');
-						$this->db->where('a.no_invoice', $record->no_invoice);
-						$get_total = $this->db->get()->row();
-
-						$grand_total = (!empty($get_total->grand_total)) ? $get_total->grand_total : 0;
-
-				?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->no_invoice ?></td>
-							<td><?= date('d-F-Y', strtotime($record->tgl_invoice)) ?></td>
-							<td><?= $record->no_faktur ?></td>
-							<td><?= $record->keterangan ?></td>
-							<td><?= $record->nm_customer ?></td>
-							<td><?= number_format($grand_total) ?></td>
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_MANAGE and $record->no_invoice != '') : ?>
-									<a class="btn btn-success btn-sm" href="<?= base_url('invoice_np/print_pdf/' . $record->id_invoice) ?>" target="_blank" title="View Invoice"><i class="fa fa-print"></i>
-									</a>
-								<?php endif; ?>
-
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</div>
-	<!-- /.box-body -->
 </div>
 
-<!-- awal untuk modal dialog -->
-<!-- Modal -->
-<div class="modal modal-primary" id="dialog-rekap" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<h4 class="modal-title" id="myModalLabel"><span class="fa fa-file-pdf-o"></span>&nbsp;Rekap Data Customer</h4>
-			</div>
-			<div class="modal-body" id="MyModalBody">
-				...
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">
-					<span class="glyphicon glyphicon-remove"></span> Close</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="modal modal-default fade" id="dialog-popup" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<h4 class="modal-title" id="myModalLabel"><span class="fa fa-users"></span>&nbsp;Data Penawaran</h4>
-			</div>
-			<div class="modal-body" id="ModalView">
-				...
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" data-dismiss="modal">
-					<span class="glyphicon glyphicon-remove"></span> Close</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- modal -->
-<div class="modal modal-default fade" id="ModalViewX" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-md">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<h4 class="modal-title" id='head_title'>Closing Penawaran</h4>
-			</div>
-			<div class="modal-body" id="viewX">
-
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" data-dismiss="modal" id='close_penawaran'>Save</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-		<!-- /.modal-content -->
-	</div>
-	<!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
-<!-- DataTables -->
 <script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js') ?>"></script>
 
-<!-- page script -->
 <script type="text/javascript">
-	$(document).on('click', '.edit', function(e) {
-		var id = $(this).data('no_penawaran');
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
-		$.ajax({
-			type: 'POST',
-			url: siteurl + 'wt_penawaran/editPenawaran/' + id,
-			success: function(data) {
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
+	var invoiceUrl = siteurl + 'invoice_np/';
 
-			}
-		})
-	});
-
-	$(document).on('click', '.cetak', function(e) {
-		var id = $(this).data('no_penawaran');
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
-		$.ajax({
-			type: 'POST',
-			url: siteurl + 'xtes/cetak' + id,
-			success: function(data) {
-
-			}
-		})
-	});
-
-	$(document).on('click', '.view', function() {
-		var id = $(this).data('no_penawaran');
-		// alert(id);
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Detail Inventory</b>");
-		$.ajax({
-			type: 'POST',
-			url: siteurl + 'penawaran/ViewHeader/' + id,
-			data: {
-				'id': id
+	$(function() {
+		$('#tbl_invoice_np').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [
+				[2, 'desc']
+			],
+			ajax: {
+				url: invoiceUrl + 'get_data',
+				type: 'POST'
 			},
-			success: function(data) {
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
-
-			}
-		})
-	});
-
-
-
-	// CLOSE PENAWARAN
-	$(document).on('click', '.close_penawaran', function(e) {
-		e.preventDefault();
-		var id = $(this).data('no_penawaran');
-
-		$("#head_title").html("Closing Penawaran");
-		$.ajax({
-			type: 'POST',
-			url: base_url + active_controller + '/modal_closing_penawaran/' + id,
-			success: function(data) {
-				$("#ModalViewX").modal();
-				$("#viewX").html(data);
-
-			},
-			error: function() {
-				swal({
-					title: "Error Message !",
-					text: 'Connection Timed Out ...',
-					type: "warning",
-					timer: 5000,
-					showCancelButton: false,
-					showConfirmButton: false,
-					allowOutsideClick: false
-				});
-			}
+			columns: [{
+					data: 'no'
+				},
+				{
+					data: 'no_invoice'
+				},
+				{
+					data: 'tgl_invoice'
+				},
+				{
+					data: 'no_faktur'
+				},
+				{
+					data: 'keterangan'
+				},
+				{
+					data: 'nm_customer'
+				},
+				{
+					data: 'total_invoice'
+				},
+				{
+					data: 'option'
+				}
+			],
+			columnDefs: [{
+				orderable: false,
+				targets: [0, 7]
+			}]
 		});
 	});
 
-	$(function() {
-		// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
-		// $('#example1 thead tr:eq(1) th').each( function (i) {
-		// var title = $(this).text();
-		//alert(title);
-		// if (title == "#" || title =="Action" ) {
-		// $(this).html( '' );
-		// }else{
-		// $(this).html( '<input type="text" />' );
-		// }
-
-		// $( 'input', this ).on( 'keyup change', function () {
-		// if ( table.column(i).search() !== this.value ) {
-		// table
-		// .column(i)
-		// .search( this.value )
-		// .draw();
-		// }else{
-		// table
-		// .column(i)
-		// .search( this.value )
-		// .draw();
-		// }
-		// } );
-		// } );
-
-
-		$("#form-area").hide();
+	$(document).on('click', '.viewed', function() {
+		window.location.href = invoiceUrl + 'data_form/' + $(this).data('iddata') + '/view';
 	});
 
+	$(document).on('click', '.edited', function() {
+		window.location.href = invoiceUrl + 'data_form/' + $(this).data('iddata') + '/edit';
+	});
 
-	//Delete
-
-	function PreviewPdf(id) {
-		param = id;
-		tujuan = 'customer/print_request/' + param;
-
-		$(".modal-body").html('<iframe src="' + tujuan + '" frameborder="no" width="570" height="400"></iframe>');
+	// Delete dan Update (approve) memakai alur yang sama: konfirmasi lalu POST.
+	function prosesInvoice(iddata, aksi, teks, judul) {
+		swal({
+				title: "Are you sure?",
+				text: teks,
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonClass: "btn-danger",
+				confirmButtonText: "Yes, Process it!",
+				cancelButtonText: "No, cancel process!",
+				closeOnConfirm: true,
+				closeOnCancel: false
+			},
+			function(isConfirm) {
+				if (!isConfirm) {
+					swal("Cancelled", "Data can be process again :)", "error");
+					return;
+				}
+				$.ajax({
+					url: invoiceUrl + aksi + '/' + iddata,
+					type: 'POST',
+					cache: false,
+					dataType: 'json',
+					success: function(data) {
+						if (data.status == 1) {
+							swal({
+								title: judul + " Success!",
+								text: data.pesan,
+								type: "success",
+								timer: 3000
+							});
+							$('#tbl_invoice_np').DataTable().ajax.reload(null, false);
+						} else {
+							swal({
+								title: judul + " Failed!",
+								text: data.pesan,
+								type: "warning"
+							});
+						}
+					},
+					error: function() {
+						swal({
+							title: "Error Message !",
+							text: 'An Error Occured During Process. Please try again..',
+							type: "warning"
+						});
+					}
+				});
+			});
 	}
 
-	function PreviewRekap() {
-		tujuan = 'customer/rekap_pdf';
-		$(".modal-body").html('<iframe src="' + tujuan + '" frameborder="no" width="100%" height="400"></iframe>');
-	}
+	$(document).on('click', '.deleted', function() {
+		prosesInvoice($(this).data('iddata'), 'delete_data', 'Delete this data ?', 'Delete');
+	});
+
+	$(document).on('click', '.updated', function() {
+		prosesInvoice($(this).data('iddata'), 'update_data', 'Update this data ?', 'Update');
+	});
 </script>

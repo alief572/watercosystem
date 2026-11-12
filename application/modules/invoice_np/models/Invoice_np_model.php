@@ -73,6 +73,58 @@ class Invoice_np_model extends BF_Model
         return $query->result();
     }
 
+    /**
+     * Query serverside untuk DataTable index. Kolom order urut sesuai urutan kolom di tabel.
+     */
+    private function _query_invoice($keyword = '')
+    {
+        $this->db->from('tr_invoice_np_header a');
+        $keyword = trim((string) $keyword);
+        if ($keyword !== '') {
+            $this->db->group_start();
+            $this->db->like('a.no_invoice', $keyword);
+            $this->db->or_like('a.tgl_invoice', $keyword);
+            $this->db->or_like('a.no_faktur', $keyword);
+            $this->db->or_like('a.keterangan', $keyword);
+            $this->db->or_like('a.nm_customer', $keyword);
+            $this->db->or_like('a.total_invoice_idr', str_replace(',', '', $keyword));
+            $this->db->group_end();
+        }
+    }
+
+    public function get_invoice_json($keyword, $order_col, $order_dir, $start, $length)
+    {
+        $columns = [
+            1 => 'a.no_invoice',
+            2 => 'a.tgl_invoice',
+            3 => 'a.no_faktur',
+            4 => 'a.keterangan',
+            5 => 'a.nm_customer',
+            6 => 'a.total_invoice_idr',
+        ];
+
+        $this->_query_invoice($keyword);
+        $filtered = $this->db->count_all_results();
+
+        $this->_query_invoice($keyword);
+        $this->db->select('a.*');
+        if (isset($columns[$order_col])) {
+            $this->db->order_by($columns[$order_col], strtolower($order_dir) === 'asc' ? 'ASC' : 'DESC');
+        } else {
+            $this->db->order_by('a.id_invoice', 'DESC');
+        }
+        if ($length > 0) {
+            $this->db->limit((int) $length, (int) $start);
+        }
+        $rows = $this->db->get()->result();
+
+        return [
+            'total'    => $this->db->count_all('tr_invoice_np_header'),
+            'filtered' => $filtered,
+            'rows'     => $rows,
+        ];
+    }
+
     public function get_no_invoice()
     {
         $this->db->select('MAX(a.no_invoice) as max');
