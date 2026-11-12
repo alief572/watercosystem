@@ -56,9 +56,7 @@ class Invoice_np extends Admin_Controller
 			$length
 		);
 
-		$can_add    = has_permission($this->addPermission);
 		$can_manage = has_permission($this->managePermission);
-		$can_delete = has_permission($this->deletePermission);
 
 		$data = [];
 		$no   = $start;
@@ -67,17 +65,7 @@ class Invoice_np extends Admin_Controller
 			$id = (int) $row->id_invoice;
 
 			$option = "<button type='button' data-iddata='" . $id . "' class='btn btn-sm btn-warning viewed' title='View'><i class='fa fa-eye'></i></button> ";
-			if ($row->status == '0') {
-				if ($can_add) {
-					$option .= "<button type='button' class='btn btn-sm btn-primary edited' title='Edit' data-iddata='" . $id . "'><i class='fa fa-edit'></i></button> ";
-				}
-				if ($can_manage) {
-					$option .= "<button type='button' class='btn btn-sm btn-info updated' title='Update' data-iddata='" . $id . "'><i class='fa fa-check'></i></button> ";
-				}
-				if ($can_delete) {
-					$option .= "<button type='button' class='btn btn-sm btn-danger deleted' title='Delete' data-iddata='" . $id . "'><i class='fa fa-close'></i></button>";
-				}
-			} elseif ($can_manage) {
+			if ($can_manage) {
 				$option .= "<a href='" . site_url('invoice_np/print_pdf/' . $id) . "' class='btn btn-sm btn-success' title='Print' target='_blank'><i class='fa fa-print'></i></a>";
 			}
 
