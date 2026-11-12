@@ -119,6 +119,45 @@ class Ms_product_costing_model extends BF_Model
         $query = $this->db->get();
         return $query->result();
     }
+    private function _formula_base($search = '')
+    {
+        $this->db->from('ms_product_costing a');
+        $this->db->join('ms_inventory_category2 b', 'b.id_category2=a.id_category2');
+        $this->db->where('a.deleted', 0);
+        if ($search !== '') {
+            $this->db->group_start()
+                ->like('a.nama_category2', $search)
+                ->or_like('a.revisi', $search)
+                ->group_end();
+        }
+    }
+
+    public function get_datatable_formula($start, $length, $search, $order)
+    {
+        $cols = array(1 => 'a.nama_category2', 2 => 'a.revisi');
+
+        $this->_formula_base();
+        $total = $this->db->count_all_results();
+
+        $this->_formula_base($search);
+        $filtered = $this->db->count_all_results();
+
+        $this->db->select('a.id_product_costing, a.nama_category2, a.revisi');
+        $this->_formula_base($search);
+        $col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'a.id_product_costing';
+        $dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+        $this->db->order_by($col, $dir);
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        return array(
+            'total'    => $total,
+            'filtered' => $filtered,
+            'data'     => $this->db->get()->result(),
+        );
+    }
+
     public function get_data_usage()
     {
         $this->db->select('*');
@@ -154,6 +193,59 @@ class Ms_product_costing_model extends BF_Model
         return $query->result();
     }
 
+
+    private function _calculation_base($search = '')
+    {
+        $this->db->from('ms_product_pricelist a');
+        $this->db->join('ms_inventory_type b', 'b.id_type=a.id_type');
+        $this->db->join('ms_inventory_category1 c', 'c.id_category1=a.id_category1');
+        $this->db->join('ms_inventory_category2 d', 'd.id_category2=a.id_category2');
+        $this->db->join('ms_inventory_category3 e', 'e.id_category3=a.id_category3');
+        $this->db->join('ms_product_costing f', 'f.id_category2=a.id_formula', 'left');
+        $this->db->where('a.deleted', 0);
+        if ($search !== '') {
+            $this->db->group_start()
+                ->like('b.nama', $search)
+                ->or_like('c.nama', $search)
+                ->or_like('d.nama', $search)
+                ->or_like('e.nama', $search)
+                ->or_like('e.kode_barang', $search)
+                ->or_like('f.nama_category2', $search)
+                ->group_end();
+        }
+    }
+
+    public function get_datatable_calculation($start, $length, $search, $order)
+    {
+        $cols = array(
+            1 => 'b.nama', 2 => 'c.nama', 3 => 'd.nama', 4 => 'e.nama', 5 => 'e.kode_barang',
+            6 => 'f.nama_category2', 7 => 'a.harga_beli', 8 => 'a.kurs',
+            9 => 'a.total_pricelist', 10 => 'a.harga_rupiah',
+        );
+
+        $this->_calculation_base();
+        $total = $this->db->count_all_results();
+
+        $this->_calculation_base($search);
+        $filtered = $this->db->count_all_results();
+
+        $this->db->select('a.id_product_pricelist, a.harga_beli, a.kurs, a.total_pricelist, a.harga_rupiah,
+            b.nama as nama_category1, c.nama as nama_category2, d.nama as nama_category3,
+            e.nama as nama_category4, e.kode_barang as kode_produk, f.nama_category2 as nama_formula');
+        $this->_calculation_base($search);
+        $col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'a.id_product_pricelist';
+        $dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+        $this->db->order_by($col, $dir);
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        return array(
+            'total'    => $total,
+            'filtered' => $filtered,
+            'data'     => $this->db->get()->result(),
+        );
+    }
 
     private function _pricelist_base($search = '')
     {

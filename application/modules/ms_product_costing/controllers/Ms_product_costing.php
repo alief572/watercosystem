@@ -40,11 +40,40 @@ class Ms_product_costing extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$deleted = '0';
-		$data = $this->Ms_product_costing_model->get_data_formula();
-		$this->template->set('results', $data);
 		$this->template->title('Formula Product Costing');
 		$this->template->render('index_formula');
+	}
+
+	public function get_data_formula_json()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$post = $this->input->post();
+
+		$result = $this->Ms_product_costing_model->get_datatable_formula(
+			(int) $post['start'],
+			(int) $post['length'],
+			isset($post['search']['value']) ? $post['search']['value'] : '',
+			isset($post['order'][0]) ? $post['order'][0] : array()
+		);
+
+		$can_manage = has_permission('Formula.Manage');
+		$no = (int) $post['start'];
+		$rows = array();
+		foreach ($result['data'] as $r) {
+			$no++;
+			$row = array($no, html_escape($r->nama_category2), html_escape($r->revisi));
+			if ($can_manage) {
+				$row[] = '<a class="btn btn-primary btn-sm" href="' . base_url('ms_product_costing/revisiFormula/' . (int) $r->id_product_costing) . '" title="Edit"><i class="fa fa-edit"></i></a>';
+			}
+			$rows[] = $row;
+		}
+
+		echo json_encode(array(
+			'draw'            => (int) $post['draw'],
+			'recordsTotal'    => $result['total'],
+			'recordsFiltered' => $result['filtered'],
+			'data'            => $rows,
+		));
 	}
 
 
@@ -517,11 +546,74 @@ class Ms_product_costing extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$deleted = '0';
-		$data = $this->Ms_product_costing_model->get_data_pricelist();
-		$this->template->set('results', $data);
 		$this->template->title('Pricelist');
 		$this->template->render('index_pricelist');
+	}
+
+	private function _calculation_row($r)
+	{
+		return array(
+			html_escape($r->nama_category1),
+			html_escape($r->nama_category2),
+			html_escape($r->nama_category3),
+			html_escape($r->nama_category4),
+			html_escape($r->kode_produk),
+			html_escape($r->nama_formula),
+			number_format($r->harga_beli, 2),
+			number_format($r->kurs),
+			number_format($r->total_pricelist),
+			number_format($r->harga_rupiah),
+		);
+	}
+
+	public function get_data_calculation_json()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$post = $this->input->post();
+
+		$result = $this->Ms_product_costing_model->get_datatable_calculation(
+			(int) $post['start'],
+			(int) $post['length'],
+			isset($post['search']['value']) ? $post['search']['value'] : '',
+			isset($post['order'][0]) ? $post['order'][0] : array()
+		);
+
+		$can_manage = has_permission('Formula.Manage');
+		$can_delete = has_permission('Formula.Delete');
+		$no = (int) $post['start'];
+		$rows = array();
+		foreach ($result['data'] as $r) {
+			$no++;
+			$row = array_merge(array($no), $this->_calculation_row($r));
+			if ($can_manage) {
+				$id = (int) $r->id_product_pricelist;
+				$btn = '<a class="btn btn-primary btn-sm" href="' . base_url('ms_product_costing/editpricelist/' . $id) . '" title="Edit"><i class="fa fa-edit"></i></a> ';
+				if ($can_delete) {
+					$btn .= '<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id="' . $id . '"><i class="fa fa-trash"></i></a>';
+				}
+				$row[] = $btn;
+			}
+			$rows[] = $row;
+		}
+
+		echo json_encode(array(
+			'draw'            => (int) $post['draw'],
+			'recordsTotal'    => $result['total'],
+			'recordsFiltered' => $result['filtered'],
+			'data'            => $rows,
+		));
+	}
+
+	public function get_data_calculation_export()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$rows = array();
+		$no = 0;
+		foreach ($this->Ms_product_costing_model->get_data_pricelist() as $r) {
+			$no++;
+			$rows[] = array_merge(array($no), $this->_calculation_row($r));
+		}
+		echo json_encode(array('data' => $rows));
 	}
 
 	public function excel_calculation()

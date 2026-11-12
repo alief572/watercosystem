@@ -23,7 +23,7 @@ thead input {
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_formula" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th width="5">#</th>
@@ -34,30 +34,7 @@ thead input {
 			<?php endif; ?>
 		</tr>
 		</thead>
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->nama_category2 ?></td>
-			<td><?= $record->revisi ?></td>
-			<td style="padding-left:20px">
-		
-			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-primary btn-sm" href="<?= base_url('/ms_product_costing/revisiFormula/'.$record->id_product_costing) ?>" title="Edit" data-no_inquiry="<?=$record->no_inquiry?>"><i class="fa fa-edit"></i>
-				</a>
-			<?php endif; ?>
-
-			<?php if($ENABLE_DELETE) : ?>
-				<!-- <a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id="<?=$record->id?>"><i class="fa fa-trash"></i>
-				</a> -->
-			<?php endif; ?>
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -181,6 +158,15 @@ thead input {
 	        // orderCellsTop: true,
 	        // fixedHeader: true
 	    // } );
+		$("#tbl_formula").DataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: siteurl + 'ms_product_costing/get_data_formula_json',
+				type: 'POST'
+			},
+			columnDefs: [{ orderable: false, targets: [0<?= $ENABLE_MANAGE ? ', 3' : '' ?>] }]
+		});
     	$("#form-area").hide();
   	});
 	

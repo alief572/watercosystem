@@ -24,7 +24,7 @@ $ENABLE_DELETE  = has_permission('Formula.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_calculation" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th width="5">#</th>
@@ -44,39 +44,6 @@ $ENABLE_DELETE  = has_permission('Formula.Delete');
 				</tr>
 			</thead>
 			<tbody>
-				<?php if (empty($results)) {
-				} else {
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++; ?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->nama_category1 ?></td>
-							<td><?= $record->nama_category2 ?></td>
-							<td><?= $record->nama_category3 ?></td>
-							<td><?= $record->nama_category4 ?></td>
-							<td><?= $record->kode_produk ?></td>
-							<td><?= $record->nama_formula ?></td>
-							<td><?= number_format($record->harga_beli, 2) ?></td>
-							<td><?= number_format($record->kurs) ?></td>
-							<td><?= number_format($record->total_pricelist) ?></td>
-							<td><?= number_format($record->harga_rupiah) ?></td>
-							<td style="padding-left:20px">
-
-								<?php if ($ENABLE_MANAGE) : ?>
-									<a class="btn btn-primary btn-sm" href="<?= base_url('/ms_product_costing/editpricelist/' . $record->id_product_pricelist) ?>" title="Edit" data-no_inquiry="<?= $record->no_inquiry ?>"><i class="fa fa-edit"></i>
-									</a>
-								<?php endif; ?>
-
-								<?php if ($ENABLE_DELETE) : ?>
-									<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Delete" data-id="<?= $record->id_product_pricelist ?>"><i class="fa fa-trash"></i>
-									</a>
-								<?php endif; ?>
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
 			</tbody>
 		</table>
 	</div>
@@ -98,26 +65,6 @@ $ENABLE_DELETE  = has_permission('Formula.Delete');
 			</tr>
 		</thead>
 		<tbody>
-			<?php if (empty($results)) {
-			} else {
-				$numb = 0;
-				foreach ($results as $record) {
-					$numb++; ?>
-					<tr>
-						<td><?= $numb; ?></td>
-						<td><?= $record->nama_category1 ?></td>
-						<td><?= $record->nama_category2 ?></td>
-						<td><?= $record->nama_category3 ?></td>
-						<td><?= $record->nama_category4 ?></td>
-						<td><?= $record->kode_produk ?></td>
-						<td><?= $record->nama_formula ?></td>
-						<td><?= number_format($record->harga_beli, 2) ?></td>
-						<td><?= number_format($record->kurs) ?></td>
-						<td><?= number_format($record->total_pricelist) ?></td>
-						<td><?= number_format($record->harga_rupiah) ?></td>
-					</tr>
-			<?php }
-			}  ?>
 		</tbody>
 	</table>
 	<!-- /.box-body -->
@@ -239,10 +186,18 @@ $ENABLE_DELETE  = has_permission('Formula.Delete');
 	})
 
 	$(function() {
-		// var table = $('#example1').DataTable( {
-		//     orderCellsTop: true,
-		//     fixedHeader: true
-		// } );
+		$("#tbl_calculation").DataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: siteurl + 'ms_product_costing/get_data_calculation_json',
+				type: 'POST'
+			},
+			columnDefs: [{
+				orderable: false,
+				targets: [0<?= $ENABLE_MANAGE ? ', 11' : '' ?>]
+			}]
+		});
 		$("#form-area").hide();
 	});
 
@@ -269,17 +224,32 @@ $ENABLE_DELETE  = has_permission('Formula.Delete');
 			return;
 		}
 
-		try {
-			// Pastiin Table2Excel available
-			if (typeof Table2Excel !== 'undefined') {
-				const table2excel = new Table2Excel();
-				table2excel.export(table, 'Pricelist_Data.xlsx');
-			} else {
-				alert('Library Table2Excel tidak terload!');
-			}
-		} catch (error) {
-			console.error('Error:', error);
-			alert('Error export: ' + error.message);
+		if (typeof Table2Excel === 'undefined') {
+			alert('Library Table2Excel tidak terload!');
+			return;
 		}
+
+		// Tabel utama serverside hanya punya satu halaman, jadi ambil semua baris dari server.
+		$.ajax({
+			type: 'POST',
+			url: siteurl + 'ms_product_costing/get_data_calculation_export',
+			dataType: 'json',
+			success: function(res) {
+				var html = '';
+				$.each(res.data, function(i, row) {
+					html += '<tr><td>' + row.join('</td><td>') + '</td></tr>';
+				});
+				$(table).find('tbody').html(html);
+				try {
+					new Table2Excel().export(table, 'Pricelist_Data.xlsx');
+				} catch (error) {
+					console.error('Error:', error);
+					alert('Error export: ' + error.message);
+				}
+			},
+			error: function() {
+				alert('Gagal mengambil data untuk export.');
+			}
+		});
 	}
 </script>
