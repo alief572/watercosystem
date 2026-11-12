@@ -209,7 +209,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 						if (result.status == '1') {
 							swal({
 									title: "Sukses",
-									text: "Data Planning berhasil dihapus.",
+									text: "SO berhasil dibatalkan.",
 									type: "success"
 								},
 								function() {
@@ -218,7 +218,7 @@ $ENABLE_DELETE  = has_permission('Management.Delete');
 						} else {
 							swal({
 								title: "Error",
-								text: "Data error. Gagal hapus data",
+								text: result.pesan || "Data error. Gagal hapus data",
 								type: "error"
 							})
 
