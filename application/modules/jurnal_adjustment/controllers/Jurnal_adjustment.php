@@ -1,256 +1,110 @@
-<?php
-
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
-/*
- * @author Ichsan
- * @copyright Copyright (c) 2019, Ichsan
- *
- * This is controller for Master Supplier
- */
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class Jurnal_adjustment extends Admin_Controller
 {
-    //Permission
-    protected $viewPermission     = 'Jurnal_Adjustment.View';
-    protected $addPermission      = 'Jurnal_Adjustment.Add';
+    protected $viewPermission = 'Jurnal_Adjustment.View';
     protected $managePermission = 'Jurnal_Adjustment.Manage';
-    protected $deletePermission = 'Jurnal_Adjustment.Delete';
 
     public function __construct()
     {
         parent::__construct();
-
-        $this->load->library(array('Mpdf', 'upload', 'Image_lib'));
-        $this->load->model(array(
-            'Jurnal_adjustment/Jurnal_adjustment_model',
-            'Aktifitas/aktifitas_model',
-        ));
-        $this->template->title('Manage Data Supplier');
+        $this->load->model('Jurnal_adjustment/Jurnal_adjustment_model');
+        $this->template->title('Jurnal Adjustment');
         $this->template->page_icon('fa fa-building-o');
-
-        date_default_timezone_set('Asia/Bangkok');
+        date_default_timezone_set('Asia/Jakarta');
     }
 
     public function index()
     {
-        $this->template->title('Jurnal Adjustment');
+        $this->auth->restrict($this->viewPermission);
         $this->template->render('index');
+    }
+
+    private function authorize($manage = false)
+    {
+        if (!has_permission($this->viewPermission) || ($manage && !has_permission($this->managePermission))) {
+            throw new DomainException('Anda tidak memiliki izin untuk mengakses jurnal adjustment.', 403);
+        }
+    }
+
+    private function require_method($method)
+    {
+        if ($this->input->method(true) !== $method) {
+            $this->output->set_header('Allow: '.$method);
+            throw new DomainException('Metode request tidak diizinkan.', 405);
+        }
+    }
+
+    private function json($response, $status = 200)
+    {
+        http_response_code($status);
+        $this->output->set_content_type('application/json');
+        $this->output->set_header('Cache-Control: no-store');
+        echo json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE);
+    }
+
+    private function failure(Throwable $error)
+    {
+        $status = $error instanceof DomainException && in_array($error->getCode(), array(403,404,405,409,422,503), true) ? $error->getCode() : 500;
+        if ($status === 500) { log_message('error', 'Jurnal adjustment: '.$error->getMessage()); }
+        $this->json(array('code'=>$status, 'msg'=>$status === 500 ? 'Posting belum terkonfirmasi. Periksa status adjustment sebelum mencoba kembali; hubungi administrator jika masalah berlanjut.' : $error->getMessage()), $status);
     }
 
     public function get_dataa_adjustment()
     {
-        $draw = $this->input->get('draw', true);
-        $length = $this->input->get('length', true);
-        $start = $this->input->get('start', true);
-        $search = $this->input->get('search', true);
-
-        $get_data = $this->Jurnal_adjustment_model->get_data_adjustment(['draw' => $draw, 'length' => $length, 'start' => $start, 'search' => $search['value']]);
-
-        $count_all = (!empty($get_data['count_all'])) ? $get_data['count_all'] : 0;
-        $count_filter = (!empty($get_data['count_filter'])) ? $get_data['count_filter'] : 0;
-
-        $no = (0 + $start);
-        $hasil = [];
-
-        if (!empty($get_data['data'])) {
-            foreach ($get_data['data'] as $item) {
-                $no++;
-
-                $action = $this->_render_action_adjustment($item);
-
-                $hasil[] = [
-                    'no' => $no,
-                    'no_transaksi' => $item->id_transaksi,
-                    'tanggal' => date('d F Y', strtotime($item->tanggal_transaksi)),
-                    'material' => $item->nama_material,
-                    'tipe_adjust' => $item->adjustment,
-                    'gudang' => $item->nama_gudang,
-                    'keterangan' => $item->note,
-                    'jumlah_stock' => number_format($item->total_qty),
-                    'action' => $action
-                ];
+        $debug = $this->db->db_debug;
+        $this->db->db_debug = false;
+        try {
+            $this->authorize();
+            $this->require_method('GET');
+            $search = $this->input->get('search');
+            $data = $this->Jurnal_adjustment_model->get_data_adjustment(array('start'=>$this->input->get('start'), 'length'=>$this->input->get('length'), 'search'=>is_array($search) ? ($search['value'] ?? '') : ''));
+            $rows = array();
+            $no = max(0, (int)$this->input->get('start'));
+            foreach ($data['data'] as $item) {
+                $rows[] = array('no'=>++$no, 'no_transaksi'=>html_escape($item->id_transaksi ?? ''),
+                    'tanggal'=>html_escape($item->tanggal_transaksi ?? ''), 'material'=>html_escape($item->nama_material ?? ''),
+                    'tipe_adjust'=>html_escape($item->adjustment ?? ''), 'gudang'=>html_escape($item->nama_gudang ?? ''),
+                    'keterangan'=>html_escape($item->note ?? ''), 'jumlah_stock'=>number_format((float)$item->total_qty),
+                    'action'=>has_permission($this->managePermission) ? '<button type="button" class="btn btn-sm btn-primary process_jurnal" data-id_transaksi="'.html_escape($item->id_transaksi ?? '').'" title="Process Jurnal Adjustment"><i class="fa fa-check"></i></button>' : '');
             }
-        }
-
-        $response = [
-            'draw' => intval($draw),
-            'recordsTotal' => $count_all,
-            'recordsFiltered' => $count_filter,
-            'data' => $hasil
-        ];
-
-        echo json_encode($response);
-    }
-
-    public function _render_action_adjustment($item)
-    {
-        $btn_jurnal = '';
-        if (has_permission($this->managePermission)) {
-            $btn_jurnal = '<button type="button" class="btn btn-sm btn-primary process_jurnal" data-id_transaksi="' . $item->id_transaksi . '" title="Process Jurnal Adjustment"><i class="fa fa-check"></i></button>';
-        }
-
-        $action = $btn_jurnal;
-
-        return $action;
+            $this->json(array('draw'=>max(0, (int)$this->input->get('draw')), 'recordsTotal'=>$data['count_all'], 'recordsFiltered'=>$data['count_filter'], 'data'=>$rows));
+        } catch (Throwable $error) { $this->failure($error); }
+        finally { $this->db->db_debug = $debug; }
     }
 
     public function process_jurnal()
     {
-        $id_transaksi = $this->input->get('id_transaksi', true);
-
-        $get_adjustment = $this->Jurnal_adjustment_model->get_data_adjustment(null, $id_transaksi);
-
-        $get_jurnal = $this->Jurnal_adjustment_model->get_jurnal($id_transaksi, $get_adjustment->adjustment);
-
-        $data = [
-            'data_adjustment' => $get_adjustment,
-            'data_jurnal' => $get_jurnal
-        ];
-
-        $this->load->view('process_jurnal', $data);
+        $debug = $this->db->db_debug;
+        $this->db->db_debug = false;
+        try {
+            $this->authorize(true);
+            $this->require_method('GET');
+            $this->output->set_header('Cache-Control: no-store');
+            $this->session->set_userdata('jurnal_adjustment_preview', null);
+            $data = $this->Jurnal_adjustment_model->prepare_journal($this->input->get('id_transaksi'));
+            $token = bin2hex(random_bytes(32));
+            $this->session->set_userdata('jurnal_adjustment_preview', array('token'=>$token, 'snapshot'=>$data['snapshot']));
+            $data['preview_token'] = $token;
+            $this->load->view('process_jurnal', $data);
+        } catch (Throwable $error) { $this->failure($error); }
+        finally { $this->db->db_debug = $debug; }
     }
 
     public function save_post_jurnal_adjustment()
     {
-        $id_transaksi = $this->input->post('id_transaksi', true);
-
-        $this->db->trans_begin();
-
         try {
-            $get_adjustment = $this->Jurnal_adjustment_model->get_data_adjustment('', $id_transaksi);
-
-            $get_costbooks = $this->Jurnal_adjustment_model->get_costbook($get_adjustment->id_material, $get_adjustment->tanggal_transaksi);
-
-            $nilai_costbook = (!empty($get_costbooks->nilai_costbook)) ? $get_costbooks->nilai_costbook : 0;
-
-            $ttl = round($get_adjustment->total_qty * $nilai_costbook);
-
-            $nomor = $this->Jurnal_adjustment_model->get_Nomor_Jurnal_Sales('101', date('Y-m-d'));
-
-            $arr_jurnal_header = [
-                'nomor' => $nomor,
-                'tgl' => date('Y-m-d'),
-                'jml' => $ttl,
-                'koreksi_no' => '-',
-                'kdcab' => '101',
-                'jenis' => 'JV',
-                'keterangan' => 'Adjustment ' . $get_adjustment->adjustment . ' ' . $id_transaksi,
-                'bulan' => date('m'),
-                'tahun' => date('Y'),
-                'user_id' => $this->auth->user_id(),
-                'memo' => '',
-                'tgl_jvkoreksi' => date('Y-m-d'),
-                'ho_valid' => ''
-            ];
-
-            $arr_jurnal_detail = [];
-
-            $arr_coa = ['1105-01-01', '6201-01-51'];
-
-            $this->db->select('a.no_perkiraan as no_coa, a.nama as nm_coa');
-            $this->db->from(DBACC . '.coa_master a');
-            $this->db->where_in('a.no_perkiraan', $arr_coa);
-            $get_data_coa = $this->db->get()->result();
-
-            foreach ($get_data_coa as $item_coa) {
-                if ($get_adjustment->adjustment == 'PLUS') {
-                    if ($item_coa->no_coa == '1105-01-01') {
-                        $arr_jurnal_detail = [
-                            'tipe' => 'JV',
-                            'nomor' => $nomor,
-                            'tanggal' => date('Y-m-d'),
-                            'no_perkiraan' => $item_coa->no_coa,
-                            'keterangan' => 'Adjustment ' . $get_adjustment->adjustment . ' ' . $id_transaksi,
-                            'jenis_trans' => '',
-                            'no_reff' => $id_transaksi,
-                            'stspos' => '0',
-                            'debet' => $ttl
-                        ];
-                    } else {
-                        $arr_jurnal_detail = [
-                            'tipe' => 'JV',
-                            'nomor' => $nomor,
-                            'tanggal' => date('Y-m-d'),
-                            'no_perkiraan' => $item_coa->no_coa,
-                            'keterangan' => 'Adjustment ' . $get_adjustment->adjustment . ' ' . $id_transaksi,
-                            'jenis_trans' => '',
-                            'no_reff' => $id_transaksi,
-                            'stspos' => '0',
-                            'kredit' => $ttl
-                        ];
-                    }
-                } else {
-                    if ($item_coa->no_coa == '1105-01-01') {
-                        $arr_jurnal_detail = [
-                            'tipe' => 'JV',
-                            'nomor' => $nomor,
-                            'tanggal' => date('Y-m-d'),
-                            'no_perkiraan' => $item_coa->no_coa,
-                            'keterangan' => 'Adjustment ' . $get_adjustment->adjustment . ' ' . $id_transaksi,
-                            'jenis_trans' => '',
-                            'no_reff' => $id_transaksi,
-                            'stspos' => '0',
-                            'kredit' => $ttl
-                        ];
-                    } else {
-                        $arr_jurnal_detail = [
-                            'tipe' => 'JV',
-                            'nomor' => $nomor,
-                            'tanggal' => date('Y-m-d'),
-                            'no_perkiraan' => $item_coa->no_coa,
-                            'keterangan' => 'Adjustment ' . $get_adjustment->adjustment . ' ' . $id_transaksi,
-                            'jenis_trans' => '',
-                            'no_reff' => $id_transaksi,
-                            'stspos' => '0',
-                            'debet' => $ttl
-                        ];
-                    }
-                }
-
-                $insert_jurnal_detail = $this->db->insert(DBACC . '.jurnal', $arr_jurnal_detail);
-                if (!$insert_jurnal_detail) {
-                    throw new Exception('Proses simpan jurnal ke TRAS gagal !');
-                }
+            $this->authorize(true);
+            $this->require_method('POST');
+            $id = $this->input->post('id_transaksi');
+            $token = $this->input->post('preview_token');
+            $preview = $this->session->userdata('jurnal_adjustment_preview');
+            if (!is_string($token) || !is_array($preview) || !isset($preview['token'], $preview['snapshot']['id']) || !hash_equals($preview['token'], $token) || $preview['snapshot']['id'] !== $id) {
+                throw new DomainException('Token preview tidak valid. Buka preview adjustment kembali.', 403);
             }
-
-            $insert_jurnal_header = $this->db->insert(DBACC . '.javh', $arr_jurnal_header);
-            if (!$insert_jurnal_header) {
-                throw new Exception('Proses simpan jurnal ke TRAS gagal !');
-            }
-
-            $update_adjustment_stock = $this->db->update('adjustment_stock', ['status_jurnal' => 'CLS'], ['id_transaksi' => $id_transaksi]);
-            if (!$update_adjustment_stock) {
-                throw new Exception('Proses simpan jurnal ke TRAS gagal !');
-            }
-
-            $Qry_Update_Cabang_acc     = $this->db->query("UPDATE " . DBACC . ".pastibisa_tb_cabang SET nomorJC = nomorJC + 1 WHERE nocab='101'");
-
-            if (!$Qry_Update_Cabang_acc) {
-                throw new Exception('Proses simpan jurnal ke TRAS gagal !');
-            }
-
-            $this->db->trans_commit();
-            http_response_code(200);
-
-            $response = [
-                'code' => 200,
-                'msg' => 'Selamat! Jurnal adjustment telah berhasil di proses ke TRAS !'
-            ];
-
-            echo json_encode($response);
-        } catch (Exception $e) {
-            $this->db->trans_rollback();
-            http_response_code(500);
-
-            $response = [
-                'code' => 500,
-                'msg' => $e->getMessage()
-            ];
-
-            echo json_encode($response);
-        }
+            $number = $this->Jurnal_adjustment_model->post_journal($id, $preview['snapshot'], $this->auth->user_id());
+            $this->session->set_userdata('jurnal_adjustment_preview', null);
+            $this->json(array('code'=>200, 'msg'=>'Jurnal adjustment berhasil diposting ke TRAS.', 'nomor'=>$number));
+        } catch (Throwable $error) { $this->failure($error); }
     }
 }
