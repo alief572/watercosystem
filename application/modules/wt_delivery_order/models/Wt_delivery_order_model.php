@@ -666,29 +666,8 @@ class Wt_delivery_order_model extends BF_Model
 
       $option = $view_do . ' ' . $print_do;
 
-      $nilai_costbook = 0;
-
-      $no_invoice = [];
-
-      $this->db->select('a.id_category3, a.qty_do, a.tgl_delivery');
-      $this->db->from('tr_delivery_order_detail a');
-      $this->db->where('a.no_do', $item->no_do);
-      $get_detail = $this->db->get()->result();
-
-      foreach ($get_detail as $item_detail) {
-        $this->db->select('a.nilai_costbook');
-        $this->db->from('ms_costbook_backup a');
-        $this->db->where('a.id_category3', $item_detail->id_category3);
-        $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item->tgl_do);
-        $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tgl_do);
-        $this->db->limit(1);
-        $get_costbook = $this->db->get()->row();
-
-        if (!empty($get_costbook)) {
-          $nilai_costbook += ($get_costbook->nilai_costbook * $item_detail->qty_do);
-        }
-      }
-
+      // Nilai costbook sudah tersimpan di tr_delivery_order.totalcostbook. Loop lama ke
+      // ms_costbook_backup (1,6 juta baris, tanpa index) per item hasilnya tidak pernah dipakai.
       $hasil[] = [
         'no' => $no,
         'no_spk_delivery' => $item->no_surat_spk,
@@ -696,7 +675,7 @@ class Wt_delivery_order_model extends BF_Model
         'no_do' => $item->no_surat,
         'nama_customer' => $item->name_customer,
         'no_invoice' => $item->no_invoice,
-        'nilai_costbook' => number_format($item->totalcostbook, 2),
+        'nilai_costbook' => number_format((float) $item->totalcostbook, 2),
         'option' => $option
       ];
 
