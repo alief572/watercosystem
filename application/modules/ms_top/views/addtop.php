@@ -15,7 +15,7 @@
 		    <center><label for="customer" ><h3>Term Of Payment</h3></label></center>
 		            <div class="col-sm-12">
 					    <div class="col-sm-12">
-						    <?php if(empty($results['view'])){ ?>
+						    <?php if(empty($results['view'] ?? null)){ ?>
 						    <div class="form-group row">
 								<button type='button' class='btn btn-sm btn-success' title='Ambil' id='tbh_ata' data-role='qtip' onClick='GetProduk();'><i class='fa fa-plus'></i>Add</button>
 							</div>
@@ -221,7 +221,6 @@ function DelItem(id){
 
     function HapusItem(id){
 		$('#list_spk #tr_'+id).remove();
-		changeChecked();
 	}
 
     function CariDetail(id){

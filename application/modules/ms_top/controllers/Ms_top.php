@@ -121,7 +121,6 @@ class Ms_top extends Admin_Controller
     {
 		$loop=$_GET['jumlah']+1;
 		
-		$customers = $this->Ms_top_model->get_data('master_customers','deleted',$deleted);
 		
 		
 		$material = $this->db->query("SELECT a.* FROM ms_inventory_type as a ")->result();
@@ -173,7 +172,6 @@ class Ms_top extends Admin_Controller
         // print_r($top_now);
         // exit();
 		
-		$customers = $this->Ms_top_model->get_data('master_customers','deleted',$deleted);
 		
 		
 		$material = $this->db->query("SELECT a.* FROM ms_inventory_type as a ")->result();
@@ -227,14 +225,14 @@ class Ms_top extends Admin_Controller
        	$this->db->trans_begin();
 
 	           $numb1 =0;
-               foreach($_POST['dt'] as $used){
-                   if(!empty($used[top])){
+               foreach(($_POST['dt'] ?? array()) as $used){
+                   if(!empty($used['top'])){
                        $numb1++;   
                        $dt[] =  array(
-                               'id_top'		        => $used[top],
-                               'payment'		    => $used[payment],
-                               'keterangan'	        => $used[keterangan],
-                               'persentase'	            => $used[nilai],
+                               'id_top'		        => $used['top'],
+                               'payment'		    => $used['payment'],
+                               'keterangan'	        => $used['keterangan'],
+                               'persentase'	            => $used['nilai'],
                                'created_on'			=> date('Y-m-d H:i:s'),
                                'created_by'			=> $this->auth->user_id()                       
                                );
@@ -242,20 +240,19 @@ class Ms_top extends Admin_Controller
                }
             //    print_r($dt);
             //    exit();
+            if(empty($dt)){ $this->db->trans_rollback(); echo json_encode(array('pesan'=>'Data TOP kosong','status'=>0)); return; }
             $this->db->insert_batch('ms_top_planning',$dt);
 
 		if($this->db->trans_status() === FALSE){
 			$this->db->trans_rollback();
 			$status	= array(
 			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'code' => $code,
 			  'status'	=> 0
 			);
 		} else {
 			$this->db->trans_commit();
 			$status	= array(
 			  'pesan'		=>'Success Save Item. invenThanks ...',
-			  'code' => $code,
 			  'status'	=> 1
 			);
 		}
@@ -282,7 +279,7 @@ class Ms_top extends Admin_Controller
 	}
 
     public function saveEditTop(){
-		$this->auth->restrict($this->editPermission);
+		$this->auth->restrict($this->managePermission);
 		$post = $this->input->post();
 		// print_r($post);
 		// exit();
