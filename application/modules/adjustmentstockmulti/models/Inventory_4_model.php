@@ -71,8 +71,9 @@ class Inventory_4_model extends BF_Model
 		$row = $query->row_array();
 		$thn = date('y');
 		$max_id = $row['max_id'];
-		$max_id1 = (int) substr($max_id, 5, 5);
+		$max_id1 = (int) substr((string)$max_id, 5, 5);
 		$counter = $max_id1 + 1;
+		if ($counter > 99999) { throw new DomainException('Nomor adjustment bulan ini sudah mencapai batas.'); }
 		$idcust = "A" . $thn . $bulan . str_pad($counter, 5, "0", STR_PAD_LEFT);
 		return $idcust;
 	}
@@ -97,14 +98,9 @@ class Inventory_4_model extends BF_Model
 	}
 	public function GetMaterial($id_category3)
 	{
-		$cari = "a.deleted='0' and a.id_category3='$id_category3' ";
-		$this->db->select('a.*');
-		$this->db->from('ms_inventory_category3 a');
-
-		$this->db->where($cari);
-		$query = $this->db->get();
-		return $query->result();
+		return $this->db->get_where('ms_inventory_category3', array('deleted'=>0, 'id_category3'=>$id_category3))->result();
 	}
+
 	function compotition($id_inventory2)
 	{
 		$search = "deleted='0' and id_category1='$id_inventory2'";
@@ -164,6 +160,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		$this->db->where('a.id_gudang', '2');
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -274,6 +272,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		$this->db->where('a.id_gudang', '3');
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -285,6 +285,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		$this->db->where('a.id_gudang', '4');
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -296,6 +298,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		$this->db->where('a.id_gudang', $gudang);
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -306,6 +310,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		$this->db->where('a.id_gudang', $gudang);
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -316,6 +322,8 @@ class Inventory_4_model extends BF_Model
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
 		$this->db->where('a.id_gudang', $gudang);
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}

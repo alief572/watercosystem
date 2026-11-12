@@ -1,278 +1,87 @@
 <?php
-foreach ($results['inventory_3'] as $inventory_3) {
-}
-
-$idstock = $results['idstock'];
-
+$inventory = $results['inventory_3'][0];
+$escape = static function ($value) { return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); };
+$warehouse = (string)($results['idgudang'] ?? '1');
+$mutasi = $mutasi ?? false;
+$controller = $this->uri->segment(1);
+$returnRoute = $controller === 'adjustmentstock' ? '' : ($mutasi ? '/mutasi' : (array('2'=>'/index_display','3'=>'/index_exdisplay','4'=>'/index_retur')[$warehouse] ?? '/konsinyasi'));
 ?>
 <div class="box box-primary">
-	<div class="box-body">
-		<form id="data-form" method="post">
-			<div class="col-sm-12">
-				<div class="input_fields_wrap2">
-					<div class="row">
-						<div class="form-group row">
-							<div class="col-md-12">
-								<div class="col-md-6">
-									<div class="col-md-4">
-										<label for="customer">Nama Material</label>
-									</div>
-									<div class="col-md-6" hidden>
-										<input type="text" class="form-control" id="id_material" value="<?= $inventory_3->id_category3 ?>" readonly required name="id_material" placeholder="Id Material">
-										<input type="text" class="form-control" id="id_stock" value="<?= $idstock ?>" readonly required name="id_stock" placeholder="Id stock">
-									</div>
-									<div class="col-md-6">
-										<input type="text" class="form-control" id="nama_material" value="<?= $inventory_3->nama ?>" readonly required name="nama_material" placeholder="Nama Material">
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="form-group row">
-							<div class="col-md-12">
-								<div class="col-md-6">
-									<div class="col-md-4">
-										<label for="customer">Adjust</label>
-									</div>
-									<div class="col-md-6">
-										<select class="form-control" id="adjustment" name="adjustment" onchange="CariAdjustment()">
-											<option value="">--Pilih--</option>
-											<option value="PLUS">PLUS</option>
-											<option value="MINUS">MINUS</option>
-											<!--<option value="MUTASI">MUTASI</option>-->
-										</select>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div id="inputancustom">
-
-						</div>
-						<div class="form-group row">
-							<div class="col-md-12">
-								<div class="col-md-12">
-									<div class="col-md-4">
-										<label for="customer">Alasan / Keterangan</label>
-									</div>
-									<div class="col-md-6">
-										<input type="text" class="form-control" id="note" required name="note" placeholder="Alasan / Keterangan">
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<hr>
-			<center>
-				<button type='submit' class='btn btn-success btn-sm' name='save' id='simpan-plus'><i class='fa fa-save'></i>Simpan</button>
-			</center>
-
-		</form>
-
-
-
-	</div>
+    <div class="box-body">
+        <form id="data-form" method="post">
+            <input type="hidden" id="id_material" name="id_material" value="<?= $escape($inventory->id_category3) ?>">
+            <input type="hidden" id="id_stock" name="id_stock" value="<?= $escape($results['idstock']) ?>">
+            <input type="hidden" id="gudang" name="gudang" value="<?= $escape($warehouse) ?>">
+            <input type="hidden" name="request_key" value="<?= $escape($results['request_key']) ?>">
+            <div class="form-group">
+                <label for="nama_material">Nama Material</label>
+                <input type="text" class="form-control" id="nama_material" name="nama_material" value="<?= $escape($inventory->nama) ?>" readonly>
+            </div>
+            <?php if (isset($results['stock'])): ?>
+            <p>Qty Aktual: <?= $escape($results['stock']->qty) ?>; Booking: <?= $escape($results['stock']->qty_book) ?>; Qty Free: <?= $escape($results['stock']->qty_free) ?></p>
+            <?php endif; ?>
+            <div class="form-group">
+                <label for="adjustment">Adjust</label>
+                <select class="form-control" id="adjustment" name="adjustment" required>
+                    <?php if ($mutasi): ?>
+                    <option value="MUTASI">MUTASI</option>
+                    <?php else: ?>
+                    <option value="">--Pilih--</option>
+                    <option value="PLUS">PLUS</option>
+                    <option value="MINUS">MINUS</option>
+                    <?php endif; ?>
+                </select>
+            </div>
+            <?php if ($mutasi): ?>
+            <div class="form-group">
+                <label for="id_gudang_baru">Gudang Tujuan</label>
+                <select class="form-control" id="id_gudang_baru" name="id_gudang_baru" required>
+                    <option value="">--Pilih--</option>
+                    <?php foreach ($results['gudang'] as $destination): ?>
+                    <option value="<?= $escape($destination->id_gudang) ?>"><?= $escape($destination->nama_gudang) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
+            <div class="form-group">
+                <label for="total_qty">Qty Adjustment</label>
+                <input type="number" class="form-control" id="total_qty" name="total_qty" min="1" max="2147483647" step="1" required>
+            </div>
+            <div class="form-group">
+                <label for="note">Alasan / Keterangan</label>
+                <input type="text" class="form-control" id="note" name="note" maxlength="255" required>
+            </div>
+            <button type="submit" class="btn btn-success btn-sm" id="simpan-plus">Simpan</button>
+        </form>
+    </div>
 </div>
-
-
-
-
 <script type="text/javascript">
-	//$('#input-kendaraan').hide();
-	var base_url = '<?php echo base_url(); ?>';
-	var active_controller = '<?php echo ($this->uri->segment(1)); ?>';
-
-	$(document).ready(function() {
-		///INPUT PERKIRAAN KIRIM
-
-
-		var max_fields2 = 10; //maximum input boxes allowed
-		var wrapper2 = $(".input_fields_wrap2"); //Fields wrapper
-		var add_button2 = $(".add_field_button2"); //Add button ID
-
-		//console.log(persen);
-
-		var x2 = 1; //initlal text box count
-		$('#simpan-plus').click(function(e) {
-			e.preventDefault();
-			var data, xhr;
-			swal({
-					title: "Are you sure?",
-					text: "You will not be able to process again this data!",
-					type: "warning",
-					showCancelButton: true,
-					confirmButtonClass: "btn-danger",
-					confirmButtonText: "Yes, Process it!",
-					cancelButtonText: "No, cancel process!",
-					closeOnConfirm: true,
-					closeOnCancel: false
-				},
-				function(isConfirm) {
-					if (isConfirm) {
-						var formData = new FormData($('#data-form')[0]);
-						var baseurl = siteurl + 'adjustmentstock/SavePlus';
-						$.ajax({
-							url: baseurl,
-							type: "POST",
-							data: formData,
-							cache: false,
-							dataType: 'json',
-							processData: false,
-							contentType: false,
-							success: function(data) {
-								if (data.status == 1) {
-									swal({
-										title: "Save Success!",
-										text: data.pesan,
-										type: "success",
-										timer: 7000,
-										showCancelButton: false,
-										showConfirmButton: false,
-										allowOutsideClick: false
-									});
-									window.location.href = base_url + active_controller;
-								} else {
-
-									if (data.status == 2) {
-										swal({
-											title: "Save Failed!",
-											text: data.pesan,
-											type: "warning",
-											timer: 7000,
-											showCancelButton: false,
-											showConfirmButton: false,
-											allowOutsideClick: false
-										});
-									} else {
-										swal({
-											title: "Save Failed!",
-											text: data.pesan,
-											type: "warning",
-											timer: 7000,
-											showCancelButton: false,
-											showConfirmButton: false,
-											allowOutsideClick: false
-										});
-									}
-
-								}
-							},
-							error: function() {
-
-								swal({
-									title: "Error Message !",
-									text: 'An Error Occured During Process. Please try again..',
-									type: "warning",
-									timer: 7000,
-									showCancelButton: false,
-									showConfirmButton: false,
-									allowOutsideClick: false
-								});
-							}
-						});
-					} else {
-						swal("Cancelled", "Data can be process again :)", "error");
-						return false;
-					}
-				});
-		});
-
-	});
-
-	function CariAdjustment() {
-		var adjus = $('#adjustment').val();
-		var id_material = $('#id_material').val();
-		$.ajax({
-			type: "GET",
-			url: siteurl + 'adjustmentstock/LotNumber',
-			data: "adjus=" + adjus + "&id_material=" + id_material,
-			success: function(html) {
-				$('#form_lotno').html(html);
-			}
-		});
-		if (adjus == "PLUS") {
-			$.ajax({
-				type: "GET",
-				url: siteurl + 'adjustmentstock/FormPlus',
-				data: "adjus=" + adjus + "&id_material=" + id_material,
-				success: function(html) {
-					$('#inputancustom').html(html);
-				}
-			});
-		} else if (adjus == "MINUS") {
-			$.ajax({
-				type: "GET",
-				url: siteurl + 'adjustmentstock/FormMinus',
-				data: "adjus=" + adjus + "&id_material=" + id_material,
-				success: function(html) {
-					$('#inputancustom').html(html);
-				}
-			});
-		} else if (adjus == "MUTASI") {
-			$.ajax({
-				type: "GET",
-				url: siteurl + 'adjustmentstock/FormMutasi',
-				data: "adjus=" + adjus + "&id_material=" + id_material,
-				success: function(html) {
-					$('#inputancustom').html(html);
-				}
-			});
-		}
-	}
-
-	function HitungPlusJml() {
-		var total_qty = $('#total_qty').val();
-		var total_berat = $('#total_berat').val();
-		$.ajax({
-			type: "GET",
-			url: siteurl + 'adjustmentstock/HitungJumlah',
-			data: "total_qty=" + total_qty + "&total_berat=" + total_berat,
-			success: function(html) {
-				$('#total_jumlah_berat').val(html);
-			}
-		});
-	}
-
-	function HitungJumlahMinus() {
-		var mother_qty = $('#mother_qty').val();
-		var total_qty = $('#total_qty').val();
-		var total_berat = $('#total_berat').val();
-		if (total_qty > mother_qty) {
-			swal("Peringatan", "Pengurangan Qty Lebih dari Qty Stock Yang Ada", "error");
-			return false;
-		} else {
-			$.ajax({
-				type: "GET",
-				url: siteurl + 'adjustmentstock/HitungJumlah',
-				data: "total_qty=" + total_qty + "&total_berat=" + total_berat,
-				success: function(html) {
-					$('#total_jumlah_berat').val(html);
-				}
-			});
-		}
-	}
-
-	function GetDataMinus() {
-		var id_stock = $('#id_stock').val();
-		$.ajax({
-			type: "GET",
-			url: siteurl + 'adjustmentstock/AmbilDataMinus',
-			data: "id_stock=" + id_stock,
-			success: function(html) {
-				$('#inputancustom').html(html);
-			}
-		});
-	}
-
-	function GetDataMutasi() {
-		var id_stock = $('#id_stock').val();
-		$.ajax({
-			type: "GET",
-			url: siteurl + 'adjustmentstock/AmbilDataMutasi',
-			data: "id_stock=" + id_stock,
-			success: function(html) {
-				$('#inputancustom').html(html);
-			}
-		});
-	}
+(function () {
+    var endpoint = <?= json_encode(base_url() . $controller . '/SavePlus', JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    var returnUrl = <?= json_encode(base_url() . $controller . $returnRoute, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    var pending = false;
+    $('#data-form').on('submit', function (event) {
+        event.preventDefault();
+        var form = this;
+        if (pending || !form.reportValidity()) { return; }
+        pending = true;
+        $('#simpan-plus').prop('disabled', true);
+        swal({
+            title: 'Simpan perubahan stok?',
+            text: 'Periksa jenis adjustment, jumlah, dan gudang sebelum menyimpan.',
+            type: 'warning', showCancelButton: true, confirmButtonText: 'Simpan', cancelButtonText: 'Batal'
+        }, function (confirmed) {
+            if (!confirmed) { pending = false; $('#simpan-plus').prop('disabled', false); return; }
+            $.ajax({
+                url: endpoint, type: 'POST', data: new FormData(form), dataType: 'json',
+                processData: false, contentType: false
+            }).done(function (data) {
+                if (data.status === 1) { window.location.href = returnUrl; }
+                else { swal('Gagal menyimpan', data.pesan || 'Transaksi stok ditolak.', 'error'); }
+            }).fail(function () {
+                swal('Gagal memeriksa hasil', 'Periksa riwayat sebelum mencoba kembali. Pengiriman ulang formulir tidak menggandakan transaksi.', 'error');
+            }).always(function () { pending = false; $('#simpan-plus').prop('disabled', false); });
+        });
+    });
+})();
 </script>

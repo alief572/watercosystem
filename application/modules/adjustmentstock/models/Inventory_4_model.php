@@ -71,8 +71,9 @@ class Inventory_4_model extends BF_Model
 		$row = $query->row_array();
 		$thn = date('y');
 		$max_id = $row['max_id'];
-		$max_id1 = (int) substr($max_id, 5, 5);
+		$max_id1 = (int) substr((string)$max_id, 5, 5);
 		$counter = $max_id1 + 1;
+		if ($counter > 99999) { throw new DomainException('Nomor adjustment bulan ini sudah mencapai batas.'); }
 		$idcust = "A" . $thn . $bulan . str_pad($counter, 5, "0", STR_PAD_LEFT);
 		return $idcust;
 	}
@@ -97,14 +98,9 @@ class Inventory_4_model extends BF_Model
 	}
 	public function GetMaterial($id_category3)
 	{
-		$cari = "a.deleted='0' and a.id_category3='$id_category3' ";
-		$this->db->select('a.*');
-		$this->db->from('ms_inventory_category3 a');
-
-		$this->db->where($cari);
-		$query = $this->db->get();
-		return $query->result();
+		return $this->db->get_where('ms_inventory_category3', array('deleted'=>0, 'id_category3'=>$id_category3))->result();
 	}
+
 	function compotition($id_inventory2)
 	{
 		$search = "deleted='0' and id_category1='$id_inventory2'";
@@ -162,7 +158,10 @@ class Inventory_4_model extends BF_Model
 		$this->db->select('a.*, b.nama, b.kode_barang');
 		$this->db->from('stock_material a');
 		$this->db->join('ms_inventory_category3 b', 'b.id_category3=a.id_category3');
+		$this->db->where('a.id_gudang', '1');
 		$this->db->where('b.deleted', '0');
+		$this->db->where('COALESCE(a.deleted,0)=0', null, false);
+		$this->db->where("COALESCE(a.aktif,'Y')!='N'", null, false);
 		$query = $this->db->get();
 		return $query->result();
 	}
@@ -269,45 +268,24 @@ class Inventory_4_model extends BF_Model
 
 	public function get_data_adjustment_stock()
 	{
-		$draw = $this->input->post('draw');
-		$start = $this->input->post('start');
-		$length = $this->input->post('length');
+		$draw = max(0, (int)$this->input->post('draw'));
+		$start = max(0, (int)$this->input->post('start'));
+		$requestedLength = (int)$this->input->post('length');
+		$length = $requestedLength === -1 ? 100 : max(1, min(100, $requestedLength ?: 10));
 		$search = $this->input->post('search');
-
-		$this->db->select('a.*');
-		$this->db->from('adjustment_stock a');
-		if (!empty($search)) {
-			$this->db->group_start();
-			$this->db->like('a.id_transaksi', $search['value'], 'both');
-			$this->db->or_like('a.tanggal_transaksi', $search['value'], 'both');
-			$this->db->or_like('a.nama_material', $search['value'], 'both');
-			$this->db->or_like('a.adjustment', $search['value'], 'both');
-			$this->db->or_like('a.nama_gudang', $search['value'], 'both');
-			$this->db->or_like('a.note', $search['value'], 'both');
-			$this->db->or_like('a.total_qty', $search['value'], 'both');
-			$this->db->group_end();
+		$term = is_array($search) && is_scalar($search['value'] ?? null) ? substr((string)$search['value'], 0, 255) : '';
+		$where = "(id_gudang='1' OR id_gudang_baru='1')";
+		$total = (int)$this->db->query('SELECT COUNT(*) total FROM adjustment_stock WHERE ' . $where)->row()->total;
+		$params = array();
+		if ($term !== '') {
+			$fields = array('id_transaksi','tanggal_transaksi','nama_material','adjustment','nama_gudang','note','total_qty');
+			$conditions = array();
+			foreach ($fields as $field) { $conditions[] = $field . " LIKE ? ESCAPE '!'"; }
+			$where .= ' AND (' . implode(' OR ', $conditions) . ')';
+			$params = array_fill(0, count($fields), '%' . $this->db->escape_like_str($term) . '%');
 		}
-		$this->db->order_by('a.tanggal_transaksi', 'desc');
-		$this->db->limit($length, $start);
-
-		$get_data = $this->db->get();
-
-		$this->db->select('a.*');
-		$this->db->from('adjustment_stock a');
-		if (!empty($search)) {
-			$this->db->group_start();
-			$this->db->like('a.id_transaksi', $search['value'], 'both');
-			$this->db->or_like('a.tanggal_transaksi', $search['value'], 'both');
-			$this->db->or_like('a.nama_material', $search['value'], 'both');
-			$this->db->or_like('a.adjustment', $search['value'], 'both');
-			$this->db->or_like('a.nama_gudang', $search['value'], 'both');
-			$this->db->or_like('a.note', $search['value'], 'both');
-			$this->db->or_like('a.total_qty', $search['value'], 'both');
-			$this->db->group_end();
-		}
-		$this->db->order_by('a.tanggal_transaksi', 'desc');
-
-		$get_data_all = $this->db->get();
+		$filtered = (int)$this->db->query('SELECT COUNT(*) total FROM adjustment_stock WHERE ' . $where, $params)->row()->total;
+		$get_data = $this->db->query('SELECT * FROM adjustment_stock WHERE ' . $where . " ORDER BY tanggal_transaksi DESC,id_transaksi DESC LIMIT $length OFFSET $start", $params);
 
 		$hasil = [];
 
@@ -315,6 +293,7 @@ class Inventory_4_model extends BF_Model
 		foreach ($get_data->result() as $item) {
 			$no++;
 
+			$gudang = (string)$item->nama_gudang;
 			if ($item->adjustment == "PLUS") {
 				$gudang = "" . $item->nama_gudang . "";
 			} elseif ($item->adjustment == "MINUS") {
@@ -332,7 +311,7 @@ class Inventory_4_model extends BF_Model
 				$get_costbook = $this->db->get()->row();
 
 				if (!empty($get_costbook)) {
-					$nilai_costbook = $get_costbook->nilai_costbook;
+					$nilai_costbook = (float)$get_costbook->nilai_costbook;
 				}
 			} else {
 				$this->db->select('a.nilai_costbook');
@@ -345,19 +324,19 @@ class Inventory_4_model extends BF_Model
 				$get_costbook = $this->db->get()->row();
 
 				if (!empty($get_costbook)) {
-					$nilai_costbook = $get_costbook->nilai_costbook;
+					$nilai_costbook = (float)$get_costbook->nilai_costbook;
 				}
 			}
 
 
 			$hasil[] = [
 				'no' => $no,
-				'no_transaksi' => $item->id_transaksi,
-				'tanggal_transaksi' => $item->tanggal_transaksi,
-				'material' => $item->nama_material,
-				'adjust' => $item->adjustment,
-				'gudang' => $gudang,
-				'keterangan' => $item->note,
+				'no_transaksi' => html_escape($item->id_transaksi ?? ''),
+				'tanggal_transaksi' => html_escape($item->tanggal_transaksi ?? ''),
+				'material' => html_escape($item->nama_material ?? ''),
+				'adjust' => html_escape($item->adjustment ?? ''),
+				'gudang' => html_escape($gudang),
+				'keterangan' => html_escape($item->note ?? ''),
 				'jumlah_stock' => $item->total_qty,
 				'nilai_costbook' => number_format($nilai_costbook, 2),
 				'grand_total' => number_format($nilai_costbook * $item->total_qty, 2)
@@ -366,8 +345,8 @@ class Inventory_4_model extends BF_Model
 
 		echo json_encode([
 			'draw' => intval($draw),
-			'recordsTotal' => $get_data_all->num_rows(),
-			'recordsFiltered' => $get_data_all->num_rows(),
+			'recordsTotal' => $total,
+			'recordsFiltered' => $filtered,
 			'data' => $hasil
 		]);
 	}

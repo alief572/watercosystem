@@ -44,20 +44,20 @@ thead input {
 			$numb=0; foreach($results['history'] AS $historia){ $numb++; ?>
 		<tr>
 		    <td><?= $numb; ?></td>
-			<td ><?= $historia->id_transaksi ?></td>
-			<td ><?= $historia->tanggal_transaksi ?></td>
-			<td><?= $historia->nama_material ?></td>
-			<td><?= $historia->adjustment ?></td>
+			<td ><?= html_escape($historia->id_transaksi ?? '') ?></td>
+			<td ><?= html_escape($historia->tanggal_transaksi ?? '') ?></td>
+			<td><?= html_escape($historia->nama_material ?? '') ?></td>
+			<td><?= html_escape($historia->adjustment ?? '') ?></td>
 			<td><?php 
 			if($historia->adjustment == "PLUS"){
-			echo"".$historia->nama_gudang."";
+			echo"".html_escape($historia->nama_gudang ?? '')."";
 			}elseif($historia->adjustment == "MINUS"){
-			echo"".$historia->nama_gudang."";
+			echo"".html_escape($historia->nama_gudang ?? '')."";
 			}elseif($historia->adjustment == "MUTASI"){
-			echo"".$historia->nama_gudang."->".$historia->nama_gudang_baru."";
+			echo"".html_escape($historia->nama_gudang ?? '')."-&gt;".html_escape($historia->nama_gudang_baru ?? '')."";
 			} ?></td>
-			<td><?= $historia->note ?></td>
-			<td><?= $historia->total_qty ?></td>
+			<td><?= html_escape($historia->note ?? '') ?></td>
+			<td><?= html_escape($historia->total_qty ?? '') ?></td>
 
 
 		</tr>
@@ -82,7 +82,7 @@ thead input {
 			<th>Supplier</th>
 			<th>Qty Aktual</th>
 			<th>Qty Free</th>
-			<?php if($ENABLE_MANAGE) : ?>
+			<?php if($ENABLE_MANAGE && $ENABLE_ADD) : ?>
 			<th width="13%">Action</th>
 			<?php endif; ?>
 		</tr>
@@ -93,17 +93,17 @@ thead input {
 			$numb=0; foreach($results['stok'] AS $record){ $numb++; ?>
 		<tr>
 		    <td width="5"><?= $numb; ?></td>
-			<td width="5"><?= $record->id_category3 ?></td>
-			<td width="5"><?= $record->kode_barang ?></td>
-			<td><?= $record->nama?></td>
+			<td width="5"><?= html_escape($record->id_category3 ?? '') ?></td>
+			<td width="5"><?= html_escape($record->kode_barang ?? '') ?></td>
+			<td><?= html_escape($record->nama ?? '') ?></td>
 			<td ></td>
-			<td><?= number_format($record->qty,2)?></td>
-			<td><?= number_format($record->qty_free,2)?></td>
-			<td style="padding-left:20px"> 
-			<?php if($ENABLE_VIEW) : ?>
-				<a class="btn btn-primary btn-sm edit" href="javascript:void(0)" title="Add Adjustment" data-id_inventory3="<?=$record->id_category3?>" data-id_stock="<?=$record->id_stock?>" data-id_gudang="<?=$record->id_gudang?>"><i class="fa fa-edit"></i></a>
-			<?php endif; ?>
+			<td><?= number_format((float)($record->qty ?? 0), 2)?></td>
+			<td><?= number_format((float)($record->qty_free ?? 0), 2)?></td>
+			<?php if ($ENABLE_MANAGE && $ENABLE_ADD) : ?>
+			<td style="padding-left:20px">
+				<a class="btn btn-primary btn-sm edit" href="javascript:void(0)" title="Add Adjustment" data-id_inventory3="<?= html_escape($record->id_category3 ?? '') ?>" data-id_stock="<?= html_escape($record->id_stock ?? '') ?>" data-id_gudang="<?= html_escape($record->id_gudang ?? '') ?>"><i class="fa fa-edit"></i></a>
 			</td>
+			<?php endif; ?>
 
 		</tr>
 		<?php } }  ?>

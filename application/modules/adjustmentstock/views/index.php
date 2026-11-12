@@ -62,7 +62,7 @@ $id_bentuk = $this->uri->segment(3);
 							<th>Supplier</th>
 							<th>Qty Aktual</th>
 							<th>Qty Free</th>
-							<?php if ($ENABLE_MANAGE) : ?>
+							<?php if ($ENABLE_MANAGE && $ENABLE_ADD) : ?>
 								<th width="13%">Action</th>
 							<?php endif; ?>
 						</tr>
@@ -75,17 +75,17 @@ $id_bentuk = $this->uri->segment(3);
 								$numb++; ?>
 								<tr>
 									<td width="5"><?= $numb; ?></td>
-									<td width="5"><?= $record->id_category3 ?></td>
-									<td width="5"><?= $record->kode_barang ?></td>
-									<td><?= $record->nama ?></td>
+									<td width="5"><?= html_escape($record->id_category3 ?? '') ?></td>
+									<td width="5"><?= html_escape($record->kode_barang ?? '') ?></td>
+									<td><?= html_escape($record->nama ?? '') ?></td>
 									<td></td>
-									<td><?= number_format($record->qty, 2) ?></td>
-									<td><?= number_format($record->qty_free, 2) ?></td>
+									<td><?= number_format((float)($record->qty ?? 0), 2) ?></td>
+									<td><?= number_format((float)($record->qty_free ?? 0), 2) ?></td>
+									<?php if ($ENABLE_MANAGE && $ENABLE_ADD) : ?>
 									<td style="padding-left:20px">
-										<?php if ($ENABLE_VIEW) : ?>
-											<a class="btn btn-primary btn-sm edit" href="javascript:void(0)" title="Add Adjustment" data-id_inventory3="<?= $record->id_category3 ?>" data-id_stock="<?= $record->id_stock ?>"><i class="fa fa-edit"></i></a>
-										<?php endif; ?>
+										<a class="btn btn-primary btn-sm edit" href="javascript:void(0)" title="Add Adjustment" data-id_inventory3="<?= html_escape($record->id_category3 ?? '') ?>" data-id_stock="<?= html_escape($record->id_stock ?? '') ?>"><i class="fa fa-edit"></i></a>
 									</td>
+									<?php endif; ?>
 
 								</tr>
 						<?php }
