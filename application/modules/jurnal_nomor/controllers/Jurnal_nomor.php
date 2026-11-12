@@ -32,64 +32,55 @@ class Jurnal_nomor extends CI_Controller
 
 	function view_jurnal_jv()
 	{
-		// $data = $this->Purchase_order_model->GetListPR('BIAYA');
-		// $this->template->set('results', $data);
-		// $this->template->title('Purchase Request Operational Titik (Existing)');
-		// $this->template->render('list');
-
-		//JURNAL JV PINDAH GUDANG
+		//JURNAL PENGAKUAN REVENUE (JV)
 
 		$id		= $this->uri->segment(3);
 		$kodejurnal = $this->uri->segment(4);
 		$ket = $this->uri->segment(5);
 
-		// print_r($id);
-		// exit;
-
-		if ($ket == 'jurnalrevenue') {
-			$noso = $this->db->query("select * FROM tr_revenue WHERE id='$id'")->row();
-
-			$nomorSO = $noso->no_surat;
-			$so = $noso->no_so;
-			$Tgl_Invoice = $noso->tgl_so;
-
-			$invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so='$so'")->result();
-			$separator = ',';
-			$allinv = array();
-			foreach ($invoice as $inv) {
-				$allinv[] = $inv->no_surat;
-			}
+		if ($ket != 'jurnalrevenue') {
+			echo "<div class='alert alert-danger'>Jenis jurnal tidak dikenal.</div>";
+			return;
 		}
 
-		$invc =  implode($separator, $allinv);
+		$noso = $this->db->query("SELECT * FROM tr_revenue WHERE id = ?", [$id])->row();
+		if (!$noso) {
+			echo "<div class='alert alert-danger'>Data pengakuan revenue tidak ditemukan.</div>";
+			return;
+		}
+		if ($noso->status_jurnal !== 'OPN') {
+			echo "<div class='alert alert-warning'>Pengakuan revenue ini sudah dijurnal.</div>";
+			return;
+		}
 
-		//$Tgl_Invoice = date('Y-m-d');
+		$nomorSO = $noso->no_surat;
+		$so = $noso->no_so;
+		$Tgl_Invoice = $noso->tgl_so;
+
+		$invoice = $this->db->query("SELECT no_surat FROM tr_invoice WHERE no_so = ?", [$so])->result();
+		$allinv = array();
+		foreach ($invoice as $inv) {
+			$allinv[] = $inv->no_surat;
+		}
+		$invc = implode(',', $allinv);
 
 		$no_request = $id;
 		$tgl_voucher = $Tgl_Invoice;
 
-		$Keterangan_INV		    = 'Pengakuan Penjualan' . ' Nomor SO ' . $nomorSO . ' Nomor Inv ' . $invc; //.rawurldecode($ket);
+		$Keterangan_INV		    = 'Pengakuan Penjualan' . ' Nomor SO ' . $nomorSO . ' Nomor Inv ' . $invc;
 
 		#AMBIL TEMPLATE JURNAL DAN SIMPAN KE TEMPORARY
 
 		$datajurnal  	 = $this->Acc_model->GetTemplateJurnal($kodejurnal);
-		foreach ($datajurnal as $record) {
-			$nokir1  = $record->no_perkiraan;
+		$det_Jurnaltes = array();
+		$nilaibayar = 0;
+		foreach ((array) $datajurnal as $record) {
+			$nokir  = $record->no_perkiraan;
 			$tabel  = $record->menu;
 			$posisi = $record->posisi;
 			$field  = $record->field;
-			if ($field == 'jumlah_bank') {
-				$nokir = $kd_bank;
-			} else {
-				$nokir  = $record->no_perkiraan;
-			}
-			$no_voucher = $id;
-			$param  = 'id';
-			$value_param  = $id;
-			$val = $this->Acc_model->GetData($tabel, $field, $param, $value_param);
-			$nilaibayar = $val[0]->$field;
-			// print_r($nilaibayar);
-			// exit;
+			$val = $this->Acc_model->GetData($tabel, $field, 'id', $id);
+			$nilaibayar = $val ? $val[0]->$field : 0;
 			if ($posisi == 'D') {
 				$det_Jurnaltes[]  = array(
 					'nomor'         => '',
@@ -121,7 +112,9 @@ class Jurnal_nomor extends CI_Controller
 		$this->db->where('no_reff', $id);
 		$this->db->where('jenis_jurnal', $ket);
 		$this->db->delete('jurnal');
-		$this->db->insert_batch('jurnal', $det_Jurnaltes);
+		if (!empty($det_Jurnaltes)) {
+			$this->db->insert_batch('jurnal', $det_Jurnaltes);
+		}
 		$noreff     = $id;
 		$tipe		= 'jv';
 		$jenisjurnal = $ket;
