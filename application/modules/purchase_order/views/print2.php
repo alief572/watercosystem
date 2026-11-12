@@ -137,23 +137,16 @@
 <?php
 	foreach($header as $header){
 	}
-	$detailsum = $this->db->query("SELECT SUM(width) as sumwidth, SUM(qty) as sumqty, SUM(totalwidth) as sumtotalwidth, SUM(jumlahharga) as sumjumlahharga, SUM(hargasatuan) as sumhargasatuan FROM dt_trans_po WHERE no_po = '".$header->no_po."' ")->result();
-	$jumlahdetail = $this->db->query("SELECT COUNT(no_po) as no_po FROM dt_trans_po WHERE no_po = '".$header->no_po."' ")->result();
-	$jumlahdata = $jumlahdetail[0]->no_po;
-	$tinggi = 300/$jumlahdata ;
-	if(empty($header->negara)){
-		$cou ='Indonesia';
-		}else{
-		$findnegara = $this->db->query("SELECT * FROM negara WHERE id_negara = '".$header->negara."' ")->result();
-		$cou = $findnegara[0]->nm_negara;
-		}
-	$findpic = $this->db->query("SELECT * FROM child_supplier_pic WHERE id_suplier = '".$header->id_suplier."' ")->result();
-	$namapic = $findpic[0]->name_pic;
+    $findnegara = empty($header->negara) ? null : $this->db->query('SELECT nm_negara FROM negara WHERE id_negara = ?',array($header->negara))->row();
+    $cou = empty($header->negara) ? 'Indonesia' : ($findnegara ? $findnegara->nm_negara : '-');
+    $findpic = $this->db->query('SELECT name_pic FROM child_supplier_pic WHERE id_suplier = ? LIMIT 1',array($header->id_suplier))->row();
+    $namapic = $findpic ? $findpic->name_pic : '-';
+    $itemShipping = array_sum(array_map(function($row) { return (float)$row->pajak; },$detail));
 ?>
 <table border="0px" cellspacing="0" width='100%' valign="top">
     <tr>
         <td align="left"width="70%" valign="top" >
-            <img src='<?=$_SERVER['DOCUMENT_ROOT'];?>/watercosystem/assets/images/logo_waterco.png' alt="" height='100' width='250'>
+            <img src='<?= html_escape(FCPATH . 'assets/images/logo_waterco.png') ?>' alt="" height='100' width='250'>
         </td>
         <td align="right" valign="top" width="30%">
 			<br>
@@ -179,17 +172,17 @@
     <tr>
         <td width="300" align="center">
             <table width='300' align="center">
-                <tr><td width='50' align="left">Supplier</td><td width='10' align="left">:</td><td width='250' align="left"><?= $header->name_suplier ?></td></tr>
-                <tr><td width='50' align="left">Address</td><td width='10' align="left">:</td><td width='250' align="left"><?= $header->address_office ?></td></tr>
-                <tr><td width='50' align="left">Country</td><td width='10' align="left">:</td><td width='250' align="left"><?= $cou ?></td></tr>
-                <tr><td width='50' align="left">PIC</td><td width='10' align="left">:</td><td width='250' align="left"><?= $namapic ?></td></tr>
-                <tr><td width='50' align="left">Phone</td><td width='10' align="left">:</td><td width='250' align="left"><?= $header->telephone ?></td></tr>
-                <tr><td width='50' align="left">Fax</td><td width='10' align="left">:</td><td width='250' align="left"><?php if(empty($header->fax)){echo"-";}else{echo"$header->fax";}  ?></td></tr>
+                <tr><td width='50' align="left">Supplier</td><td width='10' align="left">:</td><td width='250' align="left"><?= html_escape($header->name_suplier ?? "") ?></td></tr>
+                <tr><td width='50' align="left">Address</td><td width='10' align="left">:</td><td width='250' align="left"><?= html_escape($header->address_office ?? "") ?></td></tr>
+                <tr><td width='50' align="left">Country</td><td width='10' align="left">:</td><td width='250' align="left"><?= html_escape($cou ?? "") ?></td></tr>
+                <tr><td width='50' align="left">PIC</td><td width='10' align="left">:</td><td width='250' align="left"><?= html_escape($namapic ?? "") ?></td></tr>
+                <tr><td width='50' align="left">Phone</td><td width='10' align="left">:</td><td width='250' align="left"><?= html_escape($header->telephone ?? "") ?></td></tr>
+                <tr><td width='50' align="left">Fax</td><td width='10' align="left">:</td><td width='250' align="left"><?php if(empty($header->fax)){echo"-";}else{echo html_escape($header->fax);}  ?></td></tr>
             </table>
         </td>
         <td width="300" align="center">
             <table width='300' align="center">
-                <tr><td width='50' align="left">No</td><td width='10' align="left">:</td><td width='250' align="left"><?= $header->no_surat ?></td></tr>
+                <tr><td width='50' align="left">No</td><td width='10' align="left">:</td><td width='250' align="left"><?= html_escape($header->no_surat ?? "") ?></td></tr>
                 <tr><td width='50' align="left">Date</td><td width='10' align="left">:</td><td width='250' align="left"><?=  date('d-F-Y', strtotime($header->tanggal))  ?></td></tr>
                 <tr><td width='50' align="left">Revision</td><td width='10' align="left">:</td><td width='250' align="left"></td></tr>
                 <tr><td width='50' align="left">Page</td><td width='10' align="left">:</td><td width='250' align="left"></td></tr>
@@ -203,10 +196,11 @@
     <?php
     $matauang = (!empty($header->matauang))?"<br>(".strtoupper($header->matauang).")":'';
 
-    if(strtolower($header->matauang) == 'usd'){
+    $kode = html_escape(strtoupper($header->matauang ?? ''));
+    if(strtolower($header->matauang ?? '') == 'usd'){
         $kode = '$';                                      
     }
-    if(strtolower($header->matauang) == 'idr'){
+    if(strtolower($header->matauang ?? '') == 'idr'){
         $kode = 'Rp';                                      
     }
     ?>
@@ -221,80 +215,41 @@
                
             </tr>
 			<?php	
-			$CIF = "<br>".$header->cif."<br><br><br><br>";
-            $TOT_PPH = 0;
-			foreach($detail as $detail){
-                $kategory = $detail->idmaterial;
-                $barang  = $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 ='$kategory' ")->row();
-
-                $TOT_PPH += $detail->jumlahharga * $detail->pajak / 100;
+            foreach($detail as $detail){
                 $HS = number_format($detail->hargasatuan,2);
                 $JH = number_format($detail->jumlahharga,2);
-                if(strtolower($header->loi) == 'lokal'){
-                    $HS = number_format($detail->hargasatuan,2);
-                    $JH = number_format($detail->jumlahharga,2);
-                    
-                }
-
-               
-
-                if($jumlahdata <= '30'){
-                    echo"	
-                    <tr >
-                        <td width='50'>".$barang->kode_barang."</td>
-                        <td width='330'>".$detail->nama."</td>
-                        <td width='50' align='right'>".$HS."</td>
-                        <td width='50'>".$detail->qty."</td>
-                        <td width='80' align='right'>".$JH."</td>
-                        
-                    </tr>";
-                    $CIF = "";
-                }
-                else{
-                    echo"	
-                    <tr >
-                        <td width='50'>".$barang->kode_barang."</td>
-                        <td width='330'>".$detail->namamaterial."</td>
-                        <td width='50' align='right'>".$HS."</td>
-                        <td width='50'>".$detail->qty."</td>
-                        <td width='80' align='right'>".$JH."</td>
-                        
-                    </tr>";
-                    $CIF = "";
-                }
+                $detail = clone $detail;
+                foreach (array('product_code','nama','namamaterial') as $field) $detail->$field = html_escape($detail->$field ?? '');
+                echo "<tr>
+                    <td width='50'>".$detail->product_code."</td>
+                    <td width='330'>".$detail->nama."</td>
+                    <td width='50' align='right'>".$HS."</td>
+                    <td width='50'>".$detail->qty."</td>
+                    <td width='80' align='right'>".$JH."</td>
+                </tr>";
 			} ?>
 
-            <?php
-            if($header->loi == 'Lokal'){
-                ?>
-                
-                <?php
-            }
-            if($header->loi == 'Import'){
-                $TOT_PPH = 0;
-            }
-
-            $TOTHEAD = number_format($detailsum[0]->sumjumlahharga + $TOT_PPH,2);
-            if(strtolower($header->loi) == 'lokal'){
-                $TOTHEAD = number_format($detailsum[0]->sumjumlahharga + $TOT_PPH,2);
-            }
-            ?>
 			<tr>
                 <td align="right" colspan='4'>Total </td>
-                <td align="right"><?= number_format($header->total_barang,2) ?></td>
+                <td align="right"><?= number_format($header->total_barang ?? 0,2) ?></td>
               
 			</tr>		
+            <?php if ((float)$header->diskontotal != 0) { ?>
+            <tr><td align="right" colspan="4">Discount</td><td align="right"><?= number_format($header->diskontotal ?? 0,2) ?></td></tr>
+            <?php } if ($itemShipping != 0) { ?>
+            <tr><td align="right" colspan="4">Biaya Kirim Item</td><td align="right"><?= number_format($itemShipping,2) ?></td></tr>
+            <?php } ?>
             <tr>
                 <td align="right" colspan='4'>Biaya Kirim </td>
-                <td align="right"><?= number_format($header->taxtotal,2) ?></td>
+                <td align="right"><?= number_format($header->taxtotal ?? 0,2) ?></td>
               
 			</tr>	
 				 <?php
-				if($header->loi == 'Lokal'){
+				if((float)$header->total_ppn != 0){
                 ?>
 			 <tr>
                 <td align="right" colspan='4'>PPN </td>
-                <td align="right"><?= number_format($header->total_ppn,2) ?></td>
+                <td align="right"><?= number_format($header->total_ppn ?? 0,2) ?></td>
               
 			</tr>
 			  <?php
@@ -302,7 +257,7 @@
 				?>
              <tr>
                 <td align="right" colspan='4'>Grand Total </td>
-                <td align="right"><?= number_format($header->subtotal,2) ?></td>
+                <td align="right"><?= number_format($header->subtotal ?? 0,2) ?></td>
               
 			</tr>
 			

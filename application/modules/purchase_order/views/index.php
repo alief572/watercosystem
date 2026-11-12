@@ -6,6 +6,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Order.Delete');
 
 ?>
 <style type="text/css">
+	.po-index-actions { padding-left: 20px; }
 	thead input {
 		width: 100%;
 	}
@@ -25,7 +26,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Order.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="purchase-order-table" class="table table-bordered table-striped">
 			<thead>
 				<tr>
 					<th width="5">#</th>
@@ -33,57 +34,11 @@ $ENABLE_DELETE  = has_permission('Purchase_Order.Delete');
 					<th>Tanggal PO</th>
 					<th>Supplier</th>
 					<th>Progress PR</th>
-					<?php if ($ENABLE_MANAGE) : ?>
-						<th>Action</th>
-					<?php endif; ?>
+					<th>Action</th>
 				</tr>
 			</thead>
 
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++; ?>
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->no_surat ?></td>
-							<td><?= date('d-M-Y', strtotime($record->tanggal)) ?></td>
-							<td><?= $record->namesup ?></td>
-							<?php  if ($record->status == '1') {
-								echo "<td><span class='badge bg-blue'>Waiting</span></td>";
-							} elseif ($record->status == '2') {
-								echo "<td><span class='badge bg-green'>Approved</span></td>";
-							} else {
-								echo "<td><span class='badge bg-red'>Closed</span></td>";
-							}
-							?>
-
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_VIEW) : ?>
-									<!--<a class="btn btn-warning btn-sm view" href="javascript:void(0)" title="View" data-no_po="<?= $record->no_po ?>"><i class="fa fa-eye"></i>
-				</a>-->
-									<a class="btn btn-primary btn-sm" href="<?= base_url('/purchase_order/PrintH2/' . $record->no_po) ?>" target="_blank" title="Print"><i class="fa fa-print"></i></a>
-								<?php endif; ?>
-								<?php if ($ENABLE_MANAGE) :
-									if ($record->status == '1') { ?>
-										<!--<a class="btn btn-info btn-sm" href="<?= base_url('/purchase_order/edit/' . $record->no_po) ?>" title="Edit" ><i class="fa fa-edit"></i></a>
-				-->
-								<?php }
-								endif; ?>
-								<?php if ($ENABLE_MANAGE) :
-									if ($record->status == '1') { ?>
-										<a class="btn btn-success btn-sm Approve" href="javascript:void(0)" title="Approval PO" data-no_po="<?= $record->no_po ?>"><i class="fa fa-check"></i>
-										</a>
-								<?php }
-								endif; ?>
-							</td>
-
-						</tr>
-				<?php }
-				}  ?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -222,7 +177,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Order.Delete');
 									type: "success"
 								},
 								function() {
-									window.location.reload(true);
+									$('#purchase-order-table').DataTable().ajax.reload(null, false);
 								})
 						} else {
 							swal({
@@ -246,31 +201,27 @@ $ENABLE_DELETE  = has_permission('Purchase_Order.Delete');
 	})
 
 	$(function() {
-		// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
-		// $('#example1 thead tr:eq(1) th').each( function (i) {
-		// var title = $(this).text();
-		//alert(title);
-		// if (title == "#" || title =="Action" ) {
-		// $(this).html( '' );
-		// }else{
-		// $(this).html( '<input type="text" />' );
-		// }
-
-		// $( 'input', this ).on( 'keyup change', function () {
-		// if ( table.column(i).search() !== this.value ) {
-		// table
-		// .column(i)
-		// .search( this.value )
-		// .draw();
-		// }else{
-		// table
-		// .column(i)
-		// .search( this.value )
-		// .draw();
-		// }
-		// } );
-		// } );
-
+        $('#purchase-order-table').DataTable({
+            processing: true,
+            serverSide: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            scrollX: true,
+            searchDelay: 350,
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+            order: [],
+            ajax: {url: siteurl + 'purchase_order/data_index', type: 'GET'},
+            columns: [
+                {data: 'number', orderable: false, searchable: false},
+                {data: 'no_surat'},
+                {data: 'tanggal'},
+                {data: 'supplier'},
+                {data: 'progress'},
+                {data: 'action', orderable: false, searchable: false, className: 'po-index-actions'}
+            ],
+            language: {processing: 'Memuat data PO...'}
+        });
 
 		$("#form-area").hide();
 	});

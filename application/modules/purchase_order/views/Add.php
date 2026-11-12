@@ -4,7 +4,8 @@
 
  <div class="box box-primary">
     <div class="box-body">
-		<form id="data-form" method="post" autocomplete='off'>
+		<form id="data-form" method="post" autocomplete='off' data-po-direct="1">
+        <input type="hidden" id="kirim" name="kirim" value="0">
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 			<div class="row">
@@ -19,7 +20,7 @@
 					<select id="id_suplier" name="id_suplier" class='form-control input-md chosen-select'  onchange="get_lokasi()"  required>
 						<option value="">--Pilih--</option>
 							<?php foreach ($results['supplier'] as $supplier){?> 
-						<option value="<?= $supplier->id_suplier?>" ><?= strtoupper(strtolower($supplier->name_suplier))?></option>
+						<option value="<?= html_escape($supplier->id_suplier) ?>" ><?= html_escape(strtoupper(strtolower($supplier->name_suplier))) ?></option>
 							<?php } ?>
 					</select>
 				</div>
@@ -79,7 +80,7 @@
 							<?php foreach ($results['matauang'] as $supplier){
 							$selected = '';	
 								?> 
-						<option value="<?= $supplier->kode?>" <?=$selected;?>><?= strtoupper(strtolower($supplier->kode))?></option>
+						<option value="<?= html_escape($supplier->kode) ?>" <?=$selected;?>><?= html_escape(strtoupper(strtolower($supplier->kode))) ?></option>
 							<?php } ?>
 					</select>
 				</div>
@@ -317,109 +318,6 @@
 			$(this).parent().parent().remove();
 			SumDel();
 		});
-
-		$('#simpan-com').click(function(e){
-			e.preventDefault();
-			var deskripsi	= $('#deskripsi').val();
-			var expect_tanggal	= $('#expect_tanggal').val();
-			var loi	= $('#loi').val();
-			var term	= $('#term').val();
-			var cif	= $('#cif').val();
-			var pajak =  $('.pajak').val();
-			
-			var data, xhr;
-				if(expect_tanggal == '' || expect_tanggal == null || loi == '' || loi == null){
-					swal("Warning", "Form Tidak Boleh Kosong :)", "error");
-					return false;
-					}
-					if(pajak == ''){
-					swal("Warning", "Biaya Kirim Tidak Boleh Kosong :)", "error");
-					return false;
-					}	
-					else{
-			swal({
-				  title: "Are you sure?",
-				  text: "You will not be able to process again this data!",
-				  type: "warning",
-				  showCancelButton: true,
-				  confirmButtonClass: "btn-danger",
-				  confirmButtonText: "Yes, Process it!",
-				  cancelButtonText: "No, cancel process!",
-				  closeOnConfirm: true,
-				  closeOnCancel: false
-				},
-				function(isConfirm) {
-				  if (isConfirm) {
-
-						var formData 	=new FormData($('#data-form')[0]);
-						var baseurl=siteurl+'purchase_order/SaveNew';
-						$.ajax({
-							url			: baseurl,
-							type		: "POST",
-							data		: formData,
-							cache		: false,
-							dataType	: 'json',
-							processData	: false, 
-							contentType	: false,				
-							success		: function(data){								
-								if(data.status == 1){											
-									swal({
-										  title	: "Save Success!",
-										  text	: data.pesan,
-										  type	: "success",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									window.location.href = base_url + active_controller;
-								}else{
-									
-									if(data.status == 2){
-										swal({
-										  title	: "Save Failed!",
-										  text	: data.pesan,
-										  type	: "warning",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									}else{
-										swal({
-										  title	: "Save Failed!",
-										  text	: data.pesan,
-										  type	: "warning",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									}
-									
-								}
-							},
-							error: function() {
-								
-								swal({
-								  title				: "Error Message !",
-								  text				: 'An Error Occured During Process. Please try again..',						
-								  type				: "warning",								  
-								  timer				: 7000,
-								  showCancelButton	: false,
-								  showConfirmButton	: false,
-								  allowOutsideClick	: false
-								});
-							}
-						});
-				  } else {
-					swal("Cancelled", "Data can be process again :)", "error");
-					return false;
-				  }
-			});
-			}
-		});
-		
 	});
 
 
@@ -812,119 +710,7 @@
 		
     }
 	
-	function HitAmmount(id){
-      	var alloyprice 	= getNum($("#dt_alloyprice_"+id).val().split(",").join(""));
-		var fabcost		= getNum($("#dt_fabcost_"+id).val().split(",").join(""));
-		var diskon		= getNum($("#dt_diskon_"+id).val().split(",").join(""));
-		var pajak		= getNum($("#dt_pajak_"+id).val().split(",").join(""));
-		var qty			= getNum($("#dt_qty_"+id).val().split(",").join(""));
-		var hargasatuan	= getNum($("#dt_hargasatuan_"+id).val().split(",").join(""));
-		var dt_width	= getNum($("#dt_totalweight_"+id).val().split(",").join(""));
-		var loi			= $("#loi").val();
 
-		// if(loi == 'Import'){
-		// 	var total 	= Number(alloyprice) + Number(fabcost);
-		// 	var jumlah 	= total * dt_width;	
-
-		// 	$("#dt_hargasatuan_"+id).val(number_format(total,2));
-		// }
-		//else{
-			var total 	= hargasatuan;
-			var jumlah 	= hargasatuan * qty; 
-		//}
-
-		var tot_pajak 	= pajak;
-		var tot_diskon = diskon / 100 * jumlah;
-		var tot_jumlah = jumlah - tot_diskon + tot_pajak;
-
-		
-
-		$("#dt_jumlahharga_"+id).val(number_format(jumlah,2));
-
-		$("#dt_ch_pajak_"+id).val(tot_pajak);
-		$("#dt_ch_diskon_"+id).val(tot_diskon);
-		$("#dt_ch_jumlah_"+id).val(tot_jumlah);
-
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX,2));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JML,2));
-
-    }
-
-	function SumDel(){
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JML));
-
-    }
-
-	function number_format (number, decimals, dec_point, thousands_sep) {
-		// Strip all characters but numerical ones.
-		number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-		var n = !isFinite(+number) ? 0 : +number,
-			prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-			sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-			dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-			s = '',
-			toFixedFix = function (n, prec) {
-				var k = Math.pow(10, prec);
-				return '' + Math.round(n * k) / k;
-			};
-		// Fix for IE parseFloat(0.55).toFixed(0) = 0;
-		s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-		if (s[0].length > 3) {
-			s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-		}
-		if ((s[1] || '').length < prec) {
-			s[1] = s[1] || '';
-			s[1] += new Array(prec - s[1].length + 1).join('0');
-		}
-		return s.join(dec);
-	}
 
 	function getNum(val) {
 		if (isNaN(val) || val == '') {
@@ -949,3 +735,4 @@
 		});
     });
 </script>
+<script src="<?= base_url('assets/js/purchase_order_form.js') ?>"></script>

@@ -1,4 +1,6 @@
 <?php
+$tanggal = date('Y-m-d');
+$loi = '';
 $ENABLE_ADD     = has_permission('Purchase_Request.Add');
 $ENABLE_MANAGE  = has_permission('Purchase_Request.Manage');
 $ENABLE_VIEW    = has_permission('Purchase_Request.View');
@@ -6,7 +8,9 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 ?>
 <div class="box box-primary">
     <div class="box-body">
-		<form id="data-form" method="post">
+		<?php $poTaxMaster = $this->db->query('SELECT persen FROM ppn LIMIT 1')->row();
+        $poTaxRate = $poTaxMaster && is_numeric($poTaxMaster->persen) && $poTaxMaster->persen >= 0 ? $poTaxMaster->persen : ''; ?>
+        <form id="data-form" method="post" data-ppn-rate="<?= html_escape($poTaxRate) ?>">
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 			<div class="row">
@@ -21,7 +25,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 					<select id="id_suplier" name="id_suplier" class='form-control input-md chosen-select'  onchange="get_lokasi()"  required>
 						<option value="">--Pilih--</option>
 							<?php foreach ($results['supplier'] as $supplier){?> 
-						<option value="<?= $supplier->id_suplier?>" ><?= strtoupper(strtolower($supplier->name_suplier))?></option>
+						<option value="<?= html_escape($supplier->id_suplier) ?>" ><?= html_escape(strtoupper(strtolower($supplier->name_suplier))) ?></option>
 							<?php } ?>
 					</select>
 				</div>
@@ -81,7 +85,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 							<?php foreach ($results['matauang'] as $supplier){
 							$selected = '';	
 								?> 
-						<option value="<?= $supplier->kode?>" <?=$selected;?>><?= strtoupper(strtolower($supplier->kode))?></option>
+						<option value="<?= html_escape($supplier->kode) ?>" <?=$selected;?>><?= html_escape(strtoupper(strtolower($supplier->kode))) ?></option>
 							<?php } ?>
 					</select>
 				</div>
@@ -182,15 +186,18 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
                           $disabled = ($loi == 'Import')?'':'readonly';
                           $disabled2 = ($loi == 'Import')?'readonly':'';
                           $idmat =$value->idmaterial;
-                          $harga 	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$idmat'")->row();
+                          $harga = $this->db->query('SELECT * FROM ms_product_pricelist WHERE id_category3 = ?', array($idmat))->row();
+                          $harga_beli = $harga ? (float)$harga->harga_beli : 0;
 						  
-						  $stock = $this->db->query("SELECT * FROM stock_material WHERE id_category3 = '$idmat'")->row();
+						  $stock = $this->db->query('SELECT * FROM stock_material WHERE id_category3 = ?', array($idmat))->row();
 						  		  
-						  $avl 	 =	$stock->qty_free;		  
-						  $po    = $value->qty-$stock->qty_free;
+						  $avl      =	($stock ? (float)$stock->qty_free : 0);
+						  $po    = max(0, $value->qty-($stock ? (float)$stock->qty_free : 0));
               
-                          $total = $harga->harga_beli*$value->qty;
+                          $total = $harga_beli*$value->qty;
               
+                          $value = clone $value;
+                          foreach (array('nama_material','kode_barang','keterangan','id_dt_pr','no_pr','idmaterial') as $field) $value->$field = html_escape($value->$field ?? '');
                           echo "<tr>
                               	<td>  ".$value->nama_material."
                                             <input type='hidden' class='form-control input-sm' id='dt_idpr_".$key."' name='dt[".$key."][idpr]' value='".$value->id_dt_pr."'>
@@ -231,7 +238,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
                                           </td>
                               	<td hidden><input type='text' class='form-control input-sm autoNumeric3' id='dt_alloyprice_".$key."' ".$disabled." data-decimal='.' data-thousand='' data-precision='0' data-allow-zero='' name='dt[".$key."][alloyprice]' onkeyup='HitAmmount(".$key.")'></td>
                               	<td hidden><input type='text' class='form-control input-sm autoNumeric3' id='dt_fabcost_".$key."' ".$disabled." name='dt[".$key."][fabcost]' onkeyup='HitAmmount(".$key.")'></td>
-                              	<td><input type='text' class='form-control input-sm autoNumeric3' id='dt_hargasatuan_".$key."' name='dt[".$key."][hargasatuan]' onkeyup='HitAmmount(".$key.")' value='".$harga->harga_beli."'></td>
+                                  <td><input type='text' class='form-control input-sm autoNumeric3' id='dt_hargasatuan_".$key."' name='dt[".$key."][hargasatuan]' onkeyup='HitAmmount(".$key.")' value='".($harga ? $harga_beli : "")."'></td>
 								<td>
 									  <select class='form-control input-sm' id='dt_ppn_".$key."' name='dt[".$key."][ppn]' onchange='CariPPN(".$key.")'>
 										  <option value=''>SELECT</option>
@@ -242,9 +249,9 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
                               	<td hidden><input type='text' class='form-control input-sm autoNumeric pajak' id='dt_pajak_".$key."' name='dt[".$key."][pajak]' onkeyup='HitAmmount(".$key.")'></td>
                               	<td hidden><input type='text' class='form-control input-sm autoNumeric3' id='dt_diskon_".$key."' ".$disabled." name='dt[".$key."][diskon]' onkeyup='HitAmmount(".$key.")'></td>
                               
-								<td><input type='text' class='form-control input-sm ch_jumlah_ex' id='dt_jumlahharga_".$key."' readonly name='dt[".$key."][jumlahharga]' value='".$total."'></td>
+								<td><input type='text' class='form-control input-sm ch_jumlah_ex' id='dt_jumlahharga_".$key."' readonly name='dt[".$key."][jumlahharga]' value='".($harga ? $total : "")."'></td>
                               	<td><input type='text' class='form-control input-sm ch_ppn' id='dt_nilai_ppn_".$key."' name='dt[".$key."][nilai_ppn]' readonly></td>
-                              	<td><input type='text' class='form-control input-sm ch_jumlah_ex2' id='dt_totalharga_".$key."' readonly name='dt[".$key."][totalharga]' value='".$total."'></td>
+                                  <td><input type='text' class='form-control input-sm ch_jumlah_ex2' id='dt_totalharga_".$key."' readonly name='dt[".$key."][totalharga]' value='".($harga ? $total : "")."'></td>
                               	<td><input type='text' class='form-control input-sm' id='dt_note_".$key."' name='dt[".$key."][note]'></td>
                               	<td>
                                               <button type='button' class='btn btn-sm btn-danger hapus_baris' title='Hapus Data' data-role='qtip'><i class='fa fa-close'></i></button>
@@ -375,151 +382,10 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 			changeYear:true,
 		});
 
-		$(document).on('change','#id_suplier',function(){
-			let id_suplier = $('#id_suplier').val();
-			$.ajax({
-				type	: "POST",
-				url		: siteurl+'purchase_order/getPR',
-				data	: {
-					'id_suplier' : id_suplier
-				},
-				cache	: false,
-				dataType: 'json',
-				success:function(data){
-					$('#no_pr').html(data.option).trigger("chosen:updated");
-				}
-			});
-		});
-
-		$(document).on('change','#no_pr',function(){
-			let loi = $('#loi').val();
-			let no_pr = $(this).val();
-			$.ajax({
-				type	: "POST",
-				url		: siteurl+'purchase_order/AddMaterial_Direct',
-				data	: {
-					'loi' : loi,
-					'no_pr' : no_pr
-				},
-				cache	: false,
-				dataType: 'json',
-				success:function(data){
-					$('#data_request').html(data.list_mat);
-					$(".bilangan-desimal").maskMoney();
-					$('.autoNumeric3').autoNumeric('init', { vMin: 0 });
-					$('.autoNumeric').autoNumeric();
-					$('#expect_tanggal').val(data.min_date);
-				}
-			});
-		});
-
 		$(document).on('click','.hapus_baris',function(){
 			$(this).parent().parent().remove();
 			SumDel();
 		});
-
-		$('#simpan-com').click(function(e){
-			e.preventDefault();
-			var deskripsi	= $('#deskripsi').val();
-			var tanggal	= $('#tanggal').val();
-			var loi	= $('#loi').val();
-			var term	= $('#term').val();
-			var cif	= $('#cif').val();
-			var pajak =  $('.pajak').val();
-			
-			var data, xhr;
-				if( loi == '' || loi == null){
-					swal("Warning", "Form Tidak Boleh Kosong :)", "error");
-					return false;
-					}
-				if( tanggal == '' || tanggal == null){
-					swal("Warning", "Tanggal Tidak Boleh Kosong :)", "error");
-					return false;
-					}
-					else{
-			swal({
-				  title: "Are you sure?",
-				  text: "You will not be able to process again this data!",
-				  type: "warning",
-				  showCancelButton: true,
-				  confirmButtonClass: "btn-danger",
-				  confirmButtonText: "Yes, Process it!",
-				  cancelButtonText: "No, cancel process!",
-				  closeOnConfirm: true,
-				  closeOnCancel: false
-				},
-				function(isConfirm) {
-				  if (isConfirm) {
-
-						var formData 	=new FormData($('#data-form')[0]);
-						var baseurl=siteurl+'purchase_order/SaveNew';
-						$.ajax({
-							url			: baseurl,
-							type		: "POST",
-							data		: formData,
-							cache		: false,
-							dataType	: 'json',
-							processData	: false, 
-							contentType	: false,				
-							success		: function(data){								
-								if(data.status == 1){											
-									swal({
-										  title	: "Save Success!",
-										  text	: data.pesan,
-										  type	: "success",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									window.location.href = base_url + active_controller;
-								}else{
-									
-									if(data.status == 2){
-										swal({
-										  title	: "Save Failed!",
-										  text	: data.pesan,
-										  type	: "warning",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									}else{
-										swal({
-										  title	: "Save Failed!",
-										  text	: data.pesan,
-										  type	: "warning",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									}
-									
-								}
-							},
-							error: function() {
-								
-								swal({
-								  title				: "Error Message !",
-								  text				: 'An Error Occured During Process. Please try again..',						
-								  type				: "warning",								  
-								  timer				: 7000,
-								  showCancelButton	: false,
-								  showConfirmButton	: false,
-								  allowOutsideClick	: false
-								});
-							}
-						});
-				  } else {
-					swal("Cancelled", "Data can be process again :)", "error");
-					return false;
-				  }
-			});
-			}
-		});
-		
 	});
 
 
@@ -592,36 +458,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 		}
     }
 	
-	function CariPPN(id){
-		 var ppn=$("#dt_ppn_"+id).val();
-		 
-		 console.log(ppn)
-		 
-		 var harga=getNum($("#dt_jumlahharga_"+id).val().split(",").join(""));
-		 var dt_idmaterial=$("#dt_idmaterial_"+id).val();
-		 
-		 
-		 if( dt_idmaterial == '' || dt_idmaterial == null){
-					swal("Warning", "Silahkan Pilih Material Terlebih Dahulu :)", "error");
-					return false;
-		}else{
-			
-			if(ppn == '' || ppn == 'N'){
-				$("#dt_nilai_ppn_"+id).val('0');		
-			}else{
-				 $.ajax({
-					type:"GET",
-					url:siteurl+'purchase_order/CariPPN',
-					data:"harga="+harga+"&id="+id,
-					success:function(html){
-					   $("#dt_nilai_ppn_"+id).val(html);
-					   HitAmmount(id);
-					}
-				});
-			}
-		}
-    }
-	
+
 	function get_kurs(){
         var loi=$("#loi").val();
 		$.ajax({
@@ -943,169 +780,7 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 		
     }
 	
-	function HitAmmount(id){
-      	var alloyprice 	= getNum($("#dt_alloyprice_"+id).val().split(",").join(""));
-		var fabcost		= getNum($("#dt_fabcost_"+id).val().split(",").join(""));
-		var diskon		= getNum($("#dt_diskon_"+id).val().split(",").join(""));
-		var pajak		= getNum($("#dt_pajak_"+id).val().split(",").join(""));
-		var qty			= getNum($("#dt_qty_"+id).val().split(",").join(""));
-		var hargasatuan	= getNum($("#dt_hargasatuan_"+id).val().split(",").join(""));
-		var ppn			= getNum($("#dt_nilai_ppn_"+id).val().split(",").join(""));
-		var dt_width	= getNum($("#dt_totalweight_"+id).val().split(",").join(""));
-		var loi			= $("#loi").val();
 
-		// if(loi == 'Import'){
-		// 	var total 	= Number(alloyprice) + Number(fabcost);
-		// 	var jumlah 	= total * dt_width;	
-
-		// 	$("#dt_hargasatuan_"+id).val(number_format(total,2));
-		// }
-		//else{
-			var total 	= hargasatuan;
-			var jumlah 	= hargasatuan * qty; 
-			var totalharga = jumlah + ppn;
-		//}
-
-		var tot_pajak 	= pajak;
-		var tot_diskon = diskon / 100 * jumlah;
-		var tot_jumlah = totalharga - tot_diskon + tot_pajak;
-
-		
-
-		$("#dt_jumlahharga_"+id).val(number_format(jumlah,2));
-		$("#dt_totalharga_"+id).val(number_format(totalharga,2));
-		
-
-		$("#dt_ch_pajak_"+id).val(tot_pajak);
-		$("#dt_ch_diskon_"+id).val(tot_diskon);
-		$("#dt_ch_jumlah_"+id).val(tot_jumlah);
-
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-		var SUM_PPN = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-		$(".ch_ppn" ).each(function() {
-			SUM_PPN += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX,2));
-		$("#totalppn").val(number_format(SUM_PPN,2));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JML,2));
-
-    }
-
-
-	function cariTotal(){
-      	var kirim    	= getNum($("#kirim").val().split(",").join(""));
-		var total		= getNum($("#hargatotal").val().split(",").join(""));
-		var ppn 		= getNum($("#totalppn").val().split(",").join(""));
-	
-		var grandtotal 	= kirim + total + ppn; 
-		$("#kirim").val(number_format(kirim,2));
-		$("#subtotal").val(number_format(grandtotal,2));
-
-    }
-
-	function SumDel(){
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JML));
-
-    }
-
-	function TotalSemua(){
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex2" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JMX));
-
-    }
-
-	function number_format (number, decimals, dec_point, thousands_sep) {
-		// Strip all characters but numerical ones.
-		number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-		var n = !isFinite(+number) ? 0 : +number,
-			prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-			sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-			dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-			s = '',
-			toFixedFix = function (n, prec) {
-				var k = Math.pow(10, prec);
-				return '' + Math.round(n * k) / k;
-			};
-		// Fix for IE parseFloat(0.55).toFixed(0) = 0;
-		s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-		if (s[0].length > 3) {
-			s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-		}
-		if ((s[1] || '').length < prec) {
-			s[1] = s[1] || '';
-			s[1] += new Array(prec - s[1].length + 1).join('0');
-		}
-		return s.join(dec);
-	}
 
 	function getNum(val) {
 		if (isNaN(val) || val == '') {
@@ -1130,3 +805,4 @@ $ENABLE_DELETE  = has_permission('Purchase_Request.Delete');
 		});
     });
 </script>
+<script src="<?= base_url('assets/js/purchase_order_form.js') ?>"></script>

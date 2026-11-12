@@ -38,10 +38,45 @@ class Purchase_order extends Admin_Controller
        $this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-        $data = $this->db->query("SELECT a.*, b.name_suplier as namesup FROM tr_purchase_order as a INNER JOIN master_supplier as b on a.id_suplier = b.id_suplier ORDER BY a.no_po DESC")->result();
-        $this->template->set('results', $data);
         $this->template->title('Purchase Order');
         $this->template->render('index');
+    }
+
+    public function data_index()
+    {
+        $this->auth->restrict($this->viewPermission);
+        $debug = $this->db->db_debug; $this->db->db_debug = false;
+        $draw = 0;
+        try {
+            $request = array();
+            foreach (array('draw','start','length','search','order') as $key) $request[$key] = $this->input->get($key);
+            $rawDraw = filter_var($request['draw'],FILTER_VALIDATE_INT);
+            $draw = $rawDraw !== false && $rawDraw >= 0 ? $rawDraw : 0;
+            $data = $this->Pr_model->getIndexData($request);
+            $view = has_permission($this->viewPermission);
+            $manage = has_permission($this->managePermission);
+            $rows = array(); $number = $data['start'];
+            foreach ($data['rows'] as $row) {
+                $status = (string)$row->status;
+                $badge = $status === '1' ? 'blue' : ($status === '2' ? 'green' : 'red');
+                $label = $status === '1' ? 'Waiting' : ($status === '2' ? 'Approved' : 'Closed');
+                $action = '';
+                if ($view) $action .= '<a class="btn btn-primary btn-sm" href="' . html_escape(base_url('purchase_order/PrintH2/' . rawurlencode($row->no_po))) . '" target="_blank" title="Print"><i class="fa fa-print"></i></a> ';
+                if ($manage && $status === '1') $action .= '<a class="btn btn-success btn-sm Approve" href="javascript:void(0)" title="Approval PO" data-no_po="' . html_escape($row->no_po) . '"><i class="fa fa-check"></i></a>';
+                $date = DateTime::createFromFormat('!Y-m-d',(string)$row->tanggal);
+                $rows[] = array('number'=>++$number, 'no_surat'=>html_escape($row->no_surat ?? ''),
+                    'tanggal'=>$date && $date->format('Y-m-d') === $row->tanggal ? $date->format('d-M-Y') : '-',
+                    'supplier'=>html_escape($row->namesup ?? ''), 'progress'=>'<span class="badge bg-' . $badge . '">' . $label . '</span>', 'action'=>$action);
+            }
+            $response = array('draw'=>$data['draw'], 'recordsTotal'=>$data['total'], 'recordsFiltered'=>$data['filtered'], 'data'=>$rows);
+        } catch (Throwable $error) {
+            $this->output->set_status_header($error instanceof DomainException ? 422 : 500);
+            if (!($error instanceof DomainException)) log_message('error','PO table failed: ' . $error->getMessage());
+            $response = array('draw'=>$draw, 'recordsTotal'=>0, 'recordsFiltered'=>0, 'data'=>array(),
+                'error'=>$error instanceof DomainException ? $error->getMessage() : 'Data PO gagal dimuat. Silakan coba lagi.');
+        } finally { $this->db->db_debug = $debug; }
+        $this->output->set_content_type('application/json');
+        echo json_encode($response,JSON_INVALID_UTF8_SUBSTITUTE);
     }
 
 		public function add()
@@ -78,9 +113,11 @@ class Purchase_order extends Admin_Controller
 		$this->template->page_icon('fa fa-pencil');
 		$aktif = 'active';
 		$deleted = '0';
-		$head = $this->db->query("SELECT * FROM tr_purchase_order  WHERE no_po = '$id' ")->result();
+		$head = $this->poQuery('SELECT * FROM tr_purchase_order WHERE no_po = ?', array($id))->result();
+        if (!$head) { show_404(); return; }
+        try { $this->poEditable($head[0]); } catch (DomainException $e) { show_error($e->getMessage(), 409); return; }
 		$comp	= $this->db->query("select a.*, b.nominal as nominal_harga FROM ms_compotition as a inner join child_history_lme as b on b.id_compotition=a.id_compotition where a.deleted='0' and b.status='0' ")->result();
-		$detail = $this->db->query("SELECT * FROM dt_trans_po  WHERE no_po = '$id' ")->result_array();
+		$detail = $this->poQuery('SELECT * FROM dt_trans_po WHERE no_po = ? ORDER BY id_dt_po', array($id))->result_array();
 		$supplier = $data = $this->db->query("SELECT a.* FROM master_supplier as a INNER JOIN dt_trans_pr as b on b.suplier = a.id_suplier INNER JOIN tr_purchase_request as c on b.no_pr = c.no_pr WHERE c.status = '2' GROUP BY b.suplier ")->result();
 		$customers = $this->Pr_model->get_data('master_customers','deleted',$deleted);
 		$karyawan = $this->Pr_model->get_data('ms_karyawan','deleted',$deleted);
@@ -110,10 +147,9 @@ class Purchase_order extends Admin_Controller
 		$aktif = 'active';
 		$deleted = '0';
 		$comp	= $this->db->query("select a.*, b.nominal as nominal_harga FROM ms_compotition as a inner join child_history_lme as b on b.id_compotition=a.id_compotition where a.deleted='0' and b.status='0' ")->result();
-		$head = $this->db->query("SELECT a.*, b.name_suplier as suplier FROM tr_purchase_order as a INNER JOIN master_supplier as b on a.id_suplier = b.id_suplier  WHERE a.no_po = '$id' ")->result();
-		$detail = $this->db->query("SELECT a.*, b.nama  FROM dt_trans_po a
-		INNER JOIN ms_inventory_category3 b ON a.idmaterial = b.id_category3
-		WHERE no_po = '$id' ")->result();
+        $head = $this->poHeader($id);
+        if (!$head) { show_404(); return; }
+        $detail = $this->poDetails($id);
 		$supplier = $data = $this->db->query("SELECT a.* FROM master_supplier as a INNER JOIN dt_trans_pr as b on b.suplier = a.id_suplier INNER JOIN tr_purchase_request as c on b.no_pr = c.no_pr WHERE c.status = '2' ")->result();
 		$customers = $this->Pr_model->get_data('master_customers','deleted',$deleted);
 		$karyawan = $this->Pr_model->get_data('ms_karyawan','deleted',$deleted);
@@ -444,17 +480,22 @@ class Purchase_order extends Admin_Controller
 	function AddMaterial_Direct(){
 		$no_pr		= $this->input->post('no_pr');
 		$loi 		= $this->input->post('loi');
-		$material 	= $this->db->query("SELECT * FROM dt_trans_pr WHERE no_pr = '$no_pr'")->result_array();
-		$datemin 	= $this->db->query("SELECT MIN(tanggal) AS tanggal FROM dt_trans_pr WHERE no_pr = '$no_pr'")->result();
+		$request = $this->poQuery('SELECT * FROM tr_purchase_request WHERE no_pr = ?',array($no_pr))->row();
+        if (!$request || (string)$request->status !== '2' || $request->status_po !== 'OPN' || $this->poOtherReference($no_pr,'')) {
+            $this->output->set_content_type('application/json'); echo json_encode(array('list_mat'=>'','min_date'=>'')); return;
+        }
+        $material = $this->poQuery('SELECT * FROM dt_trans_pr WHERE no_pr = ?',array($no_pr))->result_array();
+		$datemin = $this->poQuery('SELECT MIN(tanggal) AS tanggal FROM dt_trans_pr WHERE no_pr = ?',array($no_pr))->result();
 		// print_r($material);
 		$LIST = "";
 		foreach ($material as $key => $value) { $key++;
 			$disabled = ($loi == 'Import')?'':'readonly';
 			$disabled2 = ($loi == 'Import')?'readonly':'';
             $idmat =$value['idmaterial'];
-			$harga 	= $this->db->query("SELECT * FROM ms_product_pricelist WHERE id_category3 = '$idmat'")->row();
+			$harga = $this->poQuery('SELECT * FROM ms_product_pricelist WHERE id_category3 = ?',array($idmat))->row();
 
-			$total = $harga->harga_beli*$value['qty'];
+			$total = ($harga ? $harga->harga_beli : 0)*$value['qty'];
+            foreach (array('nama_material','id_dt_pr','idmaterial','keterangan') as $field) $value[$field] = html_escape($value[$field] ?? '');
 
 			$LIST .= "<tr>";
 				$LIST .= 	"<td>".$value['nama_material']."
@@ -486,7 +527,7 @@ class Purchase_order extends Admin_Controller
 							</td>";
 				$LIST .= 	"<td hidden><input type='text' class='form-control input-sm autoNumeric3' id='dt_alloyprice_".$key."' ".$disabled." data-decimal='.' data-thousand='' data-precision='0' data-allow-zero='' name='dt[".$key."][alloyprice]' onkeyup='HitAmmount(".$key.")'></td>";
 				$LIST .= 	"<td hidden><input type='text' class='form-control input-sm autoNumeric3' id='dt_fabcost_".$key."' ".$disabled." name='dt[".$key."][fabcost]' onkeyup='HitAmmount(".$key.")'></td>";
-				$LIST .= 	"<td><input type='text' class='form-control input-sm autoNumeric3' id='dt_hargasatuan_".$key."' name='dt[".$key."][hargasatuan]' onkeyup='HitAmmount(".$key.")' value='".$harga->harga_beli."'></td>";
+				$LIST .=     "<td><input type='text' class='form-control input-sm autoNumeric3' id='dt_hargasatuan_".$key."' name='dt[".$key."][hargasatuan]' onkeyup='HitAmmount(".$key.")' value='".($harga ? $harga->harga_beli : 0)."'></td>";
 				$LIST .= 	"<td hidden><input type='text' class='form-control input-sm autoNumeric' id='dt_diskon_".$key."' name='dt[".$key."][diskon]' onkeyup='HitAmmount(".$key.")'></td>";
 				$LIST .= 	"<td><input type='text' class='form-control input-sm autoNumeric pajak' id='dt_pajak_".$key."' name='dt[".$key."][pajak]' onkeyup='HitAmmount(".$key.")'></td>";
 				$LIST .= 	"<td><input type='text' class='form-control input-sm ch_jumlah_ex' id='dt_jumlahharga_".$key."' readonly name='dt[".$key."][jumlahharga]' value='".$total."'></td>";
@@ -500,7 +541,7 @@ class Purchase_order extends Admin_Controller
 
 		$data = [
 			'list_mat' => $LIST,
-			'min_date' => date('d-M-Y', strtotime($datemin[0]->tanggal)) 
+			'min_date' => ($datemin[0]->tanggal ?? '')
 		];
 		
 		echo json_encode($data);
@@ -637,13 +678,11 @@ function CariPrice()
 
 function CariPPN()
     {
-        $harga=$_GET['harga'];
-		$cari		= $this->db->query("select persen FROM ppn")->row();
-		$ppn   		= $cari->persen;
-		$ppnbarang 	= number_format(($ppn*$harga)/100,2);
-		
-		echo "".$ppnbarang."";	
-	}
+        try {
+            $harga = $this->poNumber(array('harga'=>$this->input->get('harga')),'harga');
+            echo number_format(round($this->poRate() * $harga / 100,2),2,'.',',');
+        } catch (DomainException $e) { show_error($e->getMessage(),400); }
+    }
 function HitungHarga()
     {
         $dt_hargasatuan=$_GET['dt_hargasatuan'];
@@ -783,10 +822,10 @@ function FormInputKurs()
 	$kurs	= $this->db->query("SELECT * FROM ms_kurs WHERE aktif = 'Y' ")->result();
 	$kurs10hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM perubahan_kurs WHERE tanggal_ubah BETWEEN  '$tendays' AND '$hariini' AND kode_kurs='IDR' ")->result();
 	$kurs30hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM perubahan_kurs WHERE MONTH(tanggal_ubah) =  '$blnkmrn' AND YEAR(tanggal_ubah) = '$yearkemaren' AND kode_kurs='IDR' ")->result();
-	$nomkurs_asli = $kurs[0]->nilai_kurs;
+	$nomkurs_asli = $kurs ? $kurs[0]->nilai_kurs : 0;
 	$nomkurs10 = $kurs10hari[0]->nominal;
 	$nomkurs30 = $kurs30hari[0]->nominal;
-	$k =  $nomkurs;
+	$k = $nomkurs_asli;
 	$k10 =  $nomkurs10;
 	$k30 =  $nomkurs30;
 		if($loi == "Import"){
@@ -1059,32 +1098,26 @@ function cari_inven1()
   		echo json_encode($status);
 	}
 
-	public function Approved(){
-		$this->auth->restrict($this->deletePermission);
-		$id = $this->input->post('id');
-		$data = [
-			'status' 		=> '2',
-		];
-
-		$this->db->trans_begin();
-		$this->db->where('no_po',$id)->update("tr_purchase_order",$data);
-
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Approve P.R. Thanks ...',
-			  'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Approve P.R. Thanks ...',
-			  'status'	=> 1
-			);
-		}
-
-  		echo json_encode($status);
-	}
+    public function Approved()
+    {
+        $this->auth->restrict($this->deletePermission);
+        $transaction = false; $debug = $this->db->db_debug; $this->db->db_debug = false;
+        try {
+            $id = $this->poField(array('id'=>$this->input->post('id')), 'id', true);
+            if (!$this->db->trans_begin()) throw new RuntimeException('Cannot start approval');
+            $transaction = true;
+            $header = $this->poQuery('SELECT * FROM tr_purchase_order WHERE no_po = ? FOR UPDATE', array($id))->row();
+            if (!$header) throw new DomainException('PO tidak ditemukan.');
+            if (!in_array((string)$header->status, array('1','2'), true)) throw new DomainException('Status PO tidak dapat diapprove.');
+            if ((string)$header->status === '1' && !$this->db->where('no_po',$id)->update('tr_purchase_order',array('status'=>'2'))) throw new RuntimeException('Cannot approve PO');
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) throw new RuntimeException('Cannot commit approval');
+            $transaction = false; $this->poReply(1,'PO berhasil diapprove.');
+        } catch (Throwable $error) {
+            if ($transaction) $this->db->trans_rollback();
+            if (!($error instanceof DomainException)) log_message('error','PO approval failed: ' . $error->getMessage());
+            $this->poReply(0,$error instanceof DomainException ? $error->getMessage() : 'PO gagal diapprove. Silakan coba lagi.');
+        } finally { $this->db->db_debug = $debug; }
+    }
 		function get_inven2()
     {
         $inventory_1=$_GET['inventory_1'];
@@ -1194,175 +1227,222 @@ function cari_inven1()
     }
 
 
-	public function SaveNew()
+    public function SaveNew() { $this->savePo(false); }
+    public function SaveEdit() { $this->savePo(true); }
+
+    private function poField($row, $key, $required = false)
+    {
+        $value = $row[$key] ?? '';
+        if (!is_scalar($value) || is_bool($value)) throw new DomainException('Format ' . $key . ' tidak valid.');
+        $value = trim((string) $value);
+        $length = preg_match_all('/./us', $value);
+        if ($length === false || ($key === 'note_ket' ? strlen($value) > 65535 : $length > 255)) throw new DomainException('Panjang atau karakter ' . $key . ' tidak valid.');
+        if ($required && $value === '') throw new DomainException($key . ' tidak boleh kosong.');
+        return $value;
+    }
+
+    private function poNumber($row, $key)
+    {
+        $value = $this->poField($row, $key);
+        if ($value !== '' && !preg_match('/^(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?$/D', $value)) {
+            throw new DomainException('Nilai ' . $key . ' tidak valid.');
+        }
+        $number = (float) str_replace(',', '', $value);
+        if (!is_finite($number)) throw new DomainException('Nilai ' . $key . ' terlalu besar.');
+        return $number;
+    }
+
+    private function poDate($value)
+    {
+        $date = DateTime::createFromFormat('!Y-m-d', $value);
+        if (!$date || $date->format('Y-m-d') !== $value) throw new DomainException('Tanggal tidak valid. Gunakan yyyy-mm-dd.');
+        return $value;
+    }
+
+    private function poQuery($sql, $binds = array())
+    {
+        $result = $this->db->query($sql, $binds);
+        if ($result === false) throw new RuntimeException('PO database query failed');
+        return $result;
+    }
+
+    private function poReply($status, $message, $code = null)
+    {
+        $result = array('status'=>$status, 'pesan'=>$message);
+        if ($code !== null) $result['code'] = $code;
+        $this->output->set_content_type('application/json');
+        echo json_encode($result);
+    }
+
+    private function poEditable($header)
+    {
+        if ((string) $header->status !== '1') throw new DomainException('Hanya PO Waiting yang dapat diedit.');
+        if ($this->poQuery('SELECT no_po FROM tr_incoming WHERE no_po = ? LIMIT 1', array($header->no_po))->row()
+            || $this->poQuery('SELECT no_po FROM tr_po_payment WHERE no_po = ? LIMIT 1', array($header->no_po))->row()
+            || (float) $header->total_bayar != 0 || (float) $header->uang_muka != 0
+            || $this->poQuery("SELECT id_dt_po FROM dt_trans_po WHERE no_po = ? AND (COALESCE(qty_terima,0) <> 0 OR COALESCE(qty_recive,0) <> 0 OR sts_incoming = '1' OR close_po = 'Y') LIMIT 1", array($header->no_po))->row()) {
+            throw new DomainException('PO sudah digunakan pada proses Incoming atau pembayaran.');
+        }
+    }
+
+    private function poOtherReference($pr, $code)
+    {
+        return $this->poQuery('SELECT p.no_po FROM dt_trans_po p INNER JOIN dt_trans_pr r ON r.id_dt_pr = p.idpr WHERE r.no_pr = ? AND p.no_po <> ? LIMIT 1', array($pr, $code))->row();
+    }
+
+    private function poRate()
+    {
+        $master = $this->poQuery('SELECT persen FROM ppn LIMIT 1')->row();
+        if (!$master || !is_numeric($master->persen) || !is_finite((float)$master->persen) || $master->persen < 0) {
+            throw new DomainException('Tarif PPN belum tersedia atau tidak valid.');
+        }
+        return (float) $master->persen;
+    }
+
+    private function savePo($edit)
     {
         $this->auth->restrict($this->addPermission);
-		$post = $this->input->post();
-		
-		$tgl  = $post['tanggal'];
-		$code = $this->Pr_model->generate_code($tgl);
-		$no_surat = $this->Pr_model->BuatNomor($tgl);
-		
-		$this->db->trans_begin();
-		$data = [
-							'no_po'				=> $code,
-							'no_surat'			=> $no_surat,
-							'id_suplier'		=> $post['id_suplier'],
-							'loi'				=> $post['loi'],
-							'nominal_kurs'		=> str_replace(',','',$post['nominal_kurs']),
-							'tanggal'			=> $post['tanggal'],
-							'expect_tanggal'	=> date('Y-m-d', strtotime($post['expect_tanggal'])),
-							'term'				=> $post['term'],
-							'cif'				=> $post['cif'],
-							'note'				=> $post['note_ket'],
-							'no_pr'				=> $post['no_pr'],
-							'matauang'			=> $post['matauang'],
-							'hargatotal'		=> str_replace(',','',$post['hargatotal']),
-							'diskontotal'		=> str_replace(',','',$post['diskontotal']),
-							'taxtotal'			=> str_replace(',','',$post['kirim']),
-							'subtotal'			=> str_replace(',','',$post['subtotal']),
-							'total_ppn'			=> str_replace(',','',$post['totalppn']),
-							'total_barang'		=> str_replace(',','',$post['hargatotal']),
-							'status'			=> '1',
-							'created_on'		=> date('Y-m-d H:i:s'),
-							'created_by'		=> $this->auth->user_id()
-                            ]; 
-            //Add Data
-               $this->db->insert('tr_purchase_order',$data);
-			 
-		$numb1 =0;
-		foreach($_POST['dt'] as $used){
-		$numb1++;
-                $dt =  array(
-							'no_po'					=> $code,
-							'id_dt_po'				=> $code.'-'.$numb1,
-							'idpr'					=> $used[idpr],
-							'idmaterial'			=> $used[idmaterial],
-							'namamaterial'			=> $used[namamaterial],
-							'description'			=> $used[description],
-							'qty'					=> $used[qty],
-							'width'					=> str_replace(",","",$used[width]),
-							'rate_lme'				=> $used[ratelme],
-							'fabcost'				=> str_replace(",","",$used[fabcost]),
-							'alloyprice'			=> str_replace(",","",$used[alloyprice]),
-							'totalwidth'			=> str_replace(",","",$used[totalweight]),
-							'hargasatuan'			=> str_replace(",","",$used[hargasatuan]),
-							'lebar'					=> $used[lebar],
-							'panjang'				=> str_replace(",","",$used[length]),
-							'diskon'				=> str_replace(",","",$used[diskon]),
-							'pajak'					=> str_replace(",","",$used[pajak]),
-							'jumlahharga'			=> str_replace(",","",$used[jumlahharga]),
-							'ppn'					=> str_replace(",","",$used[nilai_ppn]),
-							'harga_total'			=> str_replace(",","",$used[totalharga]),
-							'note'					=> $used[note],
-							'kode_barang'			=> $used[kode_barang],
-                            );
-
-                    $this->db->insert('dt_trans_po',$dt);
-					$nopr = $used[no_pr];
-					$dataupdate = [
-						'status_po'				=>'CLS',
-					];
-
-					$this->db->where('no_pr',$nopr)->update("tr_purchase_request",$dataupdate);
-			
-		    }
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'code' => $code,
-			  'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Save Item. invenThanks ...',
-			  'code' => $code,
-			  'status'	=> 1
-			);
-		}
-
-  		echo json_encode($status);
-
+        $code = ''; $transaction = false; $locked = false;
+        $debug = $this->db->db_debug; $this->db->db_debug = false;
+        try {
+            $post = $this->input->post();
+            if (!is_array($post) || empty($post['dt']) || !is_array($post['dt'])) throw new DomainException('Detail PO tidak boleh kosong.');
+            $date = $this->poDate($this->poField($post, 'tanggal', true));
+            $supplier = $this->poField($post, 'id_suplier', true);
+            $currency = $this->poField($post, 'matauang', true);
+            $loi = $this->poField($post, 'loi', true);
+            if (!in_array($loi, array('Lokal','Import'), true)) throw new DomainException('Local / Import tidak valid.');
+            if (!$this->poQuery('SELECT id_suplier FROM master_supplier WHERE id_suplier = ?', array($supplier))->row()) throw new DomainException('Supplier PO tidak ditemukan.');
+            if (!$this->poQuery('SELECT kode FROM matauang WHERE kode = ?', array($currency))->row()) throw new DomainException('Mata uang tidak ditemukan.');
+            $kurs = $this->poNumber($post, 'nominal_kurs');
+            if ($kurs <= 0) throw new DomainException('Kurs harus lebih dari nol.');
+            $shipping = round($this->poNumber($post, array_key_exists('kirim', $post) ? 'kirim' : 'taxtotal'), 2);
+            // ponytail: protects this writer; other PO modules must adopt the same lock.
+            $lock = $this->poQuery("SELECT GET_LOCK('purchase_order_numbering', 5) AS acquired")->row();
+            if (!$lock || (int)$lock->acquired !== 1) throw new DomainException('PO sedang diproses. Silakan coba lagi.');
+            $locked = true;
+            if (!$this->db->trans_begin()) throw new RuntimeException('Cannot start PO transaction');
+            $transaction = true;
+            $old = array(); $byPr = array(); $oldPrs = array(); $next = 0;
+            if ($edit) {
+                $code = $this->poField($post, 'no_po', true);
+                $header = $this->poQuery('SELECT * FROM tr_purchase_order WHERE no_po = ? FOR UPDATE', array($code))->row();
+                if (!$header) throw new DomainException('PO tidak ditemukan.');
+                $this->poEditable($header);
+                foreach ($this->poQuery('SELECT * FROM dt_trans_po WHERE no_po = ? FOR UPDATE', array($code))->result_array() as $row) {
+                    if (isset($old[$row['id_dt_po']]) || isset($byPr[$row['idpr']])) throw new DomainException('Detail PO lama memiliki ID duplikat.');
+                    $old[$row['id_dt_po']] = $row; $byPr[$row['idpr']] = $row['id_dt_po'];
+                    $next = max($next, (int) substr($row['id_dt_po'], strlen($code) + 1));
+                    $source = $this->poQuery('SELECT * FROM dt_trans_pr WHERE id_dt_pr = ?', array($row['idpr']))->row();
+                    if (!$source) throw new DomainException('Referensi detail PR lama tidak ditemukan.');
+                    $oldPrs[$source->no_pr] = true;
+                }
+            }
+            $details = array(); $prs = array(); $used = array(); $due = array();
+            $goods = 0; $tax = 0; $discount = 0; $itemShipping = 0; $rate = null;
+            foreach ($post['dt'] as $row) {
+                if (!is_array($row)) throw new DomainException('Format detail PO tidak valid.');
+                $idpr = $this->poField($row, 'idpr', true);
+                if (isset($used[$idpr])) throw new DomainException('Detail PR tidak boleh duplikat.');
+                $used[$idpr] = true;
+                $source = $this->poQuery('SELECT * FROM dt_trans_pr WHERE id_dt_pr = ?', array($idpr))->row();
+                if (!$source) throw new DomainException('Detail PR tidak ditemukan.');
+                if ($this->poField($row, 'idmaterial') !== '' && $this->poField($row, 'idmaterial') !== $source->idmaterial) throw new DomainException('Material tidak sesuai detail PR.');
+                if ($this->poField($row, 'no_pr') !== '' && $this->poField($row, 'no_pr') !== $source->no_pr) throw new DomainException('Nomor PR tidak sesuai detail.');
+                $prs[$source->no_pr] = true;
+                if (!empty($source->tanggal) && $source->tanggal !== '0000-00-00') $due[] = $this->poDate($source->tanggal);
+                $id = $this->poField($row, 'id_dt_po');
+                if ($id === '' && isset($byPr[$idpr])) $id = $byPr[$idpr];
+                if ($id !== '' && (!isset($old[$id]) || $old[$id]['idpr'] !== $idpr)) throw new DomainException('ID detail PO tidak valid.');
+                $previous = $id !== '' ? $old[$id] : array();
+                $values = array_replace($previous, $row);
+                $qty = $this->poNumber($values, 'qty');
+                if ($qty <= 0 || floor($qty) !== $qty || $qty > 2147483647) throw new DomainException('Qty PO harus bilangan bulat positif.');
+                $this->poField($values, 'hargasatuan', true);
+                $price = round($this->poNumber($values, 'hargasatuan'), 2);
+                $disc = round($this->poNumber($values, 'diskon'), 2);
+                if ($disc > 100) throw new DomainException('Diskon tidak boleh melebihi 100%.');
+                $fee = round($this->poNumber($values, 'pajak'), 2);
+                $base = round($qty * $price, 2);
+                $flag = array_key_exists('ppn', $row) ? $this->poField($row, 'ppn') : ((float)($previous['ppn'] ?? $this->poNumber($row, 'nilai_ppn')) > 0 ? 'Y' : 'N');
+                if (!in_array($flag, array('','Y','N'), true)) throw new DomainException('Pilihan PPN tidak valid.');
+                $unchangedTax = $previous && $qty == $previous['qty'] && $price == $previous['hargasatuan']
+                    && (!array_key_exists('ppn', $row) || ($flag === 'Y' && $previous['ppn'] > 0));
+                if ($unchangedTax) $ppn = (float)$previous['ppn'];
+                elseif ($flag === 'Y') {
+                    if ($rate === null) $rate = $this->poRate();
+                    $ppn = round($base * $rate / 100, 2);
+                } else $ppn = 0;
+                $detail = array('id_dt_po'=>$id, 'idpr'=>$idpr, 'idmaterial'=>$source->idmaterial,
+                    'namamaterial'=>$source->nama_material, 'kode_barang'=>$source->kode_barang,
+                    'description'=>$this->poField($values, 'description'), 'qty'=>$qty, 'hargasatuan'=>$price,
+                    'diskon'=>$disc, 'pajak'=>$fee, 'jumlahharga'=>$base, 'ppn'=>$ppn, 'harga_total'=>round($base + $ppn, 2),
+                    'note'=>$this->poField($values, 'note'), 'rate_lme'=>$this->poField($row, 'ratelme') ?: ($previous['rate_lme'] ?? ''));
+                foreach (array('width'=>'width','fabcost'=>'fabcost','alloyprice'=>'alloyprice','totalwidth'=>'totalweight','panjang'=>'length','lebar'=>'lebar') as $target=>$input) {
+                    $detail[$target] = round($this->poNumber($values, array_key_exists($input, $row) ? $input : $target), 2);
+                }
+                $details[] = $detail;
+                $goods += $base; $tax += $ppn; $discount += round($base * $disc / 100, 2); $itemShipping += $fee;
+            }
+            $allPrs = array_unique(array_merge(array_keys($oldPrs), array_keys($prs))); sort($allPrs, SORT_STRING);
+            foreach ($allPrs as $pr) {
+                $request = $this->poQuery('SELECT * FROM tr_purchase_request WHERE no_pr = ? FOR UPDATE', array($pr))->row();
+                if (!$request || (string)$request->status !== '2') throw new DomainException('PR harus sudah Approved.');
+                $other = $this->poOtherReference($pr, $code);
+                if (isset($prs[$pr]) && ($other || (!isset($oldPrs[$pr]) && $request->status_po !== 'OPN'))) throw new DomainException('PR sudah digunakan PO lain. Muat ulang daftar PR.');
+            }
+            $expected = $this->poField($post, 'expect_tanggal');
+            if ($expected === '') $expected = $due ? min($due) : $date;
+            else {
+                // Legacy forms submit d-M-Y; storage remains ISO date.
+                $parsed = DateTime::createFromFormat('!d-M-Y', $expected);
+                if ($parsed && $parsed->format('d-M-Y') === $expected) $expected = $parsed->format('Y-m-d');
+                $expected = $this->poDate($expected);
+            }
+            $total = round($goods - $discount + $tax + $itemShipping + $shipping, 2);
+            if (!is_finite($total)) throw new DomainException('Total PO terlalu besar.');
+            $data = array('id_suplier'=>$supplier, 'loi'=>$loi, 'matauang'=>$currency, 'nominal_kurs'=>$kurs,
+                'tanggal'=>$date, 'expect_tanggal'=>$expected, 'term'=>$this->poField($post, 'term'),
+                'cif'=>$this->poField($post, 'cif'), 'note'=>$this->poField($post, 'note_ket'),
+                'no_pr'=>array_keys($prs)[0], 'hargatotal'=>round($goods,2), 'total_barang'=>round($goods,2),
+                'total_ppn'=>round($tax,2), 'diskontotal'=>round($discount,2), 'taxtotal'=>$shipping, 'subtotal'=>$total);
+            if ($edit) {
+                if (!$this->db->where('no_po',$code)->update('tr_purchase_order',$data)) throw new RuntimeException('Cannot update PO');
+            } else {
+                $code = $this->Pr_model->generate_code($date);
+                $data += array('no_po'=>$code, 'no_surat'=>$this->Pr_model->BuatNomor($date), 'status'=>'1',
+                    'created_on'=>date('Y-m-d H:i:s'), 'created_by'=>$this->auth->user_id());
+                if (!$this->db->insert('tr_purchase_order',$data)) throw new RuntimeException('Cannot create PO');
+            }
+            $retained = array();
+            foreach ($details as $detail) {
+                if ($detail['id_dt_po'] !== '') {
+                    $retained[$detail['id_dt_po']] = true;
+                    if (!$this->db->where('no_po',$code)->where('id_dt_po',$detail['id_dt_po'])->update('dt_trans_po',$detail)) throw new RuntimeException('Cannot update PO detail');
+                } else {
+                    $detail['no_po'] = $code; $detail['id_dt_po'] = $code . '-' . (++$next);
+                    if (!$this->db->insert('dt_trans_po',$detail)) throw new RuntimeException('Cannot create PO detail');
+                }
+            }
+            foreach ($old as $id=>$row) if (!isset($retained[$id]) && !$this->db->delete('dt_trans_po',array('no_po'=>$code,'id_dt_po'=>$id))) throw new RuntimeException('Cannot remove PO detail');
+            foreach ($allPrs as $pr) {
+                $state = isset($prs[$pr]) || $this->poOtherReference($pr, $code) ? 'CLS' : 'OPN';
+                if (!$this->db->where('no_pr',$pr)->update('tr_purchase_request',array('status_po'=>$state))) throw new RuntimeException('Cannot update PR usage');
+            }
+            if (!$this->db->trans_status() || !$this->db->trans_commit()) throw new RuntimeException('Cannot commit PO');
+            $transaction = false;
+            $this->poReply(1,'PO berhasil disimpan.',$code);
+        } catch (Throwable $error) {
+            if ($transaction) $this->db->trans_rollback();
+            if (!($error instanceof DomainException)) log_message('error','PO save failed: ' . $error->getMessage());
+            $this->poReply(0,$error instanceof DomainException ? $error->getMessage() : 'PO gagal disimpan. Silakan coba lagi.',$code);
+        } finally {
+            try { if ($locked) $this->db->query("SELECT RELEASE_LOCK('purchase_order_numbering') AS released"); }
+            catch (Throwable $error) { log_message('error','Cannot release PO lock: ' . $error->getMessage()); }
+            finally { $this->db->db_debug = $debug; }
+        }
     }
-	public function SaveEdit()
-    {
-        $this->auth->restrict($this->addPermission);
-		$post = $this->input->post();
-		$code = $post['no_po'];
-		$no_surat =  $post['no_surat'];
-		$this->db->trans_begin();
-		$data = [
-							'no_po'				=> $code,
-							'no_surat'			=> $no_surat,
-							'id_suplier'		=> $post['id_suplier'],
-							'loi'				=> $post['loi'],
-							'nominal_kurs'		=> str_replace(',','',$post['nominal_kurs']),
-							'tanggal'			=> $post['tanggal'],
-							'expect_tanggal'	=> date('Y-m-d', strtotime($post['expect_tanggal'])),
-							'term'				=> $post['term'],
-							'cif'				=> $post['cif'],
-							'note'				=> $post['note_ket'],
-							'no_pr'				=> $post['no_pr'],
-							'matauang'			=> $post['matauang'],
-							'hargatotal'		=> str_replace(',','',$post['hargatotal']),
-							'diskontotal'		=> str_replace(',','',$post['diskontotal']),
-							'taxtotal'			=> str_replace(',','',$post['taxtotal']),
-							'subtotal'			=> str_replace(',','',$post['subtotal']),
-							'status'			=> '1',
-							'created_on'		=> date('Y-m-d H:i:s'),
-							'created_by'		=> $this->auth->user_id()
-                            ]; 
-            //Add Data 
-			$this->db->where('no_po',$code)->update("tr_purchase_order",$data);
-			$this->db->delete('dt_trans_po', array('no_po' => $code));
-		$numb1 =0;
-		foreach($_POST['dt'] as $used){
-		$numb1++;
-                $dt =  array(
-							'no_po'					=> $code,
-							'id_dt_po'				=> $code.'-'.$numb1,
-							'idpr'					=> $used[idpr],
-							'idmaterial'			=> $used[idmaterial],
-							'namamaterial'			=> $used[namamaterial],
-							'description'			=> $used[description],
-							'qty'					=> $used[qty],
-							'width'					=> str_replace(",","",$used[width]),
-							'rate_lme'				=> $used[ratelme],
-							'fabcost'				=> str_replace(",","",$used[fabcost]),
-							'alloyprice'			=> str_replace(",","",$used[alloyprice]),
-							'totalwidth'			=> str_replace(",","",$used[totalweight]),
-							'hargasatuan'			=> str_replace(",","",$used[hargasatuan]),
-							'lebar'					=> $used[lebar],
-							'panjang'				=> str_replace(",","",$used[length]),
-							'diskon'				=> str_replace(",","",$used[diskon]),
-							'pajak'					=> str_replace(",","",$used[pajak]),
-							'jumlahharga'			=> str_replace(",","",$used[jumlahharga]),
-							'note'					=> $used[note],
-                            );
-                    $this->db->insert('dt_trans_po',$dt);
-			
-		    }
-		if($this->db->trans_status() === FALSE){
-			$this->db->trans_rollback();
-			$status	= array(
-			  'pesan'		=>'Gagal Save Item. Thanks ...',
-			  'code' => $code,
-			  'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-			  'pesan'		=>'Success Save Item. invenThanks ...',
-			  'code' => $code,
-			  'status'	=> 1
-			);
-		}
 
-  		echo json_encode($status);
-
-    }
 	public function PrintH(){
 		if (ob_get_level() > 0) {
 			ob_clean();
@@ -1391,11 +1471,10 @@ function cari_inven1()
 		ob_start();
         $this->auth->restrict($this->managePermission); 
         $id = $this->uri->segment(3);
-		$data['header'] = $this->db->query("SELECT a.*, b.name_suplier as name_suplier, b.address_office as address_office,b.id_negara as negara, b.telephone as telephone,b.fax as fax FROM tr_purchase_order as a INNER JOIN master_supplier as b on a.id_suplier = b.id_suplier WHERE a.no_po = '".$id."' ")->result();
-		$data['detail']  = $this->db->query("SELECT a.*, b.nama FROM dt_trans_po a 
-		INNER JOIN ms_inventory_category3 b ON b.id_category3 = a.idmaterial 
-		WHERE a.no_po = '".$id."' ")->result();
-		$data['detailsum'] = $this->db->query("SELECT AVG(width) as totalwidth, AVG(qty) as totalqty FROM dt_trans_po WHERE no_po = '".$id."' ")->result();
+        $data['header'] = $this->poHeader($id);
+        if (!$data['header']) { ob_end_clean(); show_404(); return; }
+        $data['detail'] = $this->poDetails($id);
+
 		$this->load->view('print2',$data);
 		$html = ob_get_contents();
 
@@ -2010,9 +2089,9 @@ function cari_inven1()
 	function CariLokasi() 
     {
 		
-	$supplier	=$_GET['supplier'];
-	$GetSupp =$this->db->query("SELECT a.* FROM master_supplier as a  WHERE a.id_suplier = '$supplier' ")->result();
-	$lokasi = $GetSupp[0]->suplier_location;
+	$supplier = $this->input->get('supplier');
+	$GetSupp = $this->poQuery('SELECT * FROM master_supplier WHERE id_suplier = ?',array($supplier))->result();
+	$lokasi = $GetSupp ? $GetSupp[0]->suplier_location : '';
 	
 	if($lokasi == 'international'){
 		echo "<option value='Import' selected>Import</option>
@@ -2023,78 +2102,46 @@ function cari_inven1()
 	};
 	}
 	
-	public function getDateExp(){
-		$id_pr 			= $this->input->post('id_pr');
-		// print_r($expect_tanggal);
-		$result			= $this->db
-							->select('tanggal')
-							->from('dt_trans_pr')
-							->where_in('id_dt_pr', $id_pr)
-							->get()
-							->result();
-		$expTgl			= date('Y-m-d', strtotime($expect_tanggal));
+    public function getDateExp()
+    {
+        $ids = $this->input->post('id_pr');
+        if (!is_array($ids)) $ids = array();
+        $ids = array_values(array_filter($ids, function($id) { return is_string($id) && $id !== ''; }));
+        $date = null;
+        if ($ids) {
+            $row = $this->poQuery("SELECT MIN(NULLIF(tanggal, '0000-00-00')) AS tanggal FROM dt_trans_pr WHERE id_dt_pr IN (" . implode(',',array_fill(0,count($ids),'?')) . ')', $ids)->row();
+            $date = $row ? $row->tanggal : null;
+        }
+        $this->output->set_content_type('application/json');
+        echo json_encode(array('minimal'=>$date ?: ''));
+    }
 
-		$minimal	= $result[0]->tanggal;
-		if(!empty($expect_tanggal)){
-			if($expTgl < $minimal AND $expTgl > date('Y-m-d')){
-				$minimal	= $expTgl;
-			}
-		}
-		else{
-			$minimal	= $result[0]->tanggal;
-		}
-		$ArrJson	= array(
-			'minimal' => date('d-M-Y', strtotime($minimal))
-		);
-		echo json_encode($ArrJson);
-	}
+    public function getPR()
+    {
+        $code = $this->input->post('no_po');
+        if (!is_string($code)) $code = '';
+        $rows = $this->poQuery("SELECT r.* FROM tr_purchase_request r LEFT JOIN
+            (SELECT d.no_pr, MAX(p.no_po = ?) AS own_po FROM dt_trans_po p INNER JOIN dt_trans_pr d ON d.id_dt_pr = p.idpr GROUP BY d.no_pr) used ON used.no_pr = r.no_pr
+            WHERE r.status = '2' AND ((r.status_po = 'OPN' AND used.no_pr IS NULL) OR used.own_po = 1) ORDER BY r.no_pr", array($code))->result();
+        $option = '<option value="0">Pilih PR</option>';
+        foreach ($rows as $row) $option .= '<option value="' . html_escape($row->no_pr) . '">' . html_escape($row->no_surat) . '</option>';
+        $this->output->set_content_type('application/json');
+        echo json_encode(array('option'=>$option));
+    }
 
-	public function getPR(){
-		$id_suplier = $this->input->post('id_suplier');
+    private function poHeader($id)
+    {
+        return $this->poQuery('SELECT a.*, COALESCE(b.name_suplier,a.id_suplier) AS name_suplier,
+            COALESCE(b.name_suplier,a.id_suplier) AS suplier, b.address_office, b.id_negara AS negara, b.telephone, b.fax
+            FROM tr_purchase_order a LEFT JOIN master_supplier b ON a.id_suplier = b.id_suplier WHERE a.no_po = ?', array($id))->result();
+    }
 
-		$no_po 		= (!empty($this->input->post('no_po')))?$this->input->post('no_po'):0;
-
-		$get_no_po 	= $this->db->get_where('tr_purchase_order',array('no_po'=>$no_po))->result();
-		$npo 		= (!empty($get_no_po))?$get_no_po[0]->no_pr:0;
-
-		$filter_pr 	= $this->db->get_where('tr_purchase_order', array('no_pr <>'=>$npo))->result_array();
-
-		
-		$ArrPR = [];
-		foreach ($filter_pr as $key => $value) {
-			if(!empty($value['no_pr'])){
-				$ArrPR[$key] = $value['no_pr'];
-			}
-		}
-		$dtImplode	= "('".implode("','", $ArrPR)."')";
-
-
-		$data 		=  $this->db->query("	SELECT 
-												c.* 
-											FROM 
-												dt_trans_pr b 
-												LEFT JOIN tr_purchase_request c ON b.no_pr = c.no_pr 
-											WHERE 
-												c.status = '2' 
-												AND b.suplier='".$id_suplier."' 
-												AND c.no_pr NOT IN ".$dtImplode."
-											GROUP BY 
-												b.no_pr ")->result_array();
-		
-		$option 	= "<option value='0'>Pilih PR</option>";
-		foreach ($data as $key => $value) {
-			$sel = ($npo == $value['no_pr'])?'selected':'';
-			$option .= "<option value='".$value['no_pr']."'>".$value['no_surat']."</option>";
-		}
-		
-		$dataArr = [
-			'option' => $option
-		];
-
-  		echo json_encode($dataArr);
-	}
-
-
+    private function poDetails($id)
+    {
+        return $this->poQuery("SELECT a.*, COALESCE(NULLIF(a.namamaterial,''),b.nama,a.idmaterial) AS nama,
+            COALESCE(NULLIF(a.kode_barang,''),b.kode_barang,'') AS product_code
+            FROM dt_trans_po a LEFT JOIN ms_inventory_category3 b ON a.idmaterial = b.id_category3 WHERE a.no_po = ? ORDER BY a.id_dt_po", array($id))->result();
+    }
 
 	public function addPurchaseOrder()
     {
@@ -2115,37 +2162,27 @@ function cari_inven1()
         $this->template->render('index_pr');
     }
 
-	public function proses(){
-		$session = $this->session->userdata('app_session');
-		$getparam = explode(";",$_GET['param']);
-
-		$getso = $this->Pr_model->get_where_in('no_pr',$getparam,'tr_purchase_request');  
-		$getitemso = $this->Pr_model->get_where_in('no_pr',$getparam,'dt_trans_pr');
-		$aktif = 'active';
-		$deleted = '0';
-		$supplier = $data = $this->db->query("SELECT a.* FROM master_supplier as a INNER JOIN dt_trans_pr as b on b.suplier = a.id_suplier INNER JOIN tr_purchase_request as c on b.no_pr = c.no_pr WHERE c.status = '2' GROUP BY b.suplier ")->result();
-				
-		$comp	= $this->db->query("select a.*, b.nominal as nominal_harga FROM ms_compotition as a inner join child_history_lme as b on b.id_compotition=a.id_compotition where a.deleted='0' and b.status='0' ")->result();
-		$customers = $this->Pr_model->get_data('master_customers','deleted',$deleted);
-		$karyawan = $this->Pr_model->get_data('ms_karyawan','deleted',$deleted);
-		$mata_uang = $this->Pr_model->get_data('mata_uang','deleted'.$deleted);
-		$matauang = $this->db->get_where('matauang')->result();
-		$data = [
-			'supplier' => $supplier,
-			'comp' => $comp,
-			'customers' => $customers,
-			'karyawan' => $karyawan,
-			'mata_uang' => $mata_uang,
-			'matauang' => $matauang,
-			'param'=> $getparam,
-			'headerso'=>$getso,
-			'getitemso'=>$getitemso
-
-		];
-
-		$this->template->set('results', $data);
-		$this->template->title('Input Purchase Order');
-		$this->template->render('add_purchaseorder');
-}
-
+    public function proses()
+    {
+        $this->auth->restrict($this->viewPermission);
+        $param = $this->input->get('param');
+        $ids = is_string($param) ? array_values(array_unique(array_filter(explode(';',$param),'strlen'))) : array();
+        if (!$ids) { show_error('Pilih PR terlebih dahulu.',400); return; }
+        $headers = array();
+        foreach ($ids as $id) {
+            $header = $this->poQuery('SELECT * FROM tr_purchase_request WHERE no_pr = ?',array($id))->row();
+            if (!$header || (string)$header->status !== '2' || $header->status_po !== 'OPN' || $this->poOtherReference($id,'')) {
+                show_error('PR tidak tersedia. Muat ulang daftar PR.',409); return;
+            }
+            $headers[] = $header;
+        }
+        $details = $this->poQuery('SELECT * FROM dt_trans_pr WHERE no_pr IN (' . implode(',',array_fill(0,count($ids),'?')) . ') ORDER BY no_pr, id_dt_pr',$ids)->result();
+        if (!$details) { show_error('Detail PR tidak tersedia.',409); return; }
+        $data = array('supplier'=>$this->poQuery('SELECT * FROM master_supplier')->result(),
+            'matauang'=>$this->poQuery('SELECT * FROM matauang')->result(),
+            'param'=>$ids, 'headerso'=>$headers, 'getitemso'=>$details);
+        $this->template->set('results',$data);
+        $this->template->title('Input Purchase Order');
+        $this->template->render('add_purchaseorder');
+    }
 }

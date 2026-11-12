@@ -22,7 +22,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">Supplier</label>
 				</div>
 				<div class="col-md-8"> 
-				<input type="text" class="form-control" readonly id="suplier" value="<?= $head->suplier  ?>" onkeyup required name="suplier" >
+				<input type="text" class="form-control" readonly id="suplier" value="<?= html_escape($head->suplier ?? "") ?>" onkeyup required name="suplier" >
 				</div>
 			</div>
 		</div>
@@ -32,7 +32,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">Local / Import</label>
 				</div>
 				<div class="col-md-8">
-				<input type="text" class="form-control" readonly id="loi" value="<?= $head->loi  ?>" onkeyup required name="loi" >
+				<input type="text" class="form-control" readonly id="loi" value="<?= html_escape($head->loi ?? "") ?>" onkeyup required name="loi" >
 				</div>
 			</div>
 		</div>
@@ -44,10 +44,10 @@ foreach ($results['head'] as $head){
 				<label for="customer">NO.PO</label>
 			</div>
 			<div class="col-md-8" hidden>
-				<input type="text" class="form-control" id="no_po"  value="<?= $head->no_po  ?>" required name="no_po" readonly placeholder="ID PO">
+				<input type="text" class="form-control" id="no_po"  value="<?= html_escape($head->no_po ?? "") ?>" required name="no_po" readonly placeholder="ID PO">
 			</div>
 			<div class="col-md-8">
-				<input type="text" class="form-control" id="no_surat" value="<?= $head->no_surat  ?>"  required name="no_surat" readonly placeholder="No.PR">
+				<input type="text" class="form-control" id="no_surat" value="<?= html_escape($head->no_surat ?? "") ?>"  required name="no_surat" readonly placeholder="No.PR">
 			</div>
 		</div>
 		</div>
@@ -62,7 +62,7 @@ foreach ($results['head'] as $head){
 				<label for="customer">Tanggal PO</label>
 			</div>
 			<div class="col-md-8">
-				<input type="date" class="form-control" id="tanggal" value="<?= $head->tanggal ?>" onkeyup required name="tanggal" readonly >
+				<input type="date" class="form-control" id="tanggal" value="<?= html_escape($head->tanggal ?? "") ?>" onkeyup required name="tanggal" readonly >
 			</div>
 		</div>
 		</div>
@@ -72,7 +72,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">Mata Uang</label>
 				</div>
 				<div class="col-md-8"> 
-				<input type="text" class="form-control" id="matauang" value="<?= $head->matauang  ?>"  required name="matauang" readonly>
+				<input type="text" class="form-control" id="matauang" value="<?= html_escape($head->matauang ?? "") ?>"  required name="matauang" readonly>
 				</div>
 			</div>
 		</div>
@@ -84,7 +84,7 @@ foreach ($results['head'] as $head){
 				<label for="customer">Expect Date</label>
 			</div>
 			<div class="col-md-8">
-				<input type="date" class="form-control" readonly value="<?= $head->expect_tanggal  ?>"  id="expect_tanggal" required name="expect_tanggal"  >
+				<input type="date" class="form-control" readonly value="<?= html_escape($head->expect_tanggal ?? "") ?>"  id="expect_tanggal" required name="expect_tanggal"  >
 			</div>
 		</div>
 		</div>
@@ -94,7 +94,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">PR</label>
 				</div>
 				<div class="col-md-8"> 
-				<input type="text" class="form-control" id="no_pr" value="<?= $head->no_pr  ?>"  required name="no_pr" readonly>
+				<input type="text" class="form-control" id="no_pr" value="<?= html_escape($head->no_pr ?? "") ?>"  required name="no_pr" readonly>
 				</div>
 			</div>
 		</div>
@@ -106,7 +106,7 @@ foreach ($results['head'] as $head){
 				<label for="customer">Term</label>
 			</div>
 			<div class="col-md-8">
-				<input type="text" class="form-control" readonly id="term" value="<?= $head->term  ?>" onkeyup required name="term" >
+				<input type="text" class="form-control" readonly id="term" value="<?= html_escape($head->term ?? "") ?>" onkeyup required name="term" >
 			</div>
 		</div>
 		</div>
@@ -118,7 +118,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">CIF</label>
 				</div>
 				<div class="col-md-8">
-				<input type="text" class="form-control" readonly id="cif" value="<?= $head->cif  ?>" onkeyup required name="cif" >
+				<input type="text" class="form-control" readonly id="cif" value="<?= html_escape($head->cif ?? "") ?>" onkeyup required name="cif" >
 				</div>
 			</div>
 		</div>
@@ -142,9 +142,9 @@ foreach ($results['head'] as $head){
 	$kurs	= $this->db->query("SELECT * FROM mata_uang WHERE kode = 'IDR' ")->result();
 	$kurs10hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM perubahan_kurs WHERE tanggal_ubah BETWEEN  '$tendays' AND '$hariini' AND kode_kurs='IDR' ")->result();
 	$kurs30hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM perubahan_kurs WHERE MONTH(tanggal_ubah) =  '$blnkmrn' AND YEAR(tanggal_ubah) = '$yearkemaren' AND kode_kurs='IDR' ")->result();
-	$nomkurs = $kurs[0]->kurs;
-	$nomkurs10 = $kurs10hari[0]->nominal;
-	$nomkurs30 = $kurs30hari[0]->nominal;
+	$nomkurs = $kurs[0]->kurs ?? 0;
+	$nomkurs10 = $kurs10hari[0]->nominal ?? 0;
+	$nomkurs30 = $kurs30hari[0]->nominal ?? 0;
 	$k =  number_format($nomkurs,2);
 	$k10 =  number_format($nomkurs10,2);
 	$k30 =  number_format($nomkurs30,2);
@@ -204,10 +204,10 @@ foreach ($results['head'] as $head){
 			$lme_30hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM child_history_lme WHERE MONTH(tanggal_update) =  '$blnkmrn' AND YEAR(tanggal_update) = '$yearkemaren' AND id_compotition='$id_comp' ")->result();
 			?>
 		<tr>
-		    <td><?= $numbc; ?></td>
-			<td><?= $comp->name_compotition ?></td>
-			<td>$ <?= number_format( $lme_30hari[0]->nominal,2);?></td>
-			<td>$ <?= number_format( $lme_10hari[0]->nominal,2);?></td>
+		    <td><?= $numb3; ?></td>
+			<td><?= html_escape($comp->name_compotition) ?></td>
+			<td>$ <?= number_format( ($lme_30hari[0]->nominal ?? 0),2);?></td>
+			<td>$ <?= number_format( ($lme_10hari[0]->nominal ?? 0),2);?></td>
 			<td>$ <?= number_format( $comp->nominal_harga,2); ?></td>
 		</tr>
 		
@@ -240,6 +240,8 @@ foreach ($results['head'] as $head){
 			<?php
 			$loop=0;
 			foreach ($results['detail'] as $detail){
+            $detail = clone $detail;
+            foreach (array('idpr','idmaterial','nama','namamaterial','description','note','rate_lme') as $field) $detail->$field = html_escape($detail->$field ?? '');
 			$loop ++;
 			echo"
 			<tr id='trmaterial_$loop'>
@@ -270,7 +272,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">Sub Total</label>
 				</div>
 				<div class="col-md-8" id="ForHarga">
-					<input readonly type="text" class="form-control" value="<?= $head->hargatotal  ?>" id="hargatotal"  onkeyup required name="hargatotal" >
+					<input readonly type="text" class="form-control" value="<?= html_escape($head->hargatotal ?? "") ?>" id="hargatotal"  onkeyup required name="hargatotal" >
 				</div>
 			</div>
 		</div>
@@ -282,7 +284,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">Discount</label>
 				</div>
 				<div class="col-md-8" id="ForDiskon">
-					<input readonly type="text" class="form-control" value="<?= $head->diskontotal  ?>" id="diskontotal"  onkeyup required name="diskontotal" >
+					<input readonly type="text" class="form-control" value="<?= html_escape($head->diskontotal ?? "") ?>" id="diskontotal"  onkeyup required name="diskontotal" >
 				</div>
 			</div>
 		</div>
@@ -294,7 +296,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">TAX</label>
 				</div>
 				<div class="col-md-8" id="ForTax">
-					<input readonly type="text" class="form-control" value="<?= $head->taxtotal  ?>" id="taxtotal"  onkeyup required name="taxtotal" >
+					<input readonly type="text" class="form-control" value="<?= html_escape($head->taxtotal ?? "") ?>" id="taxtotal"  onkeyup required name="taxtotal" >
 				</div>
 			</div>
 		</div>
@@ -303,10 +305,11 @@ foreach ($results['head'] as $head){
 		<div class="col-sm-6">
 			<div class="form-group row">
 				<div class="col-md-4">
+                    <label>Total PPN: <?= number_format($head->total_ppn,2) ?></label><br>
 					<label for="id_customer">Total Order</label>
 				</div>
 				<div class="col-md-8" id="ForSum">
-					<input readonly type="text" class="form-control" value="<?= $head->subtotal  ?>" id="subtotal"  onkeyup required name="subtotal" >
+					<input readonly type="text" class="form-control" value="<?= html_escape($head->subtotal ?? "") ?>" id="subtotal"  onkeyup required name="subtotal" >
 				</div>
 			</div>
 		</div>

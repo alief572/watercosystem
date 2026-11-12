@@ -63,31 +63,81 @@ class Pr_model extends BF_Model
         parent::__construct();
     }
 		
+    public function getIndexData($request)
+    {
+        if (!is_array($request)) throw new DomainException('Parameter tabel tidak valid.');
+        $page = array();
+        foreach (array('draw'=>0, 'start'=>0, 'length'=>10) as $key=>$default) {
+            $page[$key] = filter_var($request[$key] ?? $default, FILTER_VALIDATE_INT);
+            if ($page[$key] === false || ($key === 'length' ? ($page[$key] < 1 && $page[$key] !== -1) : $page[$key] < 0)) {
+                throw new DomainException('Parameter ' . $key . ' tidak valid.');
+            }
+        }
+        $page['length'] = $page['length'] === -1 ? 100 : min(100, $page['length']);
+        $search = $request['search'] ?? array();
+        if (!is_array($search)) throw new DomainException('Pencarian tidak valid.');
+        $search = $search['value'] ?? '';
+        $size = is_string($search) ? preg_match_all('/./us',$search) : false;
+        if ($size === false || $size > 255) {
+            throw new DomainException('Pencarian maksimal 255 karakter.');
+        }
+        $supplier = 'COALESCE(b.name_suplier,a.id_suplier)';
+        $status = "CASE WHEN a.status = '1' THEN 'Waiting' WHEN a.status = '2' THEN 'Approved' ELSE 'Closed' END";
+        $columns = array(1=>'a.no_surat', 2=>'a.tanggal', 3=>$supplier, 4=>$status);
+        $orders = $request['order'] ?? array();
+        if (!is_array($orders)) throw new DomainException('Urutan tabel tidak valid.');
+        $sort = array();
+        foreach (array_slice($orders,0,4) as $order) {
+            if (!is_array($order)) throw new DomainException('Urutan tabel tidak valid.');
+            $column = filter_var($order['column'] ?? '', FILTER_VALIDATE_INT);
+            if (!isset($columns[$column])) continue;
+            $direction = $order['dir'] ?? '';
+            if (!in_array($direction,array('asc','desc'),true)) throw new DomainException('Arah urutan tidak valid.');
+            $sort[] = $columns[$column] . ' ' . strtoupper($direction);
+        }
+        $sort[] = 'a.no_po DESC';
+        $from = ' FROM tr_purchase_order a LEFT JOIN master_supplier b ON a.id_suplier = b.id_suplier';
+        $where = ''; $binds = array();
+        if ($search !== '') {
+            $parts = array();
+            $needle = '%' . str_replace(array('!','%','_'),array('!!','!%','!_'),$search) . '%';
+            foreach (array('a.no_surat','a.tanggal',"DATE_FORMAT(a.tanggal,'%d-%b-%Y')",$supplier,$status) as $field) {
+                $parts[] = $field . " LIKE ? ESCAPE '!'";
+                $binds[] = $needle;
+            }
+            $where = ' WHERE (' . implode(' OR ',$parts) . ')';
+        }
+        $total = (int)$this->indexQuery('SELECT COUNT(*) AS total' . $from)->row()->total;
+        $filtered = $where === '' ? $total : (int)$this->indexQuery('SELECT COUNT(*) AS total' . $from . $where,$binds)->row()->total;
+        $rows = $this->indexQuery('SELECT a.no_po, a.no_surat, a.tanggal, a.status, ' . $supplier . ' AS namesup' . $from . $where
+            . ' ORDER BY ' . implode(', ',$sort) . ' LIMIT ' . $page['length'] . ' OFFSET ' . $page['start'],$binds)->result();
+        return array('draw'=>$page['draw'], 'start'=>$page['start'], 'total'=>$total, 'filtered'=>$filtered, 'rows'=>$rows);
+    }
+
+    private function indexQuery($sql, $binds = array())
+    {
+        $result = $this->db->query($sql,$binds);
+        if (!$result) throw new RuntimeException('Cannot read PO table');
+        return $result;
+    }
+
     function generate_code($tgl) {
-      $query = $this->db->query("SELECT MAX(no_po) as max_id FROM tr_purchase_order");
-      $row = $query->row_array();
-      $thn = date('y',strtotime($tgl));
-      $max_id = $row['max_id'];
-      $max_id1 =(int) substr($max_id,3,5);
-      $counter = $max_id1 +1;
-      $idcust = "P".$thn.str_pad($counter, 5, "0", STR_PAD_LEFT);
-      return $idcust;
-	}
-	function BuatNomor($tgl) {
-	$bulan = date('m',strtotime($tgl));
-	$tahun = date('Y',strtotime($tgl));
-		$blnthn = date('Y-m');
-      $query = $this->db->query("SELECT MAX(no_surat) as max_id FROM tr_purchase_order WHERE month(tanggal)='$bulan' and Year(tanggal)='$tahun'");
-      $row = $query->row_array();
-      $thn = date('T');
-      $max_id = $row['max_id'];
-      $max_id1 =(int) substr($max_id,-13,3);
-      $counter = $max_id1 +1;
-      $idcust = "PO-".sprintf("%03s",$counter)."/MP/".$bulan."/".$tahun;
-      return $idcust;
-	}
-	
-	
+        $query = $this->db->query("SELECT MAX(CAST(SUBSTRING(no_po, 4) AS UNSIGNED)) AS max_id FROM tr_purchase_order WHERE no_po REGEXP '^P[0-9]{7}$'");
+        if (!$query) throw new RuntimeException('Cannot read PO counter');
+        $counter = (int) $query->row_array()['max_id'] + 1;
+        if ($counter > 99999) throw new DomainException('Kapasitas nomor PO sudah habis.');
+        return 'P' . date('y', strtotime($tgl)) . sprintf('%05d', $counter);
+    }
+
+    function BuatNomor($tgl) {
+        $suffix = '/MP/' . date('m/Y', strtotime($tgl));
+        $query = $this->db->query("SELECT MAX(CAST(SUBSTRING(no_surat, 4, 3) AS UNSIGNED)) AS max_id FROM tr_purchase_order WHERE RIGHT(no_surat, 11) = ? AND no_surat REGEXP '^PO-[0-9]{3}/MP/[0-9]{2}/[0-9]{4}$'", array($suffix));
+        if (!$query) throw new RuntimeException('Cannot read PO letter counter');
+        $counter = (int) $query->row_array()['max_id'] + 1;
+        if ($counter > 999) throw new DomainException('Kapasitas nomor surat PO bulan ini sudah habis.');
+        return 'PO-' . sprintf('%03d', $counter) . $suffix;
+    }
+
 	public function CariPenawaran(){
 		$this->db->select('a.*, b.name_customer as name_customer');
 		$this->db->from('tr_penawaran a');
@@ -244,16 +294,14 @@ class Pr_model extends BF_Model
 		return $query->result();
 	}
 
-	public function cariPurchaserequest(){
-		$this->db->select('a.*');
-		$this->db->from('tr_purchase_request a');
-		$this->db->where('status_po','OPN');
-		$this->db->where('status','2');
-		$query = $this->db->get();		
-		return $query->result();
-	}
+    public function cariPurchaserequest() {
+        $query = $this->db->query("SELECT r.* FROM tr_purchase_request r WHERE r.status = '2' AND r.status_po = 'OPN'
+            AND NOT EXISTS (SELECT 1 FROM dt_trans_po p INNER JOIN dt_trans_pr d ON d.id_dt_pr = p.idpr WHERE d.no_pr = r.no_pr) ORDER BY r.no_pr");
+        if (!$query) throw new RuntimeException('Cannot read available PRs');
+        return $query->result();
+    }
 
-	
+
 	function get_where_in($field,$kunci,$tabel){
 		$this->db->where_in($field,$kunci);
 		$query=$this->db->get($tabel);

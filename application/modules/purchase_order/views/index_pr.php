@@ -39,9 +39,7 @@ thead input {
 			<th>No PR</th>
             <th>Tgl PR</th>
             <th>Requestor</th>
-			<?php if($ENABLE_MANAGE) : ?>
 			<th>Action</th>
-			<?php endif; ?>
 		</tr>
 		</thead>
 
@@ -58,13 +56,13 @@ thead input {
 			
 		<tr>
 		    <td><?= $numb; ?></td>
-			<td><?= $record->no_pr ?></td>
-			<td><?= strtoupper($record->no_surat) ?></td>
-            <td><?= $record->tanggal ?></td>
-            <td><?= $record->requestor ?></td>
+			<td><?= html_escape($record->no_pr) ?></td>
+			<td><?= html_escape(strtoupper($record->no_surat)) ?></td>
+            <td><?= html_escape($record->tanggal) ?></td>
+            <td><?= html_escape($record->requestor) ?></td>
 			<td><?php if($ENABLE_MANAGE)  : ?>		
         	<input <?php //echo $disabled?> type="checkbox" class="set_choose_do" name="set_choose_do" 
-			id="set_choose_do<?php echo $numb?>" value="<?php echo $record->no_pr?>" onclick="cekcus('<?php echo $record->requestor?>','<?php echo $numb?>','<?php echo $vso->ppn?>','<?php echo $vso->nm_customer?>','<?php echo set_choose_do.$numb?>')">
+			id="set_choose_do<?php echo $numb?>" value="<?= html_escape($record->no_pr) ?>" onclick="cekcus()">
             <?php endif; ?></td>		
 			<!-- <td style="padding-left:20px">
 			<?php if($record->status=='0')  : ?>
@@ -254,34 +252,15 @@ thead input {
 	
 
 
-	function cekcus(idcus,no,ppn,id,set){
-    var table = $('#example1').DataTable();
-    var cek = $('#'+set);
-    //alert(cek.value);
-    if (cek.is(":checked")) {
-      table.column(2).search( id ).draw();
+    function cekcus() {
+        var table = $('#example').DataTable();
+        var selected = table.$('.set_choose_do:checked').map(function() { return this.value; }).get();
+        $('#cekcus').val(selected.join(';'));
     }
-    else{
-      table.column(2).search('').draw();
+    function proses_do() {
+        cekcus();
+        var selected = $('#cekcus').val();
+        if (!selected) { swal('Warning','Pilih PR terlebih dahulu.','warning'); return; }
+        window.location.href = siteurl + 'purchase_order/proses?param=' + encodeURIComponent(selected);
     }
-
-    var customer = $('#cekcustomer').val();
-	var cekppn   = $('#cekppn').val();
-    var reason = [];
-    
-	
-    var jumcus = 0;
-    $(".set_choose_do:checked").each(function() {
-        reason.push($(this).val());
-        jumcus++;
-    });
-    $('#cekcus').val(reason.join(';'));
-  }
-
-	function proses_do(){
-    var param = $('#cekcus').val();
-    var uri3 = '<?php echo $this->uri->segment(3)?>';
-    window.location.href = siteurl+"purchase_order/proses/"+uri3+"?param="+param;
-
-  }
 </script>

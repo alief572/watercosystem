@@ -7,7 +7,9 @@ foreach ($results['head'] as $head){
 
  <div class="box box-primary">
     <div class="box-body">
-		<form id="data-form" method="post">
+		<?php $poTaxMaster = $this->db->query('SELECT persen FROM ppn LIMIT 1')->row();
+        $poTaxRate = $poTaxMaster && is_numeric($poTaxMaster->persen) && $poTaxMaster->persen >= 0 ? $poTaxMaster->persen : ''; ?>
+        <form id="data-form" method="post" data-po-edit="1" data-ppn-rate="<?= html_escape($poTaxRate) ?>">
 			<div class="col-sm-12">
 				<div class="input_fields_wrap2">
 			<div class="row">
@@ -24,7 +26,7 @@ foreach ($results['head'] as $head){
 							<?php foreach ($results['supplier'] as $supplier){
 							$selected = ($supplier->id_suplier == $head->id_suplier)?'selected':'';	
 								?> 
-						<option value="<?= $supplier->id_suplier?>" <?=$selected;?>><?= strtoupper(strtolower($supplier->name_suplier))?></option>
+						<option value="<?= html_escape($supplier->id_suplier) ?>" <?=$selected;?>><?= html_escape(strtoupper(strtolower($supplier->name_suplier))) ?></option>
 							<?php } ?>
 					</select>
 				</div>
@@ -69,10 +71,10 @@ foreach ($results['head'] as $head){
 				<label for="customer">NO.PO</label>
 			</div>
 			<div class="col-md-8" hidden>
-				<input type="text" class="form-control" id="no_po"  value="<?= $head->no_po  ?>" required name="no_po" readonly placeholder="ID PO">
+				<input type="text" class="form-control" id="no_po"  value="<?= html_escape($head->no_po) ?>" required name="no_po" readonly placeholder="ID PO">
 			</div>
 			<div class="col-md-8">
-				<input type="text" class="form-control" id="no_surat" value="<?= $head->no_surat  ?>"  required name="no_surat" readonly placeholder="No.PR">
+				<input type="text" class="form-control" id="no_surat" value="<?= html_escape($head->no_surat) ?>"  required name="no_surat" readonly placeholder="No.PR">
 			</div>
 		</div>
 		</div>
@@ -87,7 +89,7 @@ foreach ($results['head'] as $head){
 						<label for="customer">Tanggal PO</label>
 					</div>
 					<div class="col-md-8">
-						<input type="date" class="form-control" id="tanggal" value="<?= $head->tanggal ?>" onkeyup required name="tanggal" readonly >
+						<input type="date" class="form-control" id="tanggal" value="<?= html_escape($head->tanggal) ?>" onkeyup required name="tanggal" readonly >
 					</div>
 				</div>
 			</div>
@@ -101,7 +103,7 @@ foreach ($results['head'] as $head){
 							<?php foreach ($results['matauang'] as $supplier){
 							$selected = '';	
 								?> 
-						<option value="<?= $supplier->kode?>" <?=$selected;?>><?= strtoupper(strtolower($supplier->kode))?></option>
+						<option value="<?= html_escape($supplier->kode) ?>" <?=$selected;?>><?= html_escape(strtoupper(strtolower($supplier->kode))) ?></option>
 							<?php } ?>
 					</select>
 				</div>
@@ -115,7 +117,7 @@ foreach ($results['head'] as $head){
 				<label for="customer">Expect Date</label>
 			</div>
 			<div class="col-md-8">
-				<input type="date" class="form-control" value="<?= $head->expect_tanggal  ?>"  id="expect_tanggal" required name="expect_tanggal"  >
+				<input type="date" class="form-control" value="<?= html_escape($head->expect_tanggal) ?>"  id="expect_tanggal" required name="expect_tanggal"  >
 			</div>
 		</div>
 		</div>
@@ -127,7 +129,7 @@ foreach ($results['head'] as $head){
 				<label for="customer">Payment Term</label>
 			</div>
 			<div class="col-md-8">
-				<input type="text" class="form-control" id="term" value="<?= $head->term  ?>" onkeyup required name="term" >
+				<input type="text" class="form-control" id="term" value="<?= html_escape($head->term) ?>" onkeyup required name="term" >
 			</div>
 		</div>
 		</div>
@@ -189,9 +191,9 @@ foreach ($results['head'] as $head){
 	$kurs	= $this->db->query("SELECT * FROM mata_uang WHERE kode = 'IDR' ")->result();
 	$kurs10hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM perubahan_kurs WHERE tanggal_ubah BETWEEN  '$tendays' AND '$hariini' AND kode_kurs='IDR' ")->result();
 	$kurs30hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM perubahan_kurs WHERE MONTH(tanggal_ubah) =  '$blnkmrn' AND YEAR(tanggal_ubah) = '$yearkemaren' AND kode_kurs='IDR' ")->result();
-	$nomkurs = $kurs[0]->kurs;
-	$nomkurs10 = $kurs10hari[0]->nominal;
-	$nomkurs30 = $kurs30hari[0]->nominal;
+	$nomkurs = $kurs[0]->kurs ?? 0;
+	$nomkurs10 = $kurs10hari[0]->nominal ?? 0;
+	$nomkurs30 = $kurs30hari[0]->nominal ?? 0;
 	$k =  number_format($nomkurs,2);
 	$k10 =  number_format($nomkurs10,2);
 	$k30 =  number_format($nomkurs30,2);
@@ -251,10 +253,10 @@ foreach ($results['head'] as $head){
 			$lme_30hari	= $this->db->query("SELECT AVG(nominal) as nominal FROM child_history_lme WHERE MONTH(tanggal_update) =  '$blnkmrn' AND YEAR(tanggal_update) = '$yearkemaren' AND id_compotition='$id_comp' ")->result();
 			?>
 		<tr>
-		    <td><?= $numbc; ?></td>
-			<td><?= $comp->name_compotition ?></td>
-			<td>$ <?= number_format( $lme_30hari[0]->nominal,2);?></td>
-			<td>$ <?= number_format( $lme_10hari[0]->nominal,2);?></td>
+		    <td><?= $numb3; ?></td>
+			<td><?= html_escape($comp->name_compotition) ?></td>
+			<td>$ <?= number_format( ($lme_30hari[0]->nominal ?? 0),2);?></td>
+			<td>$ <?= number_format( ($lme_10hari[0]->nominal ?? 0),2);?></td>
 			<td>$ <?= number_format( $comp->nominal_harga,2); ?></td>
 		</tr>
 		
@@ -284,7 +286,7 @@ foreach ($results['head'] as $head){
 				<th width='6%'>Disc %</th>
 				<th width='6%'>Tax</th>
 				<th width='9%'>Amount</th>
-				<th width='8%'>Note</th>
+				<th>PPN</th><th>Nilai PPN</th><th>Total Barang + PPN</th><th width='8%'>Note</th>
 				<th width='5%'>#</th>
 			</tr>
 			</thead>
@@ -293,6 +295,7 @@ foreach ($results['head'] as $head){
 			$key=0;
 			foreach ($results['detail'] as $val => $value){
 			$key ++;
+            foreach (array('id_dt_po','idpr','idmaterial','namamaterial','description','kode_barang','note','rate_lme') as $field) $value[$field] = html_escape($value[$field] ?? '');
 
 			$disabled = ($head->loi == 'Import')?'':'readonly';
 			$disabled2 = ($head->loi == 'Import')?'readonly':'';
@@ -303,7 +306,7 @@ foreach ($results['head'] as $head){
 
 			echo "<tr>";
 			echo 	"<td>".$value['namamaterial']."
-							<input type='hidden' class='form-control input-sm' id='dt_idpr_".$key."' name='dt[".$key."][idpr]' value='".$value['idpr']."'>
+							<input type='hidden' class='form-control input-sm' id='dt_idpr_".$key."' name='dt[".$key."][idpr]' value='".$value['idpr']."'><input type='hidden' name='dt[".$key."][id_dt_po]' value='".$value['id_dt_po']."'><input type='hidden' name='dt[".$key."][kode_barang]' value='".$value['kode_barang']."'>
 							<input type='hidden' class='form-control input-sm' id='dt_idmaterial_".$key."' name='dt[".$key."][idmaterial]' value='".$value['idmaterial']."'>
 							<input type='hidden' class='form-control input-sm' id='dt_namamaterial_".$key."' name='dt[".$key."][namamaterial]' value='".$value['namamaterial']."'>
 							<input type='hidden' class='form-control input-sm' id='dt_qty_".$key."' name='dt[".$key."][qty]' value='".$value['qty']."'>
@@ -333,6 +336,10 @@ foreach ($results['head'] as $head){
 			echo 	"<td><input type='text' class='form-control text-right input-sm autoNumeric' id='dt_diskon_".$key."' name='dt[".$key."][diskon]' value='".number_format($value['diskon'],2)."' onkeyup='HitAmmount(".$key.")'></td>";
 			echo 	"<td><input type='text' class='form-control text-right input-sm autoNumeric' id='dt_pajak_".$key."' name='dt[".$key."][pajak]' value='".number_format($value['pajak'],2)."' onkeyup='HitAmmount(".$key.")'></td>";
 			echo 	"<td><input type='text' class='form-control text-right input-sm ch_jumlah_ex' id='dt_jumlahharga_".$key."' readonly name='dt[".$key."][jumlahharga]' value='".number_format($value['jumlahharga'],2)."'></td>";
+            $taxChoice = (float)$value['ppn'] > 0 ? 'Y' : 'N';
+            echo "<td><select name='dt[".$key."][ppn]' id='dt_ppn_".$key."'><option value='Y' ".($taxChoice==='Y'?'selected':'').">Y</option><option value='N' ".($taxChoice==='N'?'selected':'').">N</option></select></td>";
+            echo "<td><input readonly name='dt[".$key."][nilai_ppn]' id='dt_nilai_ppn_".$key."' value='".$value['ppn']."' data-original-qty='".$value['qty']."' data-original-price='".$value['hargasatuan']."' data-original-tax='".$value['ppn']."'></td>";
+            echo "<td><input readonly name='dt[".$key."][totalharga]' id='dt_totalharga_".$key."' value='".$value['harga_total']."'></td>";
 			echo 	"<td><input type='text' class='form-control input-sm' id='dt_note_".$key."' name='dt[".$key."][note]' value='".$value['note']."'></td>";
 			echo 	"<td>
 						<button type='button' class='btn btn-sm btn-danger hapus_baris' title='Hapus Data' data-role='qtip'><i class='fa fa-close'></i></button>
@@ -391,7 +398,7 @@ foreach ($results['head'] as $head){
 						<label for="customer">Note</label>
 					</div>
 					<div class="col-md-10">
-						<input type="text" class="form-control"  id="note_ket" name="note_ket" value="<?=$head->note  ?>">
+						<input type="text" class="form-control"  id="note_ket" name="note_ket" value="<?= html_escape($head->note) ?>">
 					</div>
 				</div>
 			</div>
@@ -427,7 +434,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">TAX</label>
 				</div>
 				<div class="col-md-8" id="ForTax">
-					<input readonly type="text" class="form-control" value="<?= number_format($head->taxtotal)  ?>" id="taxtotal"  onkeyup required name="taxtotal" >
+					<input readonly type="text" class="form-control" value="<?= number_format($head->taxtotal,2)  ?>" id="kirim"  onkeyup required name="kirim" >
 				</div>
 			</div>
 		</div>
@@ -439,7 +446,7 @@ foreach ($results['head'] as $head){
 					<label for="id_customer">Total Order</label>
 				</div>
 				<div class="col-md-8" id="ForSum">
-					<input readonly type="text" class="form-control" value="<?= number_format($head->subtotal)  ?>" id="subtotal"  onkeyup required name="subtotal" >
+					<input readonly type="text" class="form-control" value="<?= number_format($head->subtotal,2)  ?>" id="subtotal"  onkeyup required name="subtotal" ><input type="hidden" id="totalppn" name="totalppn"><input type="hidden" id="taxtotal" name="taxtotal">
 				</div>
 			</div>
 		</div>
@@ -511,104 +518,10 @@ foreach ($results['head'] as $head){
 	});
 
 
-	$('#simpan-com').click(function(e){
-			e.preventDefault();
-			var deskripsi	= $('#deskripsi').val();
-			var expect_tanggal	= $('#expect_tanggal').val();
-			var loi	= $('#loi').val();
-			var term	= $('#term').val();
-			var cif	= $('#cif').val();
-			
-			var data, xhr;
-				if(expect_tanggal == '' || expect_tanggal == null || loi == '' || loi == null || term == '' || term == null || cif == '' || cif == null){
-					swal("Warning", "Form Tidak Boleh Kosong :)", "error");
-					return false;
-					}else{
-			swal({
-				  title: "Are you sure?",
-				  text: "You will not be able to process again this data!",
-				  type: "warning",
-				  showCancelButton: true,
-				  confirmButtonClass: "btn-danger",
-				  confirmButtonText: "Yes, Process it!",
-				  cancelButtonText: "No, cancel process!",
-				  closeOnConfirm: true,
-				  closeOnCancel: false
-				},
-				function(isConfirm) {
-				  if (isConfirm) {
 
-						var formData 	=new FormData($('#data-form')[0]);
-						var baseurl=siteurl+'purchase_order/SaveEdit';
-						$.ajax({
-							url			: baseurl,
-							type		: "POST",
-							data		: formData,
-							cache		: false,
-							dataType	: 'json',
-							processData	: false, 
-							contentType	: false,				
-							success		: function(data){								
-								if(data.status == 1){											
-									swal({
-										  title	: "Save Success!",
-										  text	: data.pesan,
-										  type	: "success",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									window.location.href = base_url + active_controller;
-								}else{
-									
-									if(data.status == 2){
-										swal({
-										  title	: "Save Failed!",
-										  text	: data.pesan,
-										  type	: "warning",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									}else{
-										swal({
-										  title	: "Save Failed!",
-										  text	: data.pesan,
-										  type	: "warning",
-										  timer	: 7000,
-										  showCancelButton	: false,
-										  showConfirmButton	: false,
-										  allowOutsideClick	: false
-										});
-									}
-									
-								}
-							},
-							error: function() {
-								
-								swal({
-								  title				: "Error Message !",
-								  text				: 'An Error Occured During Process. Please try again..',						
-								  type				: "warning",								  
-								  timer				: 7000,
-								  showCancelButton	: false,
-								  showConfirmButton	: false,
-								  allowOutsideClick	: false
-								});
-							}
-						});
-				  } else {
-					swal("Cancelled", "Data can be process again :)", "error");
-					return false;
-				  }
-			});
-				}
-		});
-		
-});
-function addmaterial(){ 
+	});
+
+	function addmaterial(){
 		var jumlah	=$('#data_request').find('tr').length;
 		var id_suplier=$("#id_suplier").val();
 		var loi=$("#loi").val();
@@ -977,119 +890,7 @@ function HapusItem(id){
 		
     // }
 	
-	function HitAmmount(id){
-      	var alloyprice 	= getNum($("#dt_alloyprice_"+id).val().split(",").join(""));
-		var fabcost		= getNum($("#dt_fabcost_"+id).val().split(",").join(""));
-		var diskon		= getNum($("#dt_diskon_"+id).val().split(",").join(""));
-		var pajak		= getNum($("#dt_pajak_"+id).val().split(",").join(""));
-		var qty			= getNum($("#dt_qty_"+id).val().split(",").join(""));
-		var hargasatuan	= getNum($("#dt_hargasatuan_"+id).val().split(",").join(""));
-		var dt_width	= getNum($("#dt_totalweight_"+id).val().split(",").join(""));
-		var loi			= $("#loi").val();
 
-		if(loi == 'Import'){
-			var total 	= Number(alloyprice) + Number(fabcost);
-			var jumlah 	= total * dt_width;	
-
-			$("#dt_hargasatuan_"+id).val(number_format(total,3));
-		}
-		else{
-			var total 	= hargasatuan;
-			var jumlah 	= hargasatuan * dt_width;
-		}
-
-		var tot_pajak 	= pajak / 100 * jumlah;
-		var tot_diskon = diskon / 100 * jumlah;
-		var tot_jumlah = jumlah - tot_diskon + tot_pajak;
-
-		
-
-		$("#dt_jumlahharga_"+id).val(number_format(jumlah,3));
-
-		$("#dt_ch_pajak_"+id).val(tot_pajak);
-		$("#dt_ch_diskon_"+id).val(tot_diskon);
-		$("#dt_ch_jumlah_"+id).val(tot_jumlah);
-
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JML));
-
-    }
-
-	function SumDel(){
-		var SUM_JML = 0
-		var SUM_DIS = 0
-		var SUM_PJK = 0
-		var SUM_JMX = 0
-
-		$(".ch_diskon" ).each(function() {
-			SUM_DIS += Number($(this).val());
-		});
-
-		$(".ch_pajak" ).each(function() {
-			SUM_PJK += Number($(this).val());
-		});
-
-		$(".ch_jumlah" ).each(function() {
-			SUM_JML += Number($(this).val());
-		});
-
-		$(".ch_jumlah_ex" ).each(function() {
-			SUM_JMX += Number($(this).val().split(",").join(""));
-		});
-
-		$("#hargatotal").val(number_format(SUM_JMX));
-		$("#diskontotal").val(number_format(SUM_DIS));
-		$("#taxtotal").val(number_format(SUM_PJK));
-		$("#subtotal").val(number_format(SUM_JML));
-
-    }
-
-	function number_format (number, decimals, dec_point, thousands_sep) {
-		// Strip all characters but numerical ones.
-		number = (number + '').replace(/[^0-9+\-Ee.]/g, '');
-		var n = !isFinite(+number) ? 0 : +number,
-			prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-			sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-			dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-			s = '',
-			toFixedFix = function (n, prec) {
-				var k = Math.pow(10, prec);
-				return '' + Math.round(n * k) / k;
-			};
-		// Fix for IE parseFloat(0.55).toFixed(0) = 0;
-		s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-		if (s[0].length > 3) {
-			s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-		}
-		if ((s[1] || '').length < prec) {
-			s[1] = s[1] || '';
-			s[1] += new Array(prec - s[1].length + 1).join('0');
-		}
-		return s.join(dec);
-	}
 
 	function getNum(val) {
 		if (isNaN(val) || val == '') {
@@ -1111,3 +912,4 @@ function HapusItem(id){
 		});
     });
 </script>
+<script src="<?= base_url('assets/js/purchase_order_form.js') ?>"></script>
