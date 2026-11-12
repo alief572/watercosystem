@@ -28,7 +28,7 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 	<!-- /.box-header -->
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_revenue_jurnal" class="table table-bordered table-striped" width="100%">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -45,59 +45,7 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 				</tr>
 			</thead>
 
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						
-
-						$so = $record->no_so;
-						$invoice = $this->db->query("select no_surat FROM tr_invoice WHERE no_so='$so'")->result();
-						$separator = ',';
-						$allinv = array();
-						foreach ($invoice as $inv) {
-							$allinv[] = $inv->no_surat;
-						}
-
-						$invc =  implode($separator, $allinv);
-
-						// $check_revenue = $this->db->get_where('tr_revenue', array('no_so' => $record->no_surat, 'status_jurnal' => 'CLS'))->result();
-
-						$this->db->select('a.id');
-						$this->db->from('tr_revenue a');
-						$where = "a.no_surat = '$record->no_surat' AND a.status_jurnal = 'CLS'";
-						$this->db->where($where);
-						$check_revenue = $this->db->get()->result();
-
-						if (COUNT($check_revenue) <= 0) :
-							$numb++;
-				?>
-
-
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->no_surat ?></td>
-							<td><?= $invc ?></td>
-							<td><?= strtoupper($record->name_customer) ?></td>
-							<td><?= $record->nama_sales ?></td>
-							<td><?= number_format($record->persenhpp_pengakuan) ?>%</td>
-							<td><?= number_format($record->pengakuan_invoice) ?></td>
-							<td><?= number_format($record->pengakuan_hpp) ?></td>
-							<td style="padding-left:20px">
-								<?php if ($ENABLE_MANAGE) : ?>
-									<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="<?= $record->id ?>" data-no_so="<?= $record->no_surat ?>"><i class="fa fa-check"></i>
-									</a>
-								<?php endif; ?>
-
-						</tr>
-				<?php 	 
-						endif;
-					}
-				}
-				?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -169,6 +117,32 @@ $ENABLE_DELETE  = has_permission('Pengakuan_Revenue.Delete');
 
 <!-- page script -->
 <script type="text/javascript">
+	$(function() {
+		var columns = [
+			{ data: 'no' }, { data: 'no_so' }, { data: 'invoice' }, { data: 'customer' }, { data: 'marketing' },
+			{ data: 'persen' }, { data: 'pengakuan_invoice', className: 'text-right' }, { data: 'pengakuan_hpp', className: 'text-right' }
+		];
+		var noSort = [0];
+		<?php if ($ENABLE_MANAGE) : ?>
+		columns.push({ data: 'action' });
+		noSort.push(8);
+		<?php endif; ?>
+		$('#tbl_revenue_jurnal').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: { url: siteurl + 'wt_revenue/get_data_revenue_jurnal', type: 'POST' },
+			columns: columns,
+			columnDefs: [{ orderable: false, targets: noSort }]
+		});
+
+		// Setelah modal jurnal ditutup, muat ulang tabel supaya pengakuan yang sudah dijurnal hilang.
+		$('#dialog-popup').on('hidden.bs.modal', function() {
+			$('#tbl_revenue_jurnal').DataTable().ajax.reload(null, false);
+		});
+	});
+
 	$(document).on('click', '.edit', function(e) {
 		var id = $(this).data('no_penawaran');
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");

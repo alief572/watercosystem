@@ -53,10 +53,14 @@ class Wt_revenue extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_revenue_model->cariRevenue();
-		$this->template->set('results', $data);
 		$this->template->title('Jurnal Revenue');
 		$this->template->render('index_revenue');
+	}
+
+	public function get_data_revenue_jurnal()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->Wt_revenue_model->get_data_revenue_jurnal(has_permission($this->managePermission));
 	}
 
 	public function index_nodeal()

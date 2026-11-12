@@ -262,6 +262,99 @@ class Wt_revenue_model extends BF_Model
     return $query->result();
   }
 
+  /**
+   * DataTable serverside untuk index Jurnal Revenue: pengakuan revenue yang belum dijurnal (OPN).
+   * Aturan lama dipertahankan: baris OPN disembunyikan bila SO yang sama (no_surat) sudah punya baris CLS.
+   */
+  public function get_data_revenue_jurnal($can_manage)
+  {
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('tr_revenue a');
+      $this->db->join('master_customers b', 'b.id_customer = a.id_customer');
+      $this->db->where('a.status_jurnal', 'OPN');
+      $this->db->where("NOT EXISTS (SELECT 1 FROM tr_revenue c WHERE c.no_surat = a.no_surat AND c.status_jurnal = 'CLS')", null, false);
+      if ($with_search && $keyword !== '') {
+        $esc = $this->db->escape_like_str($keyword);
+        $this->db->group_start();
+        $this->db->like('a.no_surat', $keyword, 'both');
+        $this->db->or_like('b.name_customer', $keyword, 'both');
+        $this->db->or_like('a.nama_sales', $keyword, 'both');
+        $this->db->or_where("EXISTS (SELECT 1 FROM tr_invoice s WHERE s.no_so = a.no_so AND s.no_surat LIKE '%{$esc}%' ESCAPE '!')", null, false);
+        $this->db->group_end();
+      }
+    };
+
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'a.no_surat',
+      2 => 'invoiced',
+      3 => 'b.name_customer',
+      4 => 'a.nama_sales',
+      5 => 'a.persenhpp_pengakuan',
+      6 => 'a.pengakuan_invoice',
+      7 => 'a.pengakuan_hpp',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->db->select('a.id, a.no_surat, a.no_so, a.nama_sales, a.persenhpp_pengakuan, a.pengakuan_invoice, a.pengakuan_hpp, b.name_customer');
+    $this->db->select("(SELECT GROUP_CONCAT(i.no_surat SEPARATOR ',') FROM tr_invoice i WHERE i.no_so = a.no_so) AS invoiced", false);
+    $base(true);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir, false);
+    } else {
+      $this->db->order_by('a.no_so', 'DESC');
+    }
+    $this->db->order_by('a.id', 'DESC');
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $r) {
+      $no++;
+      $action = '';
+      if ($can_manage) {
+        $action = '<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="' . htmlspecialchars((string) $r->id, ENT_QUOTES) . '" data-no_so="' . htmlspecialchars((string) $r->no_surat, ENT_QUOTES) . '"><i class="fa fa-check"></i></a>';
+      }
+      $hasil[] = [
+        'no' => $no,
+        'no_so' => htmlspecialchars((string) $r->no_surat),
+        'invoice' => htmlspecialchars((string) $r->invoiced),
+        'customer' => htmlspecialchars(strtoupper((string) $r->name_customer)),
+        'marketing' => htmlspecialchars((string) $r->nama_sales),
+        'persen' => number_format((float) $r->persenhpp_pengakuan) . '%',
+        'pengakuan_invoice' => number_format((float) $r->pengakuan_invoice),
+        'pengakuan_hpp' => number_format((float) $r->pengakuan_hpp),
+        'action' => $action,
+      ];
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
+  }
+
   public function cariRevenue()
   {
     $this->db->select('a.*, b.name_customer as name_customer');
