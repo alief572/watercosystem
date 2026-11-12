@@ -21,7 +21,7 @@ width: 95%;
 <div class="box">
 	    
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_do_jurnal" class="table table-bordered table-striped" width="100%">
 		<thead>
 		<tr>
 			<th>#</th>
@@ -30,49 +30,10 @@ width: 95%;
 			<th>Tanggal SPK</th>
 			<th>Nama Customer</th>
 			<th>Nilai Inventory</th>
-			<?php if($ENABLE_MANAGE) : ?>
 			<th>Action</th>
-			<?php endif; ?>
 		</tr>
 		</thead>
-
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-			?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->nomor_spk ?></td>
-			<td><?= $record->no_surat ?></td>
-			<td><?= date('d-F-Y', strtotime($record->tgl_do)) ?></td>
-			<td><?= $record->name_customer ?></td>
-			<td><?= number_format($record->totalcostbook) ?></td>
-         	<td style="padding-left:20px">
-			<?php 
-				if($record->status_jurnal_do==0){
-			?>
-			    <a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal Delivery" data-id_material="<?=$record->no_do?>"><i class="fa fa-check"></i>
-				</a>
-			<?php 
-				}
-			?>
-			
-			<?php 
-				if($record->status_jurnal_confirm==0){
-			?>
-			    <a class="btn btn-warning btn-sm view4" href="javascript:void(0)" title="Create Jurnal Confirm Delivery" data-id_material="<?=$record->no_do?>"><i class="fa fa-check"></i>
-				</a>
-			<?php 
-				}
-			?>
-			
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -144,127 +105,59 @@ width: 95%;
 
 <!-- page script -->
 <script type="text/javascript">
-
-	$(document).on('click', '.edit', function(e){
-		var id = $(this).data('no_penawaran');
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'wt_penawaran/editPenawaran/'+id,
-			success:function(data){
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
-				
-			}
-		})
-	});
-	
-		$(document).on('click', '.cetak', function(e){
-		var id = $(this).data('no_penawaran');
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'xtes/cetak'+id,
-			success:function(data){
-				
-			}
-		})
-	});
-	
-	$(document).on('click', '.view', function(){
-		var id = $(this).data('no_penawaran');
-		// alert(id);
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Detail Inventory</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'penawaran/ViewHeader/'+id,
-			data:{'id':id},
-			success:function(data){
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
-				
-			}
-		})
-	});
-	
-	
-	
-	// CLOSE PENAWARAN
-	$(document).on('click','.close_penawaran', function(e){
-		e.preventDefault();
-		var id = $(this).data('no_penawaran');
-		
-		$("#head_title").html("Closing Penawaran");
-		$.ajax({
-			type:'POST',
-			url: base_url + active_controller+'/modal_closing_penawaran/'+id,
-			success:function(data){
-				$("#ModalViewX").modal();
-				$("#viewX").html(data);
-
+	$(function() {
+		$('#tbl_do_jurnal').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: {
+				url: siteurl + 'wt_delivery_order/get_data_do_jurnal',
+				type: 'POST'
 			},
-			error: function() {
-				swal({
-				title				: "Error Message !",
-				text				: 'Connection Timed Out ...',
-				type				: "warning",
-				timer				: 5000,
-				showCancelButton	: false,
-				showConfirmButton	: false,
-				allowOutsideClick	: false
-				});
-			}
+			columns: [
+				{ data: 'no' },
+				{ data: 'no_spk' },
+				{ data: 'no_do' },
+				{ data: 'tgl_do' },
+				{ data: 'nama_customer' },
+				{ data: 'nilai' },
+				{ data: 'action' }
+			],
+			columnDefs: [{
+				orderable: false,
+				targets: [0, 6]
+			}]
 		});
 	});
 
-  	$(document).on('click', '.view3', function(){
-		var id = $(this).data('id_material');
-	    var pp = 'JV004';
-		var akses = 'jurnaldelivery';
-		// alert(id);
+	// Tampilkan detail jurnal di modal. Setelah modal ditutup, muat ulang tabel supaya tombol
+	// yang statusnya sudah berubah (jurnal tersimpan) langsung hilang.
+	function bukaJurnal(id, kode, akses, fn) {
 		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Detail Jurnal</b>");
 		$.ajax({
-			type:'POST',
-			url:siteurl+'jurnal_nomor/jurnal_fn/jurnal_delivery/'+id+'/'+pp+'/'+akses,
-			data:{'id':id},
-			success:function(data){
+			type: 'POST',
+			url: siteurl + 'jurnal_nomor/jurnal_fn/' + fn + '/' + id + '/' + kode + '/' + akses,
+			data: {'id': id},
+			success: function(data) {
 				$("#dialog-popup").modal();
 				$("#ModalView").html(data);
-				
+			},
+			error: function() {
+				swal({title: "Error Message !", text: 'Gagal memuat jurnal. Coba lagi.', type: "warning"});
 			}
-		})
-	});
-	
-	$(document).on('click', '.view4', function(){
-		var id = $(this).data('id_material');
-	    var pp = 'JV005';
-		var akses = 'jurnalconfirmdelivery';
-		// alert(id);
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Detail Jurnal</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'jurnal_nomor/jurnal_fn/jurnal_confirmdelivery/'+id+'/'+pp+'/'+akses,
-			data:{'id':id},
-			success:function(data){
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
-				
-			}
-		})
-	});
-	//Delete
-
-	function PreviewPdf(id)
-	{
-		param=id;
-		tujuan = 'customer/print_request/'+param;
-
-	   	$(".modal-body").html('<iframe src="'+tujuan+'" frameborder="no" width="570" height="400"></iframe>');
+		});
 	}
 
-	function PreviewRekap()
-	{
-		tujuan = 'customer/rekap_pdf';
-	   	$(".modal-body").html('<iframe src="'+tujuan+'" frameborder="no" width="100%" height="400"></iframe>');
-	}
+	$(document).on('click', '.view3', function() {
+		bukaJurnal($(this).data('id_material'), 'JV004', 'jurnaldelivery', 'jurnal_delivery');
+	});
+
+	$(document).on('click', '.view4', function() {
+		bukaJurnal($(this).data('id_material'), 'JV005', 'jurnalconfirmdelivery', 'jurnal_confirmdelivery');
+	});
+
+	$('#dialog-popup').on('hidden.bs.modal', function() {
+		$('#tbl_do_jurnal').DataTable().ajax.reload(null, false);
+	});
 </script>

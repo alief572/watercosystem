@@ -606,6 +606,103 @@ class Wt_delivery_order_model extends BF_Model
     return $query->result();
   }
 
+  /**
+   * DataTable serverside untuk index Jurnal Delivery. Terbaru ke terlama.
+   * LEFT JOIN agar DO tanpa SPK/customer tetap tampil.
+   */
+  public function get_data_do_jurnal()
+  {
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('tr_delivery_order a');
+      $this->db->join('master_customers b', 'b.id_customer = a.id_customer', 'left');
+      $this->db->join('tr_spk_delivery c', 'c.no_spk = a.no_spk', 'left');
+      if ($with_search && $keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('c.no_surat', $keyword, 'both');
+        $this->db->or_like('a.no_surat', $keyword, 'both');
+        $this->db->or_like('a.tgl_do', $keyword, 'both');
+        $this->db->or_like('DATE_FORMAT(a.tgl_do, "%d-%M-%Y")', $keyword, 'both');
+        $this->db->or_like('b.name_customer', $keyword, 'both');
+        $this->db->or_like('a.totalcostbook', str_replace(',', '', $keyword), 'both');
+        $this->db->group_end();
+      }
+    };
+
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'c.no_surat',
+      2 => 'a.no_surat',
+      3 => 'a.tgl_do',
+      4 => 'b.name_customer',
+      5 => 'a.totalcostbook',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->db->select('a.no_do, a.no_surat, a.tgl_do, a.totalcostbook, a.status_jurnal_do, a.status_jurnal_confirm, c.no_surat AS nomor_spk, b.name_customer');
+    $base(true);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir);
+      $this->db->order_by('a.id', 'DESC');
+    } else {
+      $this->db->order_by('a.tgl_do', 'DESC');
+      $this->db->order_by('a.created_on', 'DESC');
+      $this->db->order_by('a.id', 'DESC');
+    }
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $item) {
+      $no++;
+      $id = htmlspecialchars((string) $item->no_do, ENT_QUOTES);
+
+      $action = '';
+      if ($item->status_jurnal_do == 0) {
+        $action .= '<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal Delivery" data-id_material="' . $id . '"><i class="fa fa-check"></i></a> ';
+      }
+      if ($item->status_jurnal_confirm == 0) {
+        $action .= '<a class="btn btn-warning btn-sm view4" href="javascript:void(0)" title="Create Jurnal Confirm Delivery" data-id_material="' . $id . '"><i class="fa fa-check"></i></a>';
+      }
+
+      $hasil[] = [
+        'no' => $no,
+        'no_spk' => htmlspecialchars((string) $item->nomor_spk),
+        'no_do' => htmlspecialchars((string) $item->no_surat),
+        'tgl_do' => $item->tgl_do ? date('d-F-Y', strtotime($item->tgl_do)) : '',
+        'nama_customer' => htmlspecialchars((string) $item->name_customer),
+        'nilai' => number_format((float) $item->totalcostbook),
+        'action' => $action,
+      ];
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
+  }
+
   public function get_data_history_delivery_order()
   {
     $draw = $this->input->post('draw');
