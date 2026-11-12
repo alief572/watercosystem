@@ -137,10 +137,19 @@ foreach (@$headerso as $hdo => $hd) {
 												foreach (@$getitemso as $kdo => $dt_spk) {
 													$no = $i = $loop = $n++;
 
-													$id_cust = $this->db->query("SELECT * FROM tr_sales_order WHERE no_so ='$dt_spk->no_so' ")->row();
-													$cust    = $this->db->query("SELECT * FROM master_customers WHERE id_customer ='$id_cust->id_customer' ")->row();
-													$kodebrg = $this->db->query("SELECT * FROM ms_inventory_category3 WHERE id_category3 ='$dt_spk->id_category3' ")->row();
-													$stok = $this->db->query("SELECT qty FROM stock_material WHERE id_category3 ='$dt_spk->id_category3' ")->row();
+													// no_so di detail SPK lama bisa NULL; turunkan dari id_so_detail.
+													$no_so = $dt_spk->no_so;
+													if (empty($no_so) && !empty($dt_spk->id_so_detail)) {
+														$so_detail = $this->db->query("SELECT no_so FROM tr_sales_order_detail WHERE id_so_detail = ?", [$dt_spk->id_so_detail])->row();
+														$no_so = $so_detail->no_so ?? '';
+													}
+													$id_cust = $this->db->query("SELECT id_customer FROM tr_sales_order WHERE no_so = ?", [$no_so])->row();
+													$cust    = $this->db->query("SELECT name_customer FROM master_customers WHERE id_customer = ?", [$id_cust->id_customer ?? $id_customer])->row();
+													$kodebrg = $this->db->query("SELECT kode_barang FROM ms_inventory_category3 WHERE id_category3 = ?", [$dt_spk->id_category3])->row();
+													$stok = $this->db->query("SELECT qty FROM stock_material WHERE id_category3 = ?", [$dt_spk->id_category3])->row();
+													$nm_cust  = $cust->name_customer ?? '';
+													$kd_brg   = $kodebrg->kode_barang ?? '';
+													$qty_stok = $stok->qty ?? 0;
 
 
 
@@ -153,16 +162,16 @@ foreach (@$headerso as $hdo => $hd) {
 							
 							</th>
 							<th ><input type='date' class='form-control' 	value='$dt_spk->schedule' 	 id='used_schedule_$i$loop' required name='dt[$i$loop][schedule]'></th>
-							<th ><input type='text' class='form-control' 	value='$dt_spk->no_so' 	     id='used_no_so_$i$loop' required name='dt[$i$loop][no_so]' readonly>
+							<th ><input type='text' class='form-control' 	value='$no_so' 	     id='used_no_so_$i$loop' required name='dt[$i$loop][no_so]' readonly>
 							     <input type='hidden' class='form-control' 	value='$dt_spk->no_spk' 	 id='used_no_spk_$i$loop' required name='dt[$i$loop][no_spk]' readonly>
 							</th>
-							<th><input type='text' class='form-control'  	   	value='$cust->name_customer' 	 id='used_namacustomer_$i$loop' required name='dt[$i$loop][namacustomer]' readonly></th>
-							<th ><input type='text' class='form-control' 		value='$kodebrg->kode_barang'  	 id='used_kd_brg_$i$loop' required name='dt[$i$loop][kd_brg]' readonly>
+							<th><input type='text' class='form-control'  	   	value='$nm_cust' 	 id='used_namacustomer_$i$loop' required name='dt[$i$loop][namacustomer]' readonly></th>
+							<th ><input type='text' class='form-control' 		value='$kd_brg'  	 id='used_kd_brg_$i$loop' required name='dt[$i$loop][kd_brg]' readonly>
 									<input type='hidden' class='form-control' 		value='$dt_spk->id_category3'  	 id='used_id_category3_$i$loop' required name='dt[$i$loop][id_category3]' readonly>
 							</th>
 							<th ><input type='text' class='form-control' 		value='$dt_spk->nama_produk'  	 id='used_nama_produk_$i$loop' required name='dt[$i$loop][nama_produk]' readonly></th>
 							<th > <input type='text' class='form-control' 		value='$dt_spk->qty_delivery'		 				 id='used_qty_delivery_$i$loop' required name='dt[$i$loop][qty_delivery]' readonly></th>
-							<th > <input type='text' class='form-control stok' 		value='$stok->qty'		 				 id='used_qty_stok_$i$loop' required name='dt[$i$loop][qty_stok]' readonly></th>
+							<th > <input type='text' class='form-control stok' 		value='$qty_stok'		 				 id='used_qty_stok_$i$loop' required name='dt[$i$loop][qty_stok]' readonly></th>
 							<th > <input type='text' class='form-control' 				 				 id='used_serial_number_$i$loop' required name='dt[$i$loop][serial_number]' ></th>
 							<th > <input type='text' class='form-control' 				 				 id='used_kartu_garansi_$i$loop' required name='dt[$i$loop][kartu_garansi]' ></th>
 							<th><input type='checkbox'   				class='chk_all'	data-chk='$i$loop'									 id='used_kirim_$i$loop'                 name='dt[$i$loop][kirim]' readonly></th>
@@ -211,7 +220,7 @@ foreach (@$headerso as $hdo => $hd) {
 	});
 
 	<?php
-	if ($results['action'] == 'view') echo '$("#data-form :input").prop("disabled", true);';
+	if (($results['action'] ?? '') == 'view') echo '$("#data-form :input").prop("disabled", true);';
 	?>
 
 	function cekdoinfo(id) {
@@ -337,4 +346,4 @@ foreach (@$headerso as $hdo => $hd) {
 		});
 
 	});
-</script>
+</script>

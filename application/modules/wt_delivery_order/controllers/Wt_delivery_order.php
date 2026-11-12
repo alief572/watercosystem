@@ -303,10 +303,14 @@ class Wt_delivery_order extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->Wt_delivery_order_model->cariSpkDelivery();
-		$this->template->set('results', $data);
 		$this->template->title('SPK Delivery Order');
 		$this->template->render('index_spkdelivery');
+	}
+
+	public function get_data_spk_delivery()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->Wt_delivery_order_model->get_data_spk_delivery();
 	}
 
 

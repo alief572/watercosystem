@@ -23,19 +23,15 @@
     foreach ($header as $header) {
     }
     ?>
-    <table border="0px" cellspacing="0" width='100%' valign="top">
+    <table border="0" cellspacing="0" style="width: 100%;">
         <tr>
-            <td align="left" valign="top" width="70%">
-                <!-- <img src='assets/images/logo_waterco.png' alt="" height='100' width='250'> -->
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <td align="left" valign="top" style="width: 45%;">
+                <img src='assets/images/logo_waterco.png' alt="" height='100' width='250'>
             </td>
-            <td align="right" valign="right">
+            <td align="right" valign="top" style="width: 55%;">
                 <br>
                 PT WATERCO INDONESIA<br>
                 Inkopal Plaza Kelapa Gading Blok B, No.31-32 <br>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 Jl. Boulevard Barat, Jakarta-14240, Indonesia<br>
                 Phone: +62 21 4585 1481, Fax: +62 21 4585 1480<br>
                 Website: www.waterco.co.id<br>

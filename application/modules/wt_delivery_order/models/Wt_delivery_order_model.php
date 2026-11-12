@@ -293,6 +293,98 @@ class Wt_delivery_order_model extends BF_Model
     return $query->result();
   }
 
+  /**
+   * DataTable serverside untuk index SPK Delivery. Terbaru ke terlama.
+   * LEFT JOIN ke tr_sales_order: SPK dengan no_so kosong/yatim tetap tampil.
+   */
+  public function get_data_spk_delivery()
+  {
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
+    $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
+
+    $ENABLE_MANAGE = has_permission('Planning_Delivery.Manage');
+
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('tr_spk_delivery a');
+      $this->db->join('master_customers b', 'b.id_customer = a.id_customer', 'left');
+      $this->db->join('tr_sales_order c', 'c.no_so = a.no_so', 'left');
+      $this->db->where('a.status_create_do', '0');
+      if ($with_search && $keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('a.no_surat', $keyword, 'both');
+        $this->db->or_like('a.tgl_spk', $keyword, 'both');
+        $this->db->or_like('c.no_surat', $keyword, 'both');
+        $this->db->or_like('b.name_customer', $keyword, 'both');
+        $this->db->group_end();
+      }
+    };
+
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $columns = [
+      1 => 'a.no_surat',
+      2 => 'a.tgl_spk',
+      3 => 'c.no_surat',
+      4 => 'b.name_customer',
+    ];
+    $order = $this->input->post('order');
+    $col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+    $dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+    $this->db->select('a.no_spk, a.no_surat, a.tgl_spk, a.status_do, c.no_surat AS nomor_so, b.name_customer');
+    $base(true);
+    if (isset($columns[$col])) {
+      $this->db->order_by($columns[$col], $dir);
+      $this->db->order_by('a.id', 'DESC');
+    } else {
+      $this->db->order_by('a.tgl_spk', 'DESC');
+      $this->db->order_by('a.id', 'DESC');
+    }
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    $hasil = [];
+    $no = $start;
+    foreach ($rows as $item) {
+      $no++;
+
+      $action = '';
+      if ($ENABLE_MANAGE && $item->status_do != '1') {
+        $action = '<a class="btn btn-warning btn-sm" href="' . base_url('/wt_delivery_order/createDO/' . $item->no_spk) . '" title="CREATE DO"><i class="fa fa-plus"></i></a> '
+          . '<a class="btn btn-primary btn-sm" target="_blank" href="' . base_url('/wt_delivery_order/printSPK/' . $item->no_spk) . '" title="Print SPK"><i class="fa fa-print"></i></a>';
+      }
+
+      $hasil[] = [
+        'no' => $no,
+        'no_spk' => htmlspecialchars((string) $item->no_surat),
+        'tgl_spk' => $item->tgl_spk ? date('d-F-Y', strtotime($item->tgl_spk)) : '',
+        'no_so' => htmlspecialchars((string) $item->nomor_so),
+        'nama_customer' => htmlspecialchars((string) $item->name_customer),
+        'action' => $action,
+      ];
+    }
+
+    echo json_encode([
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
+      'data' => $hasil,
+    ]);
+  }
+
   public function cariDeliveryOrder()
   {
     $search = "a.status_confirm is null";
@@ -818,103 +910,96 @@ class Wt_delivery_order_model extends BF_Model
 
   public function get_data_so_delivery()
   {
-    $draw = $this->input->post('draw');
-    $start = $this->input->post('start');
-    $length = $this->input->post('length');
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
     $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
 
-    $this->db->select('a.*, c.name_customer as name_customer,d.nama_top');
-    $this->db->from('tr_planning_delivery a');
-    $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
-    $this->db->join('ms_top d', 'd.id_top = a.top');
-    $this->db->where('a.status_planning', '1');
-    $this->db->where_not_in('a.status', ['6', '7']);
-    if (!empty($search['value'])) {
-      $this->db->like('a.no_surat_planning', $search['value'], 'both');
-      $this->db->or_like('a.no_surat', $search['value'], 'both');
-      $this->db->or_like('c.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.nama_sales', $search['value'], 'both');
-      $this->db->or_like('d.nama_top', $search['value'], 'both');
+    // Filter yang sama dipakai untuk data, total, dan hasil pencarian.
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('tr_planning_delivery a');
+      $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
+      $this->db->join('ms_top d', 'd.id_top = a.top');
+      $this->db->where('a.status_planning', '1');
+      $this->db->where_not_in('a.status', ['6', '7']);
+      if ($with_search && $keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('a.no_surat_planning', $keyword, 'both');
+        $this->db->or_like('a.no_surat', $keyword, 'both');
+        $this->db->or_like('c.name_customer', $keyword, 'both');
+        $this->db->or_like('a.nama_sales', $keyword, 'both');
+        $this->db->or_like('d.nama_top', $keyword, 'both');
+        $this->db->group_end();
+      }
+    };
+
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
     }
-    $this->db->order_by('a.no_planning', 'desc');
-    $this->db->limit($length, $start);
 
+    $this->db->select('a.*, c.name_customer as name_customer, d.nama_top');
+    $base(true);
+    $this->db->order_by('a.no_planning', 'desc');
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
     $get_data = $this->db->get();
 
-    $this->db->select('a.*, c.name_customer as name_customer,d.nama_top');
-    $this->db->from('tr_planning_delivery a');
-    $this->db->join('master_customers c', 'c.id_customer = a.id_customer');
-    $this->db->join('ms_top d', 'd.id_top = a.top');
-    $this->db->where('a.status_planning', '1');
-    $this->db->where_not_in('a.status', ['6', '7']);
-    if (!empty($search['value'])) {
-      $this->db->like('a.no_surat_planning', $search['value'], 'both');
-      $this->db->or_like('a.no_surat', $search['value'], 'both');
-      $this->db->or_like('c.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.nama_sales', $search['value'], 'both');
-      $this->db->or_like('d.nama_top', $search['value'], 'both');
-    }
-    $this->db->order_by('a.no_planning', 'desc');
-
-    $get_data_all = $this->db->get();
-
     $hasil = [];
-    $no = (0 + $start);
+    $no = $start;
 
     foreach ($get_data->result() as $item) {
       $no++;
 
-      $plan = $this->db->query("SELECT sum(qty_so) as total_so, sum(qty_delivery) as total_delivery, sum(qty_spk) as total_spk FROM tr_planning_delivery_detail WHERE no_planning='" . $item->no_planning . "'")->row();
+      $plan = $this->db->query("SELECT SUM(qty_so) AS total_so, SUM(qty_delivery) AS total_delivery, SUM(qty_spk) AS total_spk FROM tr_planning_delivery_detail WHERE no_planning = ?", [$item->no_planning])->row();
+      $total_so = (float) ($plan->total_so ?? 0);
+      $total_spk = (float) ($plan->total_spk ?? 0);
 
-      if ($item->top == 1) {
-        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_cash WHERE no_planning='" . $item->no_planning . "'")->row();
-      } elseif ($item->top == 2) {
-        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_kredit WHERE no_planning='" . $item->no_planning . "'")->row();
-      } elseif ($item->top == 3) {
-        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_indent1 WHERE no_planning='" . $item->no_planning . "'")->row();
-      } elseif ($item->top == 4) {
-        $tagih = $this->db->query("SELECT * FROM view_plan_tagih_indent2 WHERE no_planning='" . $item->no_planning . "'")->row();
-      }
-
-      if ($plan->total_spk == 0  && ($plan->total_so > $plan->total_spk)) {
+      if ($total_spk == 0 && $total_so > $total_spk) {
         $Statusdo = "<span class='badge bg-grey'>Belum Create SPK</span>";
-      } elseif ($plan->total_spk != 0 && ($plan->total_so > $plan->total_spk)) {
-
+      } elseif ($total_spk != 0 && $total_so > $total_spk) {
         $Statusdo = "<span class='badge bg-blue'>Parsial</span>";
-      } elseif ($plan->total_spk != 0 && ($plan->total_so == $plan->total_spk)) {
-
+      } elseif ($total_spk != 0 && $total_so == $total_spk) {
         $Statusdo = "<span class='badge bg-green'>Complete</span>";
+      } else {
+        $Statusdo = '';
       }
 
       if ($item->approval_finance != 1) {
-
         $approve = "<span class='badge bg-orange'>Menunggu Approval</span>";
       } else {
         $approve = "<span class='badge bg-green'>Approved</span>";
       }
 
       $action = '';
-      if (($plan->total_so > $plan->total_spk) && $item->approval_finance == 1) :
-        $action = '<a class="btn btn-success btn-sm" href="' . base_url('/wt_delivery_order/proses/?param=' . $item->no_planning) . '" title="Create SPK" data-no_inquiry="' . $item->no_inquiry . '"> <i class="fa fa-check">Create SPK</i>';
-      endif;
+      if ($total_so > $total_spk && $item->approval_finance == 1) {
+        $action = '<a class="btn btn-success btn-sm" href="' . base_url('/wt_delivery_order/proses/?param=' . $item->no_planning) . '" title="Create SPK"> <i class="fa fa-check">Create SPK</i></a>';
+      }
 
       $hasil[] = [
         'no' => $no,
         'no_planning' => $item->no_surat_planning,
         'no_so' => $item->no_surat,
         'nama_customer' => $item->name_customer,
-        'marketing' => $item->nm_sales,
+        'marketing' => $item->nama_sales,
         'top' => $item->nama_top,
-        'approval_finance' => $Statusdo,
-        'status_spk' => $approve,
+        'approval_finance' => $approve,
+        'status_spk' => $Statusdo,
         'action' => $action,
       ];
     }
 
     echo json_encode([
-      'draw' => intval($draw),
-      'recordsTotal' => $get_data_all->num_rows(),
-      'recordsFiltered' => $get_data_all->num_rows(),
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
       'data' => $hasil
     ]);
   }

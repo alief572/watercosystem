@@ -22,7 +22,7 @@ thead input {
 	<!-- /.box-header -->
     
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_spk_delivery" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th>#</th>
@@ -36,37 +36,7 @@ thead input {
 		</tr>
 		</thead>
 
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-			?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->no_surat ?></td>
-			<td><?= date('d-F-Y', strtotime($record->tgl_spk)) ?></td>			
-			<td><?= $record->nomor_so ?></td>
-			<td><?= $record->name_customer ?></td>
-         	<td style="padding-left:20px">
-			<?php if($ENABLE_MANAGE) : ?>
-				<?php if($record->status_do !='1') : ?>
-                <!--<a class="btn btn-primary btn-sm" href="<?= base_url('/wt_delivery_order/Editspkdelivery/'.$record->no_spk) ?>" title="Edit Spk Delivery" ><i class="fa fa-pencil"></i>
-				</a>-->
-				
-				<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_delivery_order/createDO/'.$record->no_spk) ?>" title="CREATE DO" ><i class="fa fa-plus"></i>
-				</a>
-
-
-				<a class="btn btn-primary btn-sm" target='_blank' href="<?= base_url('/wt_delivery_order/printSPK/'.$record->no_spk) ?>" title="Print SPK" ><i class="fa fa-print"></i>
-				</a>
-				<?php endif; ?>
-			<?php endif; ?>
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -211,34 +181,31 @@ thead input {
 		});
 	});
 
-  	$(function() {
-    	// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
-	    // $('#example1 thead tr:eq(1) th').each( function (i) {
-	        // var title = $(this).text();
-	        //alert(title);
-	        // if (title == "#" || title =="Action" ) {
-	        	// $(this).html( '' );
-	        // }else{
-	        	// $(this).html( '<input type="text" />' );
-	        // }
+	$(function() {
+		$('#tbl_spk_delivery').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: {
+				url: siteurl + 'wt_delivery_order/get_data_spk_delivery',
+				type: 'POST'
+			},
+			columns: [
+				{ data: 'no' },
+				{ data: 'no_spk' },
+				{ data: 'tgl_spk' },
+				{ data: 'no_so' },
+				{ data: 'nama_customer' }<?php if ($ENABLE_MANAGE) : ?>,
+				{ data: 'action' }<?php endif; ?>
 
-	        // $( 'input', this ).on( 'keyup change', function () {
-	            // if ( table.column(i).search() !== this.value ) {
-	                // table
-	                    // .column(i)
-	                    // .search( this.value )
-	                    // .draw();
-	            // }else{
-	            	// table
-	                    // .column(i)
-	                    // .search( this.value )
-	                    // .draw();
-	            // }
-	        // } );
-	    // } );
-
-	   
-  	});
+			],
+			columnDefs: [{
+				orderable: false,
+				targets: [0<?= $ENABLE_MANAGE ? ', 5' : '' ?>]
+			}]
+		});
+	});
 	
 	
 	//Delete
