@@ -30,24 +30,7 @@ thead input {
 			
 		</tr>
 		</thead>
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->nama_category1 ?></td>
-			<td><?= $record->nama_category2 ?></td>
-			<td><?= $record->nama_category3 ?></td>
-			<td><?= $record->nama_category4 ?></td>
-			<td><?= $record->kode_produk ?></td>
-			<td><?=number_format($record->total_pricelist) ?></td>
-			<td><?=number_format($record->harga_rupiah) ?></td>
-			
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -105,6 +88,13 @@ thead input {
 
 	  $(document).ready(function() {
             $('#example2').DataTable( {
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: siteurl + 'ms_product_costing/get_data_pricelist_json',
+				type: 'POST'
+			},
+			columnDefs: [{ orderable: false, targets: 0 }],
 	        orderCellsTop: true,
 	        fixedHeader: true,
 			scrollX: true,

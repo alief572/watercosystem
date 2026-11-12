@@ -472,11 +472,44 @@ class Ms_product_costing extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$deleted = '0';
-		$data = $this->Ms_product_costing_model->get_data_pricelist();
-		$this->template->set('results', $data);
 		$this->template->title('Pricelist');
 		$this->template->render('index_pricelist_sales');
+	}
+
+	public function get_data_pricelist_json()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$post = $this->input->post();
+
+		$result = $this->Ms_product_costing_model->get_datatable_pricelist(
+			(int) $post['start'],
+			(int) $post['length'],
+			isset($post['search']['value']) ? $post['search']['value'] : '',
+			isset($post['order'][0]) ? $post['order'][0] : array()
+		);
+
+		$no = (int) $post['start'];
+		$rows = array();
+		foreach ($result['data'] as $r) {
+			$no++;
+			$rows[] = array(
+				$no,
+				$r->nama_category1,
+				$r->nama_category2,
+				$r->nama_category3,
+				$r->nama_category4,
+				$r->kode_produk,
+				number_format($r->total_pricelist),
+				number_format($r->harga_rupiah),
+			);
+		}
+
+		echo json_encode(array(
+			'draw'            => (int) $post['draw'],
+			'recordsTotal'    => $result['total'],
+			'recordsFiltered' => $result['filtered'],
+			'data'            => $rows,
+		));
 	}
 
 	public function calculation()

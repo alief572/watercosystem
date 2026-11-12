@@ -155,6 +155,55 @@ class Ms_product_costing_model extends BF_Model
     }
 
 
+    private function _pricelist_base($search = '')
+    {
+        $this->db->from('ms_product_pricelist a');
+        $this->db->join('ms_inventory_type b', 'b.id_type=a.id_type');
+        $this->db->join('ms_inventory_category1 c', 'c.id_category1=a.id_category1');
+        $this->db->join('ms_inventory_category2 d', 'd.id_category2=a.id_category2');
+        $this->db->join('ms_inventory_category3 e', 'e.id_category3=a.id_category3');
+        $this->db->where('a.deleted', 0);
+        if ($search !== '') {
+            $this->db->group_start()
+                ->like('b.nama', $search)
+                ->or_like('c.nama', $search)
+                ->or_like('d.nama', $search)
+                ->or_like('e.nama', $search)
+                ->or_like('e.kode_barang', $search)
+                ->group_end();
+        }
+    }
+
+    public function get_datatable_pricelist($start, $length, $search, $order)
+    {
+        $cols = array(
+            1 => 'b.nama', 2 => 'c.nama', 3 => 'd.nama', 4 => 'e.nama',
+            5 => 'e.kode_barang', 6 => 'a.total_pricelist', 7 => 'a.harga_rupiah',
+        );
+
+        $this->_pricelist_base();
+        $total = $this->db->count_all_results();
+
+        $this->_pricelist_base($search);
+        $filtered = $this->db->count_all_results();
+
+        $this->db->select('a.total_pricelist, a.harga_rupiah, b.nama as nama_category1, c.nama as nama_category2,
+            d.nama as nama_category3, e.nama as nama_category4, e.kode_barang as kode_produk');
+        $this->_pricelist_base($search);
+        $col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'a.id_product_pricelist';
+        $dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+        $this->db->order_by($col, $dir);
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        return array(
+            'total'    => $total,
+            'filtered' => $filtered,
+            'data'     => $this->db->get()->result(),
+        );
+    }
+
     function generate_code_pricelist($kode = '')
     {
         $query = $this->db->query("SELECT MAX(id_product_pricelist) as max_id FROM ms_product_pricelist");

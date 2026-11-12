@@ -86,6 +86,39 @@ class Ms_kurs_model extends BF_Model
 		return $query->result();
 	}
 	
+    public function get_datatable($start, $length, $search, $order)
+    {
+        // kolom index 1..3 dari tabel; 0 (#) dan action tidak sortable
+        $cols  = array(1 => 'nilai_kurs', 2 => 'created_on', 3 => 'aktif');
+        $total = $this->db->count_all('ms_kurs');
+
+        $apply_search = function () use ($search) {
+            if ($search !== '') {
+                $this->db->group_start()
+                    ->like('nilai_kurs', $search)
+                    ->or_like('created_on', $search)
+                    ->group_end();
+            }
+        };
+
+        $apply_search();
+        $filtered = $this->db->count_all_results('ms_kurs');
+
+        $apply_search();
+        $col = isset($order['column'], $cols[(int) $order['column']]) ? $cols[(int) $order['column']] : 'id';
+        $dir = (isset($order['dir']) && $order['dir'] === 'desc') ? 'desc' : 'asc';
+        $this->db->order_by($col, $dir);
+        if ($length > 0) {
+            $this->db->limit($length, $start);
+        }
+
+        return array(
+            'total'    => $total,
+            'filtered' => $filtered,
+            'data'     => $this->db->get('ms_kurs')->result(),
+        );
+    }
+
     function getById($id)
     {
        return $this->db->get_where('ms_kurs',array('id' => $id))->row_array();

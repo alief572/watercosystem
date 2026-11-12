@@ -23,7 +23,7 @@ thead input {
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" width="50%" class="table table-bordered table-striped">
+		<table id="tbl_kurs" width="50%" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th width="5">#</th>
@@ -35,36 +35,7 @@ thead input {
 			<?php endif; ?>
 		</tr>
 		</thead>
-
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->nilai_kurs ?></td>
-			<td><?= $record->created_on ?></td>
-			<td>
-				<?php if($record->aktif == 'Y'){ ?>
-					<label class="label label-success">Aktif</label>
-				<?php }else{ ?>
-					<label class="label label-danger">Non Aktif</label>
-				<?php } ?>
-			</td>
-			<td style="padding-left:20px">
-		
-
-			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory1="<?=$record->id?>"><i class="fa fa-edit"></i>
-				</a>
-			<?php endif; ?>
-
-		
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -211,6 +182,15 @@ thead input {
 	})
 
   	$(function() {
+		$("#tbl_kurs").DataTable({
+			processing: true,
+			serverSide: true,
+			ajax: {
+				url: siteurl + 'ms_kurs/get_data_json',
+				type: 'POST'
+			},
+			columnDefs: [{ orderable: false, targets: [0<?= $ENABLE_MANAGE ? ', 4' : '' ?>] }]
+		});
     	// $('#example1 thead tr').clone(true).appendTo( '#example1 thead' );
 	    // $('#example1 thead tr:eq(1) th').each( function (i) {
 	        // var title = $(this).text();

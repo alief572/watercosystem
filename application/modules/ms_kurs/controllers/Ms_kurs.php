@@ -40,10 +40,48 @@ class Ms_kurs extends Admin_Controller
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
 		$aktif = 'Y';
-        $data = $this->Ms_kurs_model->get_data('ms_kurs');
-        $this->template->set('results', $data);
         $this->template->title('Kurs');
         $this->template->render('index');
+    }
+
+    public function get_data_json()
+    {
+        $this->auth->restrict($this->viewPermission);
+        $post = $this->input->post();
+
+        $result = $this->Ms_kurs_model->get_datatable(
+            (int) $post['start'],
+            (int) $post['length'],
+            isset($post['search']['value']) ? $post['search']['value'] : '',
+            isset($post['order'][0]) ? $post['order'][0] : array()
+        );
+
+        $can_manage = has_permission('Master_Kurs.Manage');
+        $no = (int) $post['start'];
+        $rows = array();
+        foreach ($result['data'] as $record) {
+            $no++;
+            $status = $record->aktif == 'Y'
+                ? '<label class="label label-success">Aktif</label>'
+                : '<label class="label label-danger">Non Aktif</label>';
+            $row = array(
+                $no,
+                $record->nilai_kurs,
+                $record->created_on,
+                $status,
+            );
+            if ($can_manage) {
+                $row[] = '<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory1="' . (int) $record->id . '"><i class="fa fa-edit"></i></a>';
+            }
+            $rows[] = $row;
+        }
+
+        echo json_encode(array(
+            'draw'            => (int) $post['draw'],
+            'recordsTotal'    => $result['total'],
+            'recordsFiltered' => $result['filtered'],
+            'data'            => $rows,
+        ));
     }
 	public function editKurs($id){
 		$this->auth->restrict($this->viewPermission);
