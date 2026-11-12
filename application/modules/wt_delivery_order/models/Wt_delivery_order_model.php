@@ -692,81 +692,70 @@ class Wt_delivery_order_model extends BF_Model
 
   public function get_data_history_delivery_order_detail()
   {
-    $draw = $this->input->post('draw');
-    $start = $this->input->post('start');
-    $length = $this->input->post('length');
+    $draw = (int) $this->input->post('draw');
+    $start = max(0, (int) $this->input->post('start'));
+    $length = (int) $this->input->post('length');
     $search = $this->input->post('search');
+    $keyword = trim((string) ($search['value'] ?? ''));
 
-    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer, d.no_surat as no_invoice');
-    $this->db->from('tr_delivery_order_detail a');
-    $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
-    $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
-    $this->db->join('tr_invoice d', 'd.no_so = a.no_so', 'left');
-    if (!empty($search)) {
-      $this->db->group_start();
-      $this->db->like('b.no_surat', $search['value'], 'both');
-      $this->db->or_like('DATE_FORMAT(b.tgl_do, "%d-%M-%Y")', $search['value'], 'both');
-      $this->db->or_like('c.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.nama_produk', $search['value'], 'both');
-      $this->db->or_like('a.qty_do', $search['value'], 'both');
-      $this->db->or_like('a.serial_number', $search['value'], 'both');
-      $this->db->or_like('a.kartu_garansi', $search['value'], 'both');
-      $this->db->or_like('a.keterangan_statuskirim', $search['value'], 'both');
-      $this->db->or_like('d.no_surat', $search['value'], 'both');
-      $this->db->group_end();
-    }
-    $this->db->order_by('a.created_on', 'desc');
-    $this->db->limit($length, $start);
-
-    $query = $this->db->get();
-
-    $this->db->select('a.*, b.tgl_do, b.no_surat, c.name_customer, d.no_surat as no_invoice');
-    $this->db->from('tr_delivery_order_detail a');
-    $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
-    $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
-    $this->db->join('tr_invoice d', 'd.no_so = a.no_so', 'left');
-    if (!empty($search)) {
-      $this->db->group_start();
-      $this->db->like('b.no_surat', $search['value'], 'both');
-      $this->db->or_like('DATE_FORMAT(b.tgl_do, "%d-%M-%Y")', $search['value'], 'both');
-      $this->db->or_like('c.name_customer', $search['value'], 'both');
-      $this->db->or_like('a.nama_produk', $search['value'], 'both');
-      $this->db->or_like('a.qty_do', $search['value'], 'both');
-      $this->db->or_like('a.serial_number', $search['value'], 'both');
-      $this->db->or_like('a.kartu_garansi', $search['value'], 'both');
-      $this->db->or_like('a.keterangan_statuskirim', $search['value'], 'both');
-      $this->db->or_like('d.no_surat', $search['value'], 'both');
-      $this->db->group_end();
-    }
-    $this->db->order_by('a.created_on', 'desc');
-
-    $query_all = $this->db->get();
-
-    $hasil = [];
-
-    $no = 1 + $start;
-    foreach ($query->result() as $item) {
-
-      $costbook = 0;
-      $grand_total = 0;
-
-      $this->db->select('a.nilai_costbook');
-      $this->db->from('ms_costbook_backup a');
-      $this->db->where('a.id_category3', $item->id_category3);
-      $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") >=', $item->tgl_do);
-      $this->db->where('DATE_FORMAT(a.tgl, "%Y-%m-%d") <=', $item->tgl_do);
-      $this->db->limit(1);
-      $get_costbook = $this->db->get()->row();
-
-      if (!empty($get_costbook)) {
-        $costbook = ($get_costbook->nilai_costbook);
+    $base = function ($with_search) use ($keyword) {
+      $this->db->from('tr_delivery_order_detail a');
+      $this->db->join('tr_delivery_order b', 'b.no_do=a.no_do');
+      $this->db->join('master_customers c', 'b.id_customer=c.id_customer');
+      $this->db->join('tr_invoice d', 'd.no_so = a.no_so', 'left');
+      if ($with_search && $keyword !== '') {
+        $this->db->group_start();
+        $this->db->like('b.no_surat', $keyword, 'both');
+        $this->db->or_like('DATE_FORMAT(b.tgl_do, "%d-%M-%Y")', $keyword, 'both');
+        $this->db->or_like('c.name_customer', $keyword, 'both');
+        $this->db->or_like('a.nama_produk', $keyword, 'both');
+        $this->db->or_like('a.qty_do', $keyword, 'both');
+        $this->db->or_like('a.serial_number', $keyword, 'both');
+        $this->db->or_like('a.kartu_garansi', $keyword, 'both');
+        $this->db->or_like('a.keterangan_statuskirim', $keyword, 'both');
+        $this->db->or_like('d.no_surat', $keyword, 'both');
+        $this->db->group_end();
       }
-      $grand_total = ($costbook * $item->qty_do);
+    };
+
+    // Hitung dengan COUNT, bukan memuat semua baris ke memori.
+    $base(false);
+    $recordsTotal = $this->db->count_all_results();
+    if ($keyword !== '') {
+      $base(true);
+      $recordsFiltered = $this->db->count_all_results();
+    } else {
+      $recordsFiltered = $recordsTotal;
+    }
+
+    $this->db->select('a.id_category3, a.qty_do, a.nama_produk, a.serial_number, a.kartu_garansi, a.keterangan_statuskirim, b.tgl_do, b.no_surat, c.name_customer, d.no_surat as no_invoice');
+    $base(true);
+    $this->db->order_by('a.created_on', 'desc');
+    if ($length > 0) {
+      $this->db->limit($length, $start);
+    }
+    $rows = $this->db->get()->result();
+
+    // Costbook per baris: kondisi tanggal dibuat rentang agar memakai index (id_category3, tgl).
+    $hasil = [];
+    $no = $start + 1;
+    foreach ($rows as $item) {
+      $costbook = 0;
+      $tgl = $item->tgl_do ? date('Y-m-d', strtotime($item->tgl_do)) : null;
+      if ($tgl) {
+        $get_costbook = $this->db->query(
+          'SELECT nilai_costbook FROM ms_costbook_backup WHERE id_category3 = ? AND tgl >= ? AND tgl < DATE_ADD(?, INTERVAL 1 DAY) LIMIT 1',
+          [$item->id_category3, $tgl, $tgl]
+        )->row();
+        if (!empty($get_costbook)) {
+          $costbook = $get_costbook->nilai_costbook;
+        }
+      }
 
       $hasil[] = [
         'no' => $no,
         'no_do' => $item->no_surat,
-        'tgl_do' => date('d-M-Y', strtotime($item->tgl_do)),
+        'tgl_do' => $tgl ? date('d-M-Y', strtotime($tgl)) : '',
         'no_invoice' => $item->no_invoice,
         'nama_customer' => $item->name_customer,
         'nama_produk' => $item->nama_produk,
@@ -774,17 +763,17 @@ class Wt_delivery_order_model extends BF_Model
         'serial_number' => $item->serial_number,
         'no_garansi' => $item->kartu_garansi,
         'keterangan' => $item->keterangan_statuskirim,
-        'costbook' => number_format($costbook, 2),
-        'grand_total' => number_format($grand_total, 2)
+        'costbook' => number_format((float) $costbook, 2),
+        'grand_total' => number_format((float) $costbook * (float) $item->qty_do, 2)
       ];
 
       $no++;
     }
 
     echo json_encode([
-      'draw' => intval($draw),
-      'recordsTotal' => $query_all->num_rows(),
-      'recordsFiltered' => $query_all->num_rows(),
+      'draw' => $draw,
+      'recordsTotal' => (int) $recordsTotal,
+      'recordsFiltered' => (int) $recordsFiltered,
       'data' => $hasil
     ]);
   }
