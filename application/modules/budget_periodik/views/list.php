@@ -33,7 +33,7 @@ $ENABLE_DELETE  = has_permission('Pembayaran_Periodik.Delete');
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body"><div class="table-responsive">
-		<table id="mytabledata" class="table table-bordered table-striped">
+		<table id="tbl_periodik" class="table table-bordered table-striped" width="100%">
 		<thead>
 		<tr>
 			<th width="5">#</th>
@@ -43,26 +43,7 @@ $ENABLE_DELETE  = has_permission('Pembayaran_Periodik.Delete');
 			</th>
 		</tr>
 		</thead>
-		<tbody>
-		<?php
-		if(!empty($results)){
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->nm_dept ?></td>
-			<td>
-			<?php if($ENABLE_VIEW) : ?>
-				<a class="btn btn-warning btn-sm view" href="javascript:void(0)" title="View" onclick="new_data('<?=$record->departement?>')"><i class="fa fa-eye"></i></a>
-			<?php endif;
-			if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" onclick="data_edit('<?=$record->departement?>')"><i class="fa fa-edit"></i></a>
-			<?php endif; ?>
-			</td>
-		</tr>
-		<?php
-			}
-		}  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 		</div>
 	</div>
@@ -79,6 +60,22 @@ $ENABLE_DELETE  = has_permission('Pembayaran_Periodik.Delete');
 	var url_edit = siteurl+'budget_periodik/edit/';
 	var url_delete = siteurl+'budget_periodik/hapus_data/';
 	var url_view = siteurl+'budget_periodik/view/';
+
+	// Header: #, Penanggung Jawab, Action (3 kolom).
+	$(function() {
+		$('#tbl_periodik').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			searchDelay: 350,
+			order: [],
+			ajax: { url: siteurl + 'budget_periodik/data_periodik', type: 'POST' },
+			columns: [
+				{ data: 'no', orderable: false, searchable: false }, { data: 'nm_dept' },
+				{ data: 'action', orderable: false, searchable: false }
+			]
+		});
+	});
 
 	function new_data(key){
 		url_add = url_add_def+key;

@@ -68,6 +68,54 @@ class Budget_periodik_model extends BF_Model
 			return false;
 		}
 	}
+	/**
+	 * Data serverside untuk daftar Budget Pembayaran Periodik (satu baris per departemen).
+	 * Hasil sama dengan GetBudgetRutinGroup(): urut nm_dept ASC.
+	 */
+	public function GetBudgetRutinGroupServerside($request){
+		if (!is_array($request)) throw new DomainException('Daftar budget tidak valid.');
+		$page = array();
+		foreach (array('draw'=>0, 'start'=>0, 'length'=>10) as $key=>$default) {
+			$page[$key] = filter_var($request[$key] ?? $default, FILTER_VALIDATE_INT);
+			if ($page[$key] === false || ($key === 'length' ? ($page[$key] < 1 && $page[$key] !== -1) : $page[$key] < 0)) {
+				throw new DomainException('Parameter ' . $key . ' tidak valid.');
+			}
+		}
+		$page['length'] = $page['length'] === -1 ? 100 : min(100, $page['length']);
+		$search = $request['search'] ?? array();
+		if (!is_array($search)) throw new DomainException('Pencarian tidak valid.');
+		$search = $search['value'] ?? '';
+		$size = is_string($search) ? preg_match_all('/./us', $search) : false;
+		if ($size === false || $size > 255) throw new DomainException('Pencarian maksimal 255 karakter.');
+		$orders = $request['order'] ?? array();
+		if (!is_array($orders)) throw new DomainException('Urutan tabel tidak valid.');
+		$dir = 'ASC';
+		foreach (array_slice($orders, 0, 1) as $order) {
+			if (!is_array($order)) throw new DomainException('Urutan tabel tidak valid.');
+			if ((int) ($order['column'] ?? -1) !== 1) continue;
+			if (!in_array($order['dir'] ?? '', array('asc','desc'), true)) throw new DomainException('Arah urutan tidak valid.');
+			$dir = strtoupper($order['dir']);
+		}
+
+		$from = ' FROM ' . $this->table_name . ' a LEFT JOIN department b ON a.departement = b.id';
+		$where = ''; $binds = array();
+		if ($search !== '') {
+			$where = " WHERE b.nm_dept LIKE ? ESCAPE '!'";
+			$binds[] = '%' . str_replace(array('!','%','_'), array('!!','!%','!_'), $search) . '%';
+		}
+		$total = (int) $this->listQuery('SELECT COUNT(DISTINCT a.departement) AS total' . $from)->row()->total;
+		$filtered = $where === '' ? $total : (int) $this->listQuery('SELECT COUNT(DISTINCT a.departement) AS total' . $from . $where, $binds)->row()->total;
+		$rows = $this->listQuery('SELECT a.departement, b.nm_dept' . $from . $where . ' GROUP BY a.departement, b.nm_dept ORDER BY b.nm_dept ' . $dir
+			. ' LIMIT ' . $page['length'] . ' OFFSET ' . $page['start'], $binds)->result();
+		return array('draw'=>$page['draw'], 'start'=>$page['start'], 'total'=>$total, 'filtered'=>$filtered, 'rows'=>$rows);
+	}
+
+	private function listQuery($sql, $binds = array()){
+		$query = $this->db->query($sql, $binds);
+		if (!$query) throw new RuntimeException('Cannot read budget list');
+		return $query;
+	}
+
 	public function GetBudgetRutin($key=''){
 		$this->db->select('a.*, b.nm_dept, c.nama as nama_perkiraan');
 		$this->db->from($this->table_name.' a');
@@ -99,12 +147,23 @@ class Budget_periodik_model extends BF_Model
 	}
 
 	public function updatebudget($data){
+		// Semua nilai lewat binding; nama kolom bulan_N dibatasi 1..12. Hasil SQL sama dengan versi lama.
+		$nilai = (float) $data['nilai'];
+		$user = $this->auth->user_id();
+		$now = date('Y-m-d H:i:s');
 		if($data['tipe']=='bulan'){
-			$this->db->query("update ms_budget set bulan_1=(bulan_1+".$data['nilai']."),bulan_2=(bulan_2+".$data['nilai']."), bulan_3=(bulan_3+".$data['nilai']."), bulan_4=(bulan_4+".$data['nilai']."), bulan_5=(bulan_5+".$data['nilai']."), bulan_6=(bulan_6+".$data['nilai']."), bulan_7=(bulan_7+".$data['nilai']."), bulan_8=(bulan_8+".$data['nilai']."), bulan_9=(bulan_9+".$data['nilai']."), bulan_10=(bulan_10+".$data['nilai']."), bulan_11=(bulan_11+".$data['nilai']."), bulan_12=(bulan_12+".$data['nilai']."), total=(".($data['nilai']*12)."), created_by_dept='".$this->auth->user_id()."', created_on_dept='".date('Y-m-d H:i:s')."' WHERE tahun='".$data['tahun']."' and coa='".$data['coa']."' and kategori='PEMBAYARAN PERIODIK'");//and divisi='".$data['departement']."'
+			$set = array();
+			for ($i = 1; $i <= 12; $i++) $set[] = "bulan_$i = (bulan_$i + ?)";
+			$binds = array_fill(0, 12, $nilai);
+			$binds[] = $nilai * 12; $binds[] = $user; $binds[] = $now; $binds[] = $data['tahun']; $binds[] = $data['coa'];
+			$this->db->query("update ms_budget set " . implode(', ', $set) . ", total = ?, created_by_dept = ?, created_on_dept = ? WHERE tahun = ? and coa = ? and kategori = 'PEMBAYARAN PERIODIK'", $binds);
 		}
 		if($data['tipe']=='tahun'){
-			$bulan=date("n",strtotime('2021-'.$data['tanggal']));
-			$this->db->query("update ms_budget set bulan_".$bulan."=(bulan_".$bulan."+".$data['nilai']."), total=(total+".$data['nilai']."), created_by_dept='".$this->auth->user_id()."', created_on_dept='".date('Y-m-d H:i:s')."' WHERE tahun='".$data['tahun']."' and coa='".$data['coa']."' and kategori='PEMBAYARAN PERIODIK' ");//and divisi='".$data['departement']."'
+			$ts = strtotime('2021-'.$data['tanggal']);
+			if ($ts === false) return;
+			$bulan = (int) date("n", $ts);
+			$this->db->query("update ms_budget set bulan_$bulan = (bulan_$bulan + ?), total = (total + ?), created_by_dept = ?, created_on_dept = ? WHERE tahun = ? and coa = ? and kategori = 'PEMBAYARAN PERIODIK'",
+				array($nilai, $nilai, $user, $now, $data['tahun'], $data['coa']));
 		}
 	}
 	// get data

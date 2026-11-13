@@ -31,12 +31,48 @@ class Budget_periodik extends Admin_Controller
 
     public function index() {
         $this->auth->restrict($this->viewPermission);
-        $data = $this->Budget_periodik_model->GetBudgetRutinGroup();
         $datdept  = $this->All_model->GetDeptCombo();
 		$this->template->set('datdept',$datdept);
-        $this->template->set('results', $data);
         $this->template->title('Master Pembayaran Periodik');
         $this->template->render('list');
+    }
+
+    // Data serverside daftar departemen (DataTable).
+    public function data_periodik() {
+        $this->auth->restrict($this->viewPermission);
+        $debug = $this->db->db_debug; $this->db->db_debug = false;
+        $draw = 0;
+        try {
+            $request = array();
+            foreach (array('draw','start','length','search','order') as $key) $request[$key] = $this->input->post($key);
+            $rawDraw = filter_var($request['draw'], FILTER_VALIDATE_INT);
+            $draw = $rawDraw !== false && $rawDraw >= 0 ? $rawDraw : 0;
+            $data = $this->Budget_periodik_model->GetBudgetRutinGroupServerside($request);
+            $canView = has_permission($this->viewPermission);
+            $canManage = has_permission($this->managePermission);
+            $rows = array(); $number = $data['start'];
+            foreach ($data['rows'] as $row) {
+                $dept = json_encode((string) $row->departement, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP);
+                $action = '';
+                if ($canView) {
+                    $action .= '<a class="btn btn-warning btn-sm view" href="javascript:void(0)" title="View" onclick="new_data(' . html_escape($dept) . ')"><i class="fa fa-eye"></i></a> ';
+                }
+                if ($canManage) {
+                    $action .= '<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" onclick="data_edit(' . html_escape($dept) . ')"><i class="fa fa-edit"></i></a>';
+                }
+                $rows[] = array('DT_RowId' => 'periodik-' . preg_replace('/[^A-Za-z0-9_-]/', '', (string) $row->departement),
+                    'no' => ++$number, 'nm_dept' => html_escape($row->nm_dept ?? ''), 'action' => $action);
+            }
+            $reply = array('draw' => $data['draw'], 'recordsTotal' => $data['total'], 'recordsFiltered' => $data['filtered'], 'data' => $rows);
+        } catch (Throwable $e) {
+            log_message('error', 'Budget periodik table: ' . $e->getMessage());
+            $reply = array('draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(),
+                'error' => $e instanceof DomainException ? $e->getMessage() : 'Data budget tidak dapat dimuat.');
+        } finally {
+            $this->db->db_debug = $debug;
+        }
+        $this->output->set_content_type('application/json');
+        echo json_encode($reply);
     }
 
     public function create($key) {
@@ -82,13 +118,34 @@ class Budget_periodik extends Admin_Controller
         $nilai			= $this->input->post("nilai");
         $keterangan		= $this->input->post("keterangan");
         $departement	= $this->input->post("departement");
-        $kode_id	= $this->input->post("kode_id");			
+        $kode_id	= $this->input->post("kode_id");
+
+			// Form dikirim sebagai array; input kosong/bukan array tidak boleh melempar TypeError.
+			$detail_id = (array) $detail_id; $coa = (array) $coa; $nama = (array) $nama; $tipe = (array) $tipe;
+			$bln = (array) $bln; $thn = (array) $thn; $nilai = (array) $nilai; $keterangan = (array) $keterangan; $kode_id = (array) $kode_id;
+
+			// Izin: baris baru butuh Add, mengubah baris yang ada butuh Manage (sebelumnya tanpa cek sama sekali).
+			$adaBaru = false; $adaLama = false;
+			foreach ($detail_id as $did) { if ($did === '' || $did === null) { $adaBaru = true; } else { $adaLama = true; } }
+			if ($adaBaru || !$adaLama) $this->auth->restrict($this->addPermission);
+			if ($adaLama) $this->auth->restrict($this->managePermission);
+
+			// Departemen harus ada di master department.
+			$deptValid = is_string($departement) && $departement !== '' && $this->db->query('SELECT 1 FROM department WHERE id = ?', array($departement))->row();
+			if (!$deptValid) {
+				echo json_encode(array('save' => FALSE));
+				return;
+			}
 
 			$this->db->trans_begin();
 
-			$delid=implode("','",$detail_id);
+			$ids = array();
+			foreach ($detail_id as $did) { if ($did !== '' && $did !== null) $ids[] = $did; }
 			$budgetcoa=array();
-            $this->All_model->dataDelete('ms_budget_rutin',"id not in ('".$delid."') and departement='".$departement."'");
+			// Hapus baris departemen ini yang tidak lagi ada di form (sama dengan "id not in (...) and departement=...").
+			$this->db->where('departement', $departement);
+			if ($ids) $this->db->where_not_in('id', $ids);
+			$this->db->delete('ms_budget_rutin');
 			for ($x = 0; $x < count($detail_id); $x++) {
 				if($tipe[$x]=='bulan'){
 					$tanggal=$bln[$x];
@@ -130,6 +187,7 @@ class Budget_periodik extends Admin_Controller
 			$kode_detail	= $this->input->post("kode_detail");
 			$coa_alokasi	= $this->input->post("coa_alokasi");
 			$nilai_alokasi	= $this->input->post("nilai_alokasi");
+			$kode_detail = (array) $kode_detail; $coa_alokasi = (array) $coa_alokasi; $nilai_alokasi = (array) $nilai_alokasi;
             $this->All_model->dataDelete('ms_budget_rutin_alokasi',array('departement'=>$departement));
 			for ($x = 0; $x < count($kode_detail); $x++) {
 				$dataalokasi =  array(
@@ -161,7 +219,7 @@ class Budget_periodik extends Admin_Controller
                 $result = FALSE;
             }
             simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-			$this->db->trans_complete();
+			if ($result) { $this->db->trans_commit(); } else { $this->db->trans_rollback(); }
 			$param = array(
 					'save' => $result
 					);
@@ -173,6 +231,10 @@ class Budget_periodik extends Admin_Controller
         $this->auth->restrict($this->deletePermission);
         if($id!=''){
 			$data=$this->All_model->GetOneData('ms_budget_rutin',array('id'=>$id));
+			if (!$data) {
+				echo json_encode(array('delete' => 0, 'idx' => $id));
+				return;
+			}
             $this->All_model->dataDelete('ms_budget_rutin_alokasi',array('kode'=>$data->kode_id));
             $result = $this->All_model->dataDelete('ms_budget_rutin',array('id'=>$id));
             $keterangan     = "SUKSES, Delete data Budget ";
@@ -197,7 +259,7 @@ class Budget_periodik extends Admin_Controller
         $data = $this->Budget_periodik_model->GetBudgetRutin();
 		$this->db->trans_begin();
 		if(!empty($data)){
-			$this->db->query("update ms_budget set bulan_1=0,bulan_2=0, bulan_3=0, bulan_4=0, bulan_5=0, bulan_6=0, bulan_7=0, bulan_8=0, bulan_9=0, bulan_10=0, bulan_11=0, bulan_12=0,total=0 WHERE tahun='".date("Y")."' and kategori='PEMBAYARAN PERIODIK'");
+			$this->db->query("update ms_budget set bulan_1=0,bulan_2=0, bulan_3=0, bulan_4=0, bulan_5=0, bulan_6=0, bulan_7=0, bulan_8=0, bulan_9=0, bulan_10=0, bulan_11=0, bulan_12=0,total=0 WHERE tahun = ? and kategori='PEMBAYARAN PERIODIK'", array(date("Y")));
 			foreach($data AS $record){
 
 				$databudget['tipe']=$record->tipe;
@@ -208,7 +270,7 @@ class Budget_periodik extends Admin_Controller
 				$databudget['kode_id']=$record->kode_id;
 				$databudget['tahun']=date("Y");
 				if($record->kode_id!=''){ 
-					$dtalok=$this->db->query("select * from ms_budget_rutin_alokasi where kode='".$record->kode_id."'")->result();
+					$dtalok=$this->db->query("select * from ms_budget_rutin_alokasi where kode = ?", array($record->kode_id))->result();
 					if(!empty($dtalok)){
 						foreach($dtalok AS $rdetail){
 							$databudget['coa']=$rdetail->coa;
@@ -240,9 +302,8 @@ class Budget_periodik extends Admin_Controller
 			$sql            = $this->db->last_query();
 			$result = FALSE;
 		}
-		$this->db->trans_complete();
+		if ($result) { $this->db->trans_commit(); } else { $this->db->trans_rollback(); }
 		simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-		$this->db->trans_complete();
 		$param = array(
 				'save' => $result
 				);
