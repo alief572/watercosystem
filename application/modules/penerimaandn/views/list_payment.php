@@ -7,7 +7,7 @@
 <form action="#" method="POST" id="form_proses_bro" enctype="multipart/form-data"> 
 	<div class="box box-primary">
 		<div class="box-header">
-			<h3 class="box-title"><?php echo $title;?></h3>
+			<h3 class="box-title">Indeks Of Receivable</h3>
 				<button class="btn btn-success" type="button" onclick="add_inv()">
 					<i class="fa fa-plus"></i>Buat Penerimaan DN
 				</button>
@@ -19,7 +19,7 @@
 				</button>-->
 		</div>
 		<div class="box-body">
-			<table class="table table-bordered table-striped" id="example1" width='100%'> 
+			<table class="table table-bordered table-striped" id="tbl_penerimaan_dn" width="100%">
 				<thead>
 					<tr class='bg-blue'>
 						<th class="text-center" width='4%'>No</th>
@@ -34,35 +34,7 @@
 						<th class="text-center" width='7%'>Option</th>
 					</tr>
 				</thead>
-				<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-
-				$tanggal = $record->tgl_pembayaran;
-			?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?=  date('d-F-Y', strtotime($record->tgl_pembayaran)) ?></td>
-			<td><?= $record->kd_pembayaran ?></td>			
-			<td><?= $record->nm_customer ?></td>
-			<td><?= $record->keterangan ?></td>
-			<td><?= $record->invoiced ?></td>
-			<td align="right"><?= number_format($record->totalinvoiced) ?></td>
-			<td align="right"><?= number_format($record->biaya_admin_idr) ?></td>
-			<td align="right"><?= number_format($record->jumlah_pembayaran_idr) ?></td>
-         	<td style="padding-left:20px">
-			<?php if($ENABLE_MANAGE) : ?>
-				<button class='btn btn-sm btn-warning detail' title='View' data-id_bq='<?=$record->kd_pembayaran?>'><i class='fa fa-eye'></i></button>
-				
-			<?php endif; ?>
-			
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+				<tbody></tbody>
 			</table>
 		</div>
 		<!-- /.box-body -->
@@ -136,7 +108,21 @@
 <script>
 	$(document).ready(function(){
 		$('#spinnerx').hide();
-		DataTables();
+		// Header selalu 10 kolom (Option kosong bila tanpa izin Manage), jadi columns juga 10.
+		$('#tbl_penerimaan_dn').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			searchDelay: 350,
+			order: [],
+			ajax: { url: siteurl + 'penerimaandn/get_data_dn', type: 'POST' },
+			columns: [
+				{ data: 'no', orderable: false, searchable: false }, { data: 'tgl' }, { data: 'kode' }, { data: 'customer' },
+				{ data: 'keterangan' }, { data: 'no_dn' }, { data: 'harga', className: 'text-right' },
+				{ data: 'admin', className: 'text-right' }, { data: 'total', className: 'text-right' },
+				{ data: 'action', className: 'text-center', orderable: false, searchable: false }
+			]
+		});
 	});
 	$(document).on('click', '.buktip', function(e){
 		e.preventDefault();

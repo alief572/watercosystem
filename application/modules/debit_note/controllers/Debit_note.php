@@ -38,10 +38,62 @@ class Debit_note extends Admin_Controller
        $this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-        $data = $this->db->query("SELECT * FROM tr_debit_note ORDER BY created_on DESC ")->result();
-        $this->template->set('results', $data);
         $this->template->title('Debit Note');
         $this->template->render('index');
+    }
+
+    // Data serverside daftar Debit Note.
+    public function data_debit_note()
+    {
+        $this->debitNoteListData('index');
+    }
+
+    // Data serverside daftar Approval Debit Note (status '1').
+    public function data_debit_note_approval()
+    {
+        $this->debitNoteListData('approval');
+    }
+
+    private function debitNoteListData($filter)
+    {
+        $this->auth->restrict($this->viewPermission);
+        $debug = $this->db->db_debug; $this->db->db_debug = false;
+        $draw = 0;
+        try {
+            $request = array();
+            foreach (array('draw','start','length','search','order') as $key) $request[$key] = $this->input->post($key);
+            $rawDraw = filter_var($request['draw'], FILTER_VALIDATE_INT);
+            $draw = $rawDraw !== false && $rawDraw >= 0 ? $rawDraw : 0;
+            $data = $this->Debit_note_model->GetListDataServerside($filter, $request);
+            $canManage = has_permission($this->managePermission);
+            $rows = array(); $number = $data['start'];
+            foreach ($data['rows'] as $row) {
+                $id = rawurlencode((string) $row->no_pr);
+                $action = '';
+                if ($canManage) {
+                    $action .= '<a class="btn btn-success btn-sm" href="' . html_escape(base_url('debit_note/edit/' . $id . '/view')) . '" title="View"><i class="fa fa-eye"></i></a> ';
+                    if ($filter === 'approval') {
+                        $action .= '<a class="btn btn-primary btn-sm" href="' . html_escape(base_url('debit_note/edit/' . $id)) . '" title="Approval"><i class="fa fa-check"></i></a>';
+                    } else {
+                        $action .= '<a class="btn btn-primary btn-sm" target="_blank" href="' . html_escape(base_url('debit_note/printdn/' . $id)) . '" title="Print"><i class="fa fa-print"></i></a>';
+                    }
+                }
+                $rows[] = array('DT_RowId' => 'dn-' . (int) $row->id, 'no' => ++$number,
+                    'no_pr' => html_escape($row->no_pr ?? ''), 'no_surat' => html_escape($row->no_surat ?? ''),
+                    'tanggal' => html_escape($row->tanggal ?? ''), 'nm_customer' => html_escape($row->nm_customer ?? ''),
+                    'total' => number_format((float) $row->total_tagihan), 'status' => $row->status == '1' ? 'Waiting' : 'Approved',
+                    'action' => $action);
+            }
+            $reply = array('draw' => $data['draw'], 'recordsTotal' => $data['total'], 'recordsFiltered' => $data['filtered'], 'data' => $rows);
+        } catch (Throwable $e) {
+            log_message('error', 'Debit note table: ' . $e->getMessage());
+            $reply = array('draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(),
+                'error' => $e instanceof DomainException ? $e->getMessage() : 'Data debit note tidak dapat dimuat.');
+        } finally {
+            $this->db->db_debug = $debug;
+        }
+        $this->output->set_content_type('application/json');
+        echo json_encode($reply);
     }
 	public function add()
     {
@@ -576,7 +628,11 @@ function cari_inven1()
         $this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
 		
-		$bank = explode('|',$this->input->post('id_customer'));
+		$bank = explode('|',(string) $this->input->post('id_customer'));
+		if (count($bank) < 2 || $bank[0] === '') {
+			echo json_encode(array('pesan' => 'Customer tidak valid.', 'status' => 0));
+			return;
+		}
             $kd_bank = $bank[0];
             $nmbank = $bank[1];
 		
@@ -607,16 +663,16 @@ function cari_inven1()
 		foreach($_POST['dt'] as $used){
 		$numb1++;
 
-		$idmat  = $used[idmaterial];
+		$idmat  = $used['idmaterial'];
 		$materials = $this->db->query("SELECT a.* FROM ms_inventory_category3 a WHERE a.id_category3 ='$idmat' ")->row();
 
 
 		            $dt =  array(
 							'no_pr'					=> $code,
 							'id_dt_pr'				=> $code.'-'.$numb1,
-							'tagihan'			=> str_replace(',','',$used[harga]),
+							'tagihan'			=> str_replace(',','',$used['harga']),
 							'tanggal'			=> $post['tanggal'],							
-							'keterangan'			=> $used[keterangan],
+							'keterangan'			=> $used['keterangan'],
 							'created_on'		=> date('Y-m-d H:i:s'),
 							'created_by'		=> $this->auth->user_id()
 							);
@@ -670,7 +726,7 @@ function cari_inven1()
 		foreach($_POST['dt'] as $used){
 		$numb1++;
 		
-		$materials = $this->db->query("SELECT a.*, b.nama as alloy, c.nm_bentuk as bentuk FROM ms_inventory_category3 as a INNER JOIN ms_inventory_category2 as b ON a.id_category2 = b.id_category2 INNER JOIN ms_bentuk as c ON a.id_bentuk = c.id_bentuk WHERE a.id_category3 = '".$used[idmaterial]."' AND a.deleted = '0'  ")->result();
+		$materials = $this->db->query("SELECT a.*, b.nama as alloy, c.nm_bentuk as bentuk FROM ms_inventory_category3 as a INNER JOIN ms_inventory_category2 as b ON a.id_category2 = b.id_category2 INNER JOIN ms_bentuk as c ON a.id_bentuk = c.id_bentuk WHERE a.id_category3 = '".$used['idmaterial']."' AND a.deleted = '0'  ")->result();
 		foreach ($materials as $material){
 		if($material->id_bentuk == 'B2000001' ){
 		$dimensi = $this->db->query("SELECT * FROM child_inven_dimensi WHERE id_category3 = '$material->id_category3' AND id_dimensi = '22' ")->result();
@@ -712,28 +768,28 @@ function cari_inven1()
 		};
 		
 		
-			$idmat  = $used[idmaterial];
+			$idmat  = $used['idmaterial'];
 		    $matrial = $this->db->query("SELECT a.* FROM ms_inventory_category3 a WHERE a.id_category3 ='$idmat' ")->row();
 		
                 $dt =  array(
 							'no_pr'					=> $code,
 							'id_dt_pr'				=> $code.'-'.$numb1,
-							'idmaterial'			=> $used[idmaterial],
+							'idmaterial'			=> $used['idmaterial'],
 							'nama_material'			=> $matrial->nama,
-							'bentuk'				=> $used[bentuk],
-							'id_bentuk'				=> $used[idbentuk],
-							'idameter'				=> $used[idameter],
-							'odameter'				=> str_replace(',','',$used[odameter]),
+							'bentuk'				=> $used['bentuk'],
+							'id_bentuk'				=> $used['idbentuk'],
+							'idameter'				=> $used['idameter'],
+							'odameter'				=> str_replace(',','',$used['odameter']),
 							
 							
-							'qty'				=> $used[qty],
-							'weight'			=> $used[weight],
-							'totalweight'		=> str_replace(',','',$used[totalweight]),
-							'width'			=> str_replace(',','',$used[width]),
-							'length'			=> str_replace(',','',$used[length]),
-							'suplier'			=> $used[suplier],
-							'tanggal'			=> $used[tanggal],
-							'keterangan'		=> $used[keterangan],							
+							'qty'				=> $used['qty'],
+							'weight'			=> $used['weight'],
+							'totalweight'		=> str_replace(',','',$used['totalweight']),
+							'width'			=> str_replace(',','',$used['width']),
+							'length'			=> str_replace(',','',$used['length']),
+							'suplier'			=> $used['suplier'],
+							'tanggal'			=> $used['tanggal'],
+							'keterangan'		=> $used['keterangan'],							
 							'kode_barang'		=> $matrial->kode_barang,
                             );
                     $this->db->insert('dt_debit_note',$dt);
@@ -916,19 +972,19 @@ public function deletePenawaran(){
 		foreach($_POST['hd1'] as $h1){
 		$numb1++;
                 $header1 =  array(
-							'id_type'		        => $h1[inventory_1],
-							'id_category1'		    => $h1[inventory_2],
-							'id_category2'		    => $h1[inventory_3],
-							'nama'		        	=> $h1[nm_inventory],
-							'maker'		        	=> $h1[maker],
-							'density'		        => $h1[density],
-							'hardness'		        => $h1[hardness],
-							'id_bentuk'		        => $h1[id_bentuk],
-							'id_surface'		    => $h1[id_surface],
-							'mountly_forecast'		=> $h1[mountly_forecast],
-							'safety_stock'		    => $h1[safety_stock],
-							'order_point'		    => $h1[order_point],
-							'maksimum'		    	=> $h1[maksimum],
+							'id_type'		        => $h1['inventory_1'],
+							'id_category1'		    => $h1['inventory_2'],
+							'id_category2'		    => $h1['inventory_3'],
+							'nama'		        	=> $h1['nm_inventory'],
+							'maker'		        	=> $h1['maker'],
+							'density'		        => $h1['density'],
+							'hardness'		        => $h1['hardness'],
+							'id_bentuk'		        => $h1['id_bentuk'],
+							'id_surface'		    => $h1['id_surface'],
+							'mountly_forecast'		=> $h1['mountly_forecast'],
+							'safety_stock'		    => $h1['safety_stock'],
+							'order_point'		    => $h1['order_point'],
+							'maksimum'		    	=> $h1['maksimum'],
 							'aktif'					=> 'aktif',
 							'created_on'		=> date('Y-m-d H:i:s'),
 							'created_by'		=> $this->auth->user_id(),
@@ -947,9 +1003,9 @@ public function deletePenawaran(){
 		$numb2++;
               $data1 =  array(
 			                    'id_category3'=>$id,
-								'id_suplier'=>$d1[id_supplier],
-								'lead'=>$d1[lead],
-								'minimum'=>$d1[minimum],
+								'id_suplier'=>$d1['id_supplier'],
+								'lead'=>$d1['lead'],
+								'minimum'=>$d1['minimum'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -968,8 +1024,8 @@ public function deletePenawaran(){
 		$numb3++;
               $comp =  array(
 			                    'id_category3'=>$id,
-								'id_compotition'=>$c1[id_compotition],
-								'nilai_compotition'=>$c1[jumlah_kandungan],
+								'id_compotition'=>$c1['id_compotition'],
+								'nilai_compotition'=>$c1['jumlah_kandungan'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -988,8 +1044,8 @@ public function deletePenawaran(){
 		$numb4++;
               $dms =  array(
 			                    'id_category3'=>$id,
-								'id_dimensi'=>$dm[id_dimensi],
-								'nilai_dimensi'=>$dm[nilai_dimensi],
+								'id_dimensi'=>$dm['id_dimensi'],
+								'nilai_dimensi'=>$dm['nilai_dimensi'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1121,19 +1177,19 @@ public function deletePenawaran(){
 		$numb1++;
 
                 $header1 =  array(
-							'id_type'		        => $h1[inventory_1],
-							'id_category1'		    => $h1[inventory_2],
-							'id_category2'		    => $h1[inventory_3],
-							'nama'		        	=> $h1[nm_inventory],
-							'maker'		        	=> $h1[maker],
-							'density'		        => $h1[density],
-							'hardness'		        => $h1[hardness],
-							'id_bentuk'		        => $h1[id_bentuk],
-							'id_surface'		    => $h1[id_surface],
-							'mountly_forecast'		=> $h1[mountly_forecast],
-							'safety_stock'		    => $h1[safety_stock],
-							'order_point'		    => $h1[order_point],
-							'maksimum'		    	=> $h1[maksimum],
+							'id_type'		        => $h1['inventory_1'],
+							'id_category1'		    => $h1['inventory_2'],
+							'id_category2'		    => $h1['inventory_3'],
+							'nama'		        	=> $h1['nm_inventory'],
+							'maker'		        	=> $h1['maker'],
+							'density'		        => $h1['density'],
+							'hardness'		        => $h1['hardness'],
+							'id_bentuk'		        => $h1['id_bentuk'],
+							'id_surface'		    => $h1['id_surface'],
+							'mountly_forecast'		=> $h1['mountly_forecast'],
+							'safety_stock'		    => $h1['safety_stock'],
+							'order_point'		    => $h1['order_point'],
+							'maksimum'		    	=> $h1['maksimum'],
 							'aktif'					=> 'aktif',
 							'created_on'		=> date('Y-m-d H:i:s'),
 							'created_by'		=> $this->auth->user_id(),
@@ -1151,9 +1207,9 @@ public function deletePenawaran(){
 		$numb2++;
               $data1 =  array(
 			                    'id_category3'=>$code,
-								'id_suplier'=>$d1[id_supplier],
-								'lead'=>$d1[lead],
-								'minimum'=>$d1[minimum],
+								'id_suplier'=>$d1['id_supplier'],
+								'lead'=>$d1['lead'],
+								'minimum'=>$d1['minimum'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1170,8 +1226,8 @@ public function deletePenawaran(){
 		$numb3++;
               $comp =  array(
 			                    'id_category3'=>$code,
-								'id_compotition'=>$c1[id_compotition],
-								'nilai_compotition'=>$c1[jumlah_kandungan],
+								'id_compotition'=>$c1['id_compotition'],
+								'nilai_compotition'=>$c1['jumlah_kandungan'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1188,8 +1244,8 @@ public function deletePenawaran(){
 		$numb4++;
               $dms =  array(
 			                    'id_category3'=>$code,
-								'id_dimensi'=>$dm[id_dimensi],
-								'nilai_dimensi'=>$dm[nilai_dimensi],
+								'id_dimensi'=>$dm['id_dimensi'],
+								'nilai_dimensi'=>$dm['nilai_dimensi'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1229,19 +1285,19 @@ public function deletePenawaran(){
 		$numb1++;
 
                 $header1 =  array(
-							'id_type'		        => $h1[inventory_1],
-							'id_category1'		    => $h1[inventory_2],
-							'id_category2'		    => $h1[inventory_3],
-							'nama'		        	=> $h1[nm_inventory],
-							'maker'		        	=> $h1[maker],
-							'density'		        => $h1[density],
-							'hardness'		        => $h1[hardness],
-							'id_bentuk'		        => $h1[id_bentuk],
-							'id_surface'		    => $h1[id_surface],
-							'mountly_forecast'		=> $h1[mountly_forecast],
-							'safety_stock'		    => $h1[safety_stock],
-							'order_point'		    => $h1[order_point],
-							'maksimum'		    	=> $h1[maksimum],
+							'id_type'		        => $h1['inventory_1'],
+							'id_category1'		    => $h1['inventory_2'],
+							'id_category2'		    => $h1['inventory_3'],
+							'nama'		        	=> $h1['nm_inventory'],
+							'maker'		        	=> $h1['maker'],
+							'density'		        => $h1['density'],
+							'hardness'		        => $h1['hardness'],
+							'id_bentuk'		        => $h1['id_bentuk'],
+							'id_surface'		    => $h1['id_surface'],
+							'mountly_forecast'		=> $h1['mountly_forecast'],
+							'safety_stock'		    => $h1['safety_stock'],
+							'order_point'		    => $h1['order_point'],
+							'maksimum'		    	=> $h1['maksimum'],
 							'aktif'					=> 'aktif',
 							'created_on'		=> date('Y-m-d H:i:s'),
 							'created_by'		=> $this->auth->user_id(),
@@ -1258,9 +1314,9 @@ public function deletePenawaran(){
 		$numb2++;
               $data1 =  array(
 			                    'id_category3'=>$id,
-								'id_suplier'=>$d1[id_supplier],
-								'lead'=>$d1[lead],
-								'minimum'=>$d1[minimum],
+								'id_suplier'=>$d1['id_supplier'],
+								'lead'=>$d1['lead'],
+								'minimum'=>$d1['minimum'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1277,8 +1333,8 @@ public function deletePenawaran(){
 		$numb3++;
               $comp =  array(
 			                    'id_category3'=>$id,
-								'id_compotition'=>$c1[id_compotition],
-								'nilai_compotition'=>$c1[jumlah_kandungan],
+								'id_compotition'=>$c1['id_compotition'],
+								'nilai_compotition'=>$c1['jumlah_kandungan'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1295,8 +1351,8 @@ public function deletePenawaran(){
 		$numb4++;
               $dms =  array(
 			                    'id_category3'=>$id,
-								'id_dimensi'=>$dm[id_dimensi],
-								'nilai_dimensi'=>$dm[nilai_dimensi],
+								'id_dimensi'=>$dm['id_dimensi'],
+								'nilai_dimensi'=>$dm['nilai_dimensi'],
 								'deleted' =>'0',
 							    'created_on' => date('Y-m-d H:i:s'),
 								'created_by' => $this->auth->user_id(),
@@ -1354,8 +1410,6 @@ public function deletePenawaran(){
        $this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-        $data = $this->db->query("SELECT * FROM tr_debit_note WHERE status ='1' ORDER BY created_on DESC ")->result();
-        $this->template->set('results', $data);
         $this->template->title('Debit Note Approval');
         $this->template->render('index_approval');
     }

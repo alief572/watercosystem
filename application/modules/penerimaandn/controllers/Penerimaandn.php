@@ -26,10 +26,84 @@ class Penerimaandn extends Admin_Controller {
 	
 	public function index(){        	   
 			$this->template->page_icon('fa fa-list');			
-			$data = $this->penerimaan_model->get_data_pn();			
-			$this->template->set('results', $data);
+			$this->auth->restrict($this->viewPermission);
 			$this->template->title('Indeks Of Receivable');
 			$this->template->render('list_payment');
+	}
+
+	// Data serverside daftar Penerimaan Debit Note (DataTable).
+	public function get_data_dn(){
+		$this->auth->restrict($this->viewPermission);
+		$debug = $this->db->db_debug; $this->db->db_debug = false;
+		$draw = 0;
+		try {
+			$request = array();
+			foreach (array('draw','start','length','search','order') as $key) $request[$key] = $this->input->post($key);
+			$rawDraw = filter_var($request['draw'], FILTER_VALIDATE_INT);
+			$draw = $rawDraw !== false && $rawDraw >= 0 ? $rawDraw : 0;
+			$data = $this->penerimaan_model->get_data_pn_serverside($request);
+			$canManage = has_permission($this->managePermission);
+			$rows = array(); $number = $data['start'];
+			foreach ($data['rows'] as $row) {
+				$action = '';
+				if ($canManage) {
+					$action = '<button class="btn btn-sm btn-warning detail" title="View" data-id_bq="' . html_escape($row->kd_pembayaran) . '"><i class="fa fa-eye"></i></button>';
+				}
+				$rows[] = array('DT_RowId' => 'dn-' . (int) $row->id, 'no' => ++$number,
+					'tgl' => !empty($row->tgl_pembayaran) ? date('d-F-Y', strtotime($row->tgl_pembayaran)) : '-',
+					'kode' => html_escape($row->kd_pembayaran ?? ''), 'customer' => html_escape($row->nm_customer ?? ''),
+					'keterangan' => html_escape($row->keterangan ?? ''), 'no_dn' => html_escape($row->invoiced ?? ''),
+					'harga' => number_format((float) $row->totalinvoiced), 'admin' => number_format((float) $row->biaya_admin_idr),
+					'total' => number_format((float) $row->jumlah_pembayaran_idr), 'action' => $action);
+			}
+			$reply = array('draw' => $data['draw'], 'recordsTotal' => $data['total'], 'recordsFiltered' => $data['filtered'], 'data' => $rows);
+		} catch (Throwable $e) {
+			log_message('error', 'Penerimaan DN table: ' . $e->getMessage());
+			$reply = array('draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(),
+				'error' => $e instanceof DomainException ? $e->getMessage() : 'Data penerimaan tidak dapat dimuat.');
+		} finally {
+			$this->db->db_debug = $debug;
+		}
+		$this->output->set_content_type('application/json');
+		echo json_encode($reply);
+	}
+
+	// Data serverside modal Add Invoice (daftar DN customer yang masih punya sisa tagihan).
+	public function get_data_dn_modal(){
+		$this->auth->restrict($this->viewPermission);
+		$debug = $this->db->db_debug; $this->db->db_debug = false;
+		$draw = 0;
+		try {
+			$request = array();
+			foreach (array('draw','start','length','search','order') as $key) $request[$key] = $this->input->post($key);
+			$rawDraw = filter_var($request['draw'], FILTER_VALIDATE_INT);
+			$draw = $rawDraw !== false && $rawDraw >= 0 ? $rawDraw : 0;
+			$data = $this->penerimaan_model->get_data_dn_modal((string) $this->input->post('id_customer'), $request);
+			$rows = array();
+			foreach ($data['rows'] as $row) {
+				if ($row->status == '1') {
+					$aksi = 'Belum Di Approve';
+				} else {
+					$aksi = '<center><button type="button" class="btn btn-warning btn-sm btn-pilih-inv"'
+						. ' data-id="' . html_escape($row->no_pr) . '" data-surat="' . html_escape($row->no_surat) . '"'
+						. ' data-nm="' . html_escape($row->nm_customer) . '" data-total="' . html_escape($row->total_tagihan) . '"'
+						. ' data-sisa="' . html_escape($row->sisa_tagihan) . '">Pilih</button></center>';
+				}
+				$rows[] = array('code' => html_escape($row->no_pr), 'no_dn' => html_escape($row->no_surat),
+					'customer' => '<center>' . html_escape($row->nm_customer) . '</center>',
+					'total' => '<center>' . number_format((float) $row->total_tagihan) . '</center>',
+					'sisa' => '<center>' . number_format((float) $row->sisa_tagihan) . '</center>', 'aksi' => $aksi);
+			}
+			$reply = array('draw' => $data['draw'], 'recordsTotal' => $data['total'], 'recordsFiltered' => $data['filtered'], 'data' => $rows);
+		} catch (Throwable $e) {
+			log_message('error', 'Penerimaan DN modal: ' . $e->getMessage());
+			$reply = array('draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(),
+				'error' => $e instanceof DomainException ? $e->getMessage() : 'Data debit note tidak dapat dimuat.');
+		} finally {
+			$this->db->db_debug = $debug;
+		}
+		$this->output->set_content_type('application/json');
+		echo json_encode($reply);
 	}
 	
 	public function penerimaan_buktipotong($kd_bayar){
@@ -102,7 +176,8 @@ class Penerimaandn extends Admin_Controller {
 	}
 	
 	public function view_penerimaan(){
-		$kd_bayar = $this->uri->segment(3);		
+		$this->auth->restrict($this->viewPermission);
+		$kd_bayar = $this->uri->segment(3);
 		$data = array(
 			'kodebayar' => $kd_bayar,		
 		);		
@@ -923,7 +998,6 @@ class Penerimaandn extends Admin_Controller {
 		$this->auth->restrict($this->viewPermission);
         $session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-pencil');
-		$invoice = $this->db->query("SELECT * FROM tr_debit_note WHERE id_customer ='$customer' AND sisa_tagihan >'0'")->result();        
 		$data = [
 			'detail' => $customer
 		];

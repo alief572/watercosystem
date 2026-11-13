@@ -63,6 +63,64 @@ class Debit_note_model extends BF_Model
         parent::__construct();
     }
 		
+    /**
+     * Data serverside untuk daftar Debit Note ($filter 'index') dan Approval ($filter 'approval': status '1').
+     * Hasil sama dengan query lama; urutan default created_on DESC.
+     */
+    public function GetListDataServerside($filter, $request) {
+        $conditions = array('index' => '1 = 1', 'approval' => "a.status = '1'");
+        if (!isset($conditions[$filter]) || !is_array($request)) throw new DomainException('Daftar debit note tidak valid.');
+        $page = array();
+        foreach (array('draw'=>0, 'start'=>0, 'length'=>10) as $key=>$default) {
+            $page[$key] = filter_var($request[$key] ?? $default, FILTER_VALIDATE_INT);
+            if ($page[$key] === false || ($key === 'length' ? ($page[$key] < 1 && $page[$key] !== -1) : $page[$key] < 0)) {
+                throw new DomainException('Parameter ' . $key . ' tidak valid.');
+            }
+        }
+        $page['length'] = $page['length'] === -1 ? 100 : min(100, $page['length']);
+        $search = $request['search'] ?? array();
+        if (!is_array($search)) throw new DomainException('Pencarian tidak valid.');
+        $search = $search['value'] ?? '';
+        $size = is_string($search) ? preg_match_all('/./us', $search) : false;
+        if ($size === false || $size > 255) throw new DomainException('Pencarian maksimal 255 karakter.');
+        $columns = array(1=>'a.no_pr', 2=>'a.no_surat', 3=>'a.tanggal', 4=>'a.nm_customer', 5=>'a.total_tagihan', 6=>'a.status');
+        $orders = $request['order'] ?? array();
+        if (!is_array($orders)) throw new DomainException('Urutan tabel tidak valid.');
+        $sort = array();
+        foreach (array_slice($orders, 0, 6) as $order) {
+            if (!is_array($order)) throw new DomainException('Urutan tabel tidak valid.');
+            $column = filter_var($order['column'] ?? '', FILTER_VALIDATE_INT);
+            if (!isset($columns[$column])) continue;
+            if (!in_array($order['dir'] ?? '', array('asc','desc'), true)) throw new DomainException('Arah urutan tidak valid.');
+            $sort[] = $columns[$column] . ' ' . strtoupper($order['dir']);
+        }
+        if (!$sort) $sort[] = 'a.created_on DESC';
+        $sort[] = 'a.id DESC';
+        $from = ' FROM tr_debit_note a';
+        $where = ' WHERE ' . $conditions[$filter];
+        $searchSql = ''; $binds = array();
+        if ($search !== '') {
+            $needle = '%' . str_replace(array('!','%','_'), array('!!','!%','!_'), $search) . '%';
+            $parts = array();
+            foreach (array('a.no_pr', 'a.no_surat', 'a.nm_customer') as $field) {
+                $parts[] = $field . " LIKE ? ESCAPE '!'";
+                $binds[] = $needle;
+            }
+            $searchSql = ' AND (' . implode(' OR ', $parts) . ')';
+        }
+        $total = (int) $this->listQuery('SELECT COUNT(*) AS total' . $from . $where)->row()->total;
+        $filtered = $searchSql === '' ? $total : (int) $this->listQuery('SELECT COUNT(*) AS total' . $from . $where . $searchSql, $binds)->row()->total;
+        $rows = $this->listQuery('SELECT a.id, a.no_pr, a.no_surat, a.tanggal, a.nm_customer, a.total_tagihan, a.status' . $from . $where . $searchSql
+            . ' ORDER BY ' . implode(', ', $sort) . ' LIMIT ' . $page['length'] . ' OFFSET ' . $page['start'], $binds)->result();
+        return array('draw'=>$page['draw'], 'start'=>$page['start'], 'total'=>$total, 'filtered'=>$filtered, 'rows'=>$rows);
+    }
+
+    private function listQuery($sql, $binds = array()) {
+        $query = $this->db->query($sql, $binds);
+        if (!$query) throw new RuntimeException('Cannot read debit note list');
+        return $query;
+    }
+
     function generate_code($tgl) {
       $query = $this->db->query("SELECT MAX(no_pr) as max_id FROM tr_debit_note");
       $row = $query->row_array();
