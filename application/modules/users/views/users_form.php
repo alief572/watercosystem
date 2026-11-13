@@ -65,9 +65,9 @@
 			    	<select name="kdcab" id="kdcab" class="form-control">
 			    		<option value="">Pilih Cabang</option>
 			    		<?php 
-			    		foreach($cabang as $k=>$v){
+			    		foreach(($cabang ?? array()) as $k=>$v){
 			    			$selected = '';
-			    			if($v->kdcab == $data->kdcab){
+			    			if(isset($data->kdcab) && $v->kdcab == $data->kdcab){
 			    				$selected='selected="selected"';
 			    			} 
 			    		?>

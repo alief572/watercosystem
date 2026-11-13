@@ -554,154 +554,130 @@ class Serverside_model extends BF_Model
 
 	public function getDataJSON_GRW_harga()
 	{
+		// Validasi lewat DomainException; error dikembalikan sebagai JSON, bukan halaman 500.
+		$requestData = $_REQUEST;
+		$draw = filter_var($requestData['draw'] ?? 0, FILTER_VALIDATE_INT);
+		$reply = array('draw' => $draw !== false && $draw >= 0 ? $draw : 0, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(), 'recordsAset' => 0, 'grand_total_nilai' => 0);
+		$debug = $this->db->db_debug;
+		$this->db->db_debug = false;
+		try {
+			$fetch = $this->queryDataJSON_GRW_harga($requestData);
 
-		$requestData	= $_REQUEST;
-		$fetch			= $this->queryDataJSON_GRW_harga(
-			$requestData['tanggal'],
-			$requestData['search']['value'],
-			$requestData['order'][0]['column'],
-			$requestData['order'][0]['dir'],
-			$requestData['start'],
-			$requestData['length']
-		);
-		$totalData		= $fetch['totalData'];
-		$totalFiltered	= $fetch['totalFiltered'];
-		$query			= $fetch['query'];
-		$totalAset		= $fetch['totalAset'];
-
-		$data	= array();
-		$urut1  = 1;
-		$urut2  = 0;
-		$sumx	= 0;
-
-		$grand_total_nilai = 0;
-
-		foreach ($query->result_array() as $row) {
-			$total_data     = $totalData;
-			$start_dari     = $requestData['start'];
-			$asc_desc       = $requestData['order'][0]['dir'];
-			if ($asc_desc == 'asc') {
-				$nomor = $urut1 + $start_dari;
-			}
-			if ($asc_desc == 'desc') {
-				$nomor = ($total_data - $start_dari) - $urut2;
+			$data = array();
+			$nomor = $fetch['start'];
+			foreach ($fetch['rows'] as $row) {
+				$nomor++;
+				$date = date('d/m/Y', strtotime($row['tgl']));
+				$data[] = array(
+					"<div align='center'>" . $nomor . "</div>",
+					"<div align='left'>" . html_escape(strtoupper($row['id_category3'])) . "</div>",
+					"<div align='left'>" . html_escape($row['kode_barang']) . "</div>",
+					"<div align='left'>" . html_escape($row['kode_mas']) . "</div>",
+					"<div align='left'>" . html_escape(strtoupper($row['nama_material'])) . "</div>",
+					"<div align='right'>" . number_format((float) $row['qty'], 2) . "</div>",
+					"<div align='right'>" . number_format((float) $row['qty_book'], 2) . "</div>",
+					"<div align='right'>" . number_format((float) $row['qty_free'], 2) . "</div>",
+					"<div align='left'>" . html_escape(ucfirst(strtolower((string) $row['keterangan']))) . "</div>",
+					"<div align='left'>" . html_escape(strtoupper($row['nama_gudang'])) . "</div>",
+					"<div align='left'>" . $date . "</div>",
+					"<div align='right'>" . number_format((float) $row['nilai_costbook'], 2) . "</div>",
+					"<div align='right'>" . number_format((float) $row['qty'] * (float) $row['nilai_costbook']) . "</div>",
+				);
 			}
 
-			$satuan = (empty($record->length)) ? "Coil" : "Sheet";
-			$tgl = date_create($row['tgl']);
-			$date = date_format($tgl, 'd/m/Y');
-			$nestedData 	= array();
-			$nestedData[]	= "<div align='center'>" . $nomor . "</div>";
-			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['id_category3'])) . "</div>";
-			$nestedData[]	= "<div align='left'>" . $row['kode_barang'] . "</div>";
-			$nestedData[]	= "<div align='left'>" . $row['kode_mas'] . "</div>";
-			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_material'])) . "</div>";
-			$nestedData[]	= "<div align='right'>" . number_format($row['qty'], 2) . "</div>";
-			$nestedData[]	= "<div align='right'>" . number_format($row['qty_book'], 2) . "</div>";
-			$nestedData[]	= "<div align='right'>" . number_format($row['qty_free'], 2) . "</div>";
-			$nestedData[]	= "<div align='left'>" . ucfirst(strtolower($row['keterangan'])) . "</div>";
-			$nestedData[]	= "<div align='left'>" . strtoupper(strtolower($row['nama_gudang'])) . "</div>";
-			$nestedData[]	= "<div align='left'>" . $date . "</div>";
-			$nestedData[]	= "<div align='right'>" . number_format($row['nilai_costbook'], 2) . "</div>";
-			$nestedData[]	= "<div align='right'>" . number_format($row['qty'] * $row['nilai_costbook']) . "</div>";
-
-			$grand_total_nilai += ($row['qty'] * $row['nilai_costbook']);
-
-			$data[] = $nestedData;
-			$urut1++;
-			$urut2++;
+			$reply = array(
+				"draw"              => $fetch['draw'],
+				"recordsTotal"      => $fetch['totalData'],
+				"recordsFiltered"   => $fetch['totalFiltered'],
+				"data"              => $data,
+				"recordsAset"       => $fetch['totalAset'],
+				// Nilai seluruh hasil filter (bukan hanya halaman yang tampil).
+				'grand_total_nilai' => $fetch['grandTotal'],
+			);
+		} catch (Throwable $e) {
+			log_message('error', 'Nilai Inventory: ' . $e->getMessage());
+			$reply['error'] = $e instanceof DomainException ? $e->getMessage() : 'Data nilai inventory tidak dapat dimuat.';
+		} finally {
+			$this->db->db_debug = $debug;
 		}
 
-		$json_data = array(
-			"draw"            	=> intval($requestData['draw']),
-			"recordsTotal"    	=> intval($totalData),
-			"recordsFiltered" 	=> intval($totalFiltered),
-			"data"            	=> $data,
-			"recordsAset"		=> $totalAset,
-			'grand_total_nilai' => $grand_total_nilai
-		);
-
-		echo json_encode($json_data);
+		echo json_encode($reply);
 	}
 
-	public function queryDataJSON_GRW_harga($tanggal, $like_value = NULL, $column_order = NULL, $column_dir = NULL, $limit_start = NULL, $limit_length = NULL)
+	public function queryDataJSON_GRW_harga(array $request)
 	{
+		$page = array();
+		foreach (array('draw' => 0, 'start' => 0, 'length' => 10) as $key => $default) {
+			$page[$key] = filter_var($request[$key] ?? $default, FILTER_VALIDATE_INT);
+			if ($page[$key] === false || ($key === 'length' ? ($page[$key] < 1 && $page[$key] !== -1) : $page[$key] < 0)) {
+				throw new DomainException('Parameter ' . $key . ' tidak valid.');
+			}
+		}
+		$page['length'] = $page['length'] === -1 ? 100 : min(100, $page['length']);
 
+		// Tanggal stok: Y-m-d, kosong = hari ini. Dipakai sebagai range [tgl, tgl+1 hari) agar index kolom tgl terpakai.
+		$tanggal = $request['tanggal'] ?? '';
+		if ($tanggal === '' || $tanggal === null) {
+			$tanggal = date('Y-m-d');
+		}
+		$dt = is_string($tanggal) ? DateTime::createFromFormat('!Y-m-d', $tanggal) : false;
+		if (!$dt || $dt->format('Y-m-d') !== $tanggal) {
+			throw new DomainException('Tanggal tidak valid.');
+		}
+		$from = $dt->format('Y-m-d');
+		$to = $dt->modify('+1 day')->format('Y-m-d');
 
-		$where_tanggal = "";
-		$tanggal2 = date('Y-m-d');
-		if (!empty($tanggal)) {
-			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal . "%' ";
-			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal . "%' ";
-		} else {
-			$where_tanggal = " AND a.tgl LIKE '%" . $tanggal2 . "%' ";
-			$where_tanggal2 = " AND g.tgl LIKE '%" . $tanggal2 . "%' ";
+		$search = $request['search'] ?? array();
+		if (!is_array($search)) throw new DomainException('Pencarian tidak valid.');
+		$search = $search['value'] ?? '';
+		$size = is_string($search) ? preg_match_all('/./us', $search) : false;
+		if ($size === false || $size > 255) throw new DomainException('Pencarian maksimal 255 karakter.');
+
+		// STRAIGHT_JOIN: mulai dari stock_material_backup (range tgl via idx_tgl_aktif). Tanpa ini optimizer
+		// memulai dari tabel kecil d/e/f dan memindai 1,8 juta baris (~60 detik vs ~0,7 detik).
+		$joins = "FROM stock_material_backup a
+			STRAIGHT_JOIN ms_gudang b ON b.id_gudang = a.id_gudang
+			STRAIGHT_JOIN ms_inventory_category3 c ON a.id_category3 = c.id_category3
+			STRAIGHT_JOIN ms_inventory_type d ON c.id_type = d.id_type
+			STRAIGHT_JOIN ms_inventory_category1 e ON c.id_category1 = e.id_category1
+			STRAIGHT_JOIN ms_inventory_category2 f ON c.id_category2 = f.id_category2
+			STRAIGHT_JOIN ms_costbook_backup g ON a.id_category3 = g.id_category3";
+		$where = "WHERE a.aktif = 'Y' AND a.tgl >= ? AND a.tgl < ? AND g.tgl >= ? AND g.tgl < ?";
+		$binds = array($from, $to, $from, $to);
+
+		$searchSql = '';
+		$searchBinds = array();
+		if ($search !== '') {
+			$needle = '%' . str_replace(array('!', '%', '_'), array('!!', '!%', '!_'), $search) . '%';
+			$parts = array();
+			foreach (array('b.nama_gudang', 'c.nama', 'a.id_category3', 'c.maker') as $field) {
+				$parts[] = $field . " LIKE ? ESCAPE '!'";
+				$searchBinds[] = $needle;
+			}
+			$searchSql = ' AND (' . implode(' OR ', $parts) . ')';
 		}
 
-		$where_like = '';
-		if (!empty($like_value)) {
-			$where_like = "
-				AND (
-                        b.nama_gudang LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                        OR c.nama LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-						OR a.id_category3 LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-						OR c.maker LIKE '%" . $this->db->escape_like_str($like_value) . "%'
-                    )
-			";
-		}
+		$total = $this->hargaQuery("SELECT COUNT(*) AS n $joins $where", $binds)->row();
+		$sum = $this->hargaQuery("SELECT COUNT(*) AS n, SUM(a.qty) AS qty, SUM(a.qty * g.nilai_costbook) AS nilai $joins $where" . $searchSql, array_merge($binds, $searchBinds))->row();
 
-		$sql = "SELECT
-                    a.*, 
-                    b.nama_gudang as nama_gudang,
-					c. nama as nama_material,
-					c. kode_barang,
-					c. kode_mas,
-					g. nilai_costbook,  
-					g. tgl
-                FROM
-                    stock_material_backup a
-                    JOIN ms_gudang b ON b.id_gudang =a.id_gudang
-                    JOIN ms_inventory_category3 c ON a.id_category3 =c.id_category3
-                    JOIN ms_inventory_type d ON c.id_type=d.id_type
-                    JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
-                    JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
-					JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
-                WHERE 1=1 AND
-                    a.aktif='Y' " . $where_tanggal . "  " . $where_tanggal2 . " 
-                    " . $where_like . "
-                ";
+		// Kolom 0 (#) tidak dapat diurutkan; urut tetap = pengelompokan lama (tipe, id_stock) + tie-breaker.
+		$rows = $this->hargaQuery("SELECT a.*, b.nama_gudang AS nama_gudang, c.nama AS nama_material, c.kode_barang, c.kode_mas, g.nilai_costbook, g.tgl
+			$joins $where" . $searchSql . " ORDER BY d.nama, a.id_stock ASC LIMIT " . $page['length'] . " OFFSET " . $page['start'],
+			array_merge($binds, $searchBinds))->result_array();
 
-		$Query_Sum	= "SELECT
-                            SUM(a.qty) AS weight
-                        FROM
-                            stock_material_backup a
-                            JOIN ms_gudang b ON b.id_gudang =a.id_gudang
-                            JOIN ms_inventory_category3 c ON a.id_category3 =c.id_category3
-                            JOIN ms_inventory_type d ON c.id_type=d.id_type
-                            JOIN ms_inventory_category1 e ON c.id_category1 =e.id_category1
-                            JOIN ms_inventory_category2 f ON c.id_category2 =f.id_category2
-							JOIN ms_costbook_backup g ON a.id_category3 =g.id_category3
-                        WHERE 1=1 AND
-                            a.aktif='Y' " . $where_tanggal . " " . $where_tanggal2 . "
-                            " . $where_like . "
-                        ";
-		$Total_Aset	= 0;
-		$Hasil_SUM		   = $this->db->query($Query_Sum)->result_array();
-		if ($Hasil_SUM) {
-			$Total_Aset		= $Hasil_SUM[0]['weight'];
-		}
-		$data['totalData'] 	= $this->db->query($sql)->num_rows();
-		$data['totalAset'] 	= $Total_Aset;
-		$data['totalFiltered'] = $this->db->query($sql)->num_rows();
-		$columns_order_by = array(
-			0 => 'id_stock'
-
+		return array(
+			'draw' => $page['draw'], 'start' => $page['start'],
+			'totalData' => (int) $total->n, 'totalFiltered' => (int) $sum->n,
+			'totalAset' => $sum->qty === null ? 0 : (float) $sum->qty,
+			'grandTotal' => $sum->nilai === null ? 0 : (float) $sum->nilai,
+			'rows' => $rows,
 		);
+	}
 
-		$sql .= " ORDER BY d.nama,  " . $columns_order_by[$column_order] . " " . $column_dir . " ";
-		$sql .= " LIMIT " . $limit_start . " ," . $limit_length . " ";
-
-		$data['query'] = $this->db->query($sql);
-		return $data;
+	private function hargaQuery($sql, array $binds)
+	{
+		$query = $this->db->query($sql, $binds);
+		if (!$query) throw new RuntimeException('Cannot read inventory value');
+		return $query;
 	}
 }

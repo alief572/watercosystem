@@ -111,9 +111,7 @@ $id_bentuk = $this->uri->segment(3);
 					"sNext": "Next"
 				}
 			},
-			"aaSorting": [
-				[0, "asc"]
-			],
+			"ordering": false,
 			"columnDefs": [{
 					"targets": 'no-sort',
 					"orderable": false,

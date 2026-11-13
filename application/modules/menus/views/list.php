@@ -19,7 +19,7 @@
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_menus" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th width="50">#</th>
@@ -37,46 +37,7 @@
 		</tr>
 		</thead>
 
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->id ?></td>
-			<td><?= $record->title ?></td>
-			<td><?= $record->link ?></td>
-			<td><?= $record->target ?></td>
-			<td><?= $record->group_menu ?></td>		
-			<td><?= $record->parent_id ?></td>		
-            <td><?= $record->permission_id ?></td>				
-			<td>
-				<?php if($record->status == '1'){ ?>
-					<label class="label label-success">Aktif</label>
-				<?php }else{ ?>
-					<label class="label label-danger">Non Aktif</label>
-				<?php } ?>
-			</td>
-			<td style="padding-left:20px">
-			<?php if($ENABLE_VIEW) : ?>
-				<!--<a href="#dialog-popup" data-toggle="modal" onclick="PreviewPdf('')">
-				<span class="glyphicon glyphicon-print"></span>
-				</a>-->
-			<?php endif; ?>
-
-			<?php if($ENABLE_MANAGE) : ?>
-				<a class="text-green" href="javascript:void(0)" title="Edit" onclick="edit_data('<?=$record->id?>')"><i class="fa fa-pencil"></i>
-				</a>
-			<?php endif; ?>
-
-			<?php if($ENABLE_DELETE) : ?>
-				<a class="text-red" href="javascript:void(0)" title="Delete" onclick="delete_data('<?=$record->id?>')"><i class="fa fa-trash"></i>
-				</a>
-			<?php endif; ?>
-			</td>
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 
 		<tfoot>
 		<tr>
@@ -99,9 +60,7 @@
 	<!-- /.box-body -->
 </div>
 
-<div id="form-area">
-<?php $this->load->view('menus/menus_form') ?>
-</div>
+<div id="form-area"></div>
 
 <!-- awal untuk modal dialog -->
 <!-- Modal -->
@@ -131,7 +90,23 @@
 <script type="text/javascript">
 
   	$(function() {
-    	$("#example1").DataTable();
+    	// id tbl_menus (bukan example1) agar tidak bentrok dengan init otomatis basic.js.
+    	var columns = [
+    		{ data: 'no', orderable: false, searchable: false }, { data: 'id' }, { data: 'title' }, { data: 'link' }, { data: 'target' },
+    		{ data: 'group_menu' }, { data: 'parent_id' }, { data: 'permission_id' }, { data: 'status' }
+    	];
+    	<?php if($ENABLE_MANAGE) : ?>
+    	columns.push({ data: 'action', orderable: false, searchable: false });
+    	<?php endif; ?>
+    	$('#tbl_menus').DataTable({
+    		processing: true,
+    		serverSide: true,
+    		autoWidth: false,
+    		searchDelay: 350,
+    		order: [],
+    		ajax: { url: siteurl + 'menus/data_menus', type: 'POST' },
+    		columns: columns
+    	});
     	$("#form-area").hide();
   	});
 

@@ -19,7 +19,7 @@
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_permissions" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th width="50">#</th>
@@ -33,36 +33,7 @@
 		</tr>
 		</thead>
 
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->id_permission ?></td>
-			<td><?= $record->nm_permission ?></td>
-			<td><?= $record->nm_menu ?></td>
-			<td><?= $record->ket ?></td>
-			<td style="padding-left:20px">
-			<?php if($ENABLE_VIEW) : ?>
-				<!--<a href="#dialog-popup" data-toggle="modal" onclick="PreviewPdf('')">
-				<span class="glyphicon glyphicon-print"></span>
-				</a>-->
-			<?php endif; ?>
-
-			<?php if($ENABLE_MANAGE) : ?>
-				<a class="text-green" href="javascript:void(0)" title="Edit" onclick="edit_data('<?=$record->id_permission?>')"><i class="fa fa-pencil"></i>
-				</a>
-			<?php endif; ?>
-
-			<?php if($ENABLE_DELETE) : ?>
-				<a class="text-red" href="javascript:void(0)" title="Delete" onclick="delete_data('<?=$record->id_permission?>')"><i class="fa fa-trash"></i>
-				</a>
-			<?php endif; ?>
-			</td>
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 
 		<tfoot>
 		<tr>
@@ -81,9 +52,7 @@
 	<!-- /.box-body -->
 </div>
 
-<div id="form-area">
-<?php $this->load->view('permissions/permissions_form') ?>
-</div>
+<div id="form-area"></div>
 
 <!-- awal untuk modal dialog -->
 <!-- Modal -->
@@ -113,7 +82,22 @@
 <script type="text/javascript">
 
   	$(function() {
-    	$("#example1").DataTable();
+    	// id tbl_permissions (bukan example1) agar tidak bentrok dengan init otomatis basic.js.
+    	var columns = [
+    		{ data: 'no', orderable: false, searchable: false }, { data: 'id' }, { data: 'nm_permission' }, { data: 'nm_menu' }, { data: 'ket' }
+    	];
+    	<?php if($ENABLE_MANAGE) : ?>
+    	columns.push({ data: 'action', orderable: false, searchable: false });
+    	<?php endif; ?>
+    	$('#tbl_permissions').DataTable({
+    		processing: true,
+    		serverSide: true,
+    		autoWidth: false,
+    		searchDelay: 350,
+    		order: [],
+    		ajax: { url: siteurl + 'permissions/data_permissions', type: 'POST' },
+    		columns: columns
+    	});
     	$("#form-area").hide();
   	});
 

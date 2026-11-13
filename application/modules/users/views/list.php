@@ -16,7 +16,7 @@
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_users" class="table table-bordered table-striped">
 		<thead>
 		<tr>
 			<th width="50">#</th>
@@ -33,29 +33,7 @@
 		</tr>
 		</thead>
         
-		<tbody>
-		<?php foreach ($results as $record) : ?>
-		<tr>                        
-			<td><?= $numb; ?></td>
-			<td><?= $record->username ?></td>
-			<td><?= $record->email ?></td>
-			<td><?= $record->nm_lengkap ?></td>
-			<td><?= $record->alamat ?></td>
-			<td><?= $record->kota ?></td>
-			<td><?= $record->hp ?></td>
-			<td><?= ($record->st_aktif == 0) ? "<label class='label label-danger'>".lang('users_td_aktif')."</label>" : "<label class='label label-success'>".lang('users_aktif')."</label>" ?></td>
-			<?php if($ENABLE_MANAGE) : ?>
-			<td style="padding-right:20px">
-			<a class="text-black" href="<?= site_url('users/setting/edit/' . $record->id_user); ?>" data-toggle="tooltip" data-placement="left" title="Edit Data"><i class="fa fa-pencil"></i></a>
-			<?php if($record->id_user != 1) : ?>
-			&nbsp;|&nbsp;
-			<a class="text-black" href="<?= site_url('users/setting/permission/' . $record->id_user); ?>" data-toggle="tooltip" data-placement="left" title="Edit Hak Akses"><i class="fa fa-shield"></i></a>
-			<?php endif; ?>
-			</td>
-			<?php endif; ?>
-			</tr>
-			<?php $numb++; endforeach; ?>        
-		</tbody>
+		<tbody></tbody>
 		
 		<tfoot>
 		<tr>
@@ -84,8 +62,22 @@
 <!-- page script -->
 <script>
   $(function () {
-    $("#example1").DataTable();    
+    // id tbl_users (bukan example1) agar tidak bentrok dengan init otomatis basic.js.
+    var columns = [
+      { data: 'no', orderable: false, searchable: false }, { data: 'username' }, { data: 'email' }, { data: 'nm_lengkap' },
+      { data: 'alamat' }, { data: 'kota' }, { data: 'hp' }, { data: 'status' }
+    ];
+    <?php if($ENABLE_MANAGE) : ?>
+    columns.push({ data: 'action', orderable: false, searchable: false });
+    <?php endif; ?>
+    $('#tbl_users').DataTable({
+      processing: true,
+      serverSide: true,
+      autoWidth: false,
+      searchDelay: 350,
+      order: [],
+      ajax: { url: siteurl + 'users/setting/data_users', type: 'POST' },
+      columns: columns
+    });
   });
 </script>
-
-

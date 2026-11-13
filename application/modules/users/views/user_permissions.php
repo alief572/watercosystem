@@ -53,13 +53,13 @@
 		?>
 		<tr>
 			<td><?= $no ?></td>
-			<td><?php echo $pr['View']['nm']//print_r($pr) ?></td>
+			<td><?php echo html_escape(is_array($pr['View'] ?? null) ? $pr['View']['nm'] : '') ?></td>
 			<?php foreach ($pr as $key2 => $action) : ?>
 			<td class="text-center" >
-			<?php if($action == 0) : ?>
+			<?php if(!is_array($action)) : ?>
 			-
 			<?php else : ?>
-			<input type="checkbox" name="id_permissions[]" value="<?= $action['perm_id'] ?>" title="<?= $action['action_name'] ?>" <?= ($action['value'] == 1) ? "checked='checked'" : '' ?> <?= ($action['is_role_permission'] == 1) ? "disabled='disabled'" : '' ?> />
+			<input type="checkbox" name="id_permissions[]" value="<?= $action['perm_id'] ?>" title="<?= $action['action_name'] ?>" <?= (($action['value'] ?? 0) == 1) ? "checked='checked'" : '' ?> <?= (($action['is_role_permission'] ?? '') == 1) ? "disabled='disabled'" : '' ?> />
 			<?php endif ?>
 			</td>
 			<?php endforeach ?>

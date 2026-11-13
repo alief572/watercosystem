@@ -1,8 +1,5 @@
 <?php
-    $ENABLE_ADD     = has_permission('Penawaran.Add');
-    $ENABLE_MANAGE  = has_permission('Penawaran.Manage');
-    $ENABLE_VIEW    = has_permission('Penawaran.View');
-    $ENABLE_DELETE  = has_permission('Penawaran.Delete');
+    $ENABLE_MANAGE  = has_permission('Warehouse_material.Manage');
 	
 ?>
 <style type="text/css">
@@ -27,14 +24,14 @@ thead input {
                    $cus = $vc->nama;
               }
               ?>
-          <option value="<?php echo $vc->id_category3; ?>" <?php echo set_select('nm_customer', $vc->id_customer, isset($data->nama) && $data->id_category3 == $vc->id_customer) ?> <?php echo $selected?>>
-            <?php echo $vc->id_category3.' , '.$vc->nama.' | '.$vc->kode_barang ?>
+          <option value="<?php echo html_escape($vc->id_category3); ?>" <?php echo $selected?>>
+            <?php echo html_escape($vc->id_category3.' , '.$vc->nama.' | '.$vc->kode_barang) ?>
           </option>
           <?php } ?>
       </select>
     </div>
 	<div class="box-body">
-		<table id="example2" class="table table-bordered table-st riped">
+		<table id="tbl_kartu_stok_edit" class="table table-bordered table-striped">
 		<thead>
 		
 					
@@ -49,7 +46,7 @@ thead input {
           	<th width='50' align="center" colspan='3'>AWAL</th>
             <th width='50' align="center" colspan='2'>TRANSAKSI</th>
             <th width='50' align="center" colspan='3'>AKHIR</th>
-			<th>Action</th>
+			<th rowspan='2'>Action</th>
             
           </tr>
 			
@@ -62,49 +59,11 @@ thead input {
 			<th width='50'>Stock</th>
 			<th width='50'>Booking</th>
 			<th width='50'>Free Stock</th>
-			<th width='50'></th>
 			
           </tr>
 		</thead>
 
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; 
-			  
-			?>
-
-		<tr>
-		    <td width="5%"><?= $numb; ?></td>
-            <td width="10%"><?= $record->created_on ?></td>
-			<td width="10%"><?= $record->no_surat ?></td>
-			<td width="10%"> <?= ucfirst($record->transaksi) ?></td>
-			 <td width="10%"><?= $record->id_category3 ?></td>
-            <td width="10%"><?= $record->nama ?></td>
-           
-			
-            <td width='50'><?= $record->qty ?></td>
-			<td width='50'><?= $record->qty_book ?></td>
-			<td width='50'><?= $record->qty_free ?></td>
-			
-			<td width='50'><?php if(ucfirst($record->transaksi)=='Incoming' || ucfirst($record->transaksi)=='Adjustment plus'){echo  $record->qty_transaksi; } else if(ucfirst($record->transaksi)=='Delivery order' || ucfirst($record->transaksi)=='Adjustment minus' ) {echo  $record->qty_transaksi*(-1); } else {echo 0;} ?> </td>
-			<td width='50'><?php if(ucfirst($record->transaksi)=='Sales order'){echo  $record->qty_transaksi; } else if(ucfirst($record->transaksi)=='Delivery order') {echo  $record->qty_transaksi*(-1); } else {echo 0;} ?> </td>
-		   
-            <td width='50'><?= $record->qty_akhir ?></td>           
-            <td width='50'><?= $record->qty_book_akhir ?></td>           
-            <td width='50'><?= $record->qty_free_akhir ?></td>
-			<td>
-			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-warning btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory3="<?=$record->id_kartu_stok?>"><i class="fa fa-edit"></i>
-				</a>
-			<?php endif; ?>
-			</td>
-		</tr>
-		<?php 	 }
-				}
-		 ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -181,176 +140,70 @@ thead input {
 
 <!-- page script -->
 <script type="text/javascript">
+	var tblKartu;
 
-	  $(document).ready(function() {
-            $('#example2').DataTable( {
-	        orderCellsTop: true,
-	        fixedHeader: true,
-			scrollX: true,
-            dom: 'Blfrtip',
-			buttons: [
-				{
-                extend: 'excel',
-            }],			
-	        } );
-        } );
-		
-		
-	$(document).ready(function(){
+	$(document).ready(function() {
 		$("#idcustomer").select2({
 			placeholder: "Pilih",
 			allowClear: true
 		});
-	});
-	function getcustomer(){
-        var idcus = $('#idcustomer').val();
-        window.location.href = siteurl+"stock_material/view_kartu_stok_edit/"+idcus;
-    }
-	$(document).on('click', '.edit', function(e){
-		var id = $(this).data('id_inventory3');
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'stock_material/editKartustok/'+id,
-			success:function(data){
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
-				
-			}
-		})
-	});
-	
-		$(document).on('click', '.cetak', function(e){
-		var id = $(this).data('no_penawaran');
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'xtes/cetak'+id,
-			success:function(data){
-				
-			}
-		})
-	});
-	
-	$(document).on('click', '.view', function(){
-		var id = $(this).data('no_penawaran');
-		// alert(id);
-		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Detail Inventory</b>");
-		$.ajax({
-			type:'POST',
-			url:siteurl+'penawaran/ViewHeader/'+id,
-			data:{'id':id},
-			success:function(data){
-				$("#dialog-popup").modal();
-				$("#ModalView").html(data);
-				
-			}
-		})
-	});
-	
-	
-	
-	// CLOSE PENAWARAN
-	$(document).on('click','.close_penawaran', function(e){
-		e.preventDefault();
-		var id = $(this).data('no_penawaran');
-		
-		$("#head_title").html("Closing Penawaran");
-		$.ajax({
-			type:'POST',
-			url: base_url + active_controller+'/modal_closing_penawaran/'+id,
-			success:function(data){
-				$("#ModalViewX").modal();
-				$("#viewX").html(data);
 
+		// Baris dimuat serverside per halaman; filter produk dikirim sebagai d.produk.
+		tblKartu = $('#tbl_kartu_stok_edit').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			searchDelay: 350,
+			scrollX: true,
+			order: [],
+			ordering: false,
+			dom: 'Blfrtip',
+			buttons: [{
+				extend: 'excel',
+			}],
+			ajax: {
+				url: siteurl + 'stock_material/get_data_kartu_stock',
+				type: 'POST',
+				data: function(d) {
+					d.produk = $('#idcustomer').val();
+				}
 			},
-			error: function() {
-				swal({
-				title				: "Error Message !",
-				text				: 'Connection Timed Out ...',
-				type				: "warning",
-				timer				: 5000,
-				showCancelButton	: false,
-				showConfirmButton	: false,
-				allowOutsideClick	: false
-				});
-			}
+			columns: [
+				{ data: 'no' }, { data: 'tgl_transaksi' }, { data: 'no_transaksi' }, { data: 'jenis_transaksi' },
+				{ data: 'id_produk' }, { data: 'produk' },
+				{ data: 'awal_stock' }, { data: 'awal_booking' }, { data: 'awal_free_stock' },
+				{ data: 'transaksi_in_out' }, { data: 'transaksi_booking' },
+				{ data: 'akhir_stock' }, { data: 'akhir_booking' }, { data: 'akhir_free_stock' },
+				{
+					data: 'id_kartu_stok',
+					orderable: false,
+					render: function(id) {
+						<?php if ($ENABLE_MANAGE) : ?>
+						return '<a class="btn btn-warning btn-sm edit" href="javascript:void(0)" title="Edit" data-id_inventory3="' + parseInt(id, 10) + '"><i class="fa fa-edit"></i></a>';
+						<?php else : ?>
+						return '';
+						<?php endif; ?>
+					}
+				}
+			]
 		});
 	});
 
-  	$(function() {
-    	  
-    	$("#form-area").hide();
-  	});
-	
-	
-	//Delete
-
-	function PreviewPdf(id)
-	{
-		param=id;
-		tujuan = 'customer/print_request/'+param;
-
-	   	$(".modal-body").html('<iframe src="'+tujuan+'" frameborder="no" width="570" height="400"></iframe>');
+	// Ganti produk: muat ulang tabel tanpa pindah halaman.
+	function getcustomer() {
+		tblKartu.ajax.reload();
 	}
 
-	function PreviewRekap()
-	{
-		tujuan = 'customer/rekap_pdf';
-	   	$(".modal-body").html('<iframe src="'+tujuan+'" frameborder="no" width="100%" height="400"></iframe>');
-	}
-
-	
-
-
-	function cekcus(idcus,no,ppn,id,set){
-    var table = $('#example1').DataTable();
-    var cek = $('#'+set);
-    //alert(cek.value);
-    if (cek.is(":checked")) {
-      table.column(2).search( id ).draw();
-    }
-    else{
-      table.column(2).search('').draw();
-    }
-
-    var customer = $('#cekcustomer').val();
-	var cekppn   = $('#cekppn').val();
-    var reason = [];
-    // if($('#cekcustomer').val() == ""){
-        // $('#cekcustomer').val(idcus);
-	if($('#cekcustomer').val() == ""){
-     	$('#cekcustomer').val(idcus);
-    }else{
-        if(customer != idcus){
-          swal({
-              title: "Peringatan!",
-              text: "Customer tidak boleh berbeda",
-              type: "error",
-              timer: 1500,
-              showConfirmButton: false
-          });
-          $("#set_choose_do"+no).attr("checked", false);
-        }
-    }
-	
-	
-    var jumcus = 0;
-    $(".set_choose_do:checked").each(function() {
-        reason.push($(this).val());
-        jumcus++;
-    });
-    $('#cekcus').val(reason.join(';'));
-    if(jumcus == 0){
-      $('#cekcustomer').val('');
-	  
-    }
-  }
-
-	function proses_do(){
-    var param = $('#cekcus').val();
-    var uri3 = '<?php echo $this->uri->segment(3)?>';
-    window.location.href = siteurl+"stock_material/proses/"+uri3+"?param="+param;
-
-  }
+	$(document).on('click', '.edit', function(e) {
+		var id = $(this).data('id_inventory3');
+		$("#head_title").html("<i class='fa fa-list-alt'></i><b>Edit Inventory</b>");
+		$.ajax({
+			type: 'POST',
+			url: siteurl + 'stock_material/editKartustok/' + id,
+			success: function(data) {
+				$("#dialog-popup").modal();
+				$("#ModalView").html(data);
+			}
+		});
+	});
 </script>

@@ -553,19 +553,19 @@ class Stock_material extends Admin_Controller
 		foreach ($_POST['hd1'] as $h1) {
 			$numb1++;
 			$header1 =  array(
-				'id_type'		        => $h1[inventory_1],
-				'id_category1'		    => $h1[inventory_2],
-				'id_category2'		    => $h1[inventory_3],
-				'nama'		        	=> $h1[nm_inventory],
-				'maker'		        	=> $h1[maker],
-				'density'		        => $h1[density],
-				'hardness'		        => $h1[hardness],
-				'id_bentuk'		        => $h1[id_bentuk],
-				'id_surface'		    => $h1[id_surface],
-				'mountly_forecast'		=> $h1[mountly_forecast],
-				'safety_stock'		    => $h1[safety_stock],
-				'order_point'		    => $h1[order_point],
-				'maksimum'		    	=> $h1[maksimum],
+				'id_type'		        => $h1['inventory_1'],
+				'id_category1'		    => $h1['inventory_2'],
+				'id_category2'		    => $h1['inventory_3'],
+				'nama'		        	=> $h1['nm_inventory'],
+				'maker'		        	=> $h1['maker'],
+				'density'		        => $h1['density'],
+				'hardness'		        => $h1['hardness'],
+				'id_bentuk'		        => $h1['id_bentuk'],
+				'id_surface'		    => $h1['id_surface'],
+				'mountly_forecast'		=> $h1['mountly_forecast'],
+				'safety_stock'		    => $h1['safety_stock'],
+				'order_point'		    => $h1['order_point'],
+				'maksimum'		    	=> $h1['maksimum'],
 				'aktif'					=> 'aktif',
 				'created_on'		=> date('Y-m-d H:i:s'),
 				'created_by'		=> $this->auth->user_id(),
@@ -583,9 +583,9 @@ class Stock_material extends Admin_Controller
 				$numb2++;
 				$data1 =  array(
 					'id_category3' => $id,
-					'id_suplier' => $d1[id_supplier],
-					'lead' => $d1[lead],
-					'minimum' => $d1[minimum],
+					'id_suplier' => $d1['id_supplier'],
+					'lead' => $d1['lead'],
+					'minimum' => $d1['minimum'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -603,8 +603,8 @@ class Stock_material extends Admin_Controller
 				$numb3++;
 				$comp =  array(
 					'id_category3' => $id,
-					'id_compotition' => $c1[id_compotition],
-					'nilai_compotition' => $c1[jumlah_kandungan],
+					'id_compotition' => $c1['id_compotition'],
+					'nilai_compotition' => $c1['jumlah_kandungan'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -622,8 +622,8 @@ class Stock_material extends Admin_Controller
 				$numb4++;
 				$dms =  array(
 					'id_category3' => $id,
-					'id_dimensi' => $dm[id_dimensi],
-					'nilai_dimensi' => $dm[nilai_dimensi],
+					'id_dimensi' => $dm['id_dimensi'],
+					'nilai_dimensi' => $dm['nilai_dimensi'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -753,19 +753,19 @@ class Stock_material extends Admin_Controller
 			$numb1++;
 
 			$header1 =  array(
-				'id_type'		        => $h1[inventory_1],
-				'id_category1'		    => $h1[inventory_2],
-				'id_category2'		    => $h1[inventory_3],
-				'nama'		        	=> $h1[nm_inventory],
-				'maker'		        	=> $h1[maker],
-				'density'		        => $h1[density],
-				'hardness'		        => $h1[hardness],
-				'id_bentuk'		        => $h1[id_bentuk],
-				'id_surface'		    => $h1[id_surface],
-				'mountly_forecast'		=> $h1[mountly_forecast],
-				'safety_stock'		    => $h1[safety_stock],
-				'order_point'		    => $h1[order_point],
-				'maksimum'		    	=> $h1[maksimum],
+				'id_type'		        => $h1['inventory_1'],
+				'id_category1'		    => $h1['inventory_2'],
+				'id_category2'		    => $h1['inventory_3'],
+				'nama'		        	=> $h1['nm_inventory'],
+				'maker'		        	=> $h1['maker'],
+				'density'		        => $h1['density'],
+				'hardness'		        => $h1['hardness'],
+				'id_bentuk'		        => $h1['id_bentuk'],
+				'id_surface'		    => $h1['id_surface'],
+				'mountly_forecast'		=> $h1['mountly_forecast'],
+				'safety_stock'		    => $h1['safety_stock'],
+				'order_point'		    => $h1['order_point'],
+				'maksimum'		    	=> $h1['maksimum'],
 				'aktif'					=> 'aktif',
 				'created_on'		=> date('Y-m-d H:i:s'),
 				'created_by'		=> $this->auth->user_id(),
@@ -782,9 +782,9 @@ class Stock_material extends Admin_Controller
 				$numb2++;
 				$data1 =  array(
 					'id_category3' => $code,
-					'id_suplier' => $d1[id_supplier],
-					'lead' => $d1[lead],
-					'minimum' => $d1[minimum],
+					'id_suplier' => $d1['id_supplier'],
+					'lead' => $d1['lead'],
+					'minimum' => $d1['minimum'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -800,8 +800,8 @@ class Stock_material extends Admin_Controller
 				$numb3++;
 				$comp =  array(
 					'id_category3' => $code,
-					'id_compotition' => $c1[id_compotition],
-					'nilai_compotition' => $c1[jumlah_kandungan],
+					'id_compotition' => $c1['id_compotition'],
+					'nilai_compotition' => $c1['jumlah_kandungan'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -817,8 +817,8 @@ class Stock_material extends Admin_Controller
 				$numb4++;
 				$dms =  array(
 					'id_category3' => $code,
-					'id_dimensi' => $dm[id_dimensi],
-					'nilai_dimensi' => $dm[nilai_dimensi],
+					'id_dimensi' => $dm['id_dimensi'],
+					'nilai_dimensi' => $dm['nilai_dimensi'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -856,19 +856,19 @@ class Stock_material extends Admin_Controller
 			$numb1++;
 
 			$header1 =  array(
-				'id_type'		        => $h1[inventory_1],
-				'id_category1'		    => $h1[inventory_2],
-				'id_category2'		    => $h1[inventory_3],
-				'nama'		        	=> $h1[nm_inventory],
-				'maker'		        	=> $h1[maker],
-				'density'		        => $h1[density],
-				'hardness'		        => $h1[hardness],
-				'id_bentuk'		        => $h1[id_bentuk],
-				'id_surface'		    => $h1[id_surface],
-				'mountly_forecast'		=> $h1[mountly_forecast],
-				'safety_stock'		    => $h1[safety_stock],
-				'order_point'		    => $h1[order_point],
-				'maksimum'		    	=> $h1[maksimum],
+				'id_type'		        => $h1['inventory_1'],
+				'id_category1'		    => $h1['inventory_2'],
+				'id_category2'		    => $h1['inventory_3'],
+				'nama'		        	=> $h1['nm_inventory'],
+				'maker'		        	=> $h1['maker'],
+				'density'		        => $h1['density'],
+				'hardness'		        => $h1['hardness'],
+				'id_bentuk'		        => $h1['id_bentuk'],
+				'id_surface'		    => $h1['id_surface'],
+				'mountly_forecast'		=> $h1['mountly_forecast'],
+				'safety_stock'		    => $h1['safety_stock'],
+				'order_point'		    => $h1['order_point'],
+				'maksimum'		    	=> $h1['maksimum'],
 				'aktif'					=> 'aktif',
 				'created_on'		=> date('Y-m-d H:i:s'),
 				'created_by'		=> $this->auth->user_id(),
@@ -884,9 +884,9 @@ class Stock_material extends Admin_Controller
 				$numb2++;
 				$data1 =  array(
 					'id_category3' => $id,
-					'id_suplier' => $d1[id_supplier],
-					'lead' => $d1[lead],
-					'minimum' => $d1[minimum],
+					'id_suplier' => $d1['id_supplier'],
+					'lead' => $d1['lead'],
+					'minimum' => $d1['minimum'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -902,8 +902,8 @@ class Stock_material extends Admin_Controller
 				$numb3++;
 				$comp =  array(
 					'id_category3' => $id,
-					'id_compotition' => $c1[id_compotition],
-					'nilai_compotition' => $c1[jumlah_kandungan],
+					'id_compotition' => $c1['id_compotition'],
+					'nilai_compotition' => $c1['jumlah_kandungan'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -919,8 +919,8 @@ class Stock_material extends Admin_Controller
 				$numb4++;
 				$dms =  array(
 					'id_category3' => $id,
-					'id_dimensi' => $dm[id_dimensi],
-					'nilai_dimensi' => $dm[nilai_dimensi],
+					'id_dimensi' => $dm['id_dimensi'],
+					'nilai_dimensi' => $dm['nilai_dimensi'],
 					'deleted' => '0',
 					'created_on' => date('Y-m-d H:i:s'),
 					'created_by' => $this->auth->user_id(),
@@ -1011,15 +1011,10 @@ class Stock_material extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$customer = $this->Inventory_4_model->get_data('ms_inventory_category3');
-		$this->template->set('customer', $customer);
-
-		if ($this->uri->segment(3) == "") {
-			$data = $this->Inventory_4_model->cariKartuStok();
-		} else {
-			$data = $this->Inventory_4_model->cariKartuStok($this->uri->segment(3));
-		}
-		$this->template->set('results', $data);
+		$this->db->select('a.id_category3, a.nama, a.kode_barang');
+		$this->db->from('ms_inventory_category3 a');
+		$this->db->where('a.deleted', '0');
+		$this->template->set('customer', $this->db->get()->result());
 
 		$this->template->title('Kartu Stok');
 		$this->template->render('index_kartu_stok_edit');
@@ -1027,15 +1022,16 @@ class Stock_material extends Admin_Controller
 
 	public function editKartustok($id)
 	{
-		$this->auth->restrict($this->viewPermission);
+		$this->auth->restrict($this->managePermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-pencil');
-		$deleted = '0';
-		$inven = $this->Inventory_4_model->getedit($id);
+		if (!ctype_digit((string) $id)) {
+			show_404();
+		}
 
 		$all   = $this->db->query("SELECT a.*, b.nama FROM kartu_stok a
 		INNER JOIN ms_inventory_category3 b on a.id_category3 = b.id_category3
-		WHERE a.id_kartu_stok='$id'")->result();
+		WHERE a.id_kartu_stok = ?", array($id))->result();
 
 
 
@@ -1107,28 +1103,41 @@ class Stock_material extends Admin_Controller
 
 	public function data_side_material_grw_harga()
 	{
+		$this->auth->restrict($this->viewPermission);
 		$this->Serverside_model->getDataJSON_GRW_harga();
 	}
 
 
 	public function saveEditKartustok()
 	{
-		$this->auth->restrict($this->addPermission);
-		$session = $this->session->userdata('app_session');
+		$this->auth->restrict($this->managePermission);
 
 		$post = $this->input->post();
-		$id  = $post[id];
-		// print_r($post[id]);
-		// exit;
+		$id  = $post['id'] ?? '';
+
+		// Semua kuantitas harus angka (kolom double); id harus baris kartu stok yang ada.
+		$fields = array('qty', 'qty_book', 'qty_free', 'qty_akhir', 'qty_book_akhir', 'qty_free_akhir');
+		$values = array();
+		$valid = ctype_digit((string) $id);
+		foreach ($fields as $field) {
+			$value = $post[$field] ?? '';
+			if (!is_string($value) || trim($value) === '' || !is_numeric(trim($value))) {
+				$valid = false;
+				break;
+			}
+			$values[$field] = trim($value);
+		}
+		if ($valid && !$this->db->query("SELECT id_kartu_stok FROM kartu_stok WHERE id_kartu_stok = ?", array($id))->row()) {
+			$valid = false;
+		}
+		if (!$valid) {
+			echo json_encode(array('pesan' => 'Data kartu stok tidak valid. Semua qty harus angka.', 'code' => $id, 'status' => 0));
+			return;
+		}
+
 		$this->db->trans_begin();
 
-		$header1 =  array(
-			'qty'		       		=> $post[qty],
-			'qty_book'		    	=> $post[qty_book],
-			'qty_free'		    	=> $post[qty_free],
-			'qty_akhir'		        => $post[qty_akhir],
-			'qty_book_akhir'		=> $post[qty_book_akhir],
-			'qty_free_akhir'	    => $post[qty_free_akhir],
+		$header1 = $values + array(
 			'modified_on'			=> date('Y-m-d H:i:s'),
 			'modified_by'			=> $this->auth->user_id(),
 		);
@@ -1155,6 +1164,7 @@ class Stock_material extends Admin_Controller
 
 	public function get_data_kartu_stock()
 	{
+		$this->auth->restrict($this->viewPermission);
 		$this->Inventory_4_model->get_data_kartu_stock();
 	}
 }

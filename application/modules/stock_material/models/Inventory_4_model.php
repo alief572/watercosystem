@@ -286,10 +286,24 @@ class Inventory_4_model extends BF_Model
 
 	public function get_data_kartu_stock()
 	{
-		$draw = $this->input->post('draw');
-		$start = $this->input->post('start');
-		$length = $this->input->post('length');
+		// Paging divalidasi: draw/start >= 0, length 1..100 (-1 = 100); selain itu 400.
+		$page = array();
+		foreach (array('draw' => 0, 'start' => 0, 'length' => 10) as $key => $default) {
+			$value = $this->input->post($key);
+			$page[$key] = filter_var($value === null ? $default : $value, FILTER_VALIDATE_INT);
+			if ($page[$key] === false || ($key === 'length' ? ($page[$key] < 1 && $page[$key] !== -1) : $page[$key] < 0)) {
+				$this->output->set_status_header(400);
+				echo json_encode(array('draw' => 0, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(), 'error' => 'Parameter ' . $key . ' tidak valid.'));
+				return;
+			}
+		}
+		$draw = $page['draw'];
+		$start = $page['start'];
+		$length = $page['length'] === -1 ? 100 : min(100, $page['length']);
 		$search = $this->input->post('search');
+		if (is_array($search) && isset($search['value']) && !is_string($search['value'])) {
+			$search = array('value' => '');
+		}
 
 		$produk = $this->input->post('produk');
 
@@ -301,7 +315,10 @@ class Inventory_4_model extends BF_Model
 			$this->db->where('a.id_category3', $produk);
 		}
 
-		if (!empty($search)) {
+		// recordsTotal = jumlah tanpa pencarian (filter produk tetap berlaku), recordsFiltered = setelah pencarian.
+		$total = $this->db->count_all_results('', false);
+
+		if (!empty($search['value'])) {
 			$this->db->group_start();
 			$this->db->like('a.tgl_transaksi', $search['value'], 'both');
 			$this->db->or_like('a.no_surat', $search['value'], 'both');
@@ -343,6 +360,7 @@ class Inventory_4_model extends BF_Model
 			}
 
 			$hasil[] = [
+				'id_kartu_stok' => $item->id_kartu_stok,
 				'no' => $no,
 				'tgl_transaksi' => date('d F Y', strtotime($item->tgl_transaksi)),
 				'no_transaksi' => $item->no_surat,
@@ -363,7 +381,7 @@ class Inventory_4_model extends BF_Model
 
 		echo json_encode([
 			'draw' => intval($draw),
-			'recordsTotal' => $totalFiltered,
+			'recordsTotal' => $total,
 			'recordsFiltered' => $totalFiltered,
 			'data' => $hasil
 		]);

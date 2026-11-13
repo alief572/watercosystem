@@ -41,111 +41,45 @@ class Setting extends Admin_Controller {
     {
         $this->auth->restrict($this->viewPermission);
 
-        if(isset($_POST['delete']) && has_permission($this->deletePermission))
-        {
-            $checked = $this->input->post('checked');
-
-            if (is_array($checked) && count($checked))
-            {
-                $result = FALSE;
-                $sukses = 0;
-                foreach ($checked as $pid)
-                {
-                    $result      = $this->users_model->delete($pid);
-
-                    if($result)
-                    {
-                        $keterangan = "SUKSES, hapus data user dengan ID : ".$pid;
-                        $status     = 1;
-
-                        $sukses++;
-                    }
-                    else
-                    {
-                        $keterangan = "GAGAL, hapus data user dengan ID : ".$pid;
-                        $status     = 0;
-                    }
-
-                    $nm_hak_akses   = $this->deletePermission;
-                    $kode_universal = $pid;
-                    $jumlah         = 1;
-                    $sql            = $this->db->last_query();
-
-                    simpan_aktifitas($nm_hak_akses, $kode_universal, $keterangan, $jumlah, $sql, $status);
-                }
-
-                if ($result)
-                {
-                    $this->template->set_message(count($sukses) .' '. lang('users_del_success') .'.', 'success');
-                }
-                else
-                {
-                    $this->template->set_message(lang('users_del_fail') . $this->users_model->error, 'error');
-                }
-            }
-            else
-            {
-                $this->template->set_message(lang('users_del_error'), 'error');
-            }
-
-            unset($_POST['delete']);
-        }
-
-        // Pagination
-        $this->load->library('pagination');
-
-        if(isset($_POST['table_search']))
-        {
-            $search = isset($_POST['table_search'])?$this->input->post('table_search'):'';
-        }
-        else
-        {
-            $search = isset($_GET['search'])?$this->input->get('search'):'';
-        }
-
-        $filter = "";
-        if($search!="")
-        {
-            $filter = "?search=".$search;
-        }
-
-        $search2 = $this->db->escape_str($search);
-
-        $where="users.deleted = 0
-                    AND (`username` LIKE '%$search2%' ESCAPE '!'
-                    OR `nm_lengkap` LIKE '%$search2%' ESCAPE '!'
-                    OR `users`.`alamat` LIKE '%$search2%' ESCAPE '!'
-                    OR `users`.`kota` LIKE '%$search2%' ESCAPE '!'
-                    OR `users`.`hp` LIKE '%$search2%' ESCAPE '!'
-                   )";
-
-        $total = $this->users_model
-                    ->where($where)
-                    ->count_all();
-
-        $offset = $this->input->get('per_page');
-
-        $limit = $this->config->item('list_limit');
-
-        $this->pager['base_url']            = current_url().$filter;
-        $this->pager['total_rows']          = $total;
-        $this->pager['per_page']            = $limit;
-        $this->pager['page_query_string']   = TRUE;
-
-        $this->pagination->initialize($this->pager);
-
-        $data = $this->users_model->select("users.*")
-                    ->where($where)
-                    ->order_by('nm_lengkap','ASC')
-                    ->limit($limit, $offset)->find_all();
-
-        $this->template->set('results', $data);
-        $this->template->set('search', $search);
-
         $this->template->title(lang('users_manage_title'));
-        $this->template->set("numb", $offset+1);
         $this->template->render('list');
+    }
 
+    // Data serverside daftar user (DataTable).
+    public function data_users()
+    {
+        $this->auth->restrict($this->viewPermission);
+        $this->load->helper('dt');
+        dt_respond($this, function () {
+            $data = dt_list($this->db, array(
+                'draw' => $this->input->post('draw'), 'start' => $this->input->post('start'), 'length' => $this->input->post('length'),
+                'search' => $this->input->post('search'), 'order' => $this->input->post('order'),
+            ), array(
+                'from'    => 'users',
+                'select'  => 'id_user, username, email, nm_lengkap, alamat, kota, hp, st_aktif',
+                'where'   => 'deleted = 0',
+                'search'  => array('username', 'email', 'nm_lengkap', 'alamat', 'kota', 'hp'),
+                'sort'    => array(1 => 'username', 2 => 'email', 3 => 'nm_lengkap', 4 => 'alamat', 5 => 'kota', 6 => 'hp', 7 => 'st_aktif'),
+                'default' => 'nm_lengkap ASC, id_user ASC',
+            ));
+            $canManage = has_permission($this->managePermission);
+            $rows = array(); $number = $data['start'];
+            foreach ($data['rows'] as $row) {
+                $action = '';
+                if ($canManage) {
+                    $action = '<a class="text-black" href="' . site_url('users/setting/edit/' . (int) $row->id_user) . '" title="Edit Data"><i class="fa fa-pencil"></i></a>';
+                    if ((int) $row->id_user !== 1) {
+                        $action .= '&nbsp;|&nbsp;<a class="text-black" href="' . site_url('users/setting/permission/' . (int) $row->id_user) . '" title="Edit Hak Akses"><i class="fa fa-shield"></i></a>';
+                    }
+                }
+                $rows[] = array('DT_RowId' => 'user-' . (int) $row->id_user, 'no' => ++$number,
+                    'username' => html_escape($row->username), 'email' => html_escape($row->email), 'nm_lengkap' => html_escape($row->nm_lengkap),
+                    'alamat' => html_escape($row->alamat), 'kota' => html_escape($row->kota), 'hp' => html_escape($row->hp),
+                    'status' => $row->st_aktif == 0 ? "<label class='label label-danger'>" . lang('users_td_aktif') . "</label>" : "<label class='label label-success'>" . lang('users_aktif') . "</label>",
+                    'action' => $action);
+            }
+            return array('draw' => $data['draw'], 'recordsTotal' => $data['total'], 'recordsFiltered' => $data['filtered'], 'data' => $rows);
+        }, 'Users table');
     }
 
     public function create()
@@ -189,17 +123,13 @@ class Setting extends Admin_Controller {
 
         $data = $this->users_model->find($id);
 
-        if($data)
+        if(!$data || $data->deleted == 1)
         {
-            if($data->deleted == 1)
-            {
-                $this->template->set_message(lang('users_already_deleted'), 'error');
-                redirect('users/setting');
-            }
+            $this->template->set_message($data ? lang('users_already_deleted') : lang('users_invalid_id'), 'error');
+            redirect('users/setting');
         }
 
-        //$cabang = $this->Cabang_model->find_all();
-        //$this->template->set('cabang', $cabang);
+        $this->template->set('cabang', $this->Cabang_model->find_all());
         $this->template->set('data', $data);
         $this->template->title(lang('users_edit_title'));
         $this->template->page_icon('fa fa-user');
@@ -227,13 +157,10 @@ class Setting extends Admin_Controller {
         //User data
         $data = $this->users_model->find($id);
 
-        if($data)
+        if(!$data || $data->deleted == 1)
         {
-            if($data->deleted == 1)
-            {
-                $this->template->set_message(lang('users_already_deleted'), 'error');
-                redirect('users/setting');
-            }
+            $this->template->set_message($data ? lang('users_already_deleted') : lang('users_invalid_id'), 'error');
+            redirect('users/setting');
         }
         //All Permission
         $permissions = $this->permissions_model
@@ -299,14 +226,15 @@ class Setting extends Admin_Controller {
             }
         }
 
-        //Delete Fisrt All Previous user permission
-        $result = $this->user_permissions_model->delete_where(array('id_user' => $id_user));
-
-        //Insert New one
+        // Hapus + insert dalam satu transaksi: bila insert gagal, izin lama user tidak hilang.
+        $this->db->trans_start();
+        $this->user_permissions_model->delete_where(array('id_user' => $id_user));
         if($insert_data)
         {
-            $result = $this->user_permissions_model->insert_batch($insert_data);
+            $this->user_permissions_model->insert_batch($insert_data);
         }
+        $this->db->trans_complete();
+        $result = $this->db->trans_status();
 
         if($result === FALSE)
         {
@@ -414,30 +342,8 @@ class Setting extends Admin_Controller {
         $st_aktif   = $this->input->post('st_aktif');
         $kdcab      = $this->input->post('kdcab');
 
-        /**
-         * This code will benchmark your server to determine how high of a cost you can
-         * afford. You want to set the highest cost that you can without slowing down
-         * you server too much. 8-10 is a good baseline, and more is good if your servers
-         * are fast enough. The code below aims for ≤ 50 milliseconds stretching time,
-         * which is a good baseline for systems handling interactive logins.
-         */
-        $timeTarget = 0.05; // 50 milliseconds
-
-        $cost = 8;
-        do {
-            $cost++;
-            $start = microtime(true);
-            password_hash("test", PASSWORD_BCRYPT, ["cost" => $cost]);
-            $end = microtime(true);
-        } while (($end - $start) < $timeTarget);
-        //End finding cost
-
-        $options = [
-            'cost' => $cost,
-            'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM)
-        ];
-
-        $password = password_hash($password, PASSWORD_BCRYPT, $options);
+        // cost 11 = hash yang sudah ada di tabel users; salt dibuat PHP sendiri (opsi salt diabaikan sejak PHP 8).
+        $password = ($password !== null && $password !== '') ? password_hash($password, PASSWORD_BCRYPT, array('cost' => 11)) : '';
 
         if($type=='insert')
         {
@@ -491,7 +397,7 @@ class Setting extends Admin_Controller {
                         'st_aktif' => $st_aktif,
                         'kdcab'     => $kdcab
                         );
-            if(isset($_POST['password']))
+            if($password !== '')
             {
                 $data_insert['password'] = $password;
             }
