@@ -28,21 +28,7 @@ table.garis {
 	font-family: sans-serif;
 }
 
-<?php
 
-$noexpense = $data->no_doc;
-$bank = $data->bank_nama;
-$bk = $this->db->query("SELECT nama FROM gl_waterco_dev.coa_master WHERE no_perkiraan='$bank'")->row();
-$nama = $bk->nama;
-$tgl = $data->tgl_doc;
-$informasi = $data->informasi;
-
-$idsupp = $head->id_suplier;
-
-$nm = $this->db->query("SELECT * FROM master_supplier WHERE id_suplier='$idsupp'")->row();
-$nm_supp = $nm->name_suplier;
-
-?>
 </style>
 <table cellpadding=2 cellspacing=0 border=0 width=650>
 <tr>
@@ -54,23 +40,23 @@ $nm_supp = $nm->name_suplier;
 <tr>
 	<th>NO PO </th>
 	<th>:</th>
-	<th width=300  align="left"><?= $head->no_surat ?></th>
+	<th width=300  align="left"><?= html_escape($head->no_surat) ?></th>
 </tr>
 <tr>
 	<th>NO INCOMING </th>
 	<th>:</th>
-	<th width=300  align="left"><?= $hutang->id_incoming ?></th>
+	<th width=300  align="left"><?= html_escape($hutang->id_incoming) ?></th>
 </tr>
 <tr>
 	<th>SUPPLIER</th>
 	<th>:</th>
-	<th width=300  align="left"><?= $nm_supp ?></th>
+	<th width=300  align="left"><?= html_escape($supplier[0]->name_suplier) ?></th>
 	
 </tr>
 <tr>
 	<th>TGL REQUEST</th>
 	<th>:</th>
-	<th width=300  align="left"><?= $hutang->tgl_request_bayar ?></th>
+	<th width=300  align="left"><?= html_escape($hutang->tgl_request_bayar) ?></th>
 	
 </tr>
 &nbsp;</br>
@@ -86,16 +72,16 @@ $nm_supp = $nm->name_suplier;
 	</tr>
 	
 		<tr>
-		    <td align='center'><?= strtoupper(strtolower($hutang->matauang)) ?></td>
-			<td align='right'><?= number_format($head->subtotal,2) ?></td>
-			<td align='right'><?= number_format($hutang->hutang_kurs,2) ?></td>
-			<td align='right'><?= number_format($hutang->hutang_idr)?></td>
-			<td align='right'><?= number_format($hutang->rencana_bayar_idr,2)?></td>
+		    <td align='center'><?= html_escape(strtoupper(strtolower($hutang->matauang))) ?></td>
+			<td align='right'><?= html_escape(number_format((float)$head->subtotal,2)) ?></td>
+			<td align='right'><?= html_escape(number_format((float)$hutang->hutang_kurs,2)) ?></td>
+			<td align='right'><?= html_escape(number_format((float)$hutang->hutang_idr,2)) ?></td>
+			<td align='right'><?= html_escape(number_format((float)$hutang->rencana_bayar_idr,2)) ?></td>
 			
 		</tr>
 		<?php
 			
-	for($x=0;$x<(5-$i);$x++){
+	for($x=0;$x<4;$x++){
 	echo '
 		<tr>
 			<td>&nbsp;</td>
