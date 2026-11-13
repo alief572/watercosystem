@@ -8,7 +8,7 @@ $ENABLE_DELETE  = has_permission('Expense_Approval.Delete');
 <div class="box">
 	<!-- /.box-header -->
 	<div class="box-body"><div class="table-responsive col-md-12">
-		<table id="mytabledata" class="table table-bordered table-striped">
+		<table id="tbl_expense_approval" class="table table-bordered table-striped" width="100%">
 		<thead>
 		<tr>
 			<th width="5">#</th>
@@ -20,35 +20,7 @@ $ENABLE_DELETE  = has_permission('Expense_Approval.Delete');
 			<th width="120">Action</th>
 		</tr>
 		</thead>
-		<tbody>
-		<?php
-		if(!empty($data)){
-			$numb=0; foreach($data AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->no_doc ?></td>
-			<td><?= $record->tgl_doc ?></td>
-			<td><?= $record->nmuser ?></td>
-			<td><?= $record->informasi ?></td>
-			<td><?= $status[$record->status] ?></td>
-			<td>
-			<?php if($ENABLE_VIEW) : ?>
-				<a class="btn btn-warning btn-sm view" href="javascript:void(0)" title="View" onclick="data_view('<?=$record->id?>')"><i class="fa fa-eye"></i></a>
-			    <a class="btn btn-primary btn-sm edit" href="javascript:void(0)" title="Edit" onclick="data_edit('<?=$record->id?>')"><i class="fa fa-edit"></i></a>
-				
-			<?php endif;
-			if($ENABLE_MANAGE) :
-				if ($record->status==0) {?>
-				<a class="btn btn-success btn-sm approve" href="javascript:void(0)" title="Approve" onclick="data_approve('<?=$record->id?>')"><i class="fa fa-check-square-o"></i></a>
-				<?php }
-			endif;
-				?>
-			</td>
-		</tr>
-		<?php
-			}
-		}  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 		</div>
 	</div>
@@ -61,6 +33,20 @@ $ENABLE_DELETE  = has_permission('Expense_Approval.Delete');
 	var url_edit = siteurl+'expense/edit2/';
 	var url_view = siteurl+'expense/view/';
 	var url_approval = siteurl+'expense/approval/';
+	$(function() {
+		$('#tbl_expense_approval').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			searchDelay: 350,
+			order: [],
+			ajax: { url: siteurl + 'expense/data_expense_approval', type: 'POST' },
+			columns: [
+				{ data: 'no', orderable: false, searchable: false }, { data: 'no_doc' }, { data: 'tgl_doc' }, { data: 'nama' },
+				{ data: 'informasi' }, { data: 'status' }, { data: 'action', orderable: false, searchable: false }
+			]
+		});
+	});
 	//Edit
   	function data_approve(id){
 		if(id!=""){

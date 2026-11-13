@@ -255,8 +255,7 @@ class Expense extends Admin_Controller
 
 	// list
     public function index() {
-		$data = $this->Expense_model->GetListData(array('nama'=>$this->auth->user_name(),'pettycash'=>null));
-        $this->template->set('results', $data);
+		$this->auth->restrict($this->viewPermission);
         $this->template->set('hakakses', "expense");
         $this->template->set('status', $this->status);
 		$this->template->page_icon('fa fa-list');
@@ -399,22 +398,91 @@ class Expense extends Admin_Controller
 */
 	}
     public function list_expense_approval() {
-		$data = $this->Expense_model->GetListData('status=0');
+		$this->auth->restrict('Expense_Approval.View');
         $this->template->set('status', $this->status);
-        $this->template->set('data', $data);
 		$this->template->page_icon('fa fa-list');
 		$this->template->title('Expense Approval');
         $this->template->render('index_approval');
     }
     public function expense_list_all() {
-		$data = $this->Expense_model->GetListData();
+		$this->auth->restrict('Expense_List.View');
 		$this->template->page_icon('fa fa-list');
 		$this->template->title('Expense Report List');
         $this->template->set('status', $this->status);
-        $this->template->set('results', $data);		
         $this->template->set('hakakses', "expense_list");
         $this->template->render('index');
-    }	
+    }
+
+	// ---- Data serverside untuk daftar (DataTable) ----
+	public function data_expense() { $this->expenseListData('index', 'Expense', true); }
+	public function data_expense_list() { $this->expenseListData('list_all', 'Expense_List', true); }
+	public function data_petty_cash() { $this->expenseListData('petty_cash', 'Expense_Petty_Cash', false); }
+	public function data_expense_approval() { $this->expenseListData('approval', 'Expense_Approval', false); }
+
+	/**
+	 * $filter: filter model; $perm: awalan izin (View/Manage/Delete); $withJumlah: kolom Jumlah ada.
+	 * Tombol mengikuti view lama: Print+View (izin View), Edit/Hapus untuk status 0/9 (Manage/Delete);
+	 * Approval: View+Edit (izin View) dan Approve untuk status 0 (izin Manage).
+	 */
+	private function expenseListData($filter, $perm, $withJumlah)
+	{
+		$this->auth->restrict($perm . '.View');
+		$debug = $this->db->db_debug; $this->db->db_debug = false;
+		$draw = 0;
+		try {
+			$request = array();
+			foreach (array('draw','start','length','search','order') as $key) $request[$key] = $this->input->post($key);
+			$rawDraw = filter_var($request['draw'], FILTER_VALIDATE_INT);
+			$draw = $rawDraw !== false && $rawDraw >= 0 ? $rawDraw : 0;
+			$data = $this->Expense_model->GetListDataServerside($filter, $this->auth->user_name(), $request);
+			$canView = has_permission($perm . '.View');
+			$canManage = has_permission($perm . '.Manage');
+			$canDelete = has_permission($perm . '.Delete');
+			$rows = array(); $number = $data['start'];
+			foreach ($data['rows'] as $row) {
+				$id = (int) $row->id;
+				$st = (int) $row->status;
+				$action = '';
+				if ($filter === 'approval') {
+					if ($canView) {
+						$action .= '<a class="btn btn-warning btn-sm view" href="javascript:void(0)" title="View" onclick="data_view(\'' . $id . '\')"><i class="fa fa-eye"></i></a> '
+							. '<a class="btn btn-primary btn-sm edit" href="javascript:void(0)" title="Edit" onclick="data_edit(\'' . $id . '\')"><i class="fa fa-edit"></i></a> ';
+					}
+					if ($canManage && $st === 0) {
+						$action .= '<a class="btn btn-success btn-sm approve" href="javascript:void(0)" title="Approve" onclick="data_approve(\'' . $id . '\')"><i class="fa fa-check-square-o"></i></a>';
+					}
+				} else {
+					if ($canView) {
+						$action .= '<a class="btn btn-default btn-sm print" href="' . html_escape(base_url('expense/expense_print/' . $id)) . '" target="expense_print" title="Print"><i class="fa fa-print"></i> </a> '
+							. '<a class="btn btn-warning btn-sm view" href="javascript:void(0)" title="View" onclick="data_view(\'' . $id . '\')"><i class="fa fa-eye"></i></a> ';
+					}
+					if ($canManage && ($st === 0 || $st === 9)) {
+						$action .= '<a class="btn btn-success btn-sm edit" href="javascript:void(0)" title="Edit" onclick="data_edit(\'' . $id . '\')"><i class="fa fa-edit"></i></a> ';
+					}
+					if ($canDelete && ($st === 0 || $st === 9)) {
+						$action .= '<a class="btn btn-danger btn-sm delete" href="javascript:void(0)" title="Hapus" onclick="data_delete(\'' . $id . '\')"><i class="fa fa-trash"></i></a>';
+					}
+				}
+				$item = array('DT_RowId' => 'expense-' . $id, 'no' => ++$number,
+					'no_doc' => html_escape($row->no_doc ?? ''), 'tgl_doc' => html_escape($row->tgl_doc ?? ''),
+					'nama' => html_escape($row->nmuser ?? ''), 'approval' => html_escape($row->nmapproval ?? ''),
+					'informasi' => html_escape($row->informasi ?? ''));
+				if ($withJumlah) $item['jumlah'] = number_format((float) $row->jumlah);
+				$item['status'] = html_escape($this->status[$row->status] ?? '-');
+				$item['action'] = $action;
+				$rows[] = $item;
+			}
+			$reply = array('draw' => $data['draw'], 'recordsTotal' => $data['total'], 'recordsFiltered' => $data['filtered'], 'data' => $rows);
+		} catch (Throwable $e) {
+			log_message('error', 'Expense table: ' . $e->getMessage());
+			$reply = array('draw' => $draw, 'recordsTotal' => 0, 'recordsFiltered' => 0, 'data' => array(),
+				'error' => $e instanceof DomainException ? $e->getMessage() : 'Data expense tidak dapat dimuat.');
+		} finally {
+			$this->db->db_debug = $debug;
+		}
+		$this->output->set_content_type('application/json');
+		echo json_encode($reply);
+	}
 	public function approval($id){
 		$data = $this->Expense_model->GetDataHeader($id);
 		$data_detail = $this->Expense_model->GetDataDetail($data->no_doc);
@@ -1277,8 +1345,7 @@ class Expense extends Admin_Controller
 
 	// list petty_cash
     public function petty_cash() {
-		$data = $this->Expense_model->GetListData(array('nama'=>$this->auth->user_name(),'pettycash != '=>''));
-        $this->template->set('results', $data);
+		$this->auth->restrict('Expense_Petty_Cash.View');
         $this->template->set('status', $this->status);
 		$this->template->page_icon('fa fa-list');
 		$this->template->title('Petty Cash');
