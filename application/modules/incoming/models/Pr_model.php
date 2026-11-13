@@ -247,6 +247,87 @@ class Pr_model extends BF_Model
 		return $query->result();
 	}
 	
+	/** DataTable serverside untuk index Jurnal Incoming: semua incoming; tombol jurnal hanya untuk yang belum dijurnal (OPN). */
+	public function get_data_incoming_jurnal($can_manage)
+	{
+		$draw = (int) $this->input->post('draw');
+		$start = max(0, (int) $this->input->post('start'));
+		$length = (int) $this->input->post('length');
+		$search = $this->input->post('search');
+		$keyword = trim((string) ($search['value'] ?? ''));
+
+		$base = function ($with_search) use ($keyword) {
+			$this->db->from('tr_incoming a');
+			$this->db->join('master_supplier b', 'a.id_suplier = b.id_suplier');
+			if ($with_search && $keyword !== '') {
+				$this->db->group_start();
+				$this->db->like('a.id_incoming', $keyword, 'both');
+				$this->db->or_like('b.name_suplier', $keyword, 'both');
+				$this->db->or_like('a.pic', $keyword, 'both');
+				$this->db->group_end();
+			}
+		};
+
+		$base(false);
+		$recordsTotal = $this->db->count_all_results();
+		if ($keyword !== '') {
+			$base(true);
+			$recordsFiltered = $this->db->count_all_results();
+		} else {
+			$recordsFiltered = $recordsTotal;
+		}
+
+		$columns = [
+			1 => 'a.id_incoming',
+			2 => 'b.name_suplier',
+			3 => 'a.tanggal',
+			4 => 'a.status_jurnal',
+			5 => 'a.pic',
+			6 => 'a.hutang_idr',
+		];
+		$order = $this->input->post('order');
+		$col = isset($order[0]['column']) ? (int) $order[0]['column'] : -1;
+		$dir = (($order[0]['dir'] ?? 'desc') === 'asc') ? 'ASC' : 'DESC';
+
+		$this->db->select('a.id, a.id_data, a.id_incoming, a.tanggal, a.pic, a.hutang_idr, a.status_jurnal, b.name_suplier');
+		$base(true);
+		if (isset($columns[$col])) {
+			$this->db->order_by($columns[$col], $dir);
+		}
+		$this->db->order_by('a.id', 'DESC');
+		if ($length > 0) {
+			$this->db->limit($length, $start);
+		}
+		$rows = $this->db->get()->result();
+
+		$hasil = [];
+		$no = $start;
+		foreach ($rows as $r) {
+			$no++;
+			$action = '';
+			if ($can_manage && $r->status_jurnal != 'CLS') {
+				$action = '<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="' . htmlspecialchars((string) $r->id_data, ENT_QUOTES) . '"><i class="fa fa-check"></i></a>';
+			}
+			$hasil[] = [
+				'no' => $no,
+				'id_incoming' => htmlspecialchars((string) $r->id_incoming),
+				'supplier' => htmlspecialchars(strtoupper((string) $r->name_suplier)),
+				'tanggal' => !empty($r->tanggal) ? date('d-M-Y', strtotime($r->tanggal)) : '-',
+				'status' => htmlspecialchars((string) $r->status_jurnal),
+				'pic' => htmlspecialchars(strtoupper((string) $r->pic)),
+				'hutang' => number_format((float) $r->hutang_idr, 2),
+				'action' => $action,
+			];
+		}
+
+		echo json_encode([
+			'draw' => $draw,
+			'recordsTotal' => (int) $recordsTotal,
+			'recordsFiltered' => (int) $recordsFiltered,
+			'data' => $hasil,
+		]);
+	}
+
 	public function getSpek($id){
 		$this->db->select('a.*, b.name_compotition as name_compotition');
 		$this->db->from('dt_material_compotition a');

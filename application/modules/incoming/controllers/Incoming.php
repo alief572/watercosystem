@@ -48,10 +48,14 @@ class Incoming extends Admin_Controller
 		$this->auth->restrict($this->viewPermission);
 		$session = $this->session->userdata('app_session');
 		$this->template->page_icon('fa fa-users');
-		$data = $this->db->query("SELECT a.*, b.name_suplier as name_suplier FROM tr_incoming as a INNER JOIN master_supplier as b on a.id_suplier=b.id_suplier ORDER BY a.id DESC")->result();
-		$this->template->set('results', $data);
 		$this->template->title('Incoming');
 		$this->template->render('index_jurnal_incoming');
+	}
+
+	public function get_data_incoming_jurnal()
+	{
+		$this->auth->restrict($this->viewPermission);
+		$this->Pr_model->get_data_incoming_jurnal(has_permission($this->managePermission));
 	}
 
 	public function add()

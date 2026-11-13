@@ -1,8 +1,8 @@
 <?php
-    $ENABLE_ADD     = has_permission('Purchase_Order.Add');
-    $ENABLE_MANAGE  = has_permission('Purchase_Order.Manage');
-    $ENABLE_VIEW    = has_permission('Purchase_Order.View');
-    $ENABLE_DELETE  = has_permission('Purchase_Order.Delete');
+    $ENABLE_ADD     = has_permission('Incoming.Add');
+    $ENABLE_MANAGE  = has_permission('Incoming.Manage');
+    $ENABLE_VIEW    = has_permission('Incoming.View');
+    $ENABLE_DELETE  = has_permission('Incoming.Delete');
 	
 ?>
 <style type="text/css">
@@ -22,14 +22,13 @@ width: 90%;
 	<div class="box-header">
 		<span class="pull-left">
 			<?php if($ENABLE_ADD) : ?>
-				<a class="btn btn-success btn-sm" href="<?= base_url('/incoming/add/'.$record->no_penawaran) ?>" title="Add" ><i class="fa fa-plus"></i>&nbsp;Create</a>
+				<a class="btn btn-success btn-sm" href="<?= base_url('/incoming/add') ?>" title="Add" ><i class="fa fa-plus"></i>&nbsp;Create</a>
 			<?php endif; ?>
 		</span>
 	</div>
 	<!-- /.box-header -->
-	<!-- /.box-header -->
 	<div class="box-body">
-		<table id="example1" class="table table-bordered table-striped">
+		<table id="tbl_incoming_jurnal" class="table table-bordered table-striped" width="100%">
 		<thead>
 		<tr>
 			<th width="5">#</th>
@@ -45,32 +44,7 @@ width: 90%;
 		</tr>
 		</thead>
 
-		<tbody>
-		<?php if(empty($results)){
-		}else{
-			
-			$numb=0; foreach($results AS $record){ $numb++; ?>
-		<tr>
-		    <td><?= $numb; ?></td>
-			<td><?= $record->id_incoming ?></td>
-			<td><?= strtoupper($record->name_suplier) ?></td>
-			<td align='center'><?= date('d-M-Y', strtotime($record->tanggal)) ?></td>
-			<td><?= $record->status ?></td>
-			<td><?= strtoupper($record->pic) ?></td>
-			<td><?= number_format($record->hutang_idr,2)?></td>
-			
-			<td style="padding-left:20px">
-             <?php if($ENABLE_MANAGE) : ?>
-			 <?php if( $record->status_jurnal !='CLS') : ?>
-			    <a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="<?=$record->id_data?>"><i class="fa fa-check"></i>
-				</a>
-			<?php endif; ?>
-			<?php endif; ?>
-			</td>
-
-		</tr>
-		<?php } }  ?>
-		</tbody>
+		<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -142,6 +116,32 @@ width: 90%;
 
 <!-- page script -->
 <script type="text/javascript">
+	$(function() {
+		var columns = [
+			{ data: 'no' }, { data: 'id_incoming' }, { data: 'supplier' }, { data: 'tanggal', className: 'text-center' },
+			{ data: 'status' }, { data: 'pic' }, { data: 'hutang', className: 'text-right' }
+		];
+		var noSort = [0];
+		<?php if ($ENABLE_MANAGE) : ?>
+		columns.push({ data: 'action' });
+		noSort.push(7);
+		<?php endif; ?>
+		$('#tbl_incoming_jurnal').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			order: [],
+			ajax: { url: siteurl + 'incoming/get_data_incoming_jurnal', type: 'POST' },
+			columns: columns,
+			columnDefs: [{ orderable: false, targets: noSort }]
+		});
+
+		// Setelah modal jurnal ditutup, muat ulang tabel supaya incoming yang sudah dijurnal kehilangan tombolnya.
+		$('#dialog-popup').on('hidden.bs.modal', function() {
+			$('#tbl_incoming_jurnal').DataTable().ajax.reload(null, false);
+		});
+	});
+
 	$(document).ready(function(){
 		$("#idcustomer").select2({
 			placeholder: "Pilih",
