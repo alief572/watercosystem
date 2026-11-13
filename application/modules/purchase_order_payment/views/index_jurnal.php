@@ -1,8 +1,8 @@
 <?php
-$ENABLE_ADD     = has_permission('Purchase_order.Add');
-$ENABLE_MANAGE  = has_permission('Purchase_order.Manage');
-$ENABLE_VIEW    = has_permission('Purchase_order.View');
-$ENABLE_DELETE  = has_permission('Purchase_order.Delete');
+$ENABLE_ADD     = has_permission('Jurnal_Pembayaran_PO.Add');
+$ENABLE_MANAGE  = has_permission('Jurnal_Pembayaran_PO.Manage');
+$ENABLE_VIEW    = has_permission('Jurnal_Pembayaran_PO.View');
+$ENABLE_DELETE  = has_permission('Jurnal_Pembayaran_PO.Delete');
 
 ?>
 <style type="text/css">
@@ -16,12 +16,12 @@ $ENABLE_DELETE  = has_permission('Purchase_order.Delete');
 	}
 </style>
 <div id='alert_edit' class="alert alert-success alert-dismissable" style="padding: 15px; display: none;"></div>
-<link rel="stylesheet" href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css">
+<link rel="stylesheet" href="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.css') ?>">
 
 <div class="box">
 
 	<div class="box-body">
-		<table id="example" class="table table-bordered table-striped">
+		<table id="tbl_jurnal_po" class="table table-bordered table-striped" width="100%">
 			<thead>
 				<tr>
 					<th>#</th>
@@ -34,47 +34,14 @@ $ENABLE_DELETE  = has_permission('Purchase_order.Delete');
 					<th>Kurs Bayar</th>
 					<th>Input Pembayaran</th>
 					<th>Total Bayar (IDR)</th>
+					<th>Status Jurnal</th>
 					<?php if ($ENABLE_MANAGE) : ?>
 						<th>Action</th>
 					<?php endif; ?>
 				</tr>
 			</thead>
 
-			<tbody>
-				<?php if (empty($results)) {
-				} else {
-
-					$numb = 0;
-					foreach ($results as $record) {
-						$numb++;
-
-
-
-				?>
-
-
-						<tr>
-							<td><?= $numb; ?></td>
-							<td><?= $record->kd_pembayaran ?></td>
-							<td><?= strtoupper($record->id_incoming) ?></td>
-							<td><?= $record->tgl_pembayaran ?></td>
-							<td><?= $record->nama_supplier ?></td>
-							<td><?= number_format($record->jumlah_hutang) ?></td>
-							<td><?= number_format($record->jumlah_hutang_idr) ?></td>
-							<td><?= number_format($record->kurs_bayar) ?></td>
-							<td><?= number_format($record->jumlah_pembayaran) ?></td>
-							<td><?= number_format($record->jumlah_pembayaran_idr) ?></td>
-							<td style="padding-left:20px">
-								<?php if ($record->status_jurnal != '1') : ?>
-									<a class="btn btn-success btn-sm view3" href="javascript:void(0)" title="Create Jurnal" data-id_material="<?= $record->kd_pembayaran ?>"><i class="fa fa-check"></i>
-									</a>
-								<?php endif; ?>
-							</td>
-						</tr>
-				<?php
-					}
-				}  ?>
-			</tbody>
+			<tbody></tbody>
 		</table>
 	</div>
 	<!-- /.box-body -->
@@ -141,12 +108,38 @@ $ENABLE_DELETE  = has_permission('Purchase_order.Delete');
 <!-- /.modal -->
 
 <!-- DataTables -->
-<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+<script src="<?= base_url('assets/plugins/datatables/jquery.dataTables.min.js') ?>"></script><script src="<?= base_url('assets/plugins/datatables/dataTables.bootstrap.min.js') ?>"></script>
 
 <!-- page script -->
 <script type="text/javascript">
+	$(function() {
+		var columns = [
+			{ data: 'number', orderable: false, searchable: false }, { data: 'kd_pembayaran' }, { data: 'id_incoming' },
+			{ data: 'tgl_pembayaran' }, { data: 'supplier' },
+			{ data: 'hutang', className: 'text-right' }, { data: 'hutang_idr', className: 'text-right' },
+			{ data: 'kurs', className: 'text-right' }, { data: 'bayar', className: 'text-right' },
+			{ data: 'bayar_idr', className: 'text-right' }, { data: 'status' }
+		];
+		<?php if ($ENABLE_MANAGE) : ?>
+		columns.push({ data: 'action', orderable: false, searchable: false });
+		<?php endif; ?>
+		$('#tbl_jurnal_po').DataTable({
+			processing: true,
+			serverSide: true,
+			autoWidth: false,
+			searchDelay: 350,
+			order: [],
+			ajax: { url: siteurl + 'purchase_order_payment/data_jurnal_po', type: 'GET' },
+			columns: columns
+		});
+
+		// Setelah modal jurnal ditutup, muat ulang tabel supaya status pembayaran yang sudah dijurnal ikut berubah.
+		$('#dialog-popup').on('hidden.bs.modal', function() {
+			$('#tbl_jurnal_po').DataTable().ajax.reload(null, false);
+		});
+	});
+
 	$(document).ready(function() {
-		$('#example').dataTable();
 		$("#idcustomer").select2({
 			placeholder: "Pilih",
 			allowClear: true
