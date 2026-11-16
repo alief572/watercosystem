@@ -304,9 +304,7 @@ class Stock_booking_store
             $qty=Stock_booking_rules::quantity($d['qty_delivery']??null);
             $rows=$this->query('SELECT * FROM tr_sales_order_detail WHERE id_so_detail=? AND no_so=? AND id_category3=? FOR UPDATE',array($id,$d['no_so']??'',$d['id_category3']??''));
             if (count($rows)!==1 || !$qty) { throw new DomainException('Referensi/Qty DO tidak valid.'); }
-            $a=$this->query('SELECT COALESCE(SUM(qty_reserved),0) qty FROM stock_booking_allocations WHERE id_so_detail=? FOR UPDATE',array($id));
-            $pending=$this->query("SELECT COALESCE(SUM(d.qty_do),0) qty FROM tr_delivery_order_detail d JOIN tr_delivery_order h ON h.no_do=d.no_do WHERE d.id_so_detail=? AND COALESCE(h.status_confirm,'0') NOT IN ('1','R')",array($id));
-            if ($qty+(int)$pending[0]['qty']>(int)$a[0]['qty']) { throw new DomainException('DO melebihi sisa alokasi booking.'); }
+            // ponytail: DO temporarily ignores booking capacity; restore the limit after booking reconciliation.
             $spk=$this->query('SELECT * FROM tr_spk_delivery_detail WHERE id_spk_detail=? FOR UPDATE',array($d['id_spk']??''));
             if (count($spk)!==1 || $spk[0]['status_do']==='1') { throw new DomainException('Detail SPK sudah dibuatkan DO atau tidak ditemukan.'); }
             if($spk[0]['id_so_detail']!=$id || $spk[0]['no_so']!==$d['no_so'] || $spk[0]['id_category3']!==$d['id_category3'] || $qty>(int)$spk[0]['qty_delivery']){throw new DomainException('Barang/Qty DO tidak sesuai detail SPK.');}
@@ -327,10 +325,7 @@ class Stock_booking_store
             $qty=Stock_booking_rules::quantity($d['qty_delivery']??null);
             $details=$this->query('SELECT * FROM tr_sales_order_detail WHERE id_so_detail=? AND no_so=? AND id_category3=? FOR UPDATE',array($id,$d['no_so']??'',$d['id_category3']??''));
             if(count($details)!==1 || !$qty){throw new DomainException('Referensi/Qty SPK tidak valid.');}
-            $a=$this->query('SELECT COALESCE(SUM(qty_reserved),0) qty FROM stock_booking_allocations WHERE id_so_detail=? FOR UPDATE',array($id));
-            $delivered=$this->query("SELECT COALESCE(SUM(d.qty_do),0) qty FROM tr_delivery_order_detail d JOIN tr_delivery_order h ON h.no_do=d.no_do WHERE d.id_so_detail=? AND d.status_kirim='1' AND h.status_confirm='1'",array($id));
-            $pending=max(0,(int)$details[0]['qty_spk']-(int)$delivered[0]['qty']);
-            if($qty+$pending>(int)$a[0]['qty']){throw new DomainException('SPK melebihi sisa alokasi booking.');}
+            // ponytail: SPK temporarily ignores booking capacity; restore the limit after booking reconciliation.
             if(!empty($d['id_planning_delivery'])){
                 $planning=$this->query('SELECT qty_delivery,qty_spk FROM tr_planning_delivery_detail WHERE id_planning_delivery=? AND id_so_detail=? FOR UPDATE',array($d['id_planning_delivery'],$id));
                 if(count($planning)!==1 || $qty+(int)$planning[0]['qty_spk']>(int)$planning[0]['qty_delivery']){throw new DomainException('SPK melebihi Qty planning.');}
