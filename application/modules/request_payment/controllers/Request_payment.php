@@ -282,6 +282,8 @@ class Request_payment extends Admin_Controller
                 $snapshot = $m->snapshot($s['type'],$source); $same = true;
                 foreach ($snapshot as $field=>$value) {
                     $actual = $detail[$field] ?? '';
+                    // ponytail: snapshot lama menyimpan tanggal 0000-00-00 apa adanya; cocokkan dengan sumber yang juga nol.
+                    if ($field === 'tgl_doc' && $s['type'] === 'expense' && $actual === '0000-00-00' && ($source['tanggal'] ?? '') === '0000-00-00') continue;
                     if (in_array($field,['harga','total'],true)) $actual = $m->amount($m->money($actual));
                     if ((string)$actual !== (string)$value) { $same = false; break; }
                 }
