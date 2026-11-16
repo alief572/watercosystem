@@ -26,7 +26,6 @@
     <table border="0" cellspacing="0" style="width: 100%;">
         <tr>
             <td align="left" valign="top" style="width: 45%;">
-                <img src='assets/images/logo_waterco.png' alt="" height='100' width='250'>
             </td>
             <td align="right" valign="top" style="width: 55%;">
                 <br>

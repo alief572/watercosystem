@@ -57,10 +57,10 @@ foreach (@$headerso as $hdo => $hd) {
 							<div class="col-sm-6">
 								<div class="form-group row">
 									<div class="col-md-4">
-										<label>Upload Surat Jalan</label>
+										<label for="upload_sj">Upload Surat Jalan (Opsional)</label>
 									</div>
 									<div class="col-md-8">
-										<input type="file" class="form-control" id="upload_sj" required name="upload_sj" placeholder="Upload Surat Jalan" tabindex='-1'>
+										<input type="file" class="form-control" id="upload_sj" name="upload_sj" placeholder="Upload Surat Jalan" tabindex='-1'>
 									</div>
 								</div>
 							</div>
