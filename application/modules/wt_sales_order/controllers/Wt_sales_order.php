@@ -345,7 +345,7 @@ class Wt_sales_order extends Admin_Controller
 		$this->stock_booking->document(function () {
 		$this->auth->restrict($this->addPermission);
 		$post = $this->input->post();
-		$id	= $post['id_so'];
+		$lokasi = $lokasi2 = null;
 		$tanggal = $post['tanggal'];
 		$code = $this->Wt_sales_order_model->generate_code();
 		$no_surat = $this->Wt_sales_order_model->BuatNomor($tanggal);
