@@ -238,25 +238,36 @@ class Stock_booking_store
             return;
         }
         if (!$this->operation('confirm-do:' . $noDo, 'confirm-do', $payload)) { return; }
-        $cost = 0;
+        $cost = 0; $bookingUsed = array();
         foreach ($details as $detail) {
             $this->assertDetailAvailable($detail['id_so_detail']);
             $status = $statuses[$detail['id_do_detail']];
             $qty = Stock_booking_rules::quantity($detail['qty_do']);
             if ($qty === 0) { throw new DomainException('Qty DO harus lebih dari nol.'); }
             if ($status === '1') {
-                $allocations = $this->query('SELECT * FROM stock_booking_allocations WHERE id_so_detail=? AND qty_reserved>0 ORDER BY id FOR UPDATE', array($detail['id_so_detail']));
-                if (count($allocations) !== 1 || (int)$allocations[0]['qty_reserved'] < $qty) { throw new DomainException('Sisa booking detail SO tidak cukup untuk pengiriman.'); }
-                $a = $allocations[0];
-                if ((int)$a['qty_consumed']+$qty > (int)$a['ordered_qty']) { throw new DomainException('Total pengiriman melebihi Qty SO.'); }
-                $soDetail = $this->query('SELECT no_so,id_category3 FROM tr_sales_order_detail WHERE id_so_detail=? FOR UPDATE',array($a['id_so_detail']));
+                $allocations = $this->query('SELECT * FROM stock_booking_allocations WHERE id_so_detail=? ORDER BY id FOR UPDATE', array($detail['id_so_detail']));
+                if (count($allocations) > 1) { throw new DomainException('Detail SO memiliki beberapa alokasi; pengiriman harus direkonsiliasi per gudang.'); }
+                $soDetail = $this->query('SELECT no_so,id_category3,qty_so FROM tr_sales_order_detail WHERE id_so_detail=? FOR UPDATE',array($detail['id_so_detail']));
                 if (count($soDetail)!==1 || $soDetail[0]['no_so']!==$detail['no_so'] || $soDetail[0]['id_category3']!==$detail['id_category3']) { throw new DomainException('Referensi detail SO pada DO tidak sesuai.'); }
+                $delivered = $this->query("SELECT COALESCE(SUM(d.qty_do),0) qty FROM tr_delivery_order_detail d JOIN tr_delivery_order h ON h.no_do=d.no_do WHERE d.id_so_detail=? AND h.status_confirm='1' AND d.status_kirim='1'",array($detail['id_so_detail']))[0]['qty'];
+                $a = $allocations[0] ?? null;
+                $consumed = max((int)$delivered, (int)($a['qty_consumed']??0));
+                if ($consumed+$qty > (int)$soDetail[0]['qty_so']) { throw new DomainException('Total pengiriman melebihi Qty SO.'); }
+                if (!$a) {
+                    $stock = $this->findStock($detail['id_category3']);
+                    $this->query('INSERT INTO stock_booking_allocations (id_so_detail,stock_table,id_stock,qty_consumed,baseline_consumed,ordered_qty,updated_on) VALUES (?,?,?,?,?,?,NOW())',array($detail['id_so_detail'],'stock_material',$stock['id_stock'],$consumed,$consumed,$soDetail[0]['qty_so']));
+                    $a = $this->query('SELECT * FROM stock_booking_allocations WHERE id_so_detail=? FOR UPDATE',array($detail['id_so_detail']))[0];
+                }
                 $stock = $this->stock($a['stock_table'], $a['id_stock']);
                 if ($stock['id_category3'] !== $detail['id_category3']) { throw new DomainException('Barang DO berbeda dengan alokasi SO.'); }
                 $this->assertLedger($a['stock_table'], $stock);
-                $after = Stock_booking_rules::reconcile((int)$stock['qty']-$qty, (int)$stock['qty_book']-$qty);
+                $reserved = min($qty, Stock_booking_rules::quantity($a['qty_reserved']));
+                if ($qty > (int)$stock['qty']) { throw new DomainException('Stok aktual tidak cukup untuk pengiriman.'); }
+                if ($qty > (int)$stock['qty_free']+$reserved) { throw new DomainException('Stok bebas dan booking SO ini tidak cukup untuk pengiriman; booking SO lain tetap dijaga.'); }
+                $after = Stock_booking_rules::reconcile((int)$stock['qty']-$qty, (int)$stock['qty_book']-$reserved);
                 $this->writeStock($a['stock_table'], $stock, $after, 'delivery order', $noDo, $headers[0]['no_surat'],array('cost_book'=>$detail['cost_book']));
-                $this->query('UPDATE stock_booking_allocations SET qty_reserved=qty_reserved-?,qty_consumed=qty_consumed+?,updated_on=NOW() WHERE id=?', array($qty,$qty,$a['id']));
+                $this->query('UPDATE stock_booking_allocations SET qty_reserved=qty_reserved-?,qty_consumed=?,updated_on=NOW() WHERE id=?', array($reserved,$consumed+$qty,$a['id']));
+                $bookingUsed[$detail['id_do_detail']] = $reserved;
                 $cost += (float)$detail['cost_book']*$qty;
             } else {
                 // Failed delivery releases its schedule, while the SO reservation remains intact.
@@ -267,6 +278,7 @@ class Stock_booking_store
             }
             $this->query('UPDATE tr_delivery_order_detail SET status_kirim=?,modified_on=NOW(),confirm_costbook=? WHERE id_do_detail=?', array($status,$status==='1' ? (float)$detail['cost_book']*$qty : 0,$detail['id_do_detail']));
         }
+        $this->query('UPDATE stock_booking_operations SET payload=? WHERE operation_key=?',array(json_encode(array('statuses'=>$statuses,'booking_used'=>$bookingUsed),JSON_THROW_ON_ERROR),'confirm-do:'.$noDo));
         $this->query("UPDATE tr_delivery_order SET status_confirm='1',confirm_costbook=?,upload_sj=COALESCE(?,upload_sj) WHERE no_do=?", array($cost,$upload,$noDo));
         foreach (array_unique(array_column($details,'no_so')) as $noSo) {
             $totals=$this->query("SELECT COALESCE(SUM(d.qty_do),0) qty,COALESCE(SUM(d.qty_do*d.cost_book),0) cost FROM tr_delivery_order_detail d JOIN tr_delivery_order h ON h.no_do=d.no_do WHERE d.no_so=? AND h.status_confirm='1' AND d.status_kirim='1'",array($noSo))[0];
@@ -345,7 +357,9 @@ class Stock_booking_store
         if (count($headers)!==1) { throw new DomainException('DO tidak unik atau tidak ditemukan.'); }
         $header=$headers[0];
         if ($header['status_confirm']==='R') { return; }
-        if ($header['status_confirm']!=='1' || !$this->query('SELECT operation_key FROM stock_booking_operations WHERE operation_key=?',array('confirm-do:'.$noDo))) { throw new DomainException('Pembalikan otomatis hanya untuk DO yang dikonfirmasi melalui layanan booking baru.'); }
+        $confirmation=$this->query('SELECT payload FROM stock_booking_operations WHERE operation_key=?',array('confirm-do:'.$noDo));
+        if ($header['status_confirm']!=='1' || !$confirmation) { throw new DomainException('Pembalikan otomatis hanya untuk DO yang dikonfirmasi melalui layanan booking baru.'); }
+        $bookingUsed=json_decode($confirmation[0]['payload'],true,512,JSON_THROW_ON_ERROR)['booking_used']??null;
         if (($header['status_jurnal_do']??'0')==='1' || ($header['status_jurnal_confirm']??'0')==='1') { throw new DomainException('Selesaikan pembalikan jurnal sebelum membalik stok DO.'); }
         if (!$this->operation('reverse-do:'.$noDo,'reverse-do',array('reason'=>$reason))) { return; }
         $details=$this->query('SELECT * FROM tr_delivery_order_detail WHERE no_do=? ORDER BY id_do_detail FOR UPDATE',array($noDo));
@@ -356,9 +370,11 @@ class Stock_booking_store
             if(count($rows)!==1 || (int)$rows[0]['qty_consumed']<$qty){throw new DomainException('Alokasi pengiriman tidak dapat dibalik.');}
             $a=$rows[0];$stock=$this->stock($a['stock_table'],$a['id_stock']);
             $this->assertLedger($a['stock_table'],$stock);
-            $after=Stock_booking_rules::reconcile((int)$stock['qty']+$qty,(int)$stock['qty_book']+$qty);
+            $reserved=$bookingUsed===null ? $qty : Stock_booking_rules::quantity($bookingUsed[$d['id_do_detail']]??null);
+            if($reserved>$qty){throw new DomainException('Riwayat booking pengiriman tidak valid.');}
+            $after=Stock_booking_rules::reconcile((int)$stock['qty']+$qty,(int)$stock['qty_book']+$reserved);
             $this->writeStock($a['stock_table'],$stock,$after,'reverse delivery order',$noDo,$header['no_surat'],array('cost_book'=>$d['cost_book']));
-            $this->query('UPDATE stock_booking_allocations SET qty_reserved=qty_reserved+?,qty_consumed=qty_consumed-?,updated_on=NOW() WHERE id=?',array($qty,$qty,$a['id']));
+            $this->query('UPDATE stock_booking_allocations SET qty_reserved=qty_reserved+?,qty_consumed=qty_consumed-?,updated_on=NOW() WHERE id=?',array($reserved,$qty,$a['id']));
             $this->query('UPDATE tr_sales_order_detail SET qty_delivery=GREATEST(0,COALESCE(qty_delivery,0)-?),qty_spk=GREATEST(0,COALESCE(qty_spk,0)-?) WHERE id_so_detail=?',array($qty,$qty,$d['id_so_detail']));
         }
         $this->query("UPDATE tr_delivery_order SET status_confirm='R',confirm_costbook=0 WHERE no_do=?",array($noDo));
