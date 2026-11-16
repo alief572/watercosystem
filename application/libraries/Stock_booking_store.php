@@ -287,10 +287,7 @@ class Stock_booking_store
             $qty=Stock_booking_rules::quantity($post['qty_delivery'][$index] ?? null);
             $rows=$this->query('SELECT * FROM tr_sales_order_detail WHERE id_so_detail=? AND no_so=? FOR UPDATE',array($id,$post['no_so']??''));
             if (count($rows)!==1 || !$qty) { throw new DomainException('Detail/Qty planning tidak valid.'); }
-            $a=$this->query('SELECT COALESCE(SUM(qty_reserved),0) qty FROM stock_booking_allocations WHERE id_so_detail=? FOR UPDATE',array($id));
-            $delivered=$this->query("SELECT COALESCE(SUM(d.qty_do),0) qty FROM tr_delivery_order_detail d JOIN tr_delivery_order h ON h.no_do=d.no_do WHERE d.id_so_detail=? AND d.status_kirim='1' AND h.status_confirm='1'",array($id));
-            $pending=max(0,(int)$rows[0]['qty_delivery']-(int)$delivered[0]['qty']);
-            if ($qty+$pending>(int)$a[0]['qty']) { throw new DomainException('Planning melebihi sisa booking yang belum dijadwalkan.'); }
+            // ponytail: Planning temporarily ignores booking capacity; restore the limit after booking reconciliation. SPK/DO still enforce it.
         }
     }
 

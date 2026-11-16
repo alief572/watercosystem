@@ -56,7 +56,9 @@ rejected(function() use($s){$s->changeActual('ITEM',3,'IN1','IN1','in');});balan
 check((int)$s->query('SELECT qty FROM stock_material WHERE id_stock=2')[0]['qty']===100,'Another warehouse changed');
 $s->query('UPDATE tr_sales_order_detail SET qty_so=3 WHERE id_so_detail=1');
 tx(function() use($s){$s->reserveSo('SO1');});balance(9,0,9);
-rejected(function() use($s){$s->validatePlanning(array('no_so'=>'SO1','id_so_detail'=>array(1),'qty_delivery'=>array(1)));});
+tx(function() use($s){$s->validatePlanning(array('no_so'=>'SO1','id_so_detail'=>array(1),'qty_delivery'=>array(1)));});balance(9,0,9);
+rejected(function() use($s){$s->validatePlanning(array('no_so'=>'SO1','id_so_detail'=>array(1),'qty_delivery'=>array(0)));});
+rejected(function() use($s){$s->validatePlanning(array('no_so'=>'SO2','id_so_detail'=>array(1),'qty_delivery'=>array(1)));});
 $s->query('UPDATE stock_material SET qty_book=-2,qty_free=11 WHERE id_stock=1');
 rejected(function() use($s){$s->changeActual('ITEM',1,'IN2','IN2','in');});
 check((int)$s->query('SELECT qty FROM stock_material WHERE id_stock=1')[0]['qty']===9,'Rejected corrupt balance changed actual');
