@@ -33,7 +33,7 @@ class Stock_booking
         } catch (Throwable $error) {
             while ($this->ci->db->trans_rollback()) {}
             while (ob_get_level() > $bufferLevel) { ob_end_clean(); }
-            log_message('error', 'Stock booking operation rejected: ' . get_class($error));
+            log_message('error', 'Stock booking operation rejected: ' . get_class($error) . ': ' . $error->getMessage() . ' @ ' . basename($error->getFile()) . ':' . $error->getLine());
             echo json_encode(array('status'=>0,'valid'=>0,'code'=>'','pesan'=>$error instanceof DomainException ? $error->getMessage() : 'Transaksi stok gagal; tidak ada perubahan disimpan.',
                 'msg'=>$error instanceof DomainException ? $error->getMessage() : 'Transaksi stok gagal; tidak ada perubahan disimpan.'));
         } finally {

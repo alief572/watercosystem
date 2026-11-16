@@ -20,9 +20,9 @@ class Stock_booking_store
     public function query($sql, $params = array())
     {
         $stmt = $this->connection->prepare($sql);
-        if (!$stmt) { throw new RuntimeException('Stock booking query preparation failed.'); }
+        if (!$stmt) { throw new RuntimeException('Stock booking query preparation failed: ' . $this->connection->error . ' | ' . $sql); }
         if ($params) { $stmt->bind_param(str_repeat('s', count($params)), ...$params); }
-        if (!$stmt->execute()) { throw new RuntimeException('Stock booking query failed.'); }
+        if (!$stmt->execute()) { throw new RuntimeException('Stock booking query failed: ' . $stmt->error . ' | ' . $sql); }
         $result = $stmt->get_result();
         $rows = $result ? $result->fetch_all(MYSQLI_ASSOC) : array();
         $stmt->close();

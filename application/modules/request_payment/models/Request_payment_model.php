@@ -137,6 +137,8 @@ class Request_payment_model extends BF_Model
             'nonpo'=>['tgl_pr','deskripsi',null,'nilai_satuan_request','total_request','keterangan'],
             'periodik'=>['tanggal','nama',null,'nilai','nilai','keterangan']][$type];
         [$date,$description,$qty,$price,$total,$note] = $map;
+        // ponytail: detail lama bertanggal 0000-00-00 memakai tanggal input baris; perbaiki sumber data lalu hapus fallback ini.
+        if ($type === 'expense' && in_array($row[$date] ?? '',['','0000-00-00',null],true) && !empty($row['created_on'])) $row[$date] = substr($row['created_on'],0,10);
         $quantity = $qty ? $this->id($row[$qty]) : '1';
         if ((float)$quantity > 2147483647) throw new DomainException('Qty melebihi kapasitas snapshot.');
         return ['no_doc'=>$this->text($type === 'transportasi' ? $row['no_req'] : $row['no_doc'],'Nomor dokumen',50),
