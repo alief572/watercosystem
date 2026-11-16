@@ -149,7 +149,7 @@ foreach (@$headerso as $hdo => $hd) {
 
 <script type="text/javascript">
 	<?php
-	if ($results['action'] == 'view') echo '$("#data-form :input").prop("disabled", true);';
+	if (($results['action'] ?? '') == 'view') echo '$("#data-form :input").prop("disabled", true);';
 	?>
 
 	function cekdoinfo(id) {
