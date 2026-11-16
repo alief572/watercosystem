@@ -299,8 +299,9 @@ class Stock_booking_store
             if (empty($d['kirim'])) { continue; }
             $id=$d['id_so']??null;
             $this->assertDetailAvailable($id);
-            if (isset($seen[$id])) { throw new DomainException('Detail SO pada DO duplikat.'); }
-            $seen[$id]=true;
+            $spkId=$d['id_spk']??'';
+            if (isset($seen[$spkId])) { throw new DomainException('Detail SPK pada DO duplikat.'); }
+            $seen[$spkId]=true;
             $qty=Stock_booking_rules::quantity($d['qty_delivery']??null);
             $rows=$this->query('SELECT * FROM tr_sales_order_detail WHERE id_so_detail=? AND no_so=? AND id_category3=? FOR UPDATE',array($id,$d['no_so']??'',$d['id_category3']??''));
             if (count($rows)!==1 || !$qty) { throw new DomainException('Referensi/Qty DO tidak valid.'); }
@@ -315,20 +316,22 @@ class Stock_booking_store
 
     public function validateSpk($post)
     {
-        $this->ready();$seen=array();
+        $this->ready();$seen=array();$planningQty=array();
         if(empty($post['dt']) || !is_array($post['dt'])){throw new DomainException('Detail SPK kosong.');}
         foreach($post['dt'] as $d){
             if(empty($d['kirim'])){continue;}
             $id=$d['id_so']??null;
             $this->assertDetailAvailable($id);
-            if(isset($seen[$id])){throw new DomainException('Detail SPK duplikat.');}$seen[$id]=true;
+            $seen[$id]=true;
             $qty=Stock_booking_rules::quantity($d['qty_delivery']??null);
             $details=$this->query('SELECT * FROM tr_sales_order_detail WHERE id_so_detail=? AND no_so=? AND id_category3=? FOR UPDATE',array($id,$d['no_so']??'',$d['id_category3']??''));
             if(count($details)!==1 || !$qty){throw new DomainException('Referensi/Qty SPK tidak valid.');}
             // ponytail: SPK temporarily ignores booking capacity; restore the limit after booking reconciliation.
             if(!empty($d['id_planning_delivery'])){
+                $planningId=$d['id_planning_delivery'];
+                $planningQty[$planningId]=($planningQty[$planningId]??0)+$qty;
                 $planning=$this->query('SELECT qty_delivery,qty_spk FROM tr_planning_delivery_detail WHERE id_planning_delivery=? AND id_so_detail=? FOR UPDATE',array($d['id_planning_delivery'],$id));
-                if(count($planning)!==1 || $qty+(int)$planning[0]['qty_spk']>(int)$planning[0]['qty_delivery']){throw new DomainException('SPK melebihi Qty planning.');}
+                if(count($planning)!==1 || $planningQty[$planningId]+(int)$planning[0]['qty_spk']>(int)$planning[0]['qty_delivery']){throw new DomainException('SPK melebihi Qty planning.');}
             }
         }
         if(!$seen){throw new DomainException('Tidak ada barang dipilih untuk SPK.');}
