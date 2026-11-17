@@ -495,7 +495,7 @@ class Wt_sales_order extends Admin_Controller
 
 		//    $this->db->delete('tr_sales_order',array('id_so'=>$id));
 		$this->db->insert('tr_sales_order', $data);
-		$this->stock_booking->reserveSo($code);
+		// Booking stok tidak dilakukan saat create SO (permintaan user).
 
 		$data = [
 			'status_so'				=> 1,

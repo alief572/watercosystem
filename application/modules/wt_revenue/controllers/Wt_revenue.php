@@ -419,7 +419,7 @@ class Wt_revenue extends Admin_Controller
 
 		// $this->db->delete('tr_sales_order_detail',array('id_so'=>$id));
 		$this->db->insert_batch('tr_sales_order_detail', $dt);
-		$this->stock_booking->reserveSo($code);
+		// Booking stok tidak dilakukan saat create SO (permintaan user).
 
 
 		$data = [
