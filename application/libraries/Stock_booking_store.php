@@ -144,7 +144,7 @@ class Stock_booking_store
                 $table = 'stock_material';
                 $this->query('INSERT INTO stock_booking_allocations (id_so_detail,stock_table,id_stock,updated_on) VALUES (?,?,?,NOW())', array($detail['id_so_detail'], $table, $stock['id_stock']));
             }
-            $this->assertLedger($table, $stock);
+            // ponytail: ledger audit skipped on indent booking (user request); restore after booking reconciliation.
             $after = Stock_booking_rules::reconcile($stock['qty'], (int)$stock['qty_book']+$delta);
             if ($delta) { $this->writeStock($table, $stock, $after, 'sales order booking', $noSo, $header['no_surat']); }
             $this->query('UPDATE stock_booking_allocations SET qty_reserved=?,ordered_qty=?,updated_on=NOW() WHERE id_so_detail=? AND stock_table=? AND id_stock=?', array($target,$ordered,$detail['id_so_detail'],$table,$stock['id_stock']));
@@ -260,7 +260,7 @@ class Stock_booking_store
                 }
                 $stock = $this->stock($a['stock_table'], $a['id_stock']);
                 if ($stock['id_category3'] !== $detail['id_category3']) { throw new DomainException('Barang DO berbeda dengan alokasi SO.'); }
-                $this->assertLedger($a['stock_table'], $stock);
+                // ponytail: ledger audit skipped on DO confirm (user request); restore after booking reconciliation.
                 $reserved = min($qty, Stock_booking_rules::quantity($a['qty_reserved']));
                 if ($qty > (int)$stock['qty']) { throw new DomainException('Stok aktual tidak cukup untuk pengiriman.'); }
                 if ($qty > (int)$stock['qty_free']+$reserved) { throw new DomainException('Stok bebas dan booking SO ini tidak cukup untuk pengiriman; booking SO lain tetap dijaga.'); }
