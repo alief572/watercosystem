@@ -94,7 +94,7 @@ foreach(@$headerso as $hdo => $hd){
 						<tbody id="list_spk">
                         <?php
                   if(@$getitemso){
-                  $n=1;
+                  $n=1; $type='text';
                   foreach(@$getitemso as $kdo => $dt_spk){
                       $no=$n++;
 

@@ -96,7 +96,7 @@ foreach ($headerso as $hdo => $hd) {
 											// print_r($getitemso);
 											// exit;
 											if ($getitemso) {
-												$n = 1; $i = 0;
+												$n = 1; $i = 0; $type = 'text';
 												foreach ($getitemso as $kdo => $dt_spk) {
 													$no = $n++;
 
