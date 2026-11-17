@@ -7,6 +7,7 @@ class SpkDeliveryValidationStore extends Stock_booking_store
     public $usedSpk = false;
     public $quarantined = false;
     public $spkStatus = '0';
+    public $spkNoSo = 'SO1';
 
     public function __construct() {}
     public function ready() {}
@@ -24,7 +25,7 @@ class SpkDeliveryValidationStore extends Stock_booking_store
         }
         if (strpos($sql, 'FROM tr_spk_delivery_detail') !== false) {
             return in_array($params[0], array(20, 21), true) ? array(array(
-                'id_so_detail' => 1, 'no_so' => 'SO1', 'id_category3' => 'PRODUCT1',
+                'id_so_detail' => 1, 'no_so' => $this->spkNoSo, 'id_category3' => 'PRODUCT1',
                 'qty_delivery' => 1, 'status_do' => $this->spkStatus,
             )) : array();
         }
@@ -72,4 +73,7 @@ checkSpkValidation('validateDeliveryDraft', array($row, $row), 'Detail SPK pada 
 checkSpkValidation('validateDeliveryDraft', array(array_replace($row, array('qty_delivery' => 2))), 'Barang/Qty DO tidak sesuai detail SPK.');
 checkSpkValidation('validateDeliveryDraft', array($row), 'Detail SPK sudah digunakan pada DO.', function ($s) { $s->usedSpk = true; });
 checkSpkValidation('validateDeliveryDraft', array($row), 'Detail SPK sudah dibuatkan DO atau tidak ditemukan.', function ($s) { $s->spkStatus = '1'; });
+checkSpkValidation('validateDeliveryDraft', array($row), null, function ($s) { $s->spkNoSo = null; });
+checkSpkValidation('validateDeliveryDraft', array($row), null, function ($s) { $s->spkNoSo = ''; });
+checkSpkValidation('validateDeliveryDraft', array($row), 'Barang/Qty DO tidak sesuai detail SPK.', function ($s) { $s->spkNoSo = 'OTHER'; });
 echo "PASS: $checks SPK/DO validation cases\n";

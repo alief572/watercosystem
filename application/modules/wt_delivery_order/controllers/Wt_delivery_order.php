@@ -516,6 +516,7 @@ class Wt_delivery_order extends Admin_Controller
 		$this->stock_booking->document(function () {
 		$post = $this->input->post();
         $this->stock_booking->validateDeliveryDraft($post);
+		$lokasi = null;
 
 		$config['upload_path'] = './assets/file_po/'; //path folder
 		$config['allowed_types'] = 'gif|jpg|png|jpeg|bmp|doc|docx|xls|xlsx|ppt|pptx|pdf|rar|zip|vsd'; //type yang dapat diakses bisa anda sesuaikan
@@ -537,15 +538,10 @@ class Wt_delivery_order extends Admin_Controller
 			$this->load->library('image_lib', $config);
 			$this->image_lib->resize();
 
-			$gambar  = $gbr['file_name'];
-			$type    = $gbr['file_type'];
-			$ukuran  = $gbr['file_size'];
-			$ext1    = explode('.', $gambar);
-			$ext     = $ext1[1];
 			$lokasi = $gbr['file_name'];
+		} elseif (isset($_FILES['upload_foto']) && ($_FILES['upload_foto']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+			throw new DomainException('Upload foto gagal: ' . strip_tags($this->upload->display_errors('', '')));
 		}
-
-		$this->db->trans_begin();
 
 		$tanggal = $post['tanggal'];
 		$code = 	$this->Wt_delivery_order_model->generate_code_Do();
@@ -573,17 +569,21 @@ class Wt_delivery_order extends Admin_Controller
 		$totalqty  = 0;
 
 		$numb1 = 0;
-		foreach ($_POST['dt'] as $used) {
+		foreach ($post['dt'] as $used) {
 			$numb1++;
-			if ($used['kirim']) {
+			if (!empty($used['kirim'])) {
 				$qty_dikirim 	=	(int)$used['qty_delivery'];
 
 				$idmaterial 	= 	$used['id_category3'];
 				$noso 			=  	$used['no_so'];
-				$cost = $this->db->query("SELECT * FROM ms_costbook WHERE id_category3='$idmaterial'")->row();
+				$cost = $this->db->query('SELECT nilai_costbook FROM ms_costbook WHERE id_category3=?', array($idmaterial))->row();
+				if (!$cost || !is_numeric($cost->nilai_costbook)) {
+					throw new DomainException('Costbook barang belum tersedia: ' . $idmaterial);
+				}
 				//$so   = $this->db->query("SELECT sum(costbook_so) as qtyso FROM tr_sales_order_detail WHERE no_so='$noso'")->row();
 
-				$sobook   = $this->db->query("SELECT costbook_so as qtyso FROM tr_sales_order_detail WHERE no_so='$noso' AND id_category3='$idmaterial' ")->row();
+				$sobook = $this->db->query('SELECT costbook_so FROM tr_sales_order_detail WHERE id_so_detail=? AND no_so=? AND id_category3=?', array($used['id_so'], $noso, $idmaterial))->row();
+				if (!$sobook) { throw new DomainException('Detail SO untuk DO tidak ditemukan.'); }
 
 				$costbook   = $cost->nilai_costbook;
 				$costbookso = $sobook->costbook_so;
@@ -595,9 +595,10 @@ class Wt_delivery_order extends Admin_Controller
 
 				$totalqty    	+=	(int)$used['qty_delivery'];
 
-				$so   = $this->db->query("SELECT sum(qty_so) as qtyso FROM tr_sales_order_detail WHERE no_so='$noso'")->row();
+				$so = $this->db->query('SELECT sum(qty_so) as qtyso FROM tr_sales_order_detail WHERE no_so=?', array($noso))->row();
 
 				$qtyso = (int)$so->qtyso;
+				if ($qtyso <= 0) { throw new DomainException('Total Qty SO harus lebih dari nol.'); }
 				$persen = round(($totalqty / $qtyso) * 100);
 				$persendo = (int)$persen;
 
@@ -648,22 +649,9 @@ class Wt_delivery_order extends Admin_Controller
 
 
 		if ($this->db->trans_status() === FALSE) {
-			$this->db->trans_rollback();
-			$status	= array(
-				'pesan'		=> 'Gagal Save Item. Thanks ...',
-				'code' => $code,
-				'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-				'pesan'		=> 'Success Save Item. invenThanks ...',
-				'code' => $code,
-				'status'	=> 1
-			);
+			throw new RuntimeException('Gagal menyimpan delivery order.');
 		}
-
-		echo json_encode($status);
+		echo json_encode(array('pesan' => 'Delivery Order berhasil disimpan.', 'code' => $code, 'status' => 1));
 
 		});
 	}

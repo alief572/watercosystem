@@ -320,7 +320,8 @@ class Stock_booking_store
             // ponytail: DO temporarily ignores booking capacity; restore the limit after booking reconciliation.
             $spk=$this->query('SELECT * FROM tr_spk_delivery_detail WHERE id_spk_detail=? FOR UPDATE',array($d['id_spk']??''));
             if (count($spk)!==1 || $spk[0]['status_do']==='1') { throw new DomainException('Detail SPK sudah dibuatkan DO atau tidak ditemukan.'); }
-            if($spk[0]['id_so_detail']!=$id || $spk[0]['no_so']!==$d['no_so'] || $spk[0]['id_category3']!==$d['id_category3'] || $qty>(int)$spk[0]['qty_delivery']){throw new DomainException('Barang/Qty DO tidak sesuai detail SPK.');}
+            $spkNoSo=$spk[0]['no_so']??'';
+            if($spk[0]['id_so_detail']!=$id || ($spkNoSo!=='' && $spkNoSo!==$d['no_so']) || $spk[0]['id_category3']!==$d['id_category3'] || $qty>(int)$spk[0]['qty_delivery']){throw new DomainException('Barang/Qty DO tidak sesuai detail SPK.');}
             if($this->query('SELECT id_do_detail FROM tr_delivery_order_detail WHERE id_spk_detail=? LIMIT 1',array($d['id_spk']))){throw new DomainException('Detail SPK sudah digunakan pada DO.');}
         }
         if (!$seen) { throw new DomainException('Tidak ada barang dipilih untuk DO.'); }
