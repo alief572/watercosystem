@@ -456,6 +456,55 @@ class Stock_booking_store
         ));
     }
 
+    public static function amount($value)
+    {
+        if (is_string($value) && preg_match('/^(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?$/D', $value)) {
+            $value = str_replace(',', '', $value);
+        }
+        if (!is_numeric($value) || !is_finite((float)$value) || (float)$value < 0) {
+            throw new DomainException('Nilai biaya tidak valid.');
+        }
+        return (float)$value;
+    }
+
+    public function costbook($material)
+    {
+        if (!is_string($material) || $material === '') { throw new DomainException('ID barang tidak valid.'); }
+        $products = $this->query('SELECT id_category3 FROM ms_inventory_category3 WHERE id_category3=? AND COALESCE(deleted,0)=0 FOR UPDATE', array($material));
+        if (count($products) !== 1) { throw new DomainException('Master barang tidak unik atau tidak ditemukan: ' . $material); }
+        $rows = $this->query('SELECT * FROM ms_costbook WHERE id_category3=? FOR UPDATE', array($material));
+        if (count($rows) > 1) { throw new DomainException('Costbook barang ganda; rekonsiliasi terlebih dahulu: ' . $material); }
+        return $rows;
+    }
+
+    public function receiveIncoming($material, $quantity, $value, $reference)
+    {
+        $quantity = Stock_booking_rules::quantity($quantity);
+        $value = self::amount($value);
+        if (!$quantity || $value <= 0 || !is_string($reference) || $reference === '') { throw new DomainException('Qty/nilai Incoming harus lebih dari nol.'); }
+        $rows = $this->costbook($material);
+        if (!$this->operation('incoming-cost:' . hash('sha256', $material . ':' . $reference), 'incoming-cost', array($quantity,$value))) { return false; }
+        $stock = $this->findStock($material);
+        $this->assertLedger('stock_material', $stock);
+        $before = Stock_booking_rules::quantity($stock['qty']);
+        if (!$rows && $before > 0) { throw new DomainException('Costbook kosong saat stok lama masih ada; pulihkan HPP terlebih dahulu: ' . $material); }
+        $oldCost = $rows ? self::amount($rows[0]['nilai_costbook']) : 0;
+        if ($before > 0 && $oldCost <= 0) { throw new DomainException('HPP stok lama belum valid; pulihkan HPP terlebih dahulu: ' . $material); }
+        $oldValue = self::amount($before * $oldCost);
+        $cost = round(self::amount($oldValue + $value) / ($before + $quantity), 2);
+        if (!$this->changeActual($material, $quantity, $reference, $reference, 'in', '1', 'stock_material', array('harga_stok'=>$oldValue,'harga_do'=>$value,'cost_book'=>$cost))) {
+            throw new DomainException('Mutasi Incoming sudah diproses tanpa penanda costbook; periksa transaksi: ' . $reference);
+        }
+        if ($rows) {
+            $this->query('UPDATE ms_costbook SET nilai_costbook=?,modified_on=NOW(),modified_by=? WHERE id=?', array($cost,$this->actor,$rows[0]['id']));
+        } else {
+            $this->query('INSERT INTO ms_costbook(id_category3,nilai_costbook,created_on,created_by) VALUES (?,?,NOW(),?)', array($material,$cost,$this->actor));
+        }
+        $saved = $this->costbook($material);
+        if (count($saved) !== 1 || (float)$saved[0]['nilai_costbook'] !== $cost) { throw new RuntimeException('Costbook Incoming tidak tersimpan.'); }
+        return true;
+    }
+
     public function changeActual($material, $quantity, $reference, $number, $direction, $warehouse = '1', $table = 'stock_material', $cost = array())
     {
         $this->ready();

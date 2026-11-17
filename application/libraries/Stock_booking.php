@@ -13,7 +13,7 @@ class Stock_booking
         $this->store = new Stock_booking_store($this->ci->db->conn_id, $this->ci->auth->user_id());
     }
 
-    public function document($callback)
+    public function document($callback, $requireReady = true)
     {
         $locked = false;
         $originalDebug = $this->ci->db->db_debug;
@@ -24,7 +24,7 @@ class Stock_booking
             $result = $this->store->query("SELECT GET_LOCK('waterco-stock-booking',15) acquired");
             $locked = (int)$result[0]['acquired'] === 1;
             if (!$locked) { throw new DomainException('Stok sedang diproses. Silakan coba kembali.'); }
-            $this->store->ready();
+            if ($requireReady) { $this->store->ready(); }
             if (!$this->ci->db->trans_begin()) { throw new RuntimeException('Cannot start stock transaction.'); }
             $callback();
             if (!$this->ci->db->trans_status() || !$this->ci->db->trans_commit()) { throw new RuntimeException('Cannot commit stock transaction.'); }
@@ -131,6 +131,16 @@ class Stock_booking
         $stock=$this->store->findStock($material);
         $this->store->assertLedger('stock_material',$stock);
         return (object)$stock;
+    }
+
+    public function costbook($material)
+    {
+        return $this->store->costbook($material);
+    }
+
+    public function receiveIncoming($material, $quantity, $value, $reference)
+    {
+        return $this->store->receiveIncoming($material, $quantity, $value, $reference);
     }
 
     public function validatePlanning($post)

@@ -77,99 +77,42 @@ class Costbook extends Admin_Controller
 
 	public function saveEditCostbook()
 	{
-		$this->auth->restrict($this->editPermission);
-		$post = $this->input->post();
-		$id	  = $post['id'];
-		$this->db->trans_begin();
-
-		$cb = $this->db->query("select * from ms_costbook WHERE id='$id'")->result();
-
-		foreach ($cb as $record) {
-
-			$data = [
-				'id_costbook'		=> $id,
-				'nilai_costbook'	=> $record->nilai_costbook,
-				'created_on'		=> date('Y-m-d H:i:s'),
-				'created_by'		=> $this->auth->user_id(),
-			];
-
-			$insert = $this->db->insert("ms_costbook_history", $data);
-		}
-
-		$data_update = [
-			'nilai_costbook' 	=> $post['costbook'],
-			'modified_on'		=> date('Y-m-d H:i:s'),
-			'modified_by' 		=> $this->auth->user_id()
-		];
-		$this->db->where('id', $id)->update("ms_costbook", $data_update);
-
-
-
-		if ($this->db->trans_status() === FALSE) {
-			$this->db->trans_rollback();
-			$status	= array(
-				'pesan'		=> 'Gagal Save Item. Thanks ...',
-				'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-				'pesan'		=> 'Success Save Item. Thanks ...',
-				'status'	=> 1
-			);
-		}
-
-		echo json_encode($status);
+		$this->saveCostbook(true);
 	}
-
 
 	public function saveAddCostbook()
 	{
-		$this->auth->restrict($this->editPermission);
-		$post = $this->input->post();
-		$id	  = $post['inventory_3'];
-		$this->db->trans_begin();
+		$this->saveCostbook(false);
+	}
 
-		$cb = $this->db->query("select * from ms_costbook WHERE id_category3='$id'")->num_rows();
-
-
-
-		if ($cb < 1) {
-
-			$data = [
-				'id_category3'		=> $id,
-				'nilai_costbook'	=> $post['costbook'],
-				'created_on'		=> date('Y-m-d H:i:s'),
-				'created_by'		=> $this->auth->user_id(),
-			];
-
-			$insert = $this->db->insert("ms_costbook", $data);
-		}
-
-		if ($cb > 0) {
-
-			$status	= array(
-				'pesan'		=> 'Gagal Save Item material sudah ada. Thanks ...',
-				'status'	=> 0
-			);
-		} else {
-
-			if ($this->db->trans_status() === FALSE) {
-				$this->db->trans_rollback();
-				$status	= array(
-					'pesan'		=> 'Gagal Save Item. Thanks ...',
-					'status'	=> 0
-				);
+	private function saveCostbook($editing)
+	{
+		$this->auth->restrict($editing ? $this->managePermission : $this->addPermission);
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () use ($editing) {
+			$post = $this->input->post();
+			$value = round(Stock_booking_store::amount($post['costbook'] ?? null), 2);
+			if ($editing) {
+				if (!is_scalar($post['id'] ?? null) || !ctype_digit((string)$post['id']) || (int)$post['id'] <= 0) { throw new DomainException('ID costbook tidak valid.'); }
+				$found = $this->db->query('SELECT id_category3 FROM ms_costbook WHERE id=?', array($post['id'] ?? ''))->result_array();
+				if (count($found) !== 1) { throw new DomainException('Costbook tidak ditemukan.'); }
+				$material = $found[0]['id_category3'];
 			} else {
-				$this->db->trans_commit();
-				$status	= array(
-					'pesan'		=> 'Success Save Item. Thanks ...',
-					'status'	=> 1
-				);
+				$material = $post['inventory_3'] ?? '';
 			}
-		}
-
-		echo json_encode($status);
+			$rows = $this->stock_booking->costbook($material);
+			if ($editing) {
+				if (count($rows) !== 1 || (string)$rows[0]['id'] !== (string)($post['id'] ?? '')) { throw new DomainException('Referensi costbook berubah. Muat ulang data.'); }
+				if ($this->db->insert('ms_costbook_history', array('id_costbook'=>$rows[0]['id'],'nilai_costbook'=>$rows[0]['nilai_costbook'],'created_on'=>date('Y-m-d H:i:s'),'created_by'=>$this->auth->user_id())) === false
+					|| $this->db->query('UPDATE ms_costbook SET nilai_costbook=?,modified_on=NOW(),modified_by=? WHERE id=?', array($value,$this->auth->user_id(),$rows[0]['id'])) === false) { throw new RuntimeException('Gagal menyimpan costbook.'); }
+			} else {
+				if ($rows) { throw new DomainException('Costbook barang sudah tersedia.'); }
+				if ($this->db->insert('ms_costbook', array('id_category3'=>$material,'nilai_costbook'=>$value,'created_on'=>date('Y-m-d H:i:s'),'created_by'=>$this->auth->user_id())) === false) { throw new RuntimeException('Gagal membuat costbook.'); }
+			}
+			$saved = $this->stock_booking->costbook($material);
+			if (count($saved) !== 1 || (float)$saved[0]['nilai_costbook'] !== $value || !$this->db->trans_status()) { throw new RuntimeException('Costbook tidak tersimpan.'); }
+			echo json_encode(array('status'=>1,'pesan'=>'Costbook berhasil disimpan.'));
+		}, false);
 	}
 
 	public function check_costbook()
@@ -216,50 +159,31 @@ class Costbook extends Admin_Controller
 
 	public function save_check_costbook()
 	{
-		$post = $this->input->post();
-
-		if (isset($post['check'])) {
-			$arr_update = [];
-
-			foreach ($post['check'] as $item_check) {
-				$id_category3 = $post['detail'][$item_check]['id_category3'];
-				$costbook_report = $post['detail'][$item_check]['costbook_report'];
-
-				$arr_update[] = [
-					'id_category3' => $id_category3,
-					'nilai_costbook' => $costbook_report,
-					'modified_by' => $this->auth->user_id(),
-					'modified_on' => date('Y-m-d H:i:s')
-				];
+		$this->auth->restrict($this->managePermission);
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () {
+			$post = $this->input->post();
+			if (empty($post['check']) || !is_array($post['check'])) { throw new DomainException('Tidak ada data yang diproses.'); }
+			$values = array();
+			foreach ($post['check'] as $index) {
+				if (!is_int($index) && !is_string($index)) { throw new DomainException('Pilihan costbook tidak valid.'); }
+				$detail = $post['detail'][$index] ?? array();
+				$material = $detail['id_category3'] ?? '';
+				if (!is_string($material) || $material === '' || isset($values[$material])) { throw new DomainException('Pilihan costbook tidak valid atau duplikat.'); }
+				$values[$material] = round(Stock_booking_store::amount($detail['costbook_report'] ?? null), 2);
 			}
-
-			$this->db->trans_begin();
-
-			try {
-				$update_costbook = $this->db->update_batch('ms_costbook', $arr_update, 'id_category3');
-
-				$this->db->trans_commit();
-
-				$response = [
-					'status' => 1,
-					'msg' => 'Data costbook yang dipilih sudah terupdate !'
-				];
-			} catch (Exception $e) {
-				$this->db->trans_rollback();
-
-				$response = [
-					'status' => 0,
-					'msg' => $e->getMessage()
-				];
+			ksort($values);
+			foreach ($values as $material=>$value) {
+				$rows = $this->stock_booking->costbook($material);
+				if (count($rows) !== 1) { throw new DomainException('Costbook barang belum tersedia: ' . $material); }
+				if ($this->db->insert('ms_costbook_history', array('id_costbook'=>$rows[0]['id'],'nilai_costbook'=>$rows[0]['nilai_costbook'],'created_on'=>date('Y-m-d H:i:s'),'created_by'=>$this->auth->user_id())) === false
+					|| $this->db->query('UPDATE ms_costbook SET nilai_costbook=?,modified_by=?,modified_on=NOW() WHERE id=?', array($value,$this->auth->user_id(),$rows[0]['id'])) === false) { throw new RuntimeException('Gagal memperbarui costbook.'); }
+				$saved = $this->stock_booking->costbook($material);
+				if (count($saved) !== 1 || (float)$saved[0]['nilai_costbook'] !== $value) { throw new RuntimeException('Costbook tidak tersimpan.'); }
 			}
-		} else {
-			$response = [
-				'status' => 0,
-				'msg' => 'Tidak ada data yang di proses !'
-			];
-		}
-
-		echo json_encode($response);
+			if (!$this->db->trans_status()) { throw new RuntimeException('Gagal menyimpan costbook.'); }
+			echo json_encode(array('status'=>1,'msg'=>'Costbook berhasil diperbarui.','pesan'=>'Costbook berhasil diperbarui.'));
+		}, false);
 	}
 
 	public function get_costbooks()

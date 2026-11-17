@@ -935,269 +935,89 @@ class Incoming extends Admin_Controller
 		$this->auth->restrict($this->managePermission);
 		$this->load->library('Stock_booking');
 		$this->stock_booking->document(function () {
-		$Arr_Kembali	= array();
-		$post = $this->input->post();
-
-
-		// print_r($post);
-		// exit;
-
-		$tgl  = $post['tanggal'];
-
-
-
-		$kurs	= $this->input->post('matauang');
-
-		if ($kurs == 'idr') {
-			$nilai_kurs = 1;
-		} else {
-			$nilai_kurs = $this->input->post('kurs');
-		}
-
-
-
-		$code = $this->Pr_model->generate_code();
-		$id_data = $this->Pr_model->BuatID($tgl);
-		$no_surat = $this->Pr_model->BuatNomor($tgl);
-		$data			= $this->input->post();
-		$session 		= $this->session->userdata('app_session');
-		$Detail 	= $data['dt'];
-
-
-		$ArrDetail	= array();
-		$ArrUpdate	= array();
-		$ArrDetail2	= array();
-		foreach ($Detail as $val => $valx) {
-			$urut				= sprintf('%02s', $val);
-			$ArrDetail[$val]['id_data']				= $id_data;
-			$ArrDetail[$val]['id_incoming']			= $no_surat;
-			$ArrDetail[$val]['id_detail_incoming']	= $id_data . '-' . $urut;
-
-			// print_r();
-			// exit;                   
-
-			$nomor_po = $valx['nopo'];
-
-
-			foreach ($valx['detail'] as $val2 => $valx2) {
-
-
-				$material = $valx2['id_material'];
-				$notr     = $no_surat;
-				$noincoming     = $id_data;
-				$qtydo       = str_replace(',', '', $valx2['qtyrecive']);
-				$ppn         = str_replace(',', '', $valx2['ppn']);
-				$hargasatuan = str_replace(',', '', $valx2['hargasatuan']);
-
-				$persen = $this->db->query("select persen from ppn")->row();
-				$persenppn = $persen->persen;
-
-				if ($ppn > 0) {
-					$total = $hargasatuan * $qtydo * $nilai_kurs;
-					$nilaippn = ($total * $persenppn) / 100;
-					$hutang = $total + $nilaippn;
-				} else {
-					$hutang = $hargasatuan * $qtydo * $nilai_kurs;
-					$nilaippn = 0;
-				}
-
-
-				$totalnilai  = $hargasatuan * $qtydo * $nilai_kurs;
-
-				$totalhutangkurs += $hutang;
-				$totalppn 		 += $nilaippn;
-				$totalbarang     += $totalnilai;
-				$totalhutangusd  += $hargasatuan * $qtydo;
-
-				$ArrDetail2[$val2 . $val]['id_data']				= $id_data;
-				$ArrDetail2[$val2 . $val]['id_incoming']			= $no_surat;
-				$ArrDetail2[$val2 . $val]['id_detail_incoming']	= $id_data . '-' . $urut;
-				$ArrDetail2[$val2 . $val]['id_dt_po']	 			= $valx2['iddtpo'];
-				$ArrDetail2[$val2 . $val]['id_material'] 			= $valx2['id_material'];
-				$ArrDetail2[$val2 . $val]['nama_material'] 		= $valx2['nama_material'];
-				$ArrDetail2[$val2 . $val]['length'] 				= $valx2['panjang2'];
-				$ArrDetail2[$val2 . $val]['width'] 				= str_replace(',', '', $valx2['weight']);
-				$ArrDetail2[$val2 . $val]['weight'] 				= str_replace(',', '', $valx2['weight']);
-				$ArrDetail2[$val2 . $val]['qty_order'] 			= str_replace(',', '', $valx2['qtyorder']);
-				$ArrDetail2[$val2 . $val]['qty_recive'] 			= str_replace(',', '', $valx2['qtyrecive']);
-				$ArrDetail2[$val2 . $val]['harga_satuan_usd'] 	= str_replace(',', '', $valx2['hargasatuan']);
-				$ArrDetail2[$val2 . $val]['harga_total_idr']   	= str_replace(',', '', $totalnilai);
-				$ArrDetail2[$val2 . $val]['kurs'] 		        = $nilai_kurs;
-				$ArrDetail2[$val2 . $val]['tgl_datang'] 			= $post['tanggal'];
-				$ArrDetail2[$val2 . $val]['lotno'] 				= $valx2['loto'];
-				$ArrDetail2[$val2 . $val]['width_recive'] 		= str_replace(',', '', $valx2['widthrecive']);
-				$ArrDetail2[$val2 . $val]['id_gudang'] 			= $valx2['gudang'];
-				$ArrDetail2[$val2 . $val]['id_roll'] 				= $valx2['id_roll'];
-				$ArrDetail2[$val2 . $val]['panjang'] 				= $valx2['panjang2'];
-				$ArrDetail2[$val2 . $val]['actual_berat'] 		= $valx2['aktual'];
-				$ArrDetail2[$val2 . $val]['selisih'] 			    = $valx2['selisih'];
-				$ArrDetail2[$val2 . $val]['thickness'] 			= str_replace(',', '', $valx2['thickness']);
-				$ArrDetail2[$val2 . $val]['kode_barang'] 			= $valx2['kodebarang'];
-				$ArrDetail2[$val2 . $val]['ppn']   	            = str_replace(',', '', $nilaippn);
-				$ArrDetail2[$val2 . $val]['harga_total']   	    = str_replace(',', '', $hutang);
-
-				$id_dt_po = $valx2['iddtpo'];
-				$cek = $this->db->query("SELECT qty, qty_terima, berat_terima FROM dt_trans_po WHERE id_dt_po ='$id_dt_po'")->row();
-
-				$beratterima = str_replace(',', '', $valx2['qty_recive']);
-				$cekberat = $cek->qty_terima;
-				$terima   = $cekberat + $beratterima;
-				$order  = $cek->qty;
-
-				$ArrUpdate[$val2 . $val]['id_dt_po']	= $valx2['iddtpo'];
-				if ($order > $terima) {
-					$ArrUpdate[$val2 . $val]['sts_incoming'] = NULL;
-				} else {
-					$ArrUpdate[$val2 . $val]['sts_incoming'] = '1';
-				}
-				$ArrUpdate[$val2 . $val]['qty_terima'] = $terima;
-
-
-
-
-
-
-				//$this->kartu_stok_in($material,$qtydo,$notr,$totalnilai,$nomor_po,$nilai_kurs,$noincoming,$hutang);
-
+			$post = $this->input->post();
+			if (!is_array($post) || empty($post['dt']) || !is_array($post['dt'])) { throw new DomainException('Detail Incoming kosong.'); }
+			foreach ($post as $field=>$value) {
+				if ($field !== 'dt' && $value !== null && !is_scalar($value)) { throw new DomainException('Field header Incoming tidak valid.'); }
 			}
-
-
-			$ArrHeader	 = [
-				'id_data'			=> $id_data,
-				'id_incoming'		=> $no_surat,
-				'id_suplier'		=> $post['id_suplier'],
-				'id_gudang'			=> $post['id_gudang'],
-				'tanggal'			=> $post['tanggal'],
-				'pic'				=> $post['pic'],
-				'pib'				=> $post['pib'],
-				'no_invoice'		=> $post['no_invoice'],
-				'keterangan'		=> $post['ket'],
-				'created_date'		=> date('Y-m-d H:i:s'),
-				'matauang'		    => $kurs,
-				'kurs'		        => $nilai_kurs,
-				'hutang_kurs'		=> $totalhutangusd,
-				'hutang_idr'		=> $totalhutangkurs,
-				'no_po'				=> $nomor_po,
-				'total_ppn'		    => $totalppn,
-				'total_barang'		=> $totalbarang,
-			];
-
-
-
-			foreach ($valx['detail'] as $val2 => $valx2) {
-				$idmaterial     =   $valx2['id_material'];
-
-				$thick          = $this->db->query("SELECT thickness, id_bentuk FROM stock_material WHERE id_category3 ='$idmaterial'")->row();
-				$thickness      = $thick->thickness;
-				$bentuk			= $thick->id_bentuk;
-
-				$ArrStok[$val2 . $val]['id_category3']		= $valx2['id_material'];
-				$ArrStok[$val2 . $val]['nama_material'] 		= $valx2['nama_material'];
-				$ArrStok[$val2 . $val]['lotno'] 				= $valx2['loto'];
-				$ArrStok[$val2 . $val]['qty'] 				= str_replace(',', '', $valx2['qtyrecive']);
-				$ArrStok[$val2 . $val]['length'] 				= str_replace(',', '', $valx2['length']);
-				$ArrStok[$val2 . $val]['weight'] 				= str_replace(',', '', $valx2['widthrecive']);
-				$ArrStok[$val2 . $val]['totalweight'] 		= str_replace(',', '', $valx2['widthrecive']);
-				$ArrStok[$val2 . $val]['aktif'] 				= 'Y';
-				$ArrStok[$val2 . $val]['id_gudang'] 			= $valx2['gudang'];
-				$ArrStok[$val2 . $val]['id_bentuk'] 			= $bentuk;
-				$ArrStok[$val2 . $val]['thickness'] 			= str_replace(',', '', $valx2['thickness']);
-				$ArrStok[$val2 . $val]['width'] 		        = str_replace(',', '', $valx2['weight']);
-				$ArrStok[$val2 . $val]['no_po']               = $valx2['iddtpo'];
-				$ArrStok[$val2 . $val]['id_incoming']         = $id_data;
-				$ArrStok[$val2 . $val]['id_roll'] 			= $valx2['id_roll'];
-				$ArrStok[$val2 . $val]['panjang'] 			= $valx2['panjang2'];
-				$ArrStok[$val2 . $val]['actual_berat'] 		= $valx2['aktual'];
-				$ArrStok[$val2 . $val]['selisih'] 			= $valx2['selisih'];
-				$ArrStok[$val2 . $val]['sisa_spk'] 			= str_replace(',', '', $valx2['widthrecive']);
-			}
-		}
-
-		// print_r($ArrStok);
-		// exit;
-		$this->db->trans_begin();
-		$this->db->insert('tr_incoming', $ArrHeader);
-		if (!empty($ArrDetail)) {
-			$this->db->insert_batch('dt_incoming_po', $ArrDetail);
-		}
-
-		if (!empty($ArrUpdate)) {
-			$this->db->update_batch('dt_trans_po', $ArrUpdate, 'id_dt_po');
-		}
-
-
-		if (!empty($ArrDetail)) {
-			$this->db->insert_batch('dt_incoming', $ArrDetail2);
-		}
-		if (!empty($ArrDetail)) {
-			// $this->db->insert_batch('stock_material', $ArrStok);
-		}
-
-
-		$Detail3 	= $data['dt'];
-
-
-		$ArrDetail3	= array();
-		$ArrUpdate3	= array();
-		$ArrDetail3	= array();
-		foreach ($Detail3 as $val3 => $valx3) {
-
-			$nomor_po = $valx3['nopo'];
-
-
-			foreach ($valx3['detail'] as $val4 => $valx4) {
-
-
-				$material = $valx4['id_material'];
-				$notr     = $no_surat;
-				$noincoming     = $id_data;
-				$qtydo       = str_replace(',', '', $valx4['qtyrecive']);
-				$ppn         = str_replace(',', '', $valx4['ppn']);
-				$hargasatuan = str_replace(',', '', $valx4['hargasatuan']);
-
-				$persen = $this->db->query("select persen from ppn")->row();
-				$persenppn = $persen->persen;
-
-				if ($ppn > 0) {
-					$total = $hargasatuan * $qtydo * $nilai_kurs;
-					$nilaippn = ($total * $persenppn) / 100;
-					$hutang = $total + $nilaippn;
-				} else {
-					$hutang = $hargasatuan * $qtydo * $nilai_kurs;
-					$nilaippn = 0;
+			$tgl = $post['tanggal'] ?? '';
+			$date = is_string($tgl) ? DateTimeImmutable::createFromFormat('!Y-m-d', $tgl) : false;
+			if (!$date || $date->format('Y-m-d') !== $tgl || !is_string($post['id_suplier'] ?? null) || $post['id_suplier'] === '' || !is_string($post['pic'] ?? null) || trim($post['pic']) === '') { throw new DomainException('Tanggal/supplier/PIC Incoming tidak lengkap.'); }
+			$currency = strtolower((string)($post['matauang'] ?? ''));
+			if (!preg_match('/^[a-z]{3}$/D', $currency)) { throw new DomainException('Mata uang Incoming tidak valid.'); }
+			$rate = $currency === 'idr' ? 1 : Stock_booking_store::amount($post['kurs'] ?? null);
+			if ($rate <= 0) { throw new DomainException('Kurs harus lebih dari nol.'); }
+			$taxRows = $this->db->query('SELECT persen FROM ppn')->result_array();
+			if (count($taxRows) !== 1) { throw new DomainException('Konfigurasi PPN tidak unik.'); }
+			$taxRate = Stock_booking_store::amount($taxRows[0]['persen']);
+			if ($taxRate > 100) { throw new DomainException('Persentase PPN tidak valid.'); }
+			$idData = $this->Pr_model->BuatID($tgl);
+			$number = $this->Pr_model->BuatNomor($tgl);
+			$details = $links = $updates = $receipts = $debts = array();
+			$totalForeign = $totalDebt = $totalTax = $totalGoods = 0;
+			foreach ($post['dt'] as $group) {
+				if (!is_array($group) || !is_string($group['nopo'] ?? null) || $group['nopo'] === '' || empty($group['detail']) || !is_array($group['detail'])) { throw new DomainException('Referensi PO Incoming tidak lengkap.'); }
+				$po = $group['nopo'];
+				$headers = $this->db->query('SELECT no_po,id_suplier FROM tr_purchase_order WHERE no_po=? FOR UPDATE', array($po))->result_array();
+				if (count($headers) !== 1 || $headers[0]['id_suplier'] !== $post['id_suplier']) { throw new DomainException('PO Incoming tidak unik, tidak ditemukan, atau supplier tidak sesuai.'); }
+				$linkId = $idData . '-' . sprintf('%02d', count($links) + 1);
+				$links[] = array('id_data'=>$idData,'id_incoming'=>$number,'id_detail_incoming'=>$linkId);
+				foreach ($group['detail'] as $line) {
+					if (!is_array($line)) { throw new DomainException('Detail Incoming tidak valid.'); }
+					foreach ($line as $value) { if ($value !== null && !is_scalar($value)) { throw new DomainException('Field detail Incoming tidak valid.'); } }
+					$qty = Stock_booking_rules::quantity(Stock_booking_store::amount($line['qtyrecive'] ?? null));
+					if (!$qty) { throw new DomainException('Qty Incoming harus lebih dari nol.'); }
+					$price = Stock_booking_store::amount($line['hargasatuan'] ?? null);
+					if ($price <= 0) { throw new DomainException('Harga satuan harus lebih dari nol.'); }
+					$poId = $line['iddtpo'] ?? '';
+					if (!is_string($poId) || $poId === '') { throw new DomainException('ID detail PO tidak valid.'); }
+					$poRows = $this->db->query('SELECT id_dt_po,no_po,idmaterial,qty,qty_terima FROM dt_trans_po WHERE id_dt_po=? FOR UPDATE', array($poId))->result_array();
+					if (count($poRows) !== 1 || $poRows[0]['no_po'] !== $po || $poRows[0]['idmaterial'] !== ($line['id_material'] ?? null)) { throw new DomainException('Barang Incoming tidak sesuai detail PO.'); }
+					$ordered = Stock_booking_rules::quantity($poRows[0]['qty']);
+					$received = ($updates[$poId]['qty_terima'] ?? Stock_booking_rules::quantity($poRows[0]['qty_terima'] ?? 0)) + $qty;
+					if ($received > $ordered) { throw new DomainException('Qty Incoming melebihi sisa PO.'); }
+					$updates[$poId] = array('id_dt_po'=>$poId,'qty_terima'=>$received,'sts_incoming'=>$received === $ordered ? '1' : null);
+					$value = Stock_booking_store::amount($price * $qty * $rate);
+					$tax = Stock_booking_store::amount($line['ppn'] ?? 0) > 0 ? $value * $taxRate / 100 : 0;
+					$totalForeign += ($value + $tax) / $rate;
+					$totalGoods += $value;
+					$totalTax += $tax;
+					$totalDebt += $value + $tax;
+					$debts[$po] = ($debts[$po] ?? 0) + $value + $tax;
+					$material = $line['id_material'];
+					if (!isset($receipts[$material])) { $receipts[$material] = array('qty'=>0,'value'=>0); }
+					$receipts[$material]['qty'] += $qty;
+					$receipts[$material]['value'] += $value;
+					$detail = array('id_data'=>$idData,'id_incoming'=>$number,'id_detail_incoming'=>$linkId,'id_dt_po'=>$poId,
+						'id_material'=>$material,'nama_material'=>$line['nama_material'] ?? '', 'qty_order'=>$ordered,'qty_recive'=>$qty,
+						'harga_satuan_usd'=>$price,'harga_total_idr'=>$value,'kurs'=>$rate,'tgl_datang'=>$tgl,
+						'lotno'=>$line['loto'] ?? '', 'id_gudang'=>$line['gudang'] ?? ($post['id_gudang'] ?? ''),
+						'id_roll'=>$line['id_roll'] ?? '', 'kode_barang'=>$line['kodebarang'] ?? '', 'ppn'=>$tax,'harga_total'=>$value+$tax);
+					foreach (array('length'=>'panjang2','width'=>'weight','weight'=>'weight','width_recive'=>'widthrecive','panjang'=>'panjang2','actual_berat'=>'aktual','selisih'=>'selisih','thickness'=>'thickness') as $column=>$field) {
+						$detail[$column] = Stock_booking_store::amount($line[$field] ?? 0);
+					}
+					$details[] = $detail;
 				}
-
-
-				$totalnilai  = $hargasatuan * $qtydo * $nilai_kurs;
-
-				$totalhutangkurs += $hutang;
-				$totalppn 		 += $nilaippn;
-				$totalbarang     += $totalnilai;
-
-
-				$this->kartu_stok_in($material, $qtydo, $notr, $totalnilai, $nomor_po, $nilai_kurs, $noincoming, $hutang);
 			}
-		}
-
-
-		$this->db->trans_complete();
-
-		if ($this->db->trans_status() === FALSE) {
-			$this->db->trans_rollback();
-			$Arr_Data	= array(
-				'pesan'		=> 'Save gagal disimpan ...',
-				'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$Arr_Data	= array(
-				'pesan'		=> 'Save berhasil disimpan. Thanks ...',
-				'status'	=> 1
-			);
-		}
-
-		echo json_encode($Arr_Data);
-
+			ksort($receipts);
+			foreach ($receipts as $material=>$receipt) {
+				if (!$this->stock_booking->receiveIncoming($material, $receipt['qty'], $receipt['value'], $number)) { throw new DomainException('Incoming sudah diproses: ' . $number); }
+			}
+			$header = array('id_data'=>$idData,'id_incoming'=>$number,'id_suplier'=>$post['id_suplier'],'id_gudang'=>$post['id_gudang'] ?? '',
+				'tanggal'=>$tgl,'pic'=>$post['pic'],'pib'=>$post['pib'] ?? '', 'no_invoice'=>$post['no_invoice'] ?? '', 'keterangan'=>$post['ket'] ?? '',
+				'created_date'=>date('Y-m-d H:i:s'),'matauang'=>$currency,'kurs'=>$rate,'hutang_kurs'=>$totalForeign,'hutang_idr'=>$totalDebt,
+				'no_po'=>$po,'total_ppn'=>$totalTax,'total_barang'=>$totalGoods);
+			if ($this->db->insert('tr_incoming', $header) === false
+				|| $this->db->insert_batch('dt_incoming_po', $links) === false
+				|| $this->db->insert_batch('dt_incoming', $details) === false
+				|| $this->db->update_batch('dt_trans_po', array_values($updates), 'id_dt_po') === false) { throw new RuntimeException('Gagal menyimpan detail Incoming.'); }
+			foreach ($debts as $poNumber=>$debt) {
+				if ($this->db->query('UPDATE tr_purchase_order SET hutang_usaha=COALESCE(hutang_usaha,0)+?,hutang_usaha_idr=COALESCE(hutang_usaha_idr,0)+? WHERE no_po=?', array($debt/$rate,$debt,$poNumber)) === false) {
+					throw new RuntimeException('Gagal memperbarui hutang PO.');
+				}
+			}
+			if (!$this->db->trans_status()) { throw new RuntimeException('Transaksi Incoming gagal.'); }
+			echo json_encode(array('status'=>1,'pesan'=>'Incoming dan costbook berhasil disimpan.'));
 		});
 	}
 	public function SaveNewOld()
@@ -2326,46 +2146,6 @@ class Incoming extends Admin_Controller
 	}
 
 
-	protected function kartu_stok_in($material, $qtyso, $notr, $totalnilaido, $nomor_po, $kurs, $noincoming, $hutang)
-	{
-
-		$qtyso = Stock_booking_rules::quantity($qtyso);
-        $mat = $this->stock_booking->incomingStock($material);
-		$costbook = $this->db->query("SELECT * FROM ms_costbook WHERE id_category3='$material' ")->row();
-
-
-
-		$qty   = (int) $mat->qty + (int)$qtyso;
-		$book  = (int) $mat->qty_book;
-		$free  = (int) $mat->qty_free + (int)$qtyso;
-		$nilaicostbook = $costbook->nilai_costbook;
-		$nilaistok  =  $mat->qty * $nilaicostbook;
-
-		$hutang_usaha =  $hutang;
-		$hutang_usaha_idr = $hutang * $kurs;
-
-		if ($nilaistok == 0) {
-			if ($qty != 0) {
-				$updatecostbook = $totalnilaido / $qty;
-			} else {
-				$updatecostbook = $totalnilaido;
-			}
-		} else {
-			if ($qty != 0) {
-				$updatecostbook = ($nilaistok + $totalnilaido) / $qty;
-			} else {
-				$updatecostbook = $nilaistok + $totalnilaido;
-			}
-		}
-		// print_r($free);
-		// exit;
-		if (!$this->stock_booking->changeActual($material, $qtyso, $notr, $notr, 'in', '1', 'stock_material', array('harga_stok'=>$nilaistok, 'harga_do'=>$totalnilaido, 'cost_book'=>$updatecostbook))) { return; }
-		$this->db->query("UPDATE ms_costbook SET nilai_costbook= $updatecostbook  WHERE id_category3='$material'");
-		$this->db->query("UPDATE tr_purchase_order SET hutang_usaha=hutang_usaha+$hutang_usaha, hutang_usaha_idr=hutang_usaha_idr+$hutang_usaha_idr   WHERE no_po='$nomor_po'");
-		//$this->db->query("UPDATE tr_incoming SET hutang_kurs=hutang_kurs+$hutang_usaha, hutang_idr=hutang_idr+$hutang_usaha_idr   WHERE id_datax='$noincoming'");
-
-
-	}
 
 
 	public function biaya_logistik()

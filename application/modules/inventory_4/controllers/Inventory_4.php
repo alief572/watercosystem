@@ -584,8 +584,11 @@ class Inventory_4 extends Admin_Controller
 	public function saveInventory()
 	{
 		$this->auth->restrict($this->addPermission);
-		$session = $this->session->userdata('app_session');
-		$this->db->trans_begin();
+		$this->load->library('Stock_booking');
+		$this->stock_booking->document(function () {
+		$input = $this->input->post();
+		if (!is_array($input)) { throw new DomainException('Data master barang tidak valid.'); }
+		foreach ($input as $value) { if ($value !== null && !is_scalar($value)) { throw new DomainException('Field master barang tidak valid.'); } }
 		$id = $this->input->post("id");
 		$id_category3 = $this->input->post("id_category3");
 		$id_type = $this->input->post("id_type");
@@ -597,6 +600,9 @@ class Inventory_4 extends Admin_Controller
 		$kode_barang = $this->input->post("kode_barang");
 		$kode_mas = $this->input->post("kode_mas");
 		if ($id != '') {
+			$products = $this->db->query('SELECT id_category3 FROM ms_inventory_category3 WHERE id=? FOR UPDATE', array($id))->result_array();
+			if (count($products) !== 1 || $products[0]['id_category3'] !== $id_category3) { throw new DomainException('Referensi barang tidak valid.'); }
+			$this->stock_booking->costbook($id_category3);
 			$header1 =  array(
 				'id_type'			=> $id_type,
 				'id_category1'		=> $id_category1,
@@ -652,30 +658,15 @@ class Inventory_4 extends Admin_Controller
 			$this->db->insert('stock_material', $stok);
 		}
 
-		$costbook =  array(
-			'id_category3'	 	=> $id_category3,
-			'nilai_costbook'    => 0,
-			'created_on'		=> date('Y-m-d H:i:s'),
-			'created_by'		=> $this->auth->user_id()
-
-		);
-		//Add Data
-		$this->db->insert('ms_costbook', $costbook);
-
-		if ($this->db->trans_status() === FALSE) {
-			$this->db->trans_rollback();
-			$status	= array(
-				'pesan'		=> 'Gagal Save Product. Thanks ...',
-				'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-				'pesan'		=> 'Success Save Product. Thanks ...',
-				'status'	=> 1
-			);
+		if ($id == '') {
+			if ($this->stock_booking->costbook($id_category3)) { throw new DomainException('Costbook barang sudah tersedia.'); }
+			if ($this->db->insert('ms_costbook', array('id_category3'=>$id_category3,'nilai_costbook'=>0,'created_on'=>date('Y-m-d H:i:s'),'created_by'=>$this->auth->user_id())) === false) {
+				throw new RuntimeException('Gagal membuat costbook barang.');
+			}
 		}
-		echo json_encode($status);
+		if (!$this->db->trans_status()) { throw new RuntimeException('Gagal menyimpan master barang.'); }
+		echo json_encode(array('status'=>1,'pesan'=>'Master barang berhasil disimpan.'));
+		}, false);
 	}
 	public function saveEditInventory()
 	{
