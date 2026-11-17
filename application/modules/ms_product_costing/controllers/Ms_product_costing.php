@@ -1080,208 +1080,65 @@ class Ms_product_costing extends Admin_Controller
 
 	public function SaveEditPricelist()
 	{
-		$this->auth->restrict($this->addPermission);
-		$post = $this->input->post();
-
-		// print_r($post);
-		// exit;
-
-		$code		= $post['id_product_pricelist'];
-		$this->db->trans_begin();
-
-		$data = [
-			'id_product_pricelist'	=> $code,
-			'id_type'			    => $post['inventory_1'],
-			'id_category1'			=> $post['inventory_2'],
-			'id_category2'			=> $post['inventory_3'],
-			'id_category3'			=> $post['inventory_4'],
-			'id_formula'			    => $post['id_material'],
-			'nama_category2'			=> $category,
-			'revisi'					=> 0,
-			'harga_beli'				=> str_replace(',', '', $post['harga_beli']),
-			'total_pricelist'		=> str_replace(',', '', $post['total_price']),
-			'kurs'					=> str_replace(',', '', $post['kurs']),
-			'harga_rupiah'		    => str_replace(',', '', $post['total_price_rp']),
-			'modified_on'			=> date('Y-m-d H:i:s'),
-			'modified_by'			=> $this->auth->user_id()
-		];
-		//Edit Data
-		$this->db->where('id_product_pricelist', $code)->update("ms_product_pricelist", $data);
-
-
-
-
-
-		$this->db->delete('ms_product_pricelist_detail', array('id_product_pricelist' => $code));
-
-		$numb1 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_bm])) {
-				$numb1++;
-				$dt1[] =  array(
-					'id_product_pricelist'		=> $code,
-					'id_formula'		            => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_bm],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_bm]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_bm]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_bm_rp]),
-					'keterangan'	    			=> $used[keterangan_bm],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
+		$this->auth->restrict($this->managePermission);
+		$debug = $this->db->db_debug;
+		$this->db->db_debug = false;
+		$started = false;
+		$code = '';
+		try {
+			$post = $this->input->post();
+			if (!is_array($post)) { throw new DomainException('Data Price List tidak valid.'); }
+			foreach (array('id_product_pricelist','inventory_1','inventory_2','inventory_3','inventory_4','id_material') as $field) {
+				if (!is_scalar($post[$field] ?? null) || trim((string)$post[$field]) === '') { throw new DomainException('Referensi Price List tidak lengkap.'); }
 			}
-		}
-		$numb2 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_lc])) {
-				$numb2++;
-				$dt2[] =  array(
-					'id_product_pricelist'		    => $code,
-					'id_formula'		           => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_lc],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_lc]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_lc]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_lc_rp]),
-					'keterangan'	    			=> $used[keterangan_lc],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
+			if (!ctype_digit((string)$post['id_product_pricelist']) || (int)$post['id_product_pricelist'] <= 0) { throw new DomainException('ID Price List tidak valid.'); }
+			$code = (string)$post['id_product_pricelist'];
+			$number = function ($value) {
+				if (!is_scalar($value) || is_bool($value) || !preg_match('/^-?(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?$/D', (string)$value)
+					|| !is_finite((float)str_replace(',', '', (string)$value))) { throw new DomainException('Nilai angka Price List tidak valid.'); }
+				return str_replace(',', '', (string)$value);
+			};
+			$data = array('id_type'=>$post['inventory_1'],'id_category1'=>$post['inventory_2'],'id_category2'=>$post['inventory_3'],
+				'id_category3'=>$post['inventory_4'],'id_formula'=>$post['id_material'],'modified_on'=>date('Y-m-d H:i:s'),'modified_by'=>$this->auth->user_id());
+			foreach (array('harga_beli'=>'harga_beli','total_pricelist'=>'total_price','kurs'=>'kurs','harga_rupiah'=>'total_price_rp') as $column=>$field) {
+				$data[$column] = $number($post[$field] ?? null);
+				if ((float)$data[$column] < 0 || ($column === 'kurs' && (float)$data[$column] <= 0)) { throw new DomainException('Harga harus non-negatif dan kurs harus lebih dari nol.'); }
 			}
-		}
-		$numb3 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_oc])) {
-				$numb1++;
-				$dt3[] =  array(
-					'id_product_pricelist'		    => $code,
-					'id_formula'			        => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_oc],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_oc]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_oc]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_oc_rp]),
-					'keterangan'	    			=> $used[keterangan_oc],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
+			if (empty($post['dt']) || !is_array($post['dt'])) { throw new DomainException('Detail Price List kosong.'); }
+			$details = array();
+			foreach ($post['dt'] as $used) {
+				if (!is_array($used)) { throw new DomainException('Detail Price List tidak valid.'); }
+				foreach ($used as $value) { if (!is_scalar($value) && $value !== null) { throw new DomainException('Field detail Price List tidak valid.'); } }
+				foreach (array('bm'=>1,'lc'=>2,'oc'=>3,'margin'=>4,'dd'=>5,'da'=>6,'de'=>7,'aj'=>8) as $suffix=>$component) {
+					if (($used['komponen_'.$suffix] ?? '') === '') { continue; }
+					if ((string)$used['komponen_'.$suffix] !== (string)$component || isset($details[$component])) { throw new DomainException('Komponen Price List tidak valid atau duplikat.'); }
+					$details[$component] = array('id_product_pricelist'=>$code,'id_formula'=>$post['id_material'],'nama_komponen'=>$component,
+						'persentase'=>$number($used['persentase_'.$suffix] ?? null),'nilai_costing'=>$number($used['nilai_'.$suffix] ?? null),
+						'nilai_rupiah'=>$number($used['nilai_'.$suffix.'_rp'] ?? null),'keterangan'=>(string)($used['keterangan_'.$suffix] ?? ''),
+						'created_on'=>$data['modified_on'],'created_by'=>$data['modified_by']);
+				}
 			}
+			if (!$details) { throw new DomainException('Detail Price List kosong.'); }
+			if (!$this->db->trans_begin()) { throw new RuntimeException('Cannot start Price List transaction.'); }
+			$started = true;
+			$headers = $this->db->query('SELECT id_product_pricelist FROM ms_product_pricelist WHERE id_product_pricelist=? FOR UPDATE', array($code));
+			if ($headers === false) { throw new RuntimeException('Cannot read Price List.'); }
+			if (count($headers->result_array()) !== 1) { throw new DomainException('Price List tidak ditemukan atau tidak unik.'); }
+			if ($this->db->where('id_product_pricelist', $code)->update('ms_product_pricelist', $data) === false
+				|| $this->db->delete('ms_product_pricelist_detail', array('id_product_pricelist'=>$code)) === false
+				|| $this->db->insert_batch('ms_product_pricelist_detail', array_values($details)) === false
+				|| !$this->db->trans_status() || !$this->db->trans_commit()) { throw new RuntimeException('Cannot save Price List.'); }
+			$started = false;
+			$status = array('status'=>1,'code'=>$code,'pesan'=>'Price List berhasil disimpan.');
+		} catch (Throwable $error) {
+			if ($started) { $this->db->trans_rollback(); }
+			log_message('error', 'Price List edit rejected: ' . get_class($error) . ': ' . $error->getMessage());
+			$status = array('status'=>0,'code'=>$code,'pesan'=>$error instanceof DomainException ? $error->getMessage() : 'Gagal menyimpan Price List; perubahan dibatalkan.');
+		} finally {
+			$this->db->db_debug = $debug;
 		}
-		$numb4 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_margin])) {
-				$numb4++;
-				$dt4[] =  array(
-					'id_product_pricelist'		    => $code,
-					'id_formula'			        => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_margin],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_margin]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_margin]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_margin_rp]),
-					'keterangan'	    			=> $used[keterangan_margin],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
-			}
-		}
-		$numb5 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_dd])) {
-				$numb5++;
-				$dt5[] =  array(
-					'id_product_pricelist'		    => $code,
-					'id_formula'			        => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_dd],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_dd]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_dd]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_dd_rp]),
-					'keterangan'	    			=> $used[keterangan_dd],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
-			}
-		}
-		$numb6 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_da])) {
-				$numb6++;
-				$dt6[] =  array(
-					'id_product_pricelist'		    => $code,
-					'id_formula'			        => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_da],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_da]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_da]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_da_rp]),
-					'keterangan'	    			=> $used[keterangan_da],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
-			}
-		}
-		$numb7 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_de])) {
-				$numb7++;
-				$dt7[] =  array(
-					'id_product_pricelist'		    => $code,
-					'id_formula'		        => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_de],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_de]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_de]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_de_rp]),
-					'keterangan'	    			=> $used[keterangan_de],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
-			}
-		}
-		$numb8 = 0;
-		foreach ($_POST['dt'] as $used) {
-			if (!empty($used[komponen_aj])) {
-				$numb8++;
-				$dt8[] =  array(
-					'id_product_pricelist'		=> $code,
-					'id_formula'		            => $post[id_material],
-					'nama_komponen'	    		=> $used[komponen_aj],
-					'persentase'	    			=> str_replace(',', '', $used[persentase_aj]),
-					'nilai_costing'	    		=> str_replace(',', '', $used[nilai_aj]),
-					'nilai_rupiah'	    			=> str_replace(',', '', $used[nilai_aj_rp]),
-					'keterangan'	    			=> $used[keterangan_aj],
-					'created_on'					=> date('Y-m-d H:i:s'),
-					'created_by'					=> $this->auth->user_id()
-				);
-			}
-		}
-
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt1);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt2);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt3);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt4);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt5);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt6);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt7);
-		$this->db->insert_batch('ms_product_pricelist_detail', $dt8);
-
-
-
-
-		if ($this->db->trans_status() === FALSE) {
-			$this->db->trans_rollback();
-			$status	= array(
-				'pesan'		=> 'Gagal Save Item. Thanks ...',
-				'code' => $code,
-				'status'	=> 0
-			);
-		} else {
-			$this->db->trans_commit();
-			$status	= array(
-				'pesan'		=> 'Success Save Item. invenThanks ...',
-				'code' => $code,
-				'status'	=> 1
-			);
-		}
-
 		echo json_encode($status);
 	}
-
 	public function deletePricelist()
 	{
 		$this->auth->restrict($this->deletePermission);
