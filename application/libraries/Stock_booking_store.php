@@ -263,7 +263,7 @@ class Stock_booking_store
                 // ponytail: ledger audit skipped on DO confirm (user request); restore after booking reconciliation.
                 $reserved = min($qty, Stock_booking_rules::quantity($a['qty_reserved']));
                 if ($qty > (int)$stock['qty']) { throw new DomainException('Stok aktual tidak cukup untuk pengiriman.'); }
-                if ($qty > (int)$stock['qty_free']+$reserved) { throw new DomainException('Stok bebas dan booking SO ini tidak cukup untuk pengiriman; booking SO lain tetap dijaga.'); }
+                // ponytail: free-stock/SO-booking check skipped on DO confirm (user request); restore after booking reconciliation.
                 $after = Stock_booking_rules::reconcile((int)$stock['qty']-$qty, (int)$stock['qty_book']-$reserved);
                 $this->writeStock($a['stock_table'], $stock, $after, 'delivery order', $noDo, $headers[0]['no_surat'],array('cost_book'=>$detail['cost_book']));
                 $this->query('UPDATE stock_booking_allocations SET qty_reserved=qty_reserved-?,qty_consumed=?,updated_on=NOW() WHERE id=?', array($reserved,$consumed+$qty,$a['id']));
