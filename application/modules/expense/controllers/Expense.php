@@ -555,7 +555,7 @@ class Expense extends Admin_Controller
 			$approval = $this->input->post("approval");
 		}
 		else{
-			$approval = $app->approval;
+			$approval = $app ? $app->approval : '';
 		}
 		
 		
