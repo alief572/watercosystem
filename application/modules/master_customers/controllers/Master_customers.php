@@ -672,7 +672,8 @@ class Master_customers extends Admin_Controller
 		$this->db->where('id_customer', $post['id_customer'])->update("master_customers", $header1);
 		$this->db->delete('child_customer_pic', array('id_customer' => $post['id_customer']));
 		$numb2 = 0;
-		foreach ($_POST['data1'] as $d1) {
+		$code = $post['id_customer'];
+		foreach ((array) $this->input->post('data1') as $d1) {
 			$numb2++;
 			$code = $post['id_customer'];
 			$data =  array(
@@ -687,7 +688,7 @@ class Master_customers extends Admin_Controller
 		}
 		$this->db->delete('child_category_customer', array('id_customer' => $post['id_customer']));
 		$numb2 = 0;
-		foreach ($_POST['data2'] as $d2) {
+		foreach ((array) $this->input->post('data2') as $d2) {
 			$numb2++;
 			$data =  array(
 				'id_customer'	=> $code,
