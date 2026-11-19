@@ -72,7 +72,7 @@ thead input {
             <td><?= $Status ?></td>		
 			<td style="padding-left:20px">
 			<?php if($ENABLE_MANAGE) : ?>
-				<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_penawaran/prosesapproval/'.$record->no_penawaran) ?>" title="Ajukan approval" data-no_inquiry="<?=$record->no_inquiry?>"><i class="fa fa-mail-forward"></i>
+				<a class="btn btn-warning btn-sm" href="<?= base_url('/wt_penawaran/prosesapproval/'.$record->no_penawaran) ?>" title="Ajukan approval"><i class="fa fa-mail-forward"></i>
 				</a>
 			<?php endif; ?>
 
