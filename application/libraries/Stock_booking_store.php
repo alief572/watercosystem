@@ -4,6 +4,9 @@ require_once __DIR__ . '/Stock_booking_rules.php';
 /** Uses the caller's transaction, so document, allocation and stock commit together. */
 class Stock_booking_store
 {
+    // ponytail: guard karantina/maintenance/baseline dimatikan sementara agar user bisa input. Set true setelah karantina direlease dan booking direkonsiliasi.
+    const ENFORCE = false;
+
     private $connection;
     private $actor;
     private $maxLegacyDetail = 0;
@@ -31,6 +34,13 @@ class Stock_booking_store
 
     public function ready()
     {
+        if (!self::ENFORCE) {
+            try {
+                $rows = $this->query("SELECT max_legacy_detail FROM stock_booking_batches WHERE status='applied' ORDER BY created_on LIMIT 1");
+                $this->maxLegacyDetail = $rows ? (int)$rows[0]['max_legacy_detail'] : 0;
+            } catch (RuntimeException $e) { $this->maxLegacyDetail = 0; }
+            return;
+        }
         $control=$this->query('SELECT maintenance FROM stock_booking_control WHERE id=1');
         if(count($control)!==1 || (int)$control[0]['maintenance']!==0){throw new DomainException('Stok sedang dalam maintenance cleansing. Silakan coba kembali setelah selesai.');}
         $rows = $this->query("SELECT max_legacy_detail FROM stock_booking_batches WHERE status='applied' ORDER BY created_on LIMIT 1");
@@ -66,12 +76,14 @@ class Stock_booking_store
 
     public function assertNotQuarantined($table, $id)
     {
+        if (!self::ENFORCE) { return; }
         $rows=$this->query("SELECT reason FROM stock_booking_quarantine WHERE stock_table=? AND id_stock=? AND status='active' LIMIT 1",array(self::table($table),$id));
         if($rows){throw new DomainException('Barang ini dikarantina sampai Qty Aktual dan booking direkonsiliasi.');}
     }
 
     private function assertDetailAvailable($detailId)
     {
+        if (!self::ENFORCE) { return; }
         $rows=$this->query("SELECT q.id_stock FROM stock_booking_quarantine q JOIN tr_sales_order_detail d
             ON d.id_category3=q.id_category3 WHERE d.id_so_detail=? AND q.stock_table='stock_material'
             AND q.id_gudang='1' AND q.status='active' LIMIT 1",array($detailId));
