@@ -2544,7 +2544,7 @@ class Wt_invoicing extends Admin_Controller
 					$sheetDetail->setCellValue('B' . $rowDetail, 'A');
 					$sheetDetail->setCellValueExplicit('C' . $rowDetail, '000000', PHPExcel_Cell_DataType::TYPE_STRING);
 					$sheetDetail->setCellValue('D' . $rowDetail, $d['nama_produk']);
-					$sheetDetail->setCellValueExplicit('E' . $rowDetail, 'UM.0001', PHPExcel_Cell_DataType::TYPE_STRING);
+					$sheetDetail->setCellValueExplicit('E' . $rowDetail, 'UM.0018', PHPExcel_Cell_DataType::TYPE_STRING);
 					$sheetDetail->setCellValue('F' . $rowDetail, $harga_satuan);
 					$sheetDetail->setCellValue('G' . $rowDetail, $qty);
 					$sheetDetail->setCellValue('H' . $rowDetail, $diskon);
@@ -2572,7 +2572,7 @@ class Wt_invoicing extends Admin_Controller
 				$sheetDetail->setCellValue('B' . $rowDetail, 'A');
 				$sheetDetail->setCellValueExplicit('C' . $rowDetail, '000000', PHPExcel_Cell_DataType::TYPE_STRING);
 				$sheetDetail->setCellValue('D' . $rowDetail, 'Penjualan Barang / Tagihan ' . $referensi);
-				$sheetDetail->setCellValueExplicit('E' . $rowDetail, 'UM.0001', PHPExcel_Cell_DataType::TYPE_STRING);
+				$sheetDetail->setCellValueExplicit('E' . $rowDetail, 'UM.0018', PHPExcel_Cell_DataType::TYPE_STRING);
 				$sheetDetail->setCellValue('F' . $rowDetail, $total_inv);
 				$sheetDetail->setCellValue('G' . $rowDetail, 1);
 				$sheetDetail->setCellValue('H' . $rowDetail, $diskon_inv);
