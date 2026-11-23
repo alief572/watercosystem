@@ -154,8 +154,6 @@
     $data_detail        = $this->db->query("SELECT sum(total_bayar_idr) as total_bayar FROM tr_invoice_payment_detail WHERE kd_pembayaran ='$kodebayar'")->row();
     //$alamat_cust        =  $this->db->query("SELECT * FROM master_customer WHERE id_customer = '$data_header->id_customer'")->row();
     //$pay_term           =  $this->db->query("SELECT * FROM quotation_payment_term WHERE id_quotation = '$data_header->no_ipp'")->row(); 
-    $jenis                =  $data_header->jenis_invoice;
-    $ppn                =  $data_header->total_ppn;
     // $dt_fabric          = $this->db->query("SELECT * FROM tr_invoice_detail WHERE no_invoice ='$no_invoice' AND kategori_detail ='FABRIC'")->result();
     // $rail               = $this->db->query("SELECT * FROM tr_invoice_detail WHERE no_invoice ='$no_invoice' AND kategori_detail ='BQ'")->result();
     // $sew                = $this->db->query("SELECT * FROM tr_invoice_detail WHERE no_invoice ='$no_invoice' AND kategori_detail ='SEWING'")->result();
