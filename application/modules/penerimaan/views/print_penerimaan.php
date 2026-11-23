@@ -194,73 +194,73 @@
         <h3>PENERIMAAN</h3>
     </div>
     <br>
-    <table class='gridtable2' width='100%' border='1' align='left' cellpadding='0' cellspacing='0'>
+    <table class='gridtable2' width='665' border='1' align='left' cellpadding='0' cellspacing='0'>
         <tr>
-            <td width="300" align="center">
-                <table width='300' align="center">
+            <td width="332" align="center">
+                <table width='325' align="center">
                     <tr>
-                        <td width='75' align="left">Kode Bayar </td>
+                        <td width='95' align="left">Kode Bayar </td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= $data_header->kd_pembayaran ?></td>
+                        <td width='220' align="left"><?= $data_header->kd_pembayaran ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Tgl Bayar</td>
+                        <td width='95' align="left">Tgl Bayar</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= tgl_indo($data_header->tgl_pembayaran)  ?></td>
+                        <td width='220' align="left"><?= tgl_indo($data_header->tgl_pembayaran)  ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Nama Customer</td>
+                        <td width='95' align="left">Nama Customer</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= $data_header->nm_customer ?></td>
+                        <td width='220' align="left"><?= $data_header->nm_customer ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Alamat Customer</td>
+                        <td width='95' align="left">Alamat Customer</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= $alamat_cust->address_office ?></td>
+                        <td width='220' align="left"><?= $alamat_cust->address_office ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Bank </td>
+                        <td width='95' align="left">Bank </td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= $nmbank->nama ?></td>
+                        <td width='220' align="left"><?= $nmbank->nama ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Keterangan pembayaran</td>
+                        <td width='95' align="left">Keterangan pembayaran</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= $data_header->keterangan ?></td>
+                        <td width='220' align="left"><?= $data_header->keterangan ?></td>
                     </tr>
                 </table>
             </td>
-            <td width="300" align="center">
-                <table width='300' align="center">
+            <td width="332" align="center">
+                <table width='325' align="center">
                     <tr>
-                        <td width='75' align="left">Total Invoice Bayar</td>
+                        <td width='95' align="left">Total Invoice Bayar</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= number_format($data_detail->total_bayar) ?></td>
+                        <td width='220' align="left"><?= number_format($data_detail->total_bayar) ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Jumlah Penerimaan bank</td>
+                        <td width='95' align="left">Jumlah Penerimaan bank</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= number_format($data_header->jumlah_bank_idr, 2)  ?></td>
+                        <td width='220' align="left"><?= number_format($data_header->jumlah_bank_idr, 2)  ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Biaya Administrasi</td>
+                        <td width='95' align="left">Biaya Administrasi</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= number_format($data_header->biaya_admin_idr, 2) ?></td>
+                        <td width='220' align="left"><?= number_format($data_header->biaya_admin_idr, 2) ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">PPH</td>
+                        <td width='95' align="left">PPH</td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= number_format($data_header->biaya_pph_idr, 2) ?></td>
+                        <td width='220' align="left"><?= number_format($data_header->biaya_pph_idr, 2) ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Total Penerimaan </td>
+                        <td width='95' align="left">Total Penerimaan </td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= number_format($data_header->jumlah_pembayaran_idr, 2) ?></td>
+                        <td width='220' align="left"><?= number_format($data_header->jumlah_pembayaran_idr, 2) ?></td>
                     </tr>
                     <tr>
-                        <td width='75' align="left">Lebih Bayar </td>
+                        <td width='95' align="left">Lebih Bayar </td>
                         <td width='10' align="left">:</td>
-                        <td width='250' align="left"><?= number_format($data_header->tambah_lebih_bayar, 2) ?></td>
+                        <td width='220' align="left"><?= number_format($data_header->tambah_lebih_bayar, 2) ?></td>
                     </tr>
 
                 </table>
